@@ -4,18 +4,18 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
 export default function Admin() {
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [pendientes, setPendientes] = useState([])
   const [aprobadas, setAprobadas] = useState([])
-  const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
 
   useEffect(() => {
-    if (!user) { navigate('/login'); return }
-    if (!isAdmin) { navigate('/panel'); return }
-    loadData()
-  }, [user, isAdmin])
+  if (authLoading) return
+  if (!user) { navigate('/login'); return }
+  if (!isAdmin) { navigate('/panel'); return }
+  loadData()
+}, [user, isAdmin, authLoading])
 
   async function loadData() {
     const [p, a] = await Promise.all([

@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
 
 export default function Panel() {
-  const { user, concesionaria, fetchConcesionaria, isAdmin } = useAuth()
+  const { user, concesionaria, fetchConcesionaria, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [tab, setTab] = useState('dashboard')
   const [autos, setAutos] = useState([])
@@ -14,10 +14,11 @@ export default function Panel() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (authLoading) return
     if (!user) { navigate('/login'); return }
     if (isAdmin) { navigate('/admin'); return }
     if (concesionaria) loadData()
-  }, [user, concesionaria])
+  }, [user, concesionaria, authLoading])
 
   async function loadData() {
     const [autosRes, consultasRes] = await Promise.all([

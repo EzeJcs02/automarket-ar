@@ -2,21 +2,22 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-
+ 
 export default function Admin() {
   const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [pendientes, setPendientes] = useState([])
   const [aprobadas, setAprobadas] = useState([])
+  const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
-
+ 
   useEffect(() => {
-  if (authLoading) return
-  if (!user) { navigate('/login'); return }
-  if (!isAdmin) { navigate('/panel'); return }
-  loadData()
-}, [user, isAdmin, authLoading])
-
+    if (authLoading) return
+    if (!user) { navigate('/login'); return }
+    if (!isAdmin) { navigate('/panel'); return }
+    loadData()
+  }, [user, isAdmin, authLoading])
+ 
   async function loadData() {
     const [p, a] = await Promise.all([
       supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
@@ -24,31 +25,31 @@ export default function Admin() {
     ])
     setPendientes(p.data || [])
     setAprobadas(a.data || [])
-    setLoading(false)
+    setDataLoading(false)
   }
-
+ 
   async function aprobar(id) {
     await supabase.from('concesionarias').update({ aprobada: true }).eq('id', id)
     loadData()
   }
-
+ 
   async function rechazar(id) {
     if (!confirm('¿Seguro que querés rechazar y eliminar permanentemente esta solicitud?')) return
     await supabase.from('concesionarias').delete().eq('id', id)
     loadData()
   }
-
+ 
   async function suspender(id) {
     if (!confirm('¿Suspender esta concesionaria? Sus publicaciones dejarán de ser visibles.')) return
     await supabase.from('concesionarias').update({ aprobada: false }).eq('id', id)
     loadData()
   }
-
+ 
   const navItems = [
     { id: 'pendientes', label: 'Solicitudes Pendientes', count: pendientes.length },
     { id: 'aprobadas', label: 'Agencias Activas', count: aprobadas.length },
   ]
-
+ 
   return (
     <div className="page-wrapper" style={{ display: 'flex', minHeight: 'calc(100vh - 58px)' }}>
       
@@ -86,7 +87,7 @@ export default function Admin() {
       
       {/* CONTENIDO PRINCIPAL */}
       <div style={{ flex: 1, padding: '3rem 4rem', overflowY: 'auto' }}>
-        {loading ? <div className="spinner" /> : (
+        {dataLoading ? <div className="spinner" /> : (
           <>
             {/* PESTAÑA PENDIENTES */}
             {tab === 'pendientes' && (

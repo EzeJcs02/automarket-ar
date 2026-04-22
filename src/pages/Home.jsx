@@ -58,21 +58,26 @@ export default function Home() {
         </div>
       </div>
 
-      {/* CÓMO FUNCIONA */}
-      <div style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Simple y rápido</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '3rem' }}>¿CÓMO FUNCIONA?</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
+      {/* EXPLORAR POR TIPO */}
+      <div style={{ padding: '4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px,3vw,36px)', lineHeight: 1, marginBottom: '2.5rem' }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {[
-            { num: '01', title: 'Buscá tu vehículo', desc: 'Filtrá por marca, precio, año y ubicación entre miles de vehículos verificados.' },
-            { num: '02', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de cada concesionaria, su stock completo y sus datos de contacto.' },
-            { num: '03', title: 'Contactá directo', desc: 'Escribí por WhatsApp, llamá o enviá una consulta. Sin intermediarios.' },
-          ].map(paso => (
-            <div key={paso.num} style={{ background: 'var(--black)', padding: '2.5rem' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: 'var(--accent)', opacity: .3, lineHeight: 1, marginBottom: '1.5rem' }}>{paso.num}</div>
-              <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--white)', marginBottom: '.75rem' }}>{paso.title}</div>
-              <div style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.7 }}>{paso.desc}</div>
-            </div>
+            { tipo: 'Camioneta', icon: '🛻' },
+            { tipo: 'SUV',       icon: '🚙' },
+            { tipo: 'Hatchback', icon: '🚗' },
+            { tipo: 'Sedán',     icon: '🚘' },
+            { tipo: 'Pickup',    icon: '🚚' },
+            { tipo: 'Minivan',   icon: '🚐' },
+            { tipo: 'Coupé',     icon: '🏎️' },
+          ].map(({ tipo, icon }) => (
+            <button key={tipo} onClick={() => navigate(`/catalogo?tipo=${tipo}`)}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '1.25rem 1.75rem', background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', transition: 'border-color .2s, background .2s', minWidth: '100px' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = '#111' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--black)' }}>
+              <span style={{ fontSize: '32px' }}>{icon}</span>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--white)', letterSpacing: '.04em' }}>{tipo}</span>
+            </button>
           ))}
         </div>
       </div>

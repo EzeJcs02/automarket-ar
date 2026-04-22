@@ -28,59 +28,51 @@ input, select, textarea { font-family: var(--font-body); }
 ::-webkit-scrollbar-track { background: var(--black); }
 ::-webkit-scrollbar-thumb { background: var(--gray3); border-radius: 2px; }
 
-/* --- BOTONES PREMIUM --- */
 .btn-primary {
-  background: var(--accent); 
-  color: var(--white); 
+  background: var(--accent);
+  color: var(--white);
   border: none;
-  padding: 12px 28px; 
+  padding: 12px 28px;
   border-radius: var(--radius);
-  font-size: 14px; 
-  font-weight: 600; 
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: .02em;
-  box-shadow: 0 4px 10px rgba(230, 51, 41, 0.2); /* Brillo rojo suave */
+  box-shadow: 0 4px 10px rgba(230, 51, 41, 0.2);
 }
-
-.btn-primary:hover { 
-  background: #cc2a22; 
-  transform: translateY(-2px); 
-  box-shadow: 0 8px 20px rgba(230, 51, 41, 0.4); /* El brillo se expande al pasar el mouse */
+.btn-primary:hover {
+  background: #cc2a22;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(230, 51, 41, 0.4);
 }
-
-.btn-primary:active { 
-  transform: scale(0.96); /* Efecto de hundimiento al hacer clic */
+.btn-primary:active {
+  transform: scale(0.96);
   box-shadow: 0 2px 5px rgba(230, 51, 41, 0.3);
 }
-
-.btn-primary:disabled { 
-  opacity: .5; 
-  cursor: not-allowed; 
-  transform: none; 
+.btn-primary:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
   box-shadow: none;
 }
 
 .btn-secondary {
-  background: transparent; 
+  background: transparent;
   color: var(--white);
-  border: 1px solid var(--gray3); 
+  border: 1px solid var(--gray3);
   padding: 12px 28px;
-  border-radius: var(--radius); 
-  font-size: 14px; 
-  font-weight: 500; 
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
-
-.btn-secondary:hover { 
-  border-color: var(--white); 
-  background: rgba(255, 255, 255, 0.05); /* Un fondo blanquecino muy sutil */
+.btn-secondary:hover {
+  border-color: var(--white);
+  background: rgba(255, 255, 255, 0.05);
   transform: translateY(-2px);
 }
+.btn-secondary:active { transform: scale(0.96); }
 
-.btn-secondary:active {
-  transform: scale(0.96);
-}
-/* ----------------------- */
 .form-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
 .form-field label { font-size: 13px; color: var(--gray4); font-weight: 500; }
 .form-field input,
@@ -92,27 +84,30 @@ input, select, textarea { font-family: var(--font-body); }
 }
 .form-field input:focus,
 .form-field select:focus,
-.form-field textarea:focus { 
-  border-color: var(--accent); 
-  box-shadow: 0 0 0 3px rgba(230, 51, 41, 0.15); /* Resplandor al seleccionar el input */
+.form-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(230, 51, 41, 0.15);
 }
 .form-field select option { background: var(--gray1); }
 
 .page-wrapper { padding-top: 58px; min-height: 100vh; }
-
 .error-msg { color: #f87171; font-size: 13px; margin-top: 8px; }
 
 .car-card {
-  @apply bg-[#111] border border-gray-800 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:border-red-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-900/20 relative;
+  background: var(--gray1); cursor: pointer;
+  transition: all .2s; position: relative; overflow: hidden;
+  border: 1px solid var(--gray2); border-radius: var(--radius-lg);
 }
-.car-card:hover { background: #222; }
+.car-card:hover { background: #222; border-color: var(--accent); transform: translateY(-2px); }
+
 .car-img-placeholder {
-  width: 100%; height: 200px;
+  width: 100%; height: 260px;
   background: linear-gradient(135deg, var(--gray2) 0%, var(--gray1) 100%);
   display: flex; align-items: center; justify-content: center;
   color: var(--gray3); font-size: 52px;
 }
-.car-img-real { width: 100%; height: 200px; object-fit: cover; display: block; }
+.car-img-real { width: 100%; height: 260px; object-fit: cover; display: block; }
+
 .car-badge {
   position: absolute; top: 12px; left: 12px;
   font-family: var(--font-mono); font-size: 10px; font-weight: 500;

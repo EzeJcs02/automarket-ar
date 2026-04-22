@@ -111,7 +111,7 @@ export default function Catalogo() {
             ? <div className="spinner" />
             : autos.length === 0
               ? <p style={{ color: 'var(--gray4)', fontSize: '15px', padding: '2rem 0' }}>No se encontraron autos con esos filtros.</p>
-              : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
+              : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
                   {autos.map(a => <CarCard key={a.id} auto={a} />)}
                 </div>
           }

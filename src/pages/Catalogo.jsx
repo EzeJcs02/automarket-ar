@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
@@ -9,11 +9,12 @@ const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot
 export default function Catalogo() {
   const { user, concesionaria, isAdmin } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
   const [loading, setLoading] = useState(true)
   const [favoritoIds, setFavoritoIds] = useState(new Set())
-  const [filtros, setFiltros] = useState({ busqueda: '', tipo: '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
+  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
 
   const esParticular = user && !concesionaria && !isAdmin
 

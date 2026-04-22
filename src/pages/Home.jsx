@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import CarCard from '../components/CarCard'
- 
+
 export default function Home() {
   const navigate = useNavigate()
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
- 
+  const [busqueda, setBusqueda] = useState('')
+
   useEffect(() => {
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(6).order('created_at', { ascending: false }).then(({ data }) => setAutos(data || []))
     supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6).then(({ data }) => setConcesionarias(data || []))
   }, [])
- 
+
   const colors = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
- 
+
   function LogoConcesionaria({ c, i, size = 52, fontSize = 26 }) {
     if (c.logo_url) {
       return (
@@ -28,36 +29,69 @@ export default function Home() {
       </div>
     )
   }
- 
+
+  function handleBuscar(e) {
+    e.preventDefault()
+    if (busqueda.trim()) {
+      navigate(`/catalogo?q=${encodeURIComponent(busqueda)}`)
+    } else {
+      navigate('/catalogo')
+    }
+  }
+
   return (
     <div>
-      {/* HERO */}
+      {/* --- HERO CON BUSCADOR PREMIUM --- */}
       <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, opacity: .04, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
         <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.15) 0%, transparent 70%)' }} />
-        <div style={{ position: 'relative' }}>
+        
+        <div style={{ position: 'relative', zIndex: 10 }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
             Plataforma N°1 de autos en Argentina
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(72px,12vw,160px)', lineHeight: .9, letterSpacing: '2px', marginBottom: '2rem' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>AUTO</span>
           </h1>
-          <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
-            Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, comparé y contactá directo.
+          <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2.5rem' }}>
+            Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <button className="btn-primary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/catalogo')}>Ver catálogo completo</button>
-            <button className="btn-secondary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/concesionarias')}>Ver concesionarias</button>
+
+          {/* BARRA DE BÚSQUEDA */}
+          <form onSubmit={handleBuscar} style={{ display: 'flex', gap: '8px', maxWidth: '520px', marginBottom: '2rem', background: 'rgba(26, 26, 26, 0.7)', backdropFilter: 'blur(10px)', padding: '10px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', fontSize: '18px' }}>🔍</div>
+            <input
+              type="text"
+              placeholder="Ej: Corolla, Amarok, 2024..."
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              style={{ flex: 1, background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '16px', outline: 'none', width: '100%', fontFamily: 'var(--font-body)' }}
+            />
+            <button type="submit" className="btn-primary" style={{ padding: '14px 32px', whiteSpace: 'nowrap' }}>
+              Buscar ahora
+            </button>
+          </form>
+
+          {/* BOTONES SECUNDARIOS */}
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '14px', cursor: 'pointer', fontWeight: 500, transition: 'color .2s' }} onClick={() => navigate('/catalogo')} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>
+              Explorar todo el catálogo
+            </button>
+            <div style={{ width: '4px', height: '4px', background: 'var(--gray3)', borderRadius: '50%' }} />
+            <button style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '14px', cursor: 'pointer', fontWeight: 500, transition: 'color .2s' }} onClick={() => navigate('/concesionarias')} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>
+              Ver red de concesionarias →
+            </button>
           </div>
-          <div style={{ display: 'flex', gap: '3rem', marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--gray2)' }}>
-            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length > 0 ? `${autos.length}+` : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Autos publicados</div></div>
-            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{concesionarias.length > 0 ? concesionarias.length : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Concesionarias</div></div>
+
+          <div style={{ display: 'flex', gap: '3rem', marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: 'var(--white)' }}>{autos.length > 0 ? `${autos.length}+` : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray5)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Autos publicados</div></div>
+            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: 'var(--white)' }}>{concesionarias.length > 0 ? concesionarias.length : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray5)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Concesionarias</div></div>
           </div>
         </div>
       </div>
- 
-      {/* FEATURED CARS */}
+
+      {/* --- FEATURED CARS --- */}
       <div style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Destacados</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>ÚLTIMOS EN LLEGAR</h2>
@@ -71,8 +105,8 @@ export default function Home() {
           <button className="btn-secondary" onClick={() => navigate('/catalogo')}>Ver todos los autos →</button>
         </div>
       </div>
- 
-      {/* DEALERS */}
+
+      {/* --- DEALERS --- */}
       <div style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Red de concesionarias</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>QUIÉNES<br />PUBLICAN</h2>
@@ -96,12 +130,14 @@ export default function Home() {
           <button className="btn-secondary" onClick={() => navigate('/concesionarias')}>Ver todas las concesionarias →</button>
         </div>
       </div>
- 
-      {/* FOOTER */}
-      <div style={{ padding: '3rem 4rem', borderTop: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+
+      {/* --- FOOTER --- */}
+      <div style={{ padding: '3rem 4rem', background: '#050505', borderTop: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '2px' }}>AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR</div>
-        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>© 2025 AutoMarket AR</div>
-        <Link to="/registro" style={{ fontSize: '13px', color: 'var(--gray4)' }}>Soy concesionaria →</Link>
+        <div style={{ fontSize: '13px', color: 'var(--gray5)' }}>© 2026 AutoMarket AR</div>
+        <Link to="/registro" style={{ fontSize: '13px', color: 'var(--gray4)', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>
+          Acceso Concesionarias →
+        </Link>
       </div>
     </div>
   )

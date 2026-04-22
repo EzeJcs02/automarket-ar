@@ -101,12 +101,59 @@ export default function Home() {
         </div>
       </div>
 
-      {/* FOOTER */}
-      <div style={{ padding: '3rem 4rem', borderTop: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '2px' }}>AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR</div>
-        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>© 2026 AutoMarket AR</div>
-        <Link to="/registro" style={{ fontSize: '13px', color: 'var(--gray4)' }}>Soy concesionaria →</Link>
-      </div>
+      {/* FOOTER CORPORATIVO TIPO ZONAPROP */}
+      <footer style={{ background: '#050505', borderTop: '1px solid var(--gray2)', padding: '5rem 4rem 2rem', color: 'var(--gray4)', fontSize: '13px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '4rem' }}>
+          
+          {/* Columna 1: Marca */}
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '2px', color: 'var(--white)', marginBottom: '1rem' }}>
+              AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+            </div>
+            <p style={{ lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              La plataforma más avanzada para encontrar y publicar vehículos de agencias verificadas en Argentina.
+            </p>
+          </div>
+
+          {/* Columna 2: Explorar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Explorar</div>
+            <Link to="/catalogo" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Catálogo de Autos</Link>
+            <Link to="/concesionarias" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Red de Concesionarias</Link>
+            <Link to="/registro" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Publicar mi stock</Link>
+          </div>
+
+          {/* Columna 3: Legales y Confianza */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Legales</div>
+            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Términos y Condiciones</a>
+            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Políticas de Privacidad</a>
+            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Defensa del Consumidor</a>
+            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Botón de Arrepentimiento</a>
+          </div>
+
+          {/* Columna 4: Contacto */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Contacto</div>
+            <div>📍 Salta, Argentina</div>
+            <div>✉️ soporte@automarket.ar</div>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              {/* Iconos de redes sociales placeholder */}
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>in</div>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>ig</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar: Copyright & Data Fiscal mock */}
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>© 2026 AutoMarket AR. Todos los derechos reservados.</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '30px', height: '40px', background: 'var(--gray2)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', textAlign: 'center', lineHeight: 1 }}>DATA<br/>FISCAL</div>
+            <span style={{ fontSize: '11px' }}>Sitio Seguro</span>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

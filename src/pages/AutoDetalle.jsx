@@ -23,7 +23,7 @@ export default function AutoDetalle() {
       setAuto(data)
       setLoading(false)
     })
-    supabase.rpc('incrementar_vistas', { auto_id: id })
+    supabase.rpc('incrementar_vistas', { auto_id: id }).then(r => console.log('vistas rpc:', r))
   }, [id])
 
   useEffect(() => {

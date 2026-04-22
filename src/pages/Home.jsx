@@ -128,7 +128,7 @@ export default function Home() {
             <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Términos y Condiciones</Link>
             <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Políticas de Privacidad</Link>
             <a href="https://www.argentina.gob.ar/produccion/defensadelconsumidor" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Defensa del Consumidor</a>
-            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Botón de Arrepentimiento</Link>
+            <Link to="/arrepentimiento" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Botón de Arrepentimiento</Link>
           </div>
 
           {/* Columna 4: Contacto */}

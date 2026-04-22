@@ -315,7 +315,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
   function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
 
   async function handleFotos(e) {
-    const files = Array.from(e.target.files).slice(0, 6)
+    const files = Array.from(e.target.files)
     if (files.length < 5) { setError('Debés subir mínimo 5 fotos.'); setFotos([]); return }
     setError('')
     setFotos(files)
@@ -378,7 +378,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
             <div style={{ fontSize: '15px', fontWeight: 600, color: fotos.length >= 5 ? '#4ade80' : 'var(--white)', marginBottom: '4px' }}>
               {fotos.length > 0 ? `${fotos.length} fotos seleccionadas ${fotos.length >= 5 ? '✓' : `(faltan ${5 - fotos.length})`}` : 'Click para subir fotografías'}
             </div>
-            <div style={{ fontSize: '13px', color: 'var(--gray5)' }}>Mínimo 5 fotos · Máximo 6 · JPG, PNG</div>
+            <div style={{ fontSize: '13px', color: 'var(--gray5)' }}>Mínimo 5 fotos · Sin límite máximo · JPG, PNG</div>
           </label>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>ESPECIFICACIONES TÉCNICAS</div>
@@ -426,7 +426,8 @@ function Perfil({ concesionaria, onSave }) {
     ciudad: concesionaria?.ciudad || '',
     direccion: concesionaria?.direccion || '',
     descripcion: concesionaria?.descripcion || '',
-    logo_url: concesionaria?.logo_url || ''
+    logo_url: concesionaria?.logo_url || '',
+    portada_url: concesionaria?.portada_url || ''
   })
   const [loading, setLoading] = useState(false)
   const [ok, setOk] = useState(false)
@@ -462,6 +463,20 @@ function Perfil({ concesionaria, onSave }) {
             <label style={{ color: 'var(--white)', fontWeight: 'bold' }}>Logo de la Empresa (URL)</label>
             <input type="text" placeholder="Pegar enlace de la imagen" value={form.logo_url} onChange={e => setF('logo_url', e.target.value)} style={{ marginTop: '8px' }} />
             <span style={{ fontSize: '12px', color: 'var(--gray5)', marginTop: '4px' }}>Esta imagen aparecerá en tus publicaciones y perfil.</span>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--gray2)' }}>
+          <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1rem' }}>IMAGEN DE PORTADA (BANNER)</div>
+          {form.portada_url && (
+            <div style={{ height: '120px', borderRadius: 'var(--radius)', overflow: 'hidden', marginBottom: '1rem', border: '1px solid var(--gray3)' }}>
+              <img src={form.portada_url} alt="Portada" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
+          <div className="form-field">
+            <label style={{ color: 'var(--white)', fontWeight: 'bold' }}>URL de la imagen de portada</label>
+            <input type="text" placeholder="Pegar enlace de la imagen de portada" value={form.portada_url} onChange={e => setF('portada_url', e.target.value)} style={{ marginTop: '8px' }} />
+            <span style={{ fontSize: '12px', color: 'var(--gray5)', marginTop: '4px' }}>Esta imagen aparecerá como fondo en tu perfil público. Tamaño recomendado: 1200×300px.</span>
           </div>
         </div>
 

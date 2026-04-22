@@ -24,7 +24,8 @@ export function Login() {
       if (user?.email === 'austerlitzezequiel02@gmail.com') {
         navigate('/admin')
       } else {
-        navigate('/panel')
+        const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).single()
+        navigate(conc ? '/panel' : '/')
       }
     }
   }
@@ -53,7 +54,7 @@ export function Login() {
             AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
           </Link>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '44px', lineHeight: 1, marginBottom: '.5rem' }}>BIENVENIDO</div>
-          <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Ingresá a tu panel de concesionaria</div>
+          <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Ingresá a tu cuenta</div>
           <form onSubmit={handleLogin}>
             <div className="form-field">
               <label>Email</label>
@@ -70,7 +71,7 @@ export function Login() {
           </form>
           <p style={{ fontSize: '13px', color: 'var(--gray4)', textAlign: 'center' }}>
             ¿No tenés cuenta?{' '}
-            <Link to="/registro" style={{ color: 'var(--accent)' }}>Registrá tu concesionaria</Link>
+            <Link to="/registro" style={{ color: 'var(--accent)' }}>Registrate</Link>
           </p>
         </div>
       </div>
@@ -84,7 +85,8 @@ export function Login() {
   )
 }
 export function Registro() {
-  const { signUp } = useAuth()
+  const { signUp, signUpUsuario } = useAuth()
+  const [tipo, setTipo] = useState('') // '' | 'concesionaria' | 'particular'
   const [paso, setPaso] = useState(1)
   const [form, setForm] = useState({ nombre: '', responsable: '', telefono: '', ciudad: '', email: '', pass: '' })
   const [loading, setLoading] = useState(false)
@@ -93,10 +95,20 @@ export function Registro() {
 
   function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
 
-  async function handleRegister() {
+  async function handleRegisterConcesionaria() {
     setLoading(true)
     setError('')
     const { error } = await signUp(form.email, form.pass, form)
+    if (error) { setError(error.message); setLoading(false) }
+    else setOk(true)
+  }
+
+  async function handleRegisterParticular(e) {
+    e.preventDefault()
+    if (!form.nombre || !form.email || !form.pass) { setError('Completá todos los campos.'); return }
+    setLoading(true)
+    setError('')
+    const { error } = await signUpUsuario(form.email, form.pass, form.nombre)
     if (error) { setError(error.message); setLoading(false) }
     else setOk(true)
   }
@@ -112,31 +124,114 @@ export function Registro() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ maxWidth: '480px', textAlign: 'center' }}>
         <div style={{ fontSize: '64px', marginBottom: '1.5rem' }}>✅</div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '1rem' }}>SOLICITUD ENVIADA</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '1rem' }}>
+          {tipo === 'particular' ? 'REGISTRO EXITOSO' : 'SOLICITUD ENVIADA'}
+        </div>
         <p style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>
-          Tu solicitud fue enviada. Nuestro equipo la va a revisar y te notificamos por email cuando esté aprobada.
+          {tipo === 'particular'
+            ? 'Tu cuenta fue creada. Ya podés iniciar sesión y explorar el catálogo.'
+            : 'Tu solicitud fue enviada. Nuestro equipo la va a revisar y te notificamos por email cuando esté aprobada.'}
         </p>
+        <Link to="/login"><button className="btn-primary" style={{ marginRight: '1rem' }}>Iniciar sesión</button></Link>
         <Link to="/"><button className="btn-secondary">Volver al inicio</button></Link>
       </div>
     </div>
   )
 
-  return (
+  const ladoIzquierdo = (
+    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'none' }} className="login-left">
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a0000 0%, #2e0a0a 40%, #0a0a0a 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, opacity: .05, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
+      <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.25) 0%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', lineHeight: .95, marginBottom: '1.5rem' }}>
+          {tipo === 'concesionaria'
+            ? <><span>PUBLICÁ TU</span><br /><span>STOCK EN</span><br /><span style={{ color: 'var(--accent)' }}>MINUTOS</span></>
+            : <><span>ENCONTRÁ</span><br /><span>TU PRÓXIMO</span><br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span></>}
+        </div>
+        <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '340px', lineHeight: 1.7 }}>
+          {tipo === 'concesionaria'
+            ? 'Registrate gratis y empezá a recibir consultas de compradores de todo el país.'
+            : 'Miles de vehículos nuevos y usados de las mejores concesionarias de Argentina.'}
+        </p>
+      </div>
+    </div>
+  )
+
+  /* — SELECCIÓN DE TIPO — */
+  if (!tipo) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--black)' }}>
+      <div style={{ width: '100%', maxWidth: '480px' }}>
+        <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '3rem', textAlign: 'center' }}>
+          AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+        </Link>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '.75rem', textAlign: 'center' }}>CREAR CUENTA</div>
+        <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', textAlign: 'center' }}>¿Cómo querés registrarte?</div>
+        <div style={{ display: 'grid', gap: '1rem' }}>
+          <button onClick={() => setTipo('concesionaria')} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem', textAlign: 'left', cursor: 'pointer', transition: 'border .2s' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray2)'}>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--white)', marginBottom: '6px' }}>Soy una concesionaria</div>
+            <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Publicá tu stock, gestioná consultas y crecé tu negocio.</div>
+          </button>
+          <button onClick={() => setTipo('particular')} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem', textAlign: 'left', cursor: 'pointer', transition: 'border .2s' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray2)'}>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--white)', marginBottom: '6px' }}>Soy comprador / particular</div>
+            <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Explorá el catálogo, guardá favoritos y contactá directamente.</div>
+          </button>
+        </div>
+        <p style={{ fontSize: '12px', color: 'var(--gray4)', textAlign: 'center', marginTop: '2rem' }}>
+          Ya tenés cuenta? <Link to="/login" style={{ color: 'var(--accent)' }}>Iniciá sesión</Link>
+        </p>
+      </div>
+    </div>
+  )
+
+  /* — REGISTRO PARTICULAR — */
+  if (tipo === 'particular') return (
     <div style={{ minHeight: '100vh', display: 'flex' }}>
-      {/* LADO IZQUIERDO */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'none' }} className="login-left">
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a0000 0%, #2e0a0a 40%, #0a0a0a 100%)' }} />
-        <div style={{ position: 'absolute', inset: 0, opacity: .05, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
-        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.25) 0%, transparent 70%)' }} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', lineHeight: .95, marginBottom: '1.5rem' }}>
-            PUBLICÁ TU<br />STOCK EN<br /><span style={{ color: 'var(--accent)' }}>MINUTOS</span>
+      {ladoIzquierdo}
+      <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
+        <div style={{ width: '100%', maxWidth: '420px' }}>
+          <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
+            AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+          </Link>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '.5rem' }}>TU CUENTA</div>
+          <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Creá tu perfil de comprador</div>
+          <form onSubmit={handleRegisterParticular}>
+            <div className="form-field">
+              <label>Nombre y apellido *</label>
+              <input type="text" placeholder="Juan Pérez" value={form.nombre} onChange={e => setF('nombre', e.target.value)} required />
+            </div>
+            <div className="form-field">
+              <label>Email *</label>
+              <input type="email" placeholder="tu@email.com" value={form.email} onChange={e => setF('email', e.target.value)} required />
+            </div>
+            <div className="form-field">
+              <label>Contraseña *</label>
+              <input type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} required />
+            </div>
+            {error && <p className="error-msg">{error}</p>}
+            <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1.5rem' }} disabled={loading}>
+              {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+            </button>
+          </form>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <button onClick={() => setTipo('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', fontSize: '12px', cursor: 'pointer' }}>← Volver</button>
+            <span style={{ color: 'var(--gray3)', fontSize: '12px' }}>·</span>
+            <Link to="/login" style={{ color: 'var(--accent)', fontSize: '12px' }}>Ya tenés cuenta</Link>
           </div>
-          <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '340px', lineHeight: 1.7 }}>
-            Registrate gratis y empezá a recibir consultas de compradores de todo el país.
-          </p>
         </div>
       </div>
+      <style>{`@media (min-width: 768px) { .login-left { display: block !important; } }`}</style>
+    </div>
+  )
+
+  /* — REGISTRO CONCESIONARIA (pasos) — */
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex' }}>
+      {ladoIzquierdo}
 
       {/* LADO DERECHO */}
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
@@ -206,12 +301,13 @@ export function Registro() {
           {error && <p className="error-msg">{error}</p>}
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
-            {paso > 1 && (
-              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setPaso(p => p - 1)}>← Atrás</button>
-            )}
+            {paso > 1
+              ? <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setPaso(p => p - 1)}>← Atrás</button>
+              : <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setTipo('')}>← Volver</button>
+            }
             {paso < 3
               ? <button className="btn-primary" style={{ flex: 1 }} onClick={siguientePaso}>Siguiente →</button>
-              : <button className="btn-primary" style={{ flex: 1 }} onClick={handleRegister} disabled={loading}>{loading ? 'Enviando...' : 'Enviar solicitud'}</button>
+              : <button className="btn-primary" style={{ flex: 1 }} onClick={handleRegisterConcesionaria} disabled={loading}>{loading ? 'Enviando...' : 'Enviar solicitud'}</button>
             }
           </div>
 

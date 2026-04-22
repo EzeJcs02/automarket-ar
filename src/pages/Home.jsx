@@ -7,6 +7,7 @@ export default function Home() {
   const navigate = useNavigate()
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
+  const [tabGuia, setTabGuia] = useState('comprar')
 
   useEffect(() => {
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(6).order('created_at', { ascending: false }).then(({ data }) => setAutos(data || []))
@@ -41,7 +42,7 @@ export default function Home() {
             Plataforma N°1 de autos en Argentina
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,10vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
-            ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>AUTO</span>
+            ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span>
           </h1>
           <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
             Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
@@ -51,7 +52,7 @@ export default function Home() {
             <button className="btn-secondary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/concesionarias')}>Ver concesionarias</button>
           </div>
           <div style={{ display: 'flex', gap: '3rem', marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--gray2)' }}>
-            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length > 0 ? `${autos.length}+` : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Autos publicados</div></div>
+            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length > 0 ? `${autos.length}+` : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Vehículos publicados</div></div>
             <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{concesionarias.length > 0 ? concesionarias.length : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Concesionarias</div></div>
           </div>
         </div>
@@ -63,7 +64,7 @@ export default function Home() {
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '3rem' }}>¿CÓMO FUNCIONA?</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
           {[
-            { num: '01', title: 'Buscá tu auto', desc: 'Filtrá por marca, precio, año y ubicación entre miles de vehículos verificados.' },
+            { num: '01', title: 'Buscá tu vehículo', desc: 'Filtrá por marca, precio, año y ubicación entre miles de vehículos verificados.' },
             { num: '02', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de cada concesionaria, su stock completo y sus datos de contacto.' },
             { num: '03', title: 'Contactá directo', desc: 'Escribí por WhatsApp, llamá o enviá una consulta. Sin intermediarios.' },
           ].map(paso => (
@@ -76,10 +77,71 @@ export default function Home() {
         </div>
       </div>
 
+      {/* INSTRUCCIONES COMPRAR Y VENDER */}
+      <div style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--black)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Guía práctica</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,52px)', lineHeight: 1, marginBottom: '2.5rem' }}>INSTRUCCIONES COMPRAR Y VENDER</h2>
+
+        {/* TABS */}
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '3rem', background: 'var(--gray1)', padding: '4px', borderRadius: 'var(--radius)', width: 'fit-content', border: '1px solid var(--gray2)' }}>
+          {['comprar', 'vender'].map(t => (
+            <button key={t} onClick={() => setTabGuia(t)}
+              style={{ padding: '8px 24px', borderRadius: 'var(--radius)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', border: 'none', textTransform: 'capitalize',
+                background: tabGuia === t ? 'var(--accent)' : 'transparent',
+                color: tabGuia === t ? 'var(--white)' : 'var(--gray4)',
+                transition: 'all .2s' }}>
+              {t === 'comprar' ? 'Comprar' : 'Vender'}
+            </button>
+          ))}
+        </div>
+
+        {tabGuia === 'comprar' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
+            {[
+              { num: '1', title: 'Explorá el catálogo', desc: 'Filtrá por marca, modelo, precio, año y ubicación para encontrar el vehículo ideal.' },
+              { num: '2', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de la agencia, su reputación y el stock disponible.' },
+              { num: '3', title: 'Contactá y coordiná', desc: 'Escribí por WhatsApp o enviá una consulta directa. Sin intermediarios ni comisiones.' },
+            ].map(p => (
+              <div key={p.num} style={{ background: 'var(--gray1)', padding: '2.5rem' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--accent)', opacity: .35, lineHeight: 1, marginBottom: '1.5rem' }}>{p.num}</div>
+                <div style={{ fontSize: '17px', fontWeight: 600, color: 'var(--white)', marginBottom: '.75rem' }}>{p.title}</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.7 }}>{p.desc}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tabGuia === 'vender' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
+            <div style={{ background: 'var(--gray1)', padding: '2.5rem' }}>
+              <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
+                Descubrí cuánto vale tu vehículo y elegí el mejor momento para vender
+              </div>
+              <button className="btn-primary" style={{ fontSize: '14px', padding: '10px 24px' }} onClick={() => navigate('/catalogo')}>
+                Cotizar →
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
+              {[
+                { num: '1', title: 'Ingresá los datos', desc: 'Proporcioná los detalles de tu vehículo y recibí una cotización al instante.' },
+                { num: '2', title: 'Elegí una oferta', desc: 'Conocé nuestras opciones y elegí la que mejor se adapte a vos.' },
+                { num: '3', title: 'Agendá la inspección', desc: 'Programá la hora y el lugar que más te convenga para recibir tu pago.' },
+              ].map(p => (
+                <div key={p.num} style={{ background: 'var(--gray1)', padding: '2rem' }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--accent)', opacity: .35, lineHeight: 1, marginBottom: '1.5rem' }}>{p.num}</div>
+                  <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--white)', marginBottom: '.75rem' }}>{p.title}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7 }}>{p.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* FEATURED CARS */}
       <div style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Destacados</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>ÚLTIMOS EN LLEGAR</h2>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Publicidad</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>ESPACIOS DESTACADOS</h2>
         {autos.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay autos publicados. ¡Sé el primero en publicar!</p>
           : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
@@ -87,7 +149,7 @@ export default function Home() {
             </div>
         }
         <div style={{ marginTop: '2rem' }}>
-          <button className="btn-secondary" onClick={() => navigate('/catalogo')}>Ver todos los autos →</button>
+          <button className="btn-secondary" onClick={() => navigate('/catalogo')}>Ver todos los vehículos →</button>
         </div>
       </div>
 

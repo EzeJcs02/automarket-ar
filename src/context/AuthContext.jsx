@@ -54,6 +54,12 @@ export function AuthProvider({ children }) {
     return { error: null }
   }
 
+  async function signUpUsuario(email, password, nombre) {
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
+    if (error) return { error }
+    return { error: null }
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
   }
@@ -61,7 +67,7 @@ export function AuthProvider({ children }) {
   const isAdmin = user?.email === 'admin@automarket.ar'
 
   return (
-    <AuthContext.Provider value={{ user, concesionaria, loading, signIn, signUp, signOut, isAdmin, fetchConcesionaria }}>
+    <AuthContext.Provider value={{ user, concesionaria, loading, signIn, signUp, signUpUsuario, signOut, isAdmin, fetchConcesionaria }}>
       {children}
     </AuthContext.Provider>
   )

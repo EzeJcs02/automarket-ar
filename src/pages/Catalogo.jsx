@@ -1,19 +1,43 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 
 const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot', 'Fiat', 'Honda', 'Nissan', 'Jeep', 'Citroën']
 
 export default function Catalogo() {
+  const { user, concesionaria, isAdmin } = useAuth()
+  const navigate = useNavigate()
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
   const [loading, setLoading] = useState(true)
+  const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [filtros, setFiltros] = useState({ busqueda: '', tipo: '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
+
+  const esParticular = user && !concesionaria && !isAdmin
 
   useEffect(() => {
     supabase.from('concesionarias').select('id, nombre').eq('aprobada', true).then(({ data }) => setConcesionarias(data || []))
     fetchAutos()
   }, [])
+
+  useEffect(() => {
+    if (!user || concesionaria || isAdmin) return
+    supabase.from('favoritos').select('auto_id').eq('user_id', user.id)
+      .then(({ data }) => setFavoritoIds(new Set(data?.map(f => f.auto_id) || [])))
+  }, [user])
+
+  async function toggleFavorito(autoId) {
+    if (!user) { navigate('/login'); return }
+    if (favoritoIds.has(autoId)) {
+      await supabase.from('favoritos').delete().eq('user_id', user.id).eq('auto_id', autoId)
+      setFavoritoIds(prev => { const s = new Set(prev); s.delete(autoId); return s })
+    } else {
+      await supabase.from('favoritos').insert({ user_id: user.id, auto_id: autoId })
+      setFavoritoIds(prev => new Set([...prev, autoId]))
+    }
+  }
 
   function sortByPriority(lista) {
     const planScore = { premium: 1000, pro: 100, basico: 10 }
@@ -121,7 +145,7 @@ export default function Catalogo() {
             : autos.length === 0
               ? <p style={{ color: 'var(--gray4)', fontSize: '15px', padding: '2rem 0' }}>No se encontraron autos con esos filtros.</p>
               : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
-                  {autos.map(a => <CarCard key={a.id} auto={a} />)}
+                  {autos.map(a => <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={esParticular ? toggleFavorito : undefined} />)}
                 </div>
           }
         </div>

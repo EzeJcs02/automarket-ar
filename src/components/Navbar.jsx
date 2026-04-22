@@ -43,7 +43,10 @@ export default function Navbar() {
           <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Concesionarias</Link>
           <Link to="/planes" style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Planes</Link>
           {user ? (
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {!concesionaria && !isAdmin && (
+                <Link to="/favoritos" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>♡ Favoritos</Link>
+              )}
               <Link to={isAdmin ? '/admin' : '/panel'}><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>{isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}</button></Link>
               <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }} onClick={handleSignOut}>Salir</button>
             </div>
@@ -75,6 +78,9 @@ export default function Navbar() {
           <Link to="/planes" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Planes</Link>
           {user ? (
             <>
+              {!concesionaria && !isAdmin && (
+                <Link to="/favoritos" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>♡ Mis Favoritos</Link>
+              )}
               <Link to={isAdmin ? '/admin' : '/panel'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>{isAdmin ? 'Panel Admin' : 'Mi Panel'}</Link>
               <button onClick={handleSignOut} style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '14px', borderRadius: 'var(--radius)', fontSize: '15px', cursor: 'pointer', marginTop: 'auto' }}>Cerrar sesión</button>
             </>

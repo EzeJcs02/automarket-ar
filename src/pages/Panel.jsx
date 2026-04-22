@@ -145,18 +145,69 @@ function Dashboard({ autos, consultas, concesionaria }) {
 }
 
 function MisAutos({ autos, reload, setTab }) {
+  const [editando, setEditando] = useState(null)
+  const [editForm, setEditForm] = useState({})
+  const [saving, setSaving] = useState(false)
+
   async function toggleActivo(auto) {
     await supabase.from('autos').update({ activo: !auto.activo }).eq('id', auto.id)
     reload()
   }
+
   async function eliminar(id) {
     if (!confirm('¿Seguro que querés eliminar permanentemente este vehículo?')) return
     await supabase.from('autos').delete().eq('id', id)
     reload()
   }
 
+  function abrirEdicion(auto) {
+    setEditando(auto.id)
+    setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo })
+  }
+
+  async function guardarEdicion() {
+    setSaving(true)
+    await supabase.from('autos').update({ ...editForm, anio: parseInt(editForm.anio), kilometraje: parseInt(editForm.kilometraje) || 0 }).eq('id', editando)
+    setSaving(false)
+    setEditando(null)
+    reload()
+  }
+
+  function setEF(k, v) { setEditForm(p => ({ ...p, [k]: v })) }
+
+  const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
+
   return (
     <div>
+      {/* MODAL EDICIÓN */}
+      {editando && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+          <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--gray2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px' }}>EDITAR AUTO</div>
+              <button onClick={() => setEditando(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="form-field"><label>Marca</label><select value={editForm.marca} onChange={e => setEF('marca', e.target.value)}>{MARCAS.map(m => <option key={m}>{m}</option>)}</select></div>
+              <div className="form-field"><label>Modelo</label><input type="text" value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
+              <div className="form-field"><label>Año</label><input type="number" value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
+              <div className="form-field"><label>Kilometraje</label><input type="number" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
+              <div className="form-field"><label>Tipo</label><select value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
+              <div className="form-field"><label>Combustible</label><select value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+              <div className="form-field"><label>Transmisión</label><select value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option><option>CVT</option></select></div>
+              <div className="form-field"><label>Color</label><input type="text" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
+              <div className="form-field"><label>Precio ARS</label><input type="number" value={editForm.precio_ars} onChange={e => setEF('precio_ars', e.target.value)} /></div>
+              <div className="form-field"><label>Precio USD</label><input type="number" value={editForm.precio_usd} onChange={e => setEF('precio_usd', e.target.value)} /></div>
+            </div>
+            <div className="form-field" style={{ marginTop: '.5rem' }}><label>Descripción</label><textarea style={{ height: '100px', resize: 'vertical' }} value={editForm.descripcion} onChange={e => setEF('descripcion', e.target.value)} /></div>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
+              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditando(null)}>Cancelar</button>
+              <button className="btn-primary" style={{ flex: 1 }} onClick={guardarEdicion} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>INVENTARIO</div>
@@ -175,13 +226,14 @@ function MisAutos({ autos, reload, setTab }) {
                   <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontWeight: 600 }}>{a.marca} {a.modelo} <span style={{ color: 'var(--gray5)', fontWeight: 'normal', marginLeft: '6px' }}>{a.anio}</span></td>
                   <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>${Number(a.precio_ars || 0).toLocaleString('es-AR')}</td>
                   <td style={{ padding: '16px 20px' }}>
-                    <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: a.activo ? 'rgba(74, 222, 128, 0.1)' : 'rgba(255, 255, 255, 0.1)', color: a.activo ? '#4ade80' : 'var(--gray4)' }}>
+                    <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: a.activo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.1)', color: a.activo ? '#4ade80' : 'var(--gray4)' }}>
                       {a.activo ? 'ACTIVO' : 'PAUSADO'}
                     </span>
                   </td>
                   <td style={{ padding: '16px 20px', display: 'flex', gap: '8px' }}>
+                    <button className="btn-secondary" onClick={() => abrirEdicion(a)} style={{ padding: '6px 14px', fontSize: '11px' }}>Editar</button>
                     <button className="btn-secondary" onClick={() => toggleActivo(a)} style={{ padding: '6px 14px', fontSize: '11px' }}>{a.activo ? 'Pausar' : 'Reactivar'}</button>
-                    <button onClick={() => eliminar(a.id)} style={{ padding: '6px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(230, 51, 41, 0.3)', background: 'transparent', color: 'var(--accent)', fontSize: '11px', cursor: 'pointer', transition: 'all .2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(230, 51, 41, 0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Eliminar</button>
+                    <button onClick={() => eliminar(a.id)} style={{ padding: '6px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(230,51,41,0.3)', background: 'transparent', color: 'var(--accent)', fontSize: '11px', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(230,51,41,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Eliminar</button>
                   </td>
                 </tr>
               ))}

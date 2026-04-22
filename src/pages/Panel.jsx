@@ -4,8 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
-const LIMITES_PLAN = { free: 1, basico: 10, pro: 25, premium: Infinity }
-const NOMBRE_PLAN = { free: 'FREE', basico: 'BÁSICO', pro: 'PRO', premium: 'PREMIUM' }
+const LIMITES_PLAN = { free: 1, basico: 8, pro: 20, premium: 50 }
 const WA_PLANES = 'https://wa.me/5493874111111'
 
 export default function Panel() {
@@ -44,7 +43,7 @@ export default function Panel() {
   const esPremium = plan === 'premium'
   const limitePlan = LIMITES_PLAN[plan] ?? 1
   const autosActivos = autos.filter(a => a.activo).length
-  const limiteAlcanzado = limitePlan !== Infinity && autosActivos >= limitePlan
+  const limiteAlcanzado = autosActivos >= limitePlan
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
@@ -97,9 +96,9 @@ export default function Panel() {
 
 function UpgradeModal({ onClose, planActual }) {
   const planes = [
-    { id: 'basico', nombre: 'BÁSICO', precio: '20.000', limite: '10 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
-    { id: 'pro', nombre: 'PRO', precio: '50.000', limite: '25 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
-    { id: 'premium', nombre: 'PREMIUM', precio: '100.000', limite: 'Ilimitadas + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
+    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
+    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
   ]
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
@@ -208,9 +207,9 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
         {concesionaria?.plan !== 'premium' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', paddingTop: '1.25rem', borderTop: '1px solid var(--gray2)' }}>
             {[
-              { id: 'basico', nombre: 'BÁSICO', precio: '$20.000', limite: '10 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
-              { id: 'pro', nombre: 'PRO', precio: '$50.000', limite: '25 + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
-              { id: 'premium', nombre: 'PREMIUM', precio: '$100.000', limite: 'Ilimitadas + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
+              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
+              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
             ].filter(p => {
               const orden = { free: 0, basico: 1, pro: 2, premium: 3 }
               return orden[p.id] > orden[concesionaria?.plan || 'free']

@@ -44,7 +44,7 @@ export default function Navbar() {
           </svg>
           <input
             type="text"
-            placeholder="Buscar autos..."
+            placeholder="Buscar vehículos, marcas, modelos..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }}

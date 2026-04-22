@@ -40,15 +40,12 @@ export default function Home() {
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
             Plataforma N°1 de autos en Argentina
           </div>
-          
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,10vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>AUTO</span>
           </h1>
-          
           <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
             Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
           </p>
-          
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <button className="btn-primary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/catalogo')}>Ver catálogo completo</button>
             <button className="btn-secondary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/concesionarias')}>Ver concesionarias</button>
@@ -57,6 +54,25 @@ export default function Home() {
             <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length > 0 ? `${autos.length}+` : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Autos publicados</div></div>
             <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{concesionarias.length > 0 ? concesionarias.length : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Concesionarias</div></div>
           </div>
+        </div>
+      </div>
+
+      {/* CÓMO FUNCIONA */}
+      <div style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Simple y rápido</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '3rem' }}>¿CÓMO FUNCIONA?</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
+          {[
+            { num: '01', title: 'Buscá tu auto', desc: 'Filtrá por marca, precio, año y ubicación entre miles de vehículos verificados.' },
+            { num: '02', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de cada concesionaria, su stock completo y sus datos de contacto.' },
+            { num: '03', title: 'Contactá directo', desc: 'Escribí por WhatsApp, llamá o enviá una consulta. Sin intermediarios.' },
+          ].map(paso => (
+            <div key={paso.num} style={{ background: 'var(--black)', padding: '2.5rem' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: 'var(--accent)', opacity: .3, lineHeight: 1, marginBottom: '1.5rem' }}>{paso.num}</div>
+              <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--white)', marginBottom: '.75rem' }}>{paso.title}</div>
+              <div style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.7 }}>{paso.desc}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -100,11 +116,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* FOOTER CORPORATIVO TIPO ZONAPROP */}
+      {/* FOOTER */}
       <footer style={{ background: '#050505', borderTop: '1px solid var(--gray2)', padding: '5rem 4rem 2rem', color: 'var(--gray4)', fontSize: '13px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '4rem' }}>
-          
-          {/* Columna 1: Marca */}
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '2px', color: 'var(--white)', marginBottom: '1rem' }}>
               AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
@@ -113,25 +127,19 @@ export default function Home() {
               La plataforma más avanzada para encontrar y publicar vehículos de agencias verificadas en Argentina.
             </p>
           </div>
-
-          {/* Columna 2: Explorar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Explorar</div>
-            <Link to="/catalogo" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Catálogo de Autos</Link>
-            <Link to="/concesionarias" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Red de Concesionarias</Link>
-            <Link to="/registro" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Publicar mi stock</Link>
+            <Link to="/catalogo" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Catálogo de Autos</Link>
+            <Link to="/concesionarias" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Red de Concesionarias</Link>
+            <Link to="/registro" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Publicar mi stock</Link>
           </div>
-
-          {/* Columna 3: Legales y Confianza (AHORA CON LINKS FUNCIONALES) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Legales</div>
-            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Términos y Condiciones</Link>
-            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Políticas de Privacidad</Link>
-            <a href="https://www.argentina.gob.ar/produccion/defensadelconsumidor" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Defensa del Consumidor</a>
-            <Link to="/arrepentimiento" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Botón de Arrepentimiento</Link>
+            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Términos y Condiciones</Link>
+            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Políticas de Privacidad</Link>
+            <a href="https://www.argentina.gob.ar/produccion/defensadelconsumidor" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Defensa del Consumidor</a>
+            <Link to="/arrepentimiento" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Botón de Arrepentimiento</Link>
           </div>
-
-          {/* Columna 4: Contacto */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Contacto</div>
             <div>📍 Salta, Argentina</div>
@@ -142,9 +150,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* Bottom Bar: Copyright & Data Fiscal mock */}
-        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>© 2026 AutoMarket AR. Todos los derechos reservados.</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '30px', height: '40px', background: 'var(--gray2)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', textAlign: 'center', lineHeight: 1 }}>DATA<br/>FISCAL</div>

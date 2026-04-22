@@ -45,7 +45,6 @@ export default function Home() {
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>AUTO</span>
           </h1>
           
-          {/* AQUÍ ESTÁ LA CORRECCIÓN ORTOGRÁFICA */}
           <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
             Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
           </p>
@@ -123,13 +122,13 @@ export default function Home() {
             <Link to="/registro" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Publicar mi stock</Link>
           </div>
 
-          {/* Columna 3: Legales y Confianza */}
+          {/* Columna 3: Legales y Confianza (AHORA CON LINKS FUNCIONALES) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Legales</div>
-            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Términos y Condiciones</a>
-            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Políticas de Privacidad</a>
-            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Defensa del Consumidor</a>
-            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Botón de Arrepentimiento</a>
+            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Términos y Condiciones</Link>
+            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Políticas de Privacidad</Link>
+            <a href="https://www.argentina.gob.ar/produccion/defensadelconsumidor" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Defensa del Consumidor</a>
+            <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>Botón de Arrepentimiento</Link>
           </div>
 
           {/* Columna 4: Contacto */}
@@ -138,7 +137,6 @@ export default function Home() {
             <div>📍 Salta, Argentina</div>
             <div>✉️ soporte@automarket.ar</div>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              {/* Iconos de redes sociales placeholder */}
               <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>in</div>
               <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>ig</div>
             </div>

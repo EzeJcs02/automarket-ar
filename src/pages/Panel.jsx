@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
+const LIMITE_FREE = 2
 
 export default function Panel() {
   const { user, concesionaria, fetchConcesionaria, isAdmin, loading: authLoading } = useAuth()
@@ -37,7 +38,10 @@ export default function Panel() {
     </div>
   )
 
-  /* --- MENÚ LATERAL SIN EMOJIS, SUPER PROFESIONAL --- */
+  const esPremium = concesionaria?.plan === 'premium'
+  const autosActivos = autos.filter(a => a.activo).length
+  const limiteAlcanzado = !esPremium && autosActivos >= LIMITE_FREE
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'mis-autos', label: 'Inventario de Autos' },
@@ -49,8 +53,6 @@ export default function Panel() {
     <div className="page-wrapper" style={{ display: 'flex', minHeight: 'calc(100vh - 58px)' }}>
       {/* SIDEBAR */}
       <div style={{ width: '250px', flexShrink: 0, borderRight: '1px solid var(--gray2)', padding: '2rem 0', background: '#080808' }}>
-        
-        {/* LOGO O INICIAL EN EL MENÚ */}
         <div style={{ padding: '0 1.5rem 2rem', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
           {concesionaria?.logo_url ? (
             <img src={concesionaria.logo_url} alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--gray3)' }} />
@@ -61,36 +63,26 @@ export default function Panel() {
           )}
           <div>
             <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--white)' }}>{concesionaria?.nombre || 'Cargando...'}</div>
-            <div style={{ fontSize: '11px', color: 'var(--gray5)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>ID: {concesionaria?.id?.substring(0,6)}</div>
+            <div style={{ fontSize: '11px', color: esPremium ? '#c9a84c' : 'var(--gray5)', marginTop: '2px', fontFamily: 'var(--font-mono)', fontWeight: esPremium ? 600 : 400 }}>
+              {esPremium ? '★ PREMIUM' : `FREE · ${autosActivos}/${LIMITE_FREE} autos`}
+            </div>
           </div>
         </div>
-
         {navItems.map(item => (
           <div key={item.id} onClick={() => setTab(item.id)}
-            style={{ 
-              padding: '14px 1.5rem', 
-              fontSize: '13px', 
-              fontWeight: tab === item.id ? '600' : '400',
-              color: tab === item.id ? 'var(--white)' : 'var(--gray4)', 
-              cursor: 'pointer', 
-              transition: 'all .2s', 
-              borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, 
-              background: tab === item.id ? 'var(--gray1)' : 'transparent',
-              textTransform: 'uppercase',
-              letterSpacing: '.05em'
-            }}>
+            style={{ padding: '14px 1.5rem', fontSize: '13px', fontWeight: tab === item.id ? '600' : '400', color: tab === item.id ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', transition: 'all .2s', borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, background: tab === item.id ? 'var(--gray1)' : 'transparent', textTransform: 'uppercase', letterSpacing: '.05em' }}>
             {item.label}
           </div>
         ))}
       </div>
-      
-      {/* CONTENIDO PRINCIPAL */}
+
+      {/* CONTENIDO */}
       <div style={{ flex: 1, padding: '3rem 4rem', overflowY: 'auto' }}>
         {loading ? <div className="spinner" /> : (
           <>
-            {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} concesionaria={concesionaria} />}
+            {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}
             {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} />}
-            {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
+            {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
             {tab === 'perfil' && <Perfil concesionaria={concesionaria} onSave={() => fetchConcesionaria(user.id)} />}
           </>
         )}
@@ -98,8 +90,34 @@ export default function Panel() {
     </div>
   )
 }
-function Dashboard({ autos, consultas, concesionaria }) {
+
+function UpgradeModal({ onClose }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.9)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+      <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '3rem', width: '100%', maxWidth: '480px', border: '1px solid rgba(201,168,76,.4)', textAlign: 'center' }}>
+        <div style={{ fontSize: '48px', marginBottom: '1rem' }}>🔒</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', color: 'var(--gold)', marginBottom: '1rem' }}>LÍMITE ALCANZADO</div>
+        <p style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>
+          El plan gratuito permite hasta <strong style={{ color: 'var(--white)' }}>{LIMITE_FREE} autos activos</strong>. Para publicar más vehículos necesitás el plan Premium.
+        </p>
+        <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', border: '1px solid rgba(201,168,76,.3)' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--gold)', marginBottom: '.5rem' }}>PLAN PREMIUM</div>
+          <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '1rem' }}>Publicaciones ilimitadas · Soporte prioritario</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: 'var(--white)' }}>$15.000 <span style={{ fontSize: '16px', color: 'var(--gray4)' }}>ARS/mes</span></div>
+        </div>
+        <button className="btn-primary" style={{ width: '100%', marginBottom: '10px', background: '#c9a84c', fontSize: '15px', padding: '14px' }}
+          onClick={() => window.open('https://wa.me/5493874111111?text=Hola! Quiero contratar el plan Premium de AutoMarket AR', '_blank')}>
+          Contratar por WhatsApp
+        </button>
+        <button className="btn-secondary" style={{ width: '100%' }} onClick={onClose}>Cerrar</button>
+      </div>
+    </div>
+  )
+}
+
+function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado, setTab }) {
   const [consultaDetalle, setConsultaDetalle] = useState(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   if (!concesionaria?.aprobada) return (
     <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', border: '1px solid rgba(201,168,76,.3)', maxWidth: '600px' }}>
@@ -110,7 +128,7 @@ function Dashboard({ autos, consultas, concesionaria }) {
 
   return (
     <div>
-      {/* MODAL DETALLE CONSULTA */}
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {consultaDetalle && (
         <div onClick={() => setConsultaDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
@@ -140,7 +158,7 @@ function Dashboard({ autos, consultas, concesionaria }) {
               {new Date(consultaDetalle.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </div>
             <button className="btn-primary" style={{ width: '100%' }}
-              onClick={() => window.open(`mailto:${consultaDetalle.email_comprador}?subject=Re: ${consultaDetalle.autos?.marca} ${consultaDetalle.autos?.modelo}&body=Hola ${consultaDetalle.nombre_comprador},%0D%0A%0D%0AGracias por tu consulta sobre el ${consultaDetalle.autos?.marca} ${consultaDetalle.autos?.modelo}.%0D%0A%0D%0A`)}>
+              onClick={() => window.open(`mailto:${consultaDetalle.email_comprador}?subject=Re: ${consultaDetalle.autos?.marca} ${consultaDetalle.autos?.modelo}&body=Hola ${consultaDetalle.nombre_comprador},%0D%0A%0D%0AGracias por tu consulta.%0D%0A%0D%0A`)}>
               📧 Responder por email
             </button>
           </div>
@@ -148,7 +166,20 @@ function Dashboard({ autos, consultas, concesionaria }) {
       )}
 
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>RESUMEN DE ACTIVIDAD</div>
-      <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Métricas en tiempo real de tu concesionaria.</div>
+      <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '2rem' }}>Métricas en tiempo real de tu concesionaria.</div>
+
+      {/* BANNER PLAN */}
+      {!esPremium && (
+        <div style={{ background: 'linear-gradient(135deg, rgba(201,168,76,.1), rgba(201,168,76,.05))', border: '1px solid rgba(201,168,76,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gold)', marginBottom: '2px' }}>Plan Gratuito — {autos.filter(a => a.activo).length}/{LIMITE_FREE} autos activos</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>Pasá a Premium para publicar sin límites.</div>
+          </div>
+          <button onClick={() => setShowUpgrade(true)} style={{ background: 'rgba(201,168,76,.15)', border: '1px solid rgba(201,168,76,.4)', color: 'var(--gold)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+            Ver plan Premium →
+          </button>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
         {[['Stock Activo', autos.filter(a => a.activo).length], ['Stock Pausado', autos.filter(a => !a.activo).length], ['Total Consultas', consultas.length], ['Consultas (7 días)', consultas.filter(c => new Date(c.created_at) > new Date(Date.now()-7*86400000)).length]].map(([label, val]) => (
@@ -190,18 +221,15 @@ function MisAutos({ autos, reload, setTab }) {
     await supabase.from('autos').update({ activo: !auto.activo }).eq('id', auto.id)
     reload()
   }
-
   async function eliminar(id) {
     if (!confirm('¿Seguro que querés eliminar permanentemente este vehículo?')) return
     await supabase.from('autos').delete().eq('id', id)
     reload()
   }
-
   function abrirEdicion(auto) {
     setEditando(auto.id)
     setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo })
   }
-
   async function guardarEdicion() {
     setSaving(true)
     await supabase.from('autos').update({ ...editForm, anio: parseInt(editForm.anio), kilometraje: parseInt(editForm.kilometraje) || 0 }).eq('id', editando)
@@ -209,14 +237,10 @@ function MisAutos({ autos, reload, setTab }) {
     setEditando(null)
     reload()
   }
-
   function setEF(k, v) { setEditForm(p => ({ ...p, [k]: v })) }
-
-  const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
 
   return (
     <div>
-      {/* MODAL EDICIÓN */}
       {editando && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
           <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--gray2)' }}>
@@ -281,22 +305,27 @@ function MisAutos({ autos, reload, setTab }) {
   )
 }
 
-function NuevoAuto({ concesionaria, onSuccess }) {
+function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess }) {
   const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
 
   async function handleFotos(e) {
     const files = Array.from(e.target.files).slice(0, 6)
+    if (files.length < 5) { setError('Debés subir mínimo 5 fotos.'); setFotos([]); return }
+    setError('')
     setFotos(files)
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
     if (!concesionaria?.aprobada) { setError('Tu cuenta debe estar aprobada para publicar.'); return }
+    if (limiteAlcanzado) { setShowUpgrade(true); return }
+    if (fotos.length < 5) { setError('Debés subir mínimo 5 fotos.'); return }
     setLoading(true)
     setError('')
     let fotoUrls = []
@@ -322,18 +351,34 @@ function NuevoAuto({ concesionaria, onSuccess }) {
     else onSuccess()
   }
 
+  if (showUpgrade) return <UpgradeModal onClose={() => setShowUpgrade(false)} />
+
   return (
     <div style={{ maxWidth: '800px' }}>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>ALTA DE STOCK</div>
-      <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Ingresá las especificaciones del nuevo vehículo.</div>
-      
+      <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: limiteAlcanzado ? '1rem' : '3rem' }}>Ingresá las especificaciones del nuevo vehículo.</div>
+
+      {limiteAlcanzado && (
+        <div style={{ background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gold)' }}>Límite del plan gratuito alcanzado</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '2px' }}>Necesitás Premium para publicar más de {LIMITE_FREE} autos.</div>
+          </div>
+          <button onClick={() => setShowUpgrade(true)} style={{ background: 'rgba(201,168,76,.2)', border: '1px solid rgba(201,168,76,.4)', color: 'var(--gold)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+            Ver Premium →
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div style={{ background: 'var(--gray1)', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>GALERÍA DE IMÁGENES</div>
-          <label style={{ display: 'block', border: '2px dashed var(--gray3)', borderRadius: 'var(--radius)', padding: '3rem', textAlign: 'center', cursor: 'pointer', marginBottom: '2rem', transition: 'border .2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--white)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray3)'}>
+          <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--green)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: '3rem', textAlign: 'center', cursor: 'pointer', marginBottom: '2rem', transition: 'border .2s' }}>
             <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
-            <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--white)', marginBottom: '4px' }}>{fotos.length > 0 ? `${fotos.length} archivos adjuntos` : 'Click para subir fotografías'}</div>
-            <div style={{ fontSize: '13px', color: 'var(--gray5)' }}>Máximo 6 fotos · JPG, PNG · Alta resolución sugerida</div>
+            <div style={{ fontSize: '15px', fontWeight: 600, color: fotos.length >= 5 ? '#4ade80' : 'var(--white)', marginBottom: '4px' }}>
+              {fotos.length > 0 ? `${fotos.length} fotos seleccionadas ${fotos.length >= 5 ? '✓' : `(faltan ${5 - fotos.length})`}` : 'Click para subir fotografías'}
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--gray5)' }}>Mínimo 5 fotos · Máximo 6 · JPG, PNG</div>
           </label>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>ESPECIFICACIONES TÉCNICAS</div>
@@ -360,10 +405,10 @@ function NuevoAuto({ concesionaria, onSuccess }) {
             <textarea style={{ height: '140px', resize: 'vertical' }} placeholder="Detallar estado general, mantenimientos realizados, accesorios extra, etc." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} />
           </div>
 
-          {error && <div style={{ padding: '1rem', background: 'rgba(230, 51, 41, 0.1)', color: 'var(--accent)', border: '1px solid rgba(230, 51, 41, 0.3)', borderRadius: 'var(--radius)', marginTop: '1rem' }}>{error}</div>}
-          
+          {error && <div style={{ padding: '1rem', background: 'rgba(230,51,41,0.1)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius)', marginTop: '1rem' }}>{error}</div>}
+
           <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'PROCESANDO...' : 'PUBLICAR EN CATÁLOGO'}</button>
+            <button type="submit" className="btn-primary" disabled={loading || limiteAlcanzado}>{loading ? 'PROCESANDO...' : 'PUBLICAR EN CATÁLOGO'}</button>
           </div>
         </div>
       </form>
@@ -372,17 +417,16 @@ function NuevoAuto({ concesionaria, onSuccess }) {
 }
 
 function Perfil({ concesionaria, onSave }) {
-  // ACA SUMAMOS EL LOGO_URL
-  const [form, setForm] = useState({ 
-    nombre: concesionaria?.nombre || '', 
-    responsable: concesionaria?.responsable || '', 
-    telefono: concesionaria?.telefono || '', 
-    whatsapp: concesionaria?.whatsapp || '', 
-    email: concesionaria?.email || '', 
-    ciudad: concesionaria?.ciudad || '', 
-    direccion: concesionaria?.direccion || '', 
+  const [form, setForm] = useState({
+    nombre: concesionaria?.nombre || '',
+    responsable: concesionaria?.responsable || '',
+    telefono: concesionaria?.telefono || '',
+    whatsapp: concesionaria?.whatsapp || '',
+    email: concesionaria?.email || '',
+    ciudad: concesionaria?.ciudad || '',
+    direccion: concesionaria?.direccion || '',
     descripcion: concesionaria?.descripcion || '',
-    logo_url: concesionaria?.logo_url || '' 
+    logo_url: concesionaria?.logo_url || ''
   })
   const [loading, setLoading] = useState(false)
   const [ok, setOk] = useState(false)
@@ -402,23 +446,21 @@ function Perfil({ concesionaria, onSave }) {
   return (
     <div style={{ maxWidth: '800px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.5rem' }}>
-  <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>PERFIL COMERCIAL</div>
-  <a href={`/concesionaria/${concesionaria.id}`} target="_blank" rel="noopener noreferrer">
-    <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '13px' }}>Ver perfil público →</button>
-  </a>
-</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>PERFIL COMERCIAL</div>
+        <a href={`/concesionaria/${concesionaria.id}`} target="_blank" rel="noopener noreferrer">
+          <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '13px' }}>Ver perfil público →</button>
+        </a>
+      </div>
       <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Configuración pública de la identidad de la concesionaria.</div>
-      
+
       <form onSubmit={handleSave} style={{ background: 'var(--gray1)', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
-        
-        {/* SECCION LOGO */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--gray2)', marginBottom: '2rem' }}>
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '2px solid var(--gray3)' }}>
-             {form.logo_url ? <img src={form.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '32px', color: 'var(--gray5)' }}>🏢</span>}
+            {form.logo_url ? <img src={form.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '32px', color: 'var(--gray5)' }}>🏢</span>}
           </div>
           <div style={{ flex: 1 }} className="form-field">
             <label style={{ color: 'var(--white)', fontWeight: 'bold' }}>Logo de la Empresa (URL)</label>
-            <input type="text" placeholder="Pegar enlace de la imagen (ej: https://imgur.com/logo.png)" value={form.logo_url} onChange={e => setF('logo_url', e.target.value)} style={{ marginTop: '8px' }} />
+            <input type="text" placeholder="Pegar enlace de la imagen" value={form.logo_url} onChange={e => setF('logo_url', e.target.value)} style={{ marginTop: '8px' }} />
             <span style={{ fontSize: '12px', color: 'var(--gray5)', marginTop: '4px' }}>Esta imagen aparecerá en tus publicaciones y perfil.</span>
           </div>
         </div>
@@ -426,14 +468,14 @@ function Perfil({ concesionaria, onSave }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           <div className="form-field"><label>Razón Social / Nombre Comercial</label><input type="text" value={form.nombre} onChange={e => setF('nombre', e.target.value)} /></div>
           <div className="form-field"><label>Responsable de Ventas</label><input type="text" value={form.responsable} onChange={e => setF('responsable', e.target.value)} /></div>
-          <div className="form-field"><label>Teléfono Fijo (con código de área)</label><input type="text" value={form.telefono} onChange={e => setF('telefono', e.target.value)} /></div>
+          <div className="form-field"><label>Teléfono Fijo</label><input type="text" value={form.telefono} onChange={e => setF('telefono', e.target.value)} /></div>
           <div className="form-field"><label>Línea WhatsApp Comercial</label><input type="text" placeholder="+54 9 387 421-0000" value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} /></div>
           <div className="form-field"><label>Correo Electrónico Oficial</label><input type="email" value={form.email} onChange={e => setF('email', e.target.value)} /></div>
           <div className="form-field"><label>Provincia y Localidad</label><input type="text" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} /></div>
         </div>
         <div className="form-field" style={{ marginTop: '1.5rem' }}><label>Dirección del Local</label><input type="text" placeholder="Calle, Número, Barrio" value={form.direccion} onChange={e => setF('direccion', e.target.value)} /></div>
-        <div className="form-field" style={{ marginTop: '1.5rem' }}><label>Breve Reseña de la Empresa</label><textarea style={{ height: '100px', resize: 'vertical' }} placeholder="Trayectoria, servicios que ofrecen, métodos de pago..." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} /></div>
-        
+        <div className="form-field" style={{ marginTop: '1.5rem' }}><label>Breve Reseña de la Empresa</label><textarea style={{ height: '100px', resize: 'vertical' }} placeholder="Trayectoria, servicios, métodos de pago..." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} /></div>
+
         <div style={{ marginTop: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--gray2)', paddingTop: '2rem' }}>
           <div>{ok && <span style={{ color: '#4ade80', fontSize: '14px', fontWeight: 500 }}>✓ Configuración guardada exitosamente</span>}</div>
           <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'ACTUALIZANDO...' : 'GUARDAR CONFIGURACIÓN'}</button>

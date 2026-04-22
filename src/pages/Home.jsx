@@ -212,8 +212,8 @@ export default function Home() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Contacto</div>
-            <div>📍 Salta, Argentina</div>
-            <div>✉️ soporte@automarket.ar</div>
+            <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>Salta, Argentina</div>
+            <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>soporte@automarket.ar</div>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>in</div>
               <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>ig</div>

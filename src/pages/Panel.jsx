@@ -179,7 +179,7 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
             </div>
             <button className="btn-primary" style={{ width: '100%' }}
               onClick={() => window.open(`mailto:${consultaDetalle.email_comprador}?subject=Re: ${consultaDetalle.autos?.marca} ${consultaDetalle.autos?.modelo}&body=Hola ${consultaDetalle.nombre_comprador},%0D%0A%0D%0AGracias por tu consulta.%0D%0A%0D%0A`)}>
-              📧 Responder por email
+              Responder por email
             </button>
           </div>
         </div>
@@ -339,7 +339,7 @@ function MisAutos({ autos, reload, setTab }) {
                   <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontWeight: 600 }}>{a.marca} {a.modelo} <span style={{ color: 'var(--gray5)', fontWeight: 'normal', marginLeft: '6px' }}>{a.anio}</span></td>
                   <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>${Number(a.precio_ars || 0).toLocaleString('es-AR')}</td>
                   <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
-                    👁 {a.vistas || 0}
+                    {a.vistas || 0}
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: a.activo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.1)', color: a.activo ? '#4ade80' : 'var(--gray4)' }}>
@@ -516,7 +516,7 @@ function Consultas({ consultas, reload }) {
             </div>
             <button className="btn-primary" style={{ width: '100%' }}
               onClick={() => window.open(`mailto:${detalle.email_comprador}?subject=Re: ${detalle.autos?.marca} ${detalle.autos?.modelo}&body=Hola ${detalle.nombre_comprador},%0D%0A%0D%0AGracias por tu consulta.%0D%0A%0D%0A`)}>
-              📧 Responder por email
+              Responder por email
             </button>
           </div>
         </div>
@@ -608,7 +608,7 @@ function Perfil({ concesionaria, onSave }) {
       <form onSubmit={handleSave} style={{ background: 'var(--gray1)', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--gray2)', marginBottom: '2rem' }}>
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '2px solid var(--gray3)' }}>
-            {form.logo_url ? <img src={form.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '32px', color: 'var(--gray5)' }}>🏢</span>}
+            {form.logo_url ? <img src={form.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray4)', fontFamily: 'var(--font-display)' }}>{form.nombre?.[0]?.toUpperCase() || '?'}</span>}
           </div>
           <div style={{ flex: 1 }} className="form-field">
             <label style={{ color: 'var(--white)', fontWeight: 'bold' }}>Logo de la Empresa (URL)</label>

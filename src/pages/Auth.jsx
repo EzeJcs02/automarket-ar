@@ -123,7 +123,9 @@ export function Registro() {
   if (ok) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ maxWidth: '480px', textAlign: 'center' }}>
-        <div style={{ fontSize: '64px', marginBottom: '1.5rem' }}>✅</div>
+        <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(74,222,128,0.1)', border: '2px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '1rem' }}>
           {tipo === 'particular' ? 'REGISTRO EXITOSO' : 'SOLICITUD ENVIADA'}
         </div>

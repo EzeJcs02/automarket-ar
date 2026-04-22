@@ -163,7 +163,7 @@ export default function Admin() {
                                 style={{ padding: '6px 14px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
                                   background: a.destacado ? 'rgba(201,168,76,.25)' : 'rgba(255,255,255,.08)',
                                   color: a.destacado ? '#c9a84c' : 'var(--gray4)' }}>
-                                {a.destacado ? '⭐ Destacado' : 'Normal'}
+                                {a.destacado ? 'Destacado' : 'Normal'}
                               </button>
                             </td>
                             <td style={{ padding: '16px 20px' }}>
@@ -171,7 +171,7 @@ export default function Admin() {
                                 style={{ padding: '6px 14px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
                                   background: a.urgente ? 'rgba(230,51,41,.25)' : 'rgba(255,255,255,.08)',
                                   color: a.urgente ? 'var(--accent)' : 'var(--gray4)' }}>
-                                {a.urgente ? '🔥 Urgente' : 'Normal'}
+                                {a.urgente ? 'Urgente' : 'Normal'}
                               </button>
                             </td>
                           </tr>
@@ -209,7 +209,7 @@ export default function Admin() {
                             </td>
                             <td style={{ padding: '16px 20px' }}>
                               <button onClick={() => toggleDestacada(c)} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', background: c.destacada ? 'rgba(230,51,41,.2)' : 'rgba(255,255,255,.1)', color: c.destacada ? 'var(--accent)' : 'var(--gray4)', transition: 'all .2s' }}>
-                                {c.destacada ? '⭐ DESTACADA' : 'Normal'}
+                                {c.destacada ? 'DESTACADA' : 'Normal'}
                               </button>
                             </td>
                             <td style={{ padding: '16px 20px' }}>

@@ -15,13 +15,13 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
     <div className="car-card" onClick={() => navigate(`/auto/${auto.id}`)} style={{ position: 'relative' }}>
       {/* BADGES DE BOOST */}
       {auto.urgente && (
-        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, background: 'var(--accent)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.08em', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          🔥 URGENTE
+        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, background: 'var(--accent)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>
+          URGENTE
         </div>
       )}
       {!auto.urgente && auto.destacado && (
-        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.08em', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          ⭐ DESTACADO
+        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>
+          DESTACADO
         </div>
       )}
 
@@ -37,7 +37,7 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
 
       {foto
         ? <img className="car-img-real" src={foto} alt={auto.modelo} style={{ outline: auto.urgente ? '2px solid var(--accent)' : auto.destacado ? '2px solid #c9a84c' : 'none' }} />
-        : <div className="car-img-placeholder">🚗</div>
+        : <div className="car-img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity=".3"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
       }
 
       <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`}>

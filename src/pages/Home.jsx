@@ -58,30 +58,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* EXPLORAR POR TIPO */}
-      <div style={{ padding: '4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px,3vw,36px)', lineHeight: 1, marginBottom: '2.5rem' }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {[
-            { tipo: 'Camioneta', icon: '🛻' },
-            { tipo: 'SUV',       icon: '🚙' },
-            { tipo: 'Hatchback', icon: '🚗' },
-            { tipo: 'Sedán',     icon: '🚘' },
-            { tipo: 'Pickup',    icon: '🚚' },
-            { tipo: 'Minivan',   icon: '🚐' },
-            { tipo: 'Coupé',     icon: '🏎️' },
-          ].map(({ tipo, icon }) => (
-            <button key={tipo} onClick={() => navigate(`/catalogo?tipo=${tipo}`)}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '1.25rem 1.75rem', background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', transition: 'border-color .2s, background .2s', minWidth: '100px' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = '#111' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--black)' }}>
-              <span style={{ fontSize: '32px' }}>{icon}</span>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--white)', letterSpacing: '.04em' }}>{tipo}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* INSTRUCCIONES COMPRAR Y VENDER */}
       <div style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--black)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Guía práctica</div>
@@ -180,6 +156,32 @@ export default function Home() {
         }
         <div style={{ marginTop: '2rem' }}>
           <button className="btn-secondary" onClick={() => navigate('/concesionarias')}>Ver todas las concesionarias →</button>
+        </div>
+      </div>
+
+      {/* EXPLORAR POR TIPO */}
+      <div style={{ padding: '4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Catálogo</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '2.5rem' }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          {[
+            { tipo: 'Camioneta', svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="2" y="14" width="60" height="12" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M4 14 L10 6 L40 6 L50 14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="10" y="7" width="18" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="14" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="50" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
+            { tipo: 'SUV',       svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="2" y="14" width="60" height="12" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M5 14 L12 5 L52 5 L59 14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="13" y="6" width="38" height="8" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="14" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="50" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
+            { tipo: 'Hatchback', svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="4" y="15" width="56" height="11" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M8 15 L18 6 L46 6 L56 15" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="19" y="7" width="26" height="8" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="16" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="48" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
+            { tipo: 'Sedán',     svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="3" y="15" width="58" height="11" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M6 15 L14 7 L50 7 L58 15" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="16" y="8" width="22" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="15" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="49" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
+            { tipo: 'Pickup',    svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="2" y="14" width="60" height="12" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M4 14 L10 6 L32 6 L36 14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="10" y="7" width="18" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><line x1="36" y1="14" x2="36" y2="26" stroke="currentColor" strokeWidth="1.5"/><circle cx="14" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="50" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
+            { tipo: 'Minivan',   svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="2" y="12" width="60" height="14" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M4 12 L8 4 L56 4 L60 12" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="9" y="5" width="18" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><rect x="30" y="5" width="18" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="14" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="50" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
+            { tipo: 'Coupé',     svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="3" y="16" width="58" height="10" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M6 16 L20 7 L44 7 L58 16" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="21" y="8" width="18" height="8" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="15" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="49" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
+          ].map(({ tipo, svg }) => (
+            <button key={tipo} onClick={() => navigate(`/catalogo?tipo=${tipo}`)}
+              className="tipo-card"
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '1.5rem 2rem', background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', transition: 'border-color .2s, background .2s, color .2s', minWidth: '110px', color: 'var(--gray4)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = '#110000'; e.currentTarget.style.color = 'var(--accent)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--black)'; e.currentTarget.style.color = 'var(--gray4)' }}>
+              {svg}
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', letterSpacing: '.08em', textTransform: 'uppercase' }}>{tipo}</span>
+            </button>
+          ))}
         </div>
       </div>
 

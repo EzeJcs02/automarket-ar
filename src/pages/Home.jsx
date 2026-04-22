@@ -41,8 +41,8 @@ export default function Home() {
             Plataforma N°1 de autos en Argentina
           </div>
           
-          {/* AQUÍ ESTÁ EL CAMBIO: Título más chico y elegante (de 160px a 110px max) */}
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(54px,9vw,110px)', lineHeight: .9, letterSpacing: '2px', marginBottom: '2rem' }}>
+          {/* Título intermedio (130px) y con el interlineado ajustado a 1.05 para que no choquen los tildes */}
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,10vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>AUTO</span>
           </h1>
           
@@ -103,7 +103,7 @@ export default function Home() {
       {/* FOOTER */}
       <div style={{ padding: '3rem 4rem', borderTop: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '2px' }}>AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR</div>
-        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>© 2025 AutoMarket AR</div>
+        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>© 2026 AutoMarket AR</div>
         <Link to="/registro" style={{ fontSize: '13px', color: 'var(--gray4)' }}>Soy concesionaria →</Link>
       </div>
     </div>

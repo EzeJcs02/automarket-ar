@@ -6,78 +6,91 @@ export default function Navbar() {
   const { user, concesionaria, signOut, isAdmin } = useAuth()
   const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   async function handleSignOut() {
     await signOut()
     navigate('/')
+    setMenuOpen(false)
   }
 
   function handleSearch(e) {
     e.preventDefault()
-    if (busqueda.trim()) {
-      navigate(`/catalogo?q=${encodeURIComponent(busqueda.trim())}`)
-      // Opcional: setBusqueda('') si querés que la barra se limpie después de buscar
-    } else {
-      navigate('/catalogo')
-    }
+    if (busqueda.trim()) navigate(`/catalogo?q=${encodeURIComponent(busqueda.trim())}`)
+    else navigate('/catalogo')
+    setMenuOpen(false)
   }
 
   return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-      background: 'var(--black)', borderBottom: '1px solid var(--gray2)',
-      padding: '0 2rem', height: '58px', display: 'flex',
-      alignItems: 'center', justifyContent: 'space-between'
-    }}>
-      
-      {/* LADO IZQUIERDO: Logo + Buscador */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', flex: 1 }}>
-        <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
+    <>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+        background: 'var(--black)', borderBottom: '1px solid var(--gray2)',
+        padding: '0 1.5rem', height: '58px', display: 'flex',
+        alignItems: 'center', justifyContent: 'space-between'
+      }}>
+        <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
           AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
         </Link>
 
-        {/* BARRA DE BÚSQUEDA GLOBAL */}
-        <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px', maxWidth: '300px', width: '100%' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input
-            type="text"
-            placeholder="Buscar vehículos, marcas, modelos..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }}
-          />
-        </form>
-      </div>
+        {/* DESKTOP: buscador + links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'flex-end' }} className="nav-desktop">
+          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px', maxWidth: '260px', width: '100%' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Buscar..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
+          </form>
+          <Link to="/catalogo" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Catálogo</Link>
+          <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Concesionarias</Link>
+          {user ? (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Link to={isAdmin ? '/admin' : '/panel'}><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>{isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}</button></Link>
+              <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }} onClick={handleSignOut}>Salir</button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Link to="/login"><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Ingresar</button></Link>
+              <Link to="/registro"><button className="btn-primary" style={{ padding: '7px 16px', fontSize: '13px' }}>Publicar auto</button></Link>
+            </div>
+          )}
+        </div>
 
-      {/* LADO DERECHO: Links y Botones de Usuario */}
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-        <Link to="/catalogo" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none' }}>Catálogo</Link>
-        <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none' }}>Concesionarias</Link>
-        {user ? (
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <Link to={isAdmin ? '/admin' : '/panel'}>
-              <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>
-                {isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}
-              </button>
-            </Link>
-            <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }} onClick={handleSignOut}>
-              Salir
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <Link to="/login">
-              <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Ingresar</button>
-            </Link>
-            <Link to="/registro">
-              <button className="btn-primary" style={{ padding: '7px 16px', fontSize: '13px' }}>Publicar auto</button>
-            </Link>
-          </div>
-        )}
-      </div>
-    </nav>
+        {/* MOBILE: botón hamburguesa */}
+        <button onClick={() => setMenuOpen(!menuOpen)} className="nav-hamburger" style={{ background: 'transparent', border: 'none', color: 'var(--white)', cursor: 'pointer', padding: '8px', display: 'none', flexDirection: 'column', gap: '5px' }}>
+          <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
+          <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', opacity: menuOpen ? 0 : 1 }} />
+          <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
+        </button>
+      </nav>
+
+      {/* MOBILE MENU */}
+      {menuOpen && (
+        <div style={{ position: 'fixed', top: '58px', left: 0, right: 0, bottom: 0, background: 'var(--black)', zIndex: 999, padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="nav-mobile-menu">
+          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 16px', width: '100%' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Buscar vehículos..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '15px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
+          </form>
+          <Link to="/catalogo" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Catálogo</Link>
+          <Link to="/concesionarias" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Concesionarias</Link>
+          {user ? (
+            <>
+              <Link to={isAdmin ? '/admin' : '/panel'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>{isAdmin ? 'Panel Admin' : 'Mi Panel'}</Link>
+              <button onClick={handleSignOut} style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '14px', borderRadius: 'var(--radius)', fontSize: '15px', cursor: 'pointer', marginTop: 'auto' }}>Cerrar sesión</button>
+            </>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'auto' }}>
+              <Link to="/login" onClick={() => setMenuOpen(false)}><button className="btn-secondary" style={{ width: '100%', padding: '14px', fontSize: '15px' }}>Ingresar</button></Link>
+              <Link to="/registro" onClick={() => setMenuOpen(false)}><button className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px' }}>Publicar auto</button></Link>
+            </div>
+          )}
+        </div>
+      )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .nav-desktop { display: none !important; }
+          .nav-hamburger { display: flex !important; }
+        }
+      `}</style>
+    </>
   )
 }

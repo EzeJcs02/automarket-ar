@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 export default function AutoDetalle() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user, concesionaria, isAdmin } = useAuth()
   const [auto, setAuto] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fotoIdx, setFotoIdx] = useState(0)
@@ -12,6 +14,9 @@ export default function AutoDetalle() {
   const [consulta, setConsulta] = useState({ nombre: '', email: '', mensaje: '' })
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
+  const [isFavorito, setIsFavorito] = useState(false)
+
+  const esParticular = user && !concesionaria && !isAdmin
 
   useEffect(() => {
     supabase.from('autos').select('*, concesionarias(*)').eq('id', id).single().then(({ data }) => {
@@ -19,6 +24,23 @@ export default function AutoDetalle() {
       setLoading(false)
     })
   }, [id])
+
+  useEffect(() => {
+    if (!esParticular) return
+    supabase.from('favoritos').select('id').eq('user_id', user.id).eq('auto_id', id).single()
+      .then(({ data }) => setIsFavorito(!!data))
+  }, [user, id])
+
+  async function toggleFavorito() {
+    if (!user) { navigate('/login'); return }
+    if (isFavorito) {
+      await supabase.from('favoritos').delete().eq('user_id', user.id).eq('auto_id', id)
+      setIsFavorito(false)
+    } else {
+      await supabase.from('favoritos').insert({ user_id: user.id, auto_id: id })
+      setIsFavorito(true)
+    }
+  }
 
   async function enviarConsulta() {
     if (!consulta.nombre || !consulta.email || !consulta.mensaje) return
@@ -136,7 +158,16 @@ export default function AutoDetalle() {
           <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`} style={{ position: 'static', display: 'inline-block', marginBottom: '1rem' }}>
             {auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}
           </span>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '8px' }}>{auto.marca}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '8px' }}>{auto.marca}</div>
+            {esParticular && (
+              <button onClick={toggleFavorito}
+                style={{ background: isFavorito ? 'var(--accent)' : 'var(--gray2)', border: 'none', borderRadius: '50%', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', transition: 'all .2s', flexShrink: 0 }}
+                title={isFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}>
+                {isFavorito ? '♥' : '♡'}
+              </button>
+            )}
+          </div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', lineHeight: 1, marginBottom: '1rem' }}>{auto.modelo.toUpperCase()}</div>
 
           {(Number(auto.precio_ars) > 0 || Number(auto.precio_usd) > 0) && (

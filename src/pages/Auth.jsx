@@ -30,32 +30,56 @@ export function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div style={{ width: '420px' }}>
-        <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '28px', letterSpacing: '3px', display: 'block', marginBottom: '3rem' }}>
-          AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
-        </Link>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', lineHeight: 1, marginBottom: '.5rem' }}>BIENVENIDO</div>
-        <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Ingresá a tu panel de concesionaria</div>
-        <form onSubmit={handleLogin}>
-          <div className="form-field">
-            <label>Email</label>
-            <input type="email" placeholder="concesionaria@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+    <div style={{ minHeight: '100vh', display: 'flex' }}>
+      {/* LADO IZQUIERDO — imagen */}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'none' }} className="login-left">
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a0000 0%, #2e0a0a 40%, #0a0a0a 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: .05, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
+        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.25) 0%, transparent 70%)' }} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '64px', lineHeight: .95, marginBottom: '1.5rem' }}>
+            TU PRÓXIMO<br />AUTO<br /><span style={{ color: 'var(--accent)' }}>TE ESPERA</span>
           </div>
-          <div className="form-field">
-            <label>Contraseña</label>
-            <input type="password" placeholder="••••••••" value={pass} onChange={e => setPass(e.target.value)} required />
-          </div>
-          {error && <p className="error-msg">{error}</p>}
-          <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }} disabled={loading}>
-            {loading ? 'Ingresando...' : 'Ingresar al panel'}
-          </button>
-        </form>
-        <p style={{ fontSize: '13px', color: 'var(--gray4)', textAlign: 'center' }}>
-          ¿No tenés cuenta?{' '}
-          <Link to="/registro" style={{ color: 'var(--accent)' }}>Registrá tu concesionaria</Link>
-        </p>
+          <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '340px', lineHeight: 1.7 }}>
+            La plataforma de concesionarias más avanzada de Argentina.
+          </p>
+        </div>
       </div>
+
+      {/* LADO DERECHO — formulario */}
+      <div style={{ width: '100%', maxWidth: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
+        <div style={{ width: '100%', maxWidth: '380px' }}>
+          <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '3px', display: 'block', marginBottom: '3rem' }}>
+            AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+          </Link>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '44px', lineHeight: 1, marginBottom: '.5rem' }}>BIENVENIDO</div>
+          <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Ingresá a tu panel de concesionaria</div>
+          <form onSubmit={handleLogin}>
+            <div className="form-field">
+              <label>Email</label>
+              <input type="email" placeholder="concesionaria@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+            </div>
+            <div className="form-field">
+              <label>Contraseña</label>
+              <input type="password" placeholder="••••••••" value={pass} onChange={e => setPass(e.target.value)} required />
+            </div>
+            {error && <p className="error-msg">{error}</p>}
+            <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }} disabled={loading}>
+              {loading ? 'Ingresando...' : 'Ingresar al panel'}
+            </button>
+          </form>
+          <p style={{ fontSize: '13px', color: 'var(--gray4)', textAlign: 'center' }}>
+            ¿No tenés cuenta?{' '}
+            <Link to="/registro" style={{ color: 'var(--accent)' }}>Registrá tu concesionaria</Link>
+          </p>
+        </div>
+      </div>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .login-left { display: block !important; }
+        }
+      `}</style>
     </div>
   )
 }

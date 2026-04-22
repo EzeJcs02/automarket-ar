@@ -41,7 +41,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* --- HERO CON BUSCADOR PREMIUM --- */}
+      {/* --- HERO CON BUSCADOR PREMIUM Y AJUSTE DE TAMAÑO --- */}
       <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, opacity: .04, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
@@ -51,16 +51,20 @@ export default function Home() {
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
             Plataforma N°1 de autos en Argentina
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(72px,12vw,160px)', lineHeight: .9, letterSpacing: '2px', marginBottom: '2rem' }}>
+          {/* AJUSTE TIPOGRÁFICO: clamp bajado de 160px max a 110px max, y 12vw a 9vw */}
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(64px,9vw,110px)', lineHeight: 1.0, letterSpacing: '2px', marginBottom: '2rem', color: 'var(--white)' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>AUTO</span>
           </h1>
-          <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-            Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
+          <p style={{ fontSize: '16px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2.5rem' }}>
+            Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, comparé y contactá directo.
           </p>
 
-          {/* BARRA DE BÚSQUEDA */}
-          <form onSubmit={handleBuscar} style={{ display: 'flex', gap: '8px', maxWidth: '520px', marginBottom: '2rem', background: 'rgba(26, 26, 26, 0.7)', backdropFilter: 'blur(10px)', padding: '10px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', fontSize: '18px' }}>🔍</div>
+          {/* BARRA DE BÚSQUEDA CON ICONO SVG LIMPIO */}
+          <form onSubmit={handleBuscar} style={{ display: 'flex', gap: '10px', maxWidth: '540px', marginBottom: '2.5rem', background: 'rgba(26, 26, 26, 0.7)', backdropFilter: 'blur(10px)', padding: '10px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            {/* ICONO SVG LIMPIO EN LUGAR DEL EMOJI */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', color: 'var(--gray4)' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
             <input
               type="text"
               placeholder="Ej: Corolla, Amarok, 2024..."

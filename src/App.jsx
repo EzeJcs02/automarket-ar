@@ -10,6 +10,7 @@ import { Concesionarias, ConcesionariaDetalle } from './pages/Concesionarias'
 import { Login, Registro } from './pages/Auth'
 import Panel from './pages/Panel'
 import Admin from './pages/Admin'
+import Planes from './pages/Planes'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
                 <Route path="/concesionaria/:id" element={<ConcesionariaDetalle />} />
                 <Route path="/panel" element={<Panel />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/planes" element={<Planes />} />
                 <Route path="/legales" element={<Legales />} />
                 <Route path="/arrepentimiento" element={<Arrepentimiento />} />
               </Routes>

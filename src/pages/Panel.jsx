@@ -4,7 +4,9 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
-const LIMITE_FREE = 2
+const LIMITES_PLAN = { free: 1, basico: 10, pro: 25, premium: Infinity }
+const NOMBRE_PLAN = { free: 'FREE', basico: 'BÁSICO', pro: 'PRO', premium: 'PREMIUM' }
+const WA_PLANES = 'https://wa.me/5493874111111'
 
 export default function Panel() {
   const { user, concesionaria, fetchConcesionaria, isAdmin, loading: authLoading } = useAuth()
@@ -38,9 +40,11 @@ export default function Panel() {
     </div>
   )
 
-  const esPremium = concesionaria?.plan === 'premium'
+  const plan = concesionaria?.plan || 'free'
+  const esPremium = plan === 'premium'
+  const limitePlan = LIMITES_PLAN[plan] ?? 1
   const autosActivos = autos.filter(a => a.activo).length
-  const limiteAlcanzado = !esPremium && autosActivos >= LIMITE_FREE
+  const limiteAlcanzado = limitePlan !== Infinity && autosActivos >= limitePlan
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
@@ -63,8 +67,8 @@ export default function Panel() {
           )}
           <div>
             <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--white)' }}>{concesionaria?.nombre || 'Cargando...'}</div>
-            <div style={{ fontSize: '11px', color: esPremium ? '#c9a84c' : 'var(--gray5)', marginTop: '2px', fontFamily: 'var(--font-mono)', fontWeight: esPremium ? 600 : 400 }}>
-              {esPremium ? '★ PREMIUM' : `FREE · ${autosActivos}/${LIMITE_FREE} autos`}
+            <div style={{ fontSize: '11px', color: plan === 'premium' ? 'var(--accent)' : plan === 'pro' ? '#e0a020' : plan === 'basico' ? '#4ade80' : 'var(--gray5)', marginTop: '2px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+              {plan === 'premium' ? '★ PREMIUM' : plan === 'pro' ? '◆ PRO' : plan === 'basico' ? '● BÁSICO' : `FREE · ${autosActivos}/${limitePlan} autos`}
             </div>
           </div>
         </div>
@@ -91,24 +95,35 @@ export default function Panel() {
   )
 }
 
-function UpgradeModal({ onClose }) {
+function UpgradeModal({ onClose, planActual }) {
+  const planes = [
+    { id: 'basico', nombre: 'BÁSICO', precio: '20.000', limite: '10 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
+    { id: 'pro', nombre: 'PRO', precio: '50.000', limite: '25 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
+    { id: 'premium', nombre: 'PREMIUM', precio: '100.000', limite: 'Ilimitadas + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+  ]
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.9)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '3rem', width: '100%', maxWidth: '480px', border: '1px solid rgba(201,168,76,.4)', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '1rem' }}>🔒</div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', color: 'var(--gold)', marginBottom: '1rem' }}>LÍMITE ALCANZADO</div>
-        <p style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>
-          El plan gratuito permite hasta <strong style={{ color: 'var(--white)' }}>{LIMITE_FREE} autos activos</strong>. Para publicar más vehículos necesitás el plan Premium.
-        </p>
-        <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', border: '1px solid rgba(201,168,76,.3)' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--gold)', marginBottom: '.5rem' }}>PLAN PREMIUM</div>
-          <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '1rem' }}>Publicaciones ilimitadas · Soporte prioritario</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: 'var(--white)' }}>$15.000 <span style={{ fontSize: '16px', color: 'var(--gray4)' }}>ARS/mes</span></div>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '680px', border: '1px solid var(--gray2)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>LÍMITE ALCANZADO</div>
+            <div style={{ fontSize: '14px', color: 'var(--gray4)' }}>Elegí un plan para seguir publicando.</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '22px', cursor: 'pointer' }}>✕</button>
         </div>
-        <button className="btn-primary" style={{ width: '100%', marginBottom: '10px', background: '#c9a84c', fontSize: '15px', padding: '14px' }}
-          onClick={() => window.open('https://wa.me/5493874111111?text=Hola! Quiero contratar el plan Premium de AutoMarket AR', '_blank')}>
-          Contratar por WhatsApp
-        </button>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+          {planes.map(p => (
+            <div key={p.id} style={{ background: 'var(--black)', border: `1px solid ${p.id === 'premium' ? 'rgba(230,51,41,.4)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: p.color }}>{p.nombre}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--white)' }}>${p.precio}<span style={{ fontSize: '12px', color: 'var(--gray4)', marginLeft: '4px' }}>/mes</span></div>
+              <div style={{ fontSize: '12px', color: 'var(--gray4)', flex: 1 }}>{p.limite}</div>
+              <button onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(p.msg)}`, '_blank')}
+                style={{ padding: '9px', borderRadius: 'var(--radius)', border: 'none', background: p.id === 'premium' ? 'var(--accent)' : 'var(--gray2)', color: 'var(--white)', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                Contratar →
+              </button>
+            </div>
+          ))}
+        </div>
         <button className="btn-secondary" style={{ width: '100%' }} onClick={onClose}>Cerrar</button>
       </div>
     </div>
@@ -362,7 +377,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
         <div style={{ background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gold)' }}>Límite del plan gratuito alcanzado</div>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '2px' }}>Necesitás Premium para publicar más de {LIMITE_FREE} autos.</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '2px' }}>Tu plan actual tiene un límite de publicaciones. Upgradéalo para publicar más.</div>
           </div>
           <button onClick={() => setShowUpgrade(true)} style={{ background: 'rgba(201,168,76,.2)', border: '1px solid rgba(201,168,76,.4)', color: 'var(--gold)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
             Ver Premium →

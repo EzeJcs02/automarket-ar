@@ -41,6 +41,7 @@ export default function Navbar() {
           </form>
           <Link to="/catalogo" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Catálogo</Link>
           <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Concesionarias</Link>
+          <Link to="/planes" style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Planes</Link>
           {user ? (
             <div style={{ display: 'flex', gap: '8px' }}>
               <Link to={isAdmin ? '/admin' : '/panel'}><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>{isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}</button></Link>
@@ -71,6 +72,7 @@ export default function Navbar() {
           </form>
           <Link to="/catalogo" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Catálogo</Link>
           <Link to="/concesionarias" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Concesionarias</Link>
+          <Link to="/planes" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Planes</Link>
           {user ? (
             <>
               <Link to={isAdmin ? '/admin' : '/panel'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>{isAdmin ? 'Panel Admin' : 'Mi Panel'}</Link>

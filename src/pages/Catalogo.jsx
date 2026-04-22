@@ -15,9 +15,19 @@ export default function Catalogo() {
     fetchAutos()
   }, [])
 
+  function sortByPriority(lista) {
+    const planScore = { premium: 1000, pro: 100, basico: 10 }
+    return [...lista].sort((a, b) => {
+      const sa = (planScore[a.concesionarias?.plan] || 0) + (a.urgente ? 5 : 0) + (a.destacado ? 3 : 0)
+      const sb = (planScore[b.concesionarias?.plan] || 0) + (b.urgente ? 5 : 0) + (b.destacado ? 3 : 0)
+      if (sb !== sa) return sb - sa
+      return new Date(b.created_at) - new Date(a.created_at)
+    })
+  }
+
   async function fetchAutos() {
     setLoading(true)
-    let q = supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true)
+    let q = supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)').eq('activo', true)
     if (filtros.tipo) q = q.eq('tipo', filtros.tipo)
     if (filtros.marca) q = q.eq('marca', filtros.marca)
     if (filtros.precioMin) q = q.gte('precio_ars', filtros.precioMin)
@@ -27,9 +37,8 @@ export default function Catalogo() {
     if (filtros.concesionaria) q = q.eq('concesionaria_id', filtros.concesionaria)
     if (filtros.combustible) q = q.eq('combustible', filtros.combustible)
     if (filtros.busqueda) q = q.or(`marca.ilike.%${filtros.busqueda}%,modelo.ilike.%${filtros.busqueda}%`)
-    q = q.order('created_at', { ascending: false })
     const { data } = await q
-    setAutos(data || [])
+    setAutos(sortByPriority(data || []))
     setLoading(false)
   }
 

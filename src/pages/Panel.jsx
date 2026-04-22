@@ -20,6 +20,7 @@ export default function Panel() {
     if (!user) { navigate('/login'); return }
     if (isAdmin) { navigate('/admin'); return }
     if (concesionaria) loadData()
+    else setLoading(false)
   }, [user, concesionaria, authLoading])
 
   async function loadData() {
@@ -32,12 +33,10 @@ export default function Panel() {
     setLoading(false)
   }
 
-  if (!concesionaria && !loading) return (
-    <div className="page-wrapper" style={{ padding: '4rem', textAlign: 'center' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', marginBottom: '1rem', color: 'var(--gold)' }}>CUENTA PENDIENTE</div>
-      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu solicitud está siendo revisada. Te avisamos por email cuando esté aprobada.</p>
-    </div>
-  )
+  if (!concesionaria && !loading) {
+    navigate('/favoritos')
+    return null
+  }
 
   const plan = concesionaria?.plan || 'free'
   const esPremium = plan === 'premium'

@@ -41,14 +41,15 @@ export default function Home() {
             Plataforma N°1 de autos en Argentina
           </div>
           
-          {/* Título intermedio (130px) y con el interlineado ajustado a 1.05 para que no choquen los tildes */}
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,10vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>AUTO</span>
           </h1>
           
+          {/* AQUÍ ESTÁ LA CORRECCIÓN ORTOGRÁFICA */}
           <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
-            Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, comparé y contactá directo.
+            Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
           </p>
+          
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <button className="btn-primary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/catalogo')}>Ver catálogo completo</button>
             <button className="btn-secondary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/concesionarias')}>Ver concesionarias</button>

@@ -198,8 +198,9 @@ export default function Home() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Explorar</div>
-            <Link to="/catalogo" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Catálogo de Autos</Link>
+            <Link to="/catalogo" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Catálogo de Vehículos</Link>
             <Link to="/concesionarias" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Red de Concesionarias</Link>
+            <Link to="/planes" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Planes y Precios</Link>
             <Link to="/registro" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Publicar mi stock</Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

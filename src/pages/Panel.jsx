@@ -184,17 +184,49 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
       <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '2rem' }}>Métricas en tiempo real de tu concesionaria.</div>
 
       {/* BANNER PLAN */}
-      {!esPremium && (
-        <div style={{ background: 'linear-gradient(135deg, rgba(201,168,76,.1), rgba(201,168,76,.05))', border: '1px solid rgba(201,168,76,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+      <div style={{ borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem', marginBottom: '2rem', border: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gold)', marginBottom: '2px' }}>Plan Gratuito — {autos.filter(a => a.activo).length}/{LIMITE_FREE} autos activos</div>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>Pasá a Premium para publicar sin límites.</div>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '4px' }}>Tu plan actual</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: concesionaria?.plan === 'premium' ? 'var(--accent)' : concesionaria?.plan === 'pro' ? '#e0a020' : concesionaria?.plan === 'basico' ? '#4ade80' : 'var(--gray4)' }}>
+              {(concesionaria?.plan || 'free').toUpperCase()}
+              {concesionaria?.plan === 'premium' && <span style={{ fontSize: '14px', marginLeft: '8px' }}>★</span>}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>
+              {autos.filter(a => a.activo).length} autos activos
+              {LIMITES_PLAN[concesionaria?.plan || 'free'] !== Infinity && ` / ${LIMITES_PLAN[concesionaria?.plan || 'free']} permitidos`}
+              {LIMITES_PLAN[concesionaria?.plan || 'free'] === Infinity && ' · Sin límite'}
+            </div>
           </div>
-          <button onClick={() => setShowUpgrade(true)} style={{ background: 'rgba(201,168,76,.15)', border: '1px solid rgba(201,168,76,.4)', color: 'var(--gold)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-            Ver plan Premium →
-          </button>
+          {concesionaria?.plan !== 'premium' && (
+            <button onClick={() => setShowUpgrade(true)} style={{ background: 'var(--accent)', border: 'none', color: 'var(--white)', padding: '10px 20px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              Mejorar plan →
+            </button>
+          )}
         </div>
-      )}
+        {/* PLANES DISPONIBLES */}
+        {concesionaria?.plan !== 'premium' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', paddingTop: '1.25rem', borderTop: '1px solid var(--gray2)' }}>
+            {[
+              { id: 'basico', nombre: 'BÁSICO', precio: '$20.000', limite: '10 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
+              { id: 'pro', nombre: 'PRO', precio: '$50.000', limite: '25 + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
+              { id: 'premium', nombre: 'PREMIUM', precio: '$100.000', limite: 'Ilimitadas + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+            ].filter(p => {
+              const orden = { free: 0, basico: 1, pro: 2, premium: 3 }
+              return orden[p.id] > orden[concesionaria?.plan || 'free']
+            }).map(p => (
+              <button key={p.id} onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(p.msg)}`, '_blank')}
+                style={{ background: 'var(--black)', border: `1px solid ${p.color}22`, borderRadius: 'var(--radius)', padding: '12px', textAlign: 'left', cursor: 'pointer', transition: 'border-color .2s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = p.color}
+                onMouseLeave={e => e.currentTarget.style.borderColor = `${p.color}22`}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: p.color, marginBottom: '4px' }}>{p.nombre}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--white)', marginBottom: '2px' }}>{p.precio}<span style={{ fontSize: '10px', color: 'var(--gray4)', marginLeft: '3px' }}>/mes</span></div>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)' }}>{p.limite}</div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
         {[['Stock Activo', autos.filter(a => a.activo).length], ['Stock Pausado', autos.filter(a => !a.activo).length], ['Total Consultas', consultas.length], ['Consultas (7 días)', consultas.filter(c => new Date(c.created_at) > new Date(Date.now()-7*86400000)).length]].map(([label, val]) => (

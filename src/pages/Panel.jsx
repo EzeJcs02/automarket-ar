@@ -401,7 +401,12 @@ function Perfil({ concesionaria, onSave }) {
 
   return (
     <div style={{ maxWidth: '800px' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PERFIL COMERCIAL</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.5rem' }}>
+  <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>PERFIL COMERCIAL</div>
+  <a href={`/concesionaria/${concesionaria.id}`} target="_blank" rel="noopener noreferrer">
+    <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '13px' }}>Ver perfil público →</button>
+  </a>
+</div>
       <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Configuración pública de la identidad de la concesionaria.</div>
       
       <form onSubmit={handleSave} style={{ background: 'var(--gray1)', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>

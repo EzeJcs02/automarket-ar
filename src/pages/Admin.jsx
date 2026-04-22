@@ -8,6 +8,7 @@ export default function Admin() {
   const navigate = useNavigate()
   const [pendientes, setPendientes] = useState([])
   const [aprobadas, setAprobadas] = useState([])
+  const [publicaciones, setPublicaciones] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
 
@@ -19,12 +20,14 @@ export default function Admin() {
   }, [user, isAdmin, authLoading])
 
   async function loadData() {
-    const [p, a] = await Promise.all([
+    const [p, a, pub] = await Promise.all([
       supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
-      supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre')
+      supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
+      supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false })
     ])
     setPendientes(p.data || [])
     setAprobadas(a.data || [])
+    setPublicaciones(pub.data || [])
     setDataLoading(false)
   }
 
@@ -50,15 +53,25 @@ export default function Admin() {
     loadData()
   }
 
-  async function togglePremium(c) {
-    const nuevoplan = c.plan === 'premium' ? 'free' : 'premium'
-    await supabase.from('concesionarias').update({ plan: nuevoplan }).eq('id', c.id)
+  async function cambiarPlan(c, nuevoPlan) {
+    await supabase.from('concesionarias').update({ plan: nuevoPlan }).eq('id', c.id)
+    loadData()
+  }
+
+  async function toggleDestacadoAuto(auto) {
+    await supabase.from('autos').update({ destacado: !auto.destacado, urgente: false }).eq('id', auto.id)
+    loadData()
+  }
+
+  async function toggleUrgenteAuto(auto) {
+    await supabase.from('autos').update({ urgente: !auto.urgente, destacado: false }).eq('id', auto.id)
     loadData()
   }
 
   const navItems = [
     { id: 'pendientes', label: 'Solicitudes Pendientes', count: pendientes.length },
     { id: 'aprobadas', label: 'Agencias Activas', count: aprobadas.length },
+    { id: 'publicaciones', label: 'Publicaciones', count: publicaciones.length },
   ]
 
   return (
@@ -117,6 +130,58 @@ export default function Admin() {
               </div>
             )}
 
+            {/* PUBLICACIONES */}
+            {tab === 'publicaciones' && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PUBLICACIONES</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Marcá autos como Destacados o Urgentes con un click.</div>
+                {publicaciones.length === 0
+                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay publicaciones activas.</p></div>
+                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                      <thead>
+                        <tr>
+                          {['Vehículo', 'Agencia', 'Precio', 'Destacado', 'Urgente'].map(h => (
+                            <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {publicaciones.map(a => (
+                          <tr key={a.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            <td style={{ padding: '16px 20px' }}>
+                              <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{a.marca} {a.modelo}</div>
+                              <div style={{ color: 'var(--gray5)', fontSize: '12px', marginTop: '2px' }}>{a.anio} · {Number(a.kilometraje || 0).toLocaleString('es-AR')} km</div>
+                            </td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{a.concesionarias?.nombre || '—'}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
+                              {a.precio_ars ? '$' + Number(a.precio_ars).toLocaleString('es-AR') : 'Consultar'}
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <button onClick={() => toggleDestacadoAuto(a)}
+                                style={{ padding: '6px 14px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
+                                  background: a.destacado ? 'rgba(201,168,76,.25)' : 'rgba(255,255,255,.08)',
+                                  color: a.destacado ? '#c9a84c' : 'var(--gray4)' }}>
+                                {a.destacado ? '⭐ Destacado' : 'Normal'}
+                              </button>
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <button onClick={() => toggleUrgenteAuto(a)}
+                                style={{ padding: '6px 14px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
+                                  background: a.urgente ? 'rgba(230,51,41,.25)' : 'rgba(255,255,255,.08)',
+                                  color: a.urgente ? 'var(--accent)' : 'var(--gray4)' }}>
+                                {a.urgente ? '🔥 Urgente' : 'Normal'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                }
+              </div>
+            )}
+
             {/* APROBADAS */}
             {tab === 'aprobadas' && (
               <div>
@@ -132,9 +197,15 @@ export default function Admin() {
                             <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{c.nombre}</td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{c.ciudad}</td>
                             <td style={{ padding: '16px 20px' }}>
-                              <button onClick={() => togglePremium(c)} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', background: c.plan === 'premium' ? 'rgba(201,168,76,.2)' : 'rgba(255,255,255,.1)', color: c.plan === 'premium' ? '#c9a84c' : 'var(--gray4)', transition: 'all .2s' }}>
-                                {c.plan === 'premium' ? '★ PREMIUM' : 'FREE'}
-                              </button>
+                              <select
+                                value={c.plan || 'free'}
+                                onChange={e => cambiarPlan(c, e.target.value)}
+                                style={{ background: 'var(--gray2)', border: '1px solid var(--gray3)', color: c.plan === 'premium' ? 'var(--accent)' : c.plan === 'pro' ? '#e0a020' : c.plan === 'basico' ? '#4ade80' : 'var(--gray4)', borderRadius: 'var(--radius)', padding: '4px 8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', outline: 'none' }}>
+                                <option value="free">FREE</option>
+                                <option value="basico">BÁSICO</option>
+                                <option value="pro">PRO</option>
+                                <option value="premium">PREMIUM</option>
+                              </select>
                             </td>
                             <td style={{ padding: '16px 20px' }}>
                               <button onClick={() => toggleDestacada(c)} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', background: c.destacada ? 'rgba(230,51,41,.2)' : 'rgba(255,255,255,.1)', color: c.destacada ? 'var(--accent)' : 'var(--gray4)', transition: 'all .2s' }}>

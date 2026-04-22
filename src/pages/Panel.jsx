@@ -98,43 +98,80 @@ export default function Panel() {
     </div>
   )
 }
-
 function Dashboard({ autos, consultas, concesionaria }) {
+  const [consultaDetalle, setConsultaDetalle] = useState(null)
+
   if (!concesionaria?.aprobada) return (
     <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', border: '1px solid rgba(201,168,76,.3)', maxWidth: '600px' }}>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--gold)', marginBottom: '1rem' }}>CUENTA EN REVISIÓN</div>
-      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu perfil comercial está siendo validado por el equipo de AutoMarket AR. Esto garantiza la seguridad de la plataforma. Recibirás un correo cuando puedas comenzar a publicar stock.</p>
+      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu perfil comercial está siendo validado por el equipo de AutoMarket AR. Recibirás un correo cuando puedas comenzar a publicar stock.</p>
     </div>
   )
 
   return (
     <div>
+      {/* MODAL DETALLE CONSULTA */}
+      {consultaDetalle && (
+        <div onClick={() => setConsultaDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
+              <button onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+            </div>
+            <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1.25rem', marginBottom: '1.5rem' }}>
+              <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Vehículo</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--white)' }}>{consultaDetalle.autos?.marca} {consultaDetalle.autos?.modelo}</div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Nombre</div>
+                <div style={{ fontSize: '14px', color: 'var(--white)' }}>{consultaDetalle.nombre_comprador}</div>
+              </div>
+              <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Email</div>
+                <div style={{ fontSize: '14px', color: 'var(--accent)' }}>{consultaDetalle.email_comprador}</div>
+              </div>
+            </div>
+            <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1.25rem', marginBottom: '2rem' }}>
+              <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '8px' }}>Mensaje</div>
+              <p style={{ fontSize: '14px', color: 'var(--white)', lineHeight: 1.7 }}>{consultaDetalle.mensaje}</p>
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '1.5rem', fontFamily: 'var(--font-mono)' }}>
+              {new Date(consultaDetalle.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </div>
+            <button className="btn-primary" style={{ width: '100%' }}
+              onClick={() => window.open(`mailto:${consultaDetalle.email_comprador}?subject=Re: ${consultaDetalle.autos?.marca} ${consultaDetalle.autos?.modelo}&body=Hola ${consultaDetalle.nombre_comprador},%0D%0A%0D%0AGracias por tu consulta sobre el ${consultaDetalle.autos?.marca} ${consultaDetalle.autos?.modelo}.%0D%0A%0D%0A`)}>
+              📧 Responder por email
+            </button>
+          </div>
+        </div>
+      )}
+
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>RESUMEN DE ACTIVIDAD</div>
       <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Métricas en tiempo real de tu concesionaria.</div>
-      
-      {/* TARJETAS PREMIUM */}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
         {[['Stock Activo', autos.filter(a => a.activo).length], ['Stock Pausado', autos.filter(a => !a.activo).length], ['Total Consultas', consultas.length], ['Consultas (7 días)', consultas.filter(c => new Date(c.created_at) > new Date(Date.now()-7*86400000)).length]].map(([label, val]) => (
-          <div key={label} style={{ background: 'var(--gray1)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <div key={label} style={{ background: 'var(--gray1)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
             <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '8px', fontFamily: 'var(--font-mono)', letterSpacing: '.05em', textTransform: 'uppercase' }}>{label}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>{val}</div>
           </div>
         ))}
       </div>
 
-      {/* TABLA DE CONSULTAS LIMPIA */}
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>Bandeja de Entrada</div>
       {consultas.length === 0
         ? <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', color: 'var(--gray4)' }}>No hay consultas pendientes.</div>
         : <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr>{['Vehículo','Interesado','Mensaje','Fecha'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '12px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+            <thead><tr>{['Vehículo','Interesado','Mensaje','Fecha',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '12px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
             <tbody>
               {consultas.map(c => (
-                <tr key={c.id} style={{ transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--gray1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <tr key={c.id} style={{ transition: 'background .2s', cursor: 'pointer' }} onClick={() => setConsultaDetalle(c)} onMouseEnter={e => e.currentTarget.style.background = 'var(--gray1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--white)', fontSize: '14px', fontWeight: '500' }}>{c.autos?.marca} {c.autos?.modelo}</td>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '14px' }}>{c.nombre_comprador}</td>
-                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '13px' }}>{c.mensaje}</td>
+                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '13px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray5)', fontSize: '12px' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
+                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)' }}><span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>Ver →</span></td>
                 </tr>
               ))}
             </tbody>

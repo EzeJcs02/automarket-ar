@@ -184,7 +184,7 @@ export default function Home() {
           ))}
         </div>
       </div>
-
+      
       {/* FOOTER */}
       <footer style={{ background: '#050505', borderTop: '1px solid var(--gray2)', padding: '5rem 4rem 2rem', color: 'var(--gray4)', fontSize: '13px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '4rem' }}>
@@ -215,8 +215,12 @@ export default function Home() {
             <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>Salta, Argentina</div>
             <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>soporte@automarket.ar</div>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>in</div>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', cursor: 'pointer' }}>ig</div>
+              
+              {/* ACÁ ESTÁ EL ICONO DE INSTAGRAM MODIFICADO */}
+              <a href="https://www.instagram.com/TU_USUARIO_AQUI" target="_blank" rel="noopener noreferrer" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', textDecoration: 'none', cursor: 'pointer', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E1306C'} onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
+                ig
+              </a>
+
             </div>
           </div>
         </div>

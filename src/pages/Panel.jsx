@@ -301,18 +301,18 @@ function MisAutos({ autos, reload, setTab }) {
               <button onClick={() => setEditando(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-field"><label>Marca</label><select value={editForm.marca} onChange={e => setEF('marca', e.target.value)}>{MARCAS.map(m => <option key={m}>{m}</option>)}</select></div>
-              <div className="form-field"><label>Modelo</label><input type="text" value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
-              <div className="form-field"><label>Año</label><input type="number" value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
-              <div className="form-field"><label>Kilometraje</label><input type="number" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
-              <div className="form-field"><label>Tipo</label><select value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
-              <div className="form-field"><label>Combustible</label><select value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
-              <div className="form-field"><label>Transmisión</label><select value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option><option>CVT</option></select></div>
-              <div className="form-field"><label>Color</label><input type="text" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
-              <div className="form-field"><label>Precio ARS</label><input type="number" value={editForm.precio_ars} onChange={e => setEF('precio_ars', e.target.value)} /></div>
+              <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: KTM, BMW, Honda..." required value={editForm.marca} onChange={e => setEF('marca', e.target.value)} /></div>
+              <div className="form-field"><label>Modelo *</label><input type="text" required value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
+              <div className="form-field"><label>Año *</label><input type="number" required value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
+              <div className="form-field"><label>Kilometraje *</label><input type="number" required min="0" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
+              <div className="form-field"><label>Tipo *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
+              <div className="form-field"><label>Combustible *</label><select required value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+              <div className="form-field"><label>Transmisión *</label><select required value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option></select></div>
+              <div className="form-field"><label>Color *</label><input type="text" required placeholder="Ej: Plata Metalizado" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
+              <div className="form-field"><label>Precio ARS *</label><input type="number" required value={editForm.precio_ars} onChange={e => setEF('precio_ars', e.target.value)} /></div>
               <div className="form-field"><label>Precio USD</label><input type="number" value={editForm.precio_usd} onChange={e => setEF('precio_usd', e.target.value)} /></div>
             </div>
-            <div className="form-field" style={{ marginTop: '.5rem' }}><label>Descripción</label><textarea style={{ height: '100px', resize: 'vertical' }} value={editForm.descripcion} onChange={e => setEF('descripcion', e.target.value)} /></div>
+            <div className="form-field" style={{ marginTop: '.5rem' }}><label>Descripción *</label><textarea style={{ height: '100px', resize: 'vertical' }} required value={editForm.descripcion} onChange={e => setEF('descripcion', e.target.value)} /></div>
             <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
               <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditando(null)}>Cancelar</button>
               <button className="btn-primary" style={{ flex: 1 }} onClick={guardarEdicion} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>

@@ -29,8 +29,30 @@ export default function Navbar() {
         padding: '0 1.5rem', height: '58px', display: 'flex',
         alignItems: 'center', justifyContent: 'space-between'
       }}>
-        <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-          AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', whiteSpace: 'nowrap' }}>
+          <svg width="22" height="28" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="fioraL">
+                <rect x="0" y="0" width="14" height="36"/>
+              </clipPath>
+              <clipPath id="fioraR">
+                <rect x="14" y="0" width="14" height="36"/>
+              </clipPath>
+            </defs>
+            <g clipPath="url(#fioraL)">
+              <rect x="0" y="0" width="6" height="36" fill="#ffffff"/>
+              <path d="M6,0 H20 Q28,0 28,9 Q28,18 20,18 H6 Z" fill="#ffffff"/>
+              <polygon points="14,18 20,18 27,36 21,36" fill="#ffffff"/>
+            </g>
+            <g clipPath="url(#fioraR)">
+              <rect x="0" y="0" width="6" height="36" fill="#e63329"/>
+              <path d="M6,0 H20 Q28,0 28,9 Q28,18 20,18 H6 Z" fill="#e63329"/>
+              <polygon points="14,18 20,18 27,36 21,36" fill="#e63329"/>
+            </g>
+          </svg>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '2px', color: 'var(--white)' }}>
+            FIORA<span style={{ color: 'var(--accent)' }}> AR</span>
+          </span>
         </Link>
 
         {/* DESKTOP: buscador + links */}

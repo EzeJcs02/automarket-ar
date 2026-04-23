@@ -213,7 +213,7 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Contacto</div>
             <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>Salta, Argentina</div>
-            <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>soporte@automarket.ar</div>
+            <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>soporte@fiora.ar</div>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               
               {/* ACÁ ESTÁ EL ICONO DE INSTAGRAM MODIFICADO */}
@@ -225,7 +225,7 @@ export default function Home() {
           </div>
         </div>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>© 2026 AutoMarket AR. Todos los derechos reservados.</div>
+          <div>© 2026 FIORA AR. Todos los derechos reservados.</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '30px', height: '40px', background: 'var(--gray2)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', textAlign: 'center', lineHeight: 1 }}>DATA<br/>FISCAL</div>
             <span style={{ fontSize: '11px' }}>Sitio Seguro</span>

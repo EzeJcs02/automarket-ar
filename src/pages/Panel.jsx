@@ -142,7 +142,7 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
   if (!concesionaria?.aprobada) return (
     <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', border: '1px solid rgba(201,168,76,.3)', maxWidth: '600px' }}>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--gold)', marginBottom: '1rem' }}>CUENTA EN REVISIÓN</div>
-      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu perfil comercial está siendo validado por el equipo de AutoMarket AR. Recibirás un correo cuando puedas comenzar a publicar stock.</p>
+      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu perfil comercial está siendo validado por el equipo de FIORA AR. Recibirás un correo cuando puedas comenzar a publicar stock.</p>
     </div>
   )
 
@@ -438,26 +438,26 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>ESPECIFICACIONES TÉCNICAS</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-            <div className="form-field"><label>Marca *</label><select value={form.marca} onChange={e => setF('marca', e.target.value)} required><option value="">Seleccioná</option>{MARCAS.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
+            <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: KTM, BMW, Honda..." value={form.marca} onChange={e => setF('marca', e.target.value)} required /></div>
             <div className="form-field"><label>Modelo Exacto *</label><input type="text" placeholder="Ej: Amarok 2.0 TDI" value={form.modelo} onChange={e => setF('modelo', e.target.value)} required /></div>
             <div className="form-field"><label>Año *</label><input type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
-            <div className="form-field"><label>Kilometraje</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} /></div>
-            <div className="form-field"><label>Condición</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)}><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
-            <div className="form-field"><label>Combustible</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
-            <div className="form-field"><label>Transmisión</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)}><option>Manual</option><option>Automática</option><option>CVT</option></select></div>
-            <div className="form-field"><label>Color Exterior</label><input type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} /></div>
+            <div className="form-field"><label>Kilometraje *</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
+            <div className="form-field"><label>Condición *</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
+            <div className="form-field"><label>Combustible *</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+            <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
+            <div className="form-field"><label>Color Exterior *</label><input type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>
           </div>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>VALOR COMERCIAL</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-            <div className="form-field"><label>Precio de Lista (ARS)</label><input type="number" placeholder="Dejar vacío para consultar" value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} /></div>
+            <div className="form-field"><label>Precio de Lista (ARS) *</label><input type="number" placeholder="Ej: 25000000" value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} required /></div>
             <div className="form-field"><label>Referencia USD (Opcional)</label><input type="number" placeholder="Ej: 15000" value={form.precio_usd} onChange={e => setF('precio_usd', e.target.value)} /></div>
           </div>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>INFORMACIÓN ADICIONAL</div>
           <div className="form-field">
-            <label>Descripción detallada</label>
-            <textarea style={{ height: '140px', resize: 'vertical' }} placeholder="Detallar estado general, mantenimientos realizados, accesorios extra, etc." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} />
+            <label>Descripción detallada *</label>
+            <textarea style={{ height: '140px', resize: 'vertical' }} placeholder="Detallar estado general, mantenimientos realizados, accesorios extra, etc." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} required />
           </div>
 
           {error && <div style={{ padding: '1rem', background: 'rgba(230,51,41,0.1)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius)', marginTop: '1rem' }}>{error}</div>}

@@ -2,141 +2,295 @@ import { useNavigate } from 'react-router-dom'
 
 const WA = 'https://wa.me/5493874111111'
 
-const PLANES_AGENCIA = [
+const PLANES = [
   {
     id: 'basico',
     nombre: 'BÁSICO',
     precio: '30.000',
     color: 'var(--gray4)',
     border: 'var(--gray2)',
-    publicaciones: '8 publicaciones activas',
+    publicaciones: 8,
     beneficios: [
       'Hasta 8 autos publicados',
       'Publicaciones por 30 días',
-      'Perfil de agencia en el directorio',
-      'Auto extra: $10.000/mes c/u',
+      'Perfil de agencia en directorio',
       'Renovación paga disponible',
     ],
     noIncluye: ['Destacados incluidos', 'Mejor posicionamiento', 'Badge verificada'],
-    msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR ($30.000/mes)',
+    msg: 'Hola! Quiero contratar el Plan Básico de FIORA AR ($30.000/mes)',
   },
   {
     id: 'pro',
     nombre: 'PRO',
     precio: '70.000',
     color: '#e0a020',
-    border: 'rgba(224,160,32,.4)',
-    publicaciones: '20 publicaciones activas',
+    border: 'rgba(224,160,32,.5)',
+    publicaciones: 20,
     tag: 'MÁS POPULAR',
     beneficios: [
       'Hasta 20 autos publicados',
       'Publicaciones por 30 días',
       '3 destacados incluidos por mes',
       'Mejor posicionamiento en resultados',
-      'Auto extra: $10.000/mes c/u',
       'Renovación paga disponible',
     ],
     noIncluye: ['Destacados ilimitados', 'Badge verificada'],
-    msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR ($70.000/mes)',
+    msg: 'Hola! Quiero contratar el Plan Pro de FIORA AR ($70.000/mes)',
   },
   {
     id: 'premium',
     nombre: 'PREMIUM',
     precio: '150.000',
     color: 'var(--accent)',
-    border: 'rgba(230,51,41,.4)',
-    publicaciones: '50 publicaciones activas',
+    border: 'rgba(230,51,41,.5)',
+    publicaciones: 50,
     beneficios: [
       'Hasta 50 autos publicados',
       'Publicaciones por 30 días',
       'Destacados ilimitados incluidos',
       'Máxima prioridad en resultados',
-      'Badge "Agencia Verificada" ✓',
-      'Auto extra: $10.000/mes c/u',
+      'Badge "Agencia Verificada"',
       'Renovación paga disponible',
     ],
     noIncluye: [],
-    msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR ($150.000/mes)',
+    msg: 'Hola! Quiero contratar el Plan Premium de FIORA AR ($150.000/mes)',
   },
 ]
 
-const BOOSTS_INDIVIDUAL = [
-  { nombre: 'Subir al tope', precio: '10.000', desc: 'Tu publicación vuelve al primer lugar dentro de su categoría.', icon: '⬆️' },
-  { nombre: 'Destacado', precio: '15.000', desc: 'Fondo diferenciado y badge visible en el catálogo.', icon: '⭐' },
-  { nombre: 'Urgente', precio: '20.000', desc: 'Máxima visibilidad. Badge rojo "URGENTE" en tu publicación.', icon: '🔥' },
-  { nombre: 'Renovar publicación', precio: '10.000', desc: 'Extendé 30 días más y volvé arriba en tu categoría.', icon: '🔄' },
+const COMPARACION = [
+  { label: 'Publicaciones activas', basico: '8', pro: '20', premium: '50' },
+  { label: 'Duración por publicación', basico: '30 días', pro: '30 días', premium: '30 días' },
+  { label: 'Destacados incluidos', basico: '—', pro: '3/mes', premium: 'Ilimitados' },
+  { label: 'Posicionamiento', basico: 'Estándar', pro: 'Prioritario', premium: 'Máximo' },
+  { label: 'Badge verificada', basico: false, pro: false, premium: true },
+  { label: 'Perfil en directorio', basico: true, pro: true, premium: true },
+  { label: 'Autos extra (c/u)', basico: '$10.000/mes', pro: '$10.000/mes', premium: '$10.000/mes' },
 ]
 
-const BOOSTS_AGENCIA = [
-  { nombre: 'Destacado individual', precio: '12.000', desc: 'Destacá un auto en particular por 30 días.', icon: '⭐' },
-  { nombre: 'Pack 10 destacados', precio: '95.000', desc: 'Destacá hasta 10 autos. Ahorrás $25.000 vs unitario.', icon: '📦' },
-  { nombre: 'Subir al tope', precio: '10.000', desc: 'Tu publicación vuelve al primer lugar dentro de su categoría.', icon: '⬆️' },
+const BOOSTS = [
+  {
+    nombre: 'Destacado individual',
+    precio: '12.000',
+    desc: 'Destacá un auto en particular por 30 días con fondo diferenciado.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  },
+  {
+    nombre: 'Pack 10 destacados',
+    precio: '95.000',
+    desc: 'Destacá hasta 10 autos. Ahorrás $25.000 vs precio unitario.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>,
+  },
+  {
+    nombre: 'Urgente',
+    precio: '20.000',
+    desc: 'Máxima visibilidad. Badge rojo "URGENTE" en tu publicación.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  },
+  {
+    nombre: 'Subir al tope',
+    precio: '10.000',
+    desc: 'Tu publicación vuelve al primer lugar dentro de su categoría.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>,
+  },
 ]
 
 const PUBLICIDAD = [
-  { nombre: 'Banner en Home', precio: '120.000', desc: 'Tu banner publicitario visible en la página de inicio. Duración: 30 días.', icon: '🖼️' },
-  { nombre: 'Auto fijado en Home', precio: '80.000', desc: 'Tu vehículo aparece fijo en la sección de destacados del home. Duración: 30 días.', icon: '📌' },
+  {
+    nombre: 'Banner en Home',
+    precio: '120.000',
+    desc: 'Tu banner publicitario visible en la página de inicio por 30 días.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
+  },
+  {
+    nombre: 'Auto fijado en Home',
+    precio: '80.000',
+    desc: 'Tu vehículo aparece fijo en la sección destacada del inicio por 30 días.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  },
 ]
+
+function CheckIcon({ color = '#4ade80' }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  )
+}
+
+function XIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  )
+}
 
 export default function Planes() {
   const navigate = useNavigate()
 
   return (
     <div className="page-wrapper">
+
       {/* HERO */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--black)', textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Monetización</div>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,7vw,96px)', lineHeight: 1, marginBottom: '1.5rem' }}>
-          PLANES Y<br /><span style={{ color: 'var(--accent)' }}>PRECIOS</span>
-        </h1>
-        <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '560px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
-          El que más invierte, más aparece. Todas las publicaciones duran <strong style={{ color: 'var(--white)' }}>30 días</strong> y se renuevan de forma paga.
-        </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1rem 2rem', fontSize: '14px', color: 'var(--gray4)' }}>
-            <span style={{ color: '#4ade80', fontWeight: 700 }}>✓</span> Usuarios individuales — <strong style={{ color: 'var(--white)' }}>GRATIS</strong>
-          </div>
-          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1rem 2rem', fontSize: '14px', color: 'var(--gray4)' }}>
-            <span style={{ color: 'var(--accent)', fontWeight: 700 }}>★</span> Agencias — desde <strong style={{ color: 'var(--white)' }}>$30.000/mes</strong>
+      <div style={{ position: 'relative', padding: '6rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--black)', textAlign: 'center', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Planes y precios</div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,7vw,96px)', lineHeight: 1, marginBottom: '1.5rem' }}>
+            VISIBILIDAD<br /><span style={{ color: 'var(--accent)' }}>QUE VENDE</span>
+          </h1>
+          <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '520px', margin: '0 auto 3rem', lineHeight: 1.7 }}>
+            El que más invierte, más aparece. Publicaciones de <strong style={{ color: 'var(--white)' }}>30 días</strong> con renovación paga. Sin contratos. Sin permanencia.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(74,222,128,.07)', border: '1px solid rgba(74,222,128,.2)', borderRadius: 'var(--radius-lg)', padding: '.875rem 1.75rem', fontSize: '14px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckIcon /> Compradores particulares — <strong style={{ color: 'var(--white)' }}>GRATIS</strong>
+            </div>
+            <div style={{ background: 'rgba(230,51,41,.07)', border: '1px solid rgba(230,51,41,.2)', borderRadius: 'var(--radius-lg)', padding: '.875rem 1.75rem', fontSize: '14px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" style={{ flexShrink: 0 }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Agencias — desde <strong style={{ color: 'var(--white)' }}>$30.000/mes</strong>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* PLANES AGENCIA - CARDS */}
+      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para agencias y concesionarias</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,4vw,56px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES DE AGENCIA</h2>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem' }}>Auto extra por encima del límite del plan: <strong style={{ color: 'var(--white)' }}>$10.000/mes c/u</strong></p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
+          {PLANES.map(p => {
+            const isPro = p.id === 'pro'
+            return (
+              <div key={p.id} style={{
+                background: isPro ? 'rgba(224,160,32,.05)' : 'var(--gray1)',
+                border: `1px solid ${p.border}`,
+                borderRadius: 'var(--radius-lg)',
+                padding: '2.5rem',
+                display: 'flex', flexDirection: 'column',
+                position: 'relative', overflow: 'hidden',
+                transform: isPro ? 'scale(1.03)' : 'scale(1)',
+                boxShadow: isPro ? '0 0 40px rgba(224,160,32,.12)' : 'none',
+              }}>
+                {isPro && (
+                  <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top center, rgba(224,160,32,.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
+                )}
+                {p.tag && (
+                  <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: p.color, color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>{p.tag}</div>
+                )}
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: p.color, marginBottom: '.75rem' }}>{p.nombre}</div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)', lineHeight: 1 }}>${p.precio}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
+                </div>
+                <div style={{ fontSize: '13px', color: p.color, fontWeight: 600, marginBottom: '2rem', fontFamily: 'var(--font-mono)', paddingBottom: '1.5rem', borderBottom: '1px solid var(--gray2)' }}>
+                  {p.publicaciones} publicaciones activas
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                  {p.beneficios.map(b => (
+                    <li key={b} style={{ fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                      <CheckIcon color={p.color} /> {b}
+                    </li>
+                  ))}
+                  {p.noIncluye.map(b => (
+                    <li key={b} style={{ fontSize: '13px', color: 'var(--gray3)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                      <XIcon /> {b}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => window.open(`${WA}?text=${encodeURIComponent(p.msg)}`, '_blank')}
+                  className={p.id === 'premium' ? 'btn-primary' : ''}
+                  style={{
+                    width: '100%', padding: '14px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'opacity .2s', letterSpacing: '.04em',
+                    ...(p.id === 'pro' ? { background: '#e0a020', color: '#000', border: 'none' } : {}),
+                    ...(p.id === 'basico' ? { background: 'var(--gray2)', color: 'var(--white)', border: 'none' } : {}),
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                  Contratar por WhatsApp →
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* TABLA COMPARATIVA */}
+      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Comparación detallada</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>¿QUÉ INCLUYE CADA PLAN?</h2>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--black)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '560px' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--gray2)' }}>
+                <th style={{ padding: '1.25rem 1.5rem', textAlign: 'left', fontSize: '12px', color: 'var(--gray4)', fontWeight: 400, width: '40%' }}>Característica</th>
+                {PLANES.map(p => (
+                  <th key={p.id} style={{ padding: '1.25rem 1rem', textAlign: 'center', fontSize: '12px', color: p.color, fontWeight: 700, letterSpacing: '.1em', fontFamily: 'var(--font-mono)' }}>{p.nombre}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARACION.map((row, i) => (
+                <tr key={row.label} style={{ borderBottom: '1px solid var(--gray2)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,.02)' }}>
+                  <td style={{ padding: '1rem 1.5rem', fontSize: '13px', color: 'var(--gray4)' }}>{row.label}</td>
+                  {['basico', 'pro', 'premium'].map(k => (
+                    <td key={k} style={{ padding: '1rem', textAlign: 'center', fontSize: '13px', color: 'var(--white)' }}>
+                      {typeof row[k] === 'boolean'
+                        ? row[k]
+                          ? <CheckIcon color={PLANES.find(p => p.id === k).color} />
+                          : <XIcon />
+                        : <span style={{ color: row[k] === '—' ? 'var(--gray3)' : 'var(--white)' }}>{row[k]}</span>
+                      }
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* PLAN INDIVIDUAL */}
-      <div style={{ padding: '4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para compradores / particulares</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>PLAN INDIVIDUAL</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '900px' }}>
-
-          {/* BASE GRATIS */}
-          <div style={{ background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '.5rem' }}>BASE</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: '#4ade80', marginBottom: '1.5rem' }}>GRATIS</div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {['1 publicación activa', 'Duración: 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias'].map(b => (
-                <li key={b} style={{ fontSize: '14px', color: 'var(--gray4)', display: 'flex', gap: '8px' }}>
-                  <span style={{ color: '#4ade80', flexShrink: 0 }}>✓</span> {b}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '860px' }}>
+          <div style={{ background: 'var(--gray1)', border: '1px solid rgba(74,222,128,.25)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#4ade80', marginBottom: '.75rem' }}>BASE</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: '#4ade80', lineHeight: 1, marginBottom: '1.5rem' }}>GRATIS</div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {['1 publicación activa por 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias', 'Guardado de favoritos'].map(b => (
+                <li key={b} style={{ fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <CheckIcon /> {b}
                 </li>
               ))}
             </ul>
             <button className="btn-secondary" style={{ width: '100%' }} onClick={() => navigate('/registro')}>Registrarse gratis</button>
           </div>
 
-          {/* EXTRAS PAGOS */}
-          <div style={{ background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', marginBottom: '1.5rem' }}>EXTRAS PAGOS</div>
+          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--white)', marginBottom: '1.5rem' }}>EXTRAS PAGOS</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '2rem' }}>
-              {BOOSTS_INDIVIDUAL.map(b => (
+              {[
+                { nombre: 'Subir al tope', precio: '10.000', desc: 'Tu publicación vuelve al primer lugar.' },
+                { nombre: 'Destacado', precio: '15.000', desc: 'Fondo diferenciado y badge en el catálogo.' },
+                { nombre: 'Urgente', precio: '20.000', desc: 'Badge rojo "URGENTE" máxima visibilidad.' },
+                { nombre: 'Renovar 30 días', precio: '10.000', desc: 'Extendé tu publicación y volvé arriba.' },
+              ].map(b => (
                 <div key={b.nombre} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--gray2)' }}>
                   <div>
-                    <div style={{ fontSize: '14px', color: 'var(--white)', fontWeight: 600 }}>{b.icon} {b.nombre}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '2px' }}>{b.desc}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--white)', fontWeight: 600 }}>{b.nombre}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray4)', marginTop: '2px' }}>{b.desc}</div>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--accent)', whiteSpace: 'nowrap', marginLeft: '12px' }}>${b.precio}</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '16px', color: 'var(--accent)', whiteSpace: 'nowrap', marginLeft: '12px' }}>${b.precio}</div>
                 </div>
               ))}
             </div>
-            <button onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero comprar un boost para mi publicación en AutoMarket AR')}`, '_blank')}
+            <button
+              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero comprar un boost para mi publicación en FIORA AR')}`, '_blank')}
               style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: 'var(--gray4)', fontSize: '13px', cursor: 'pointer', transition: 'all .2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
@@ -146,59 +300,20 @@ export default function Planes() {
         </div>
       </div>
 
-      {/* PLANES AGENCIA */}
-      <div style={{ padding: '4rem', borderBottom: '1px solid var(--gray2)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para agencias y concesionarias</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,4vw,56px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES DE AGENCIA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem' }}>Auto extra por encima del límite del plan: <strong style={{ color: 'var(--white)' }}>$10.000/mes c/u</strong></p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-          {PLANES_AGENCIA.map(p => (
-            <div key={p.id} style={{ background: 'var(--gray1)', border: `1px solid ${p.border}`, borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
-              {p.tag && (
-                <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: p.color, color: '#000', fontSize: '10px', fontWeight: 700, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.08em' }}>{p.tag}</div>
-              )}
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: p.color, marginBottom: '1rem' }}>{p.nombre}</div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)' }}>${p.precio}</span>
-                <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
-              </div>
-              <div style={{ fontSize: '13px', color: p.color, fontWeight: 600, marginBottom: '1.5rem', fontFamily: 'var(--font-mono)' }}>{p.publicaciones}</div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-                {p.beneficios.map(b => (
-                  <li key={b} style={{ fontSize: '13px', color: 'var(--gray4)', display: 'flex', gap: '8px' }}>
-                    <span style={{ color: '#4ade80', flexShrink: 0 }}>✓</span> {b}
-                  </li>
-                ))}
-                {p.noIncluye.map(b => (
-                  <li key={b} style={{ fontSize: '13px', color: 'var(--gray3)', display: 'flex', gap: '8px' }}>
-                    <span style={{ flexShrink: 0 }}>✗</span> {b}
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => window.open(`${WA}?text=${encodeURIComponent(p.msg)}`, '_blank')}
-                style={{ width: '100%', padding: '14px', borderRadius: 'var(--radius)', border: 'none', background: p.id === 'premium' ? 'var(--accent)' : p.id === 'pro' ? '#e0a020' : 'var(--gray2)', color: p.id === 'pro' ? '#000' : 'var(--white)', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'opacity .2s', letterSpacing: '.04em' }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-                Contratar por WhatsApp →
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* DESTACADOS AGENCIA */}
-      <div style={{ padding: '4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para agencias</div>
+      {/* BOOSTS AGENCIA */}
+      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Complementos para agencias</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>DESTACADOS Y BOOSTS</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', lineHeight: 1.7 }}>Complementos para aumentar la visibilidad de tus publicaciones.</p>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Aumentá la visibilidad de tus publicaciones más allá de tu plan.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
-          {BOOSTS_AGENCIA.map(b => (
+          {BOOSTS.map(b => (
             <div key={b.nombre} style={{ background: 'var(--black)', padding: '2.5rem' }}>
-              <div style={{ fontSize: '36px', marginBottom: '1rem' }}>{b.icon}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', marginBottom: '6px' }}>{b.nombre}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', color: 'var(--accent)', marginBottom: '1rem' }}>${b.precio}</div>
+              <div style={{ color: 'var(--accent)', marginBottom: '1.25rem' }}>{b.icon}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--white)', marginBottom: '6px' }}>{b.nombre}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>${b.precio}</div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '1.5rem' }}>{b.desc}</div>
-              <button onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero comprar "${b.nombre}" ($${b.precio}) para mi agencia en AutoMarket AR`)}`, '_blank')}
+              <button
+                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero comprar "${b.nombre}" ($${b.precio}) para mi agencia en FIORA AR`)}`, '_blank')}
                 style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--gray4)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', cursor: 'pointer', transition: 'all .2s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
@@ -209,20 +324,24 @@ export default function Planes() {
         </div>
       </div>
 
-      {/* PUBLICIDAD INTERNA */}
-      <div style={{ padding: '4rem', borderBottom: '1px solid var(--gray2)' }}>
+      {/* PUBLICIDAD */}
+      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Publicidad</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PUBLICIDAD EN LA PLATAFORMA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de AutoMarket AR para máxima exposición.</p>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA AR para máxima exposición.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {PUBLICIDAD.map(p => (
             <div key={p.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
-              <div style={{ fontSize: '36px', marginBottom: '1rem' }}>{p.icon}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--white)', marginBottom: '8px' }}>{p.nombre}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: 'var(--accent)', marginBottom: '1rem' }}>${p.precio}<span style={{ fontSize: '14px', color: 'var(--gray4)', marginLeft: '6px' }}>/mes</span></div>
+              <div style={{ color: 'var(--accent)', marginBottom: '1.25rem' }}>{p.icon}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', marginBottom: '8px' }}>{p.nombre}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>
+                ${p.precio}<span style={{ fontSize: '14px', color: 'var(--gray4)', marginLeft: '6px' }}>/mes</span>
+              </div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>{p.desc}</div>
-              <button onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero contratar "${p.nombre}" ($${p.precio}/mes) en AutoMarket AR`)}`, '_blank')}
-                style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: 'none', background: 'var(--accent)', color: 'var(--white)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'opacity .2s' }}
+              <button
+                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero contratar "${p.nombre}" ($${p.precio}/mes) en FIORA AR`)}`, '_blank')}
+                className="btn-primary"
+                style={{ width: '100%' }}
                 onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
                 onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
                 Consultar por WhatsApp →
@@ -233,20 +352,21 @@ export default function Planes() {
       </div>
 
       {/* ALGORITMO */}
-      <div style={{ padding: '4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Algoritmo</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>ORDEN DE VISIBILIDAD</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1px', background: 'var(--gray2)', maxWidth: '900px' }}>
+      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Algoritmo de visibilidad</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>ORDEN EN EL CATÁLOGO</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1px', background: 'var(--gray2)', maxWidth: '960px' }}>
           {[
-            { pos: '1°', label: 'Agencias Premium', color: 'var(--accent)', desc: 'Siempre arriba. Destacados primero, luego fecha.' },
+            { pos: '1°', label: 'Agencias Premium', color: 'var(--accent)', desc: 'Siempre arriba. Urgentes y destacados primero.' },
             { pos: '2°', label: 'Agencias Pro', color: '#e0a020', desc: 'Debajo de Premium. Destacados primero, luego fecha.' },
-            { pos: '3°', label: 'Publicaciones Destacadas', color: '#e0a020', desc: 'Individuales o básicos con boost activo.' },
-            { pos: '4°', label: 'Agencias Básicas', color: 'var(--gray4)', desc: 'Posición estándar. Orden por fecha.' },
-            { pos: '5°', label: 'Individuales (gratis)', color: 'var(--gray5)', desc: 'Últimos en aparecer. Orden por fecha.' },
+            { pos: '3°', label: 'Publicaciones Urgentes', color: '#e0a020', desc: 'Cualquier plan con boost urgente activo.' },
+            { pos: '4°', label: 'Publicaciones Destacadas', color: 'var(--gray4)', desc: 'Individuales o básicos con boost activo.' },
+            { pos: '5°', label: 'Agencias Básicas', color: 'var(--gray4)', desc: 'Posición estándar. Orden por fecha.' },
+            { pos: '6°', label: 'Individuales gratis', color: 'var(--gray5)', desc: 'Últimos en aparecer. Orden por fecha.' },
           ].map(r => (
             <div key={r.pos} style={{ background: 'var(--black)', padding: '2rem' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: r.color, opacity: .4, lineHeight: 1, marginBottom: '.75rem' }}>{r.pos}</div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: r.color, marginBottom: '8px' }}>{r.label}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: r.color, opacity: .3, lineHeight: 1, marginBottom: '.75rem' }}>{r.pos}</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: r.color, marginBottom: '8px' }}>{r.label}</div>
               <div style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6 }}>{r.desc}</div>
             </div>
           ))}
@@ -254,18 +374,27 @@ export default function Planes() {
       </div>
 
       {/* CTA */}
-      <div style={{ padding: '5rem 4rem', textAlign: 'center', background: 'var(--black)', borderBottom: '1px solid var(--gray2)' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,5vw,64px)', lineHeight: 1, marginBottom: '1.5rem' }}>
-          ¿LISTO PARA<br /><span style={{ color: 'var(--accent)' }}>EMPEZAR?</span>
+      <div style={{ padding: '6rem 4rem', textAlign: 'center', background: 'var(--black)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', bottom: '-100px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,72px)', lineHeight: 1, marginBottom: '1.5rem' }}>
+            ¿LISTO PARA<br /><span style={{ color: 'var(--accent)' }}>EMPEZAR?</span>
+          </div>
+          <p style={{ fontSize: '16px', color: 'var(--gray4)', marginBottom: '2.5rem', maxWidth: '480px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
+            Contactanos por WhatsApp y te ayudamos a elegir el plan ideal para tu agencia.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="btn-primary" style={{ fontSize: '15px', padding: '15px 36px' }}
+              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero más información sobre los planes de FIORA AR')}`, '_blank')}>
+              Consultar por WhatsApp →
+            </button>
+            <button className="btn-secondary" style={{ fontSize: '15px', padding: '15px 36px' }} onClick={() => navigate('/registro')}>
+              Crear cuenta gratis
+            </button>
+          </div>
         </div>
-        <p style={{ fontSize: '16px', color: 'var(--gray4)', marginBottom: '2.5rem', maxWidth: '480px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
-          Contactanos por WhatsApp y te ayudamos a elegir el plan ideal.
-        </p>
-        <button className="btn-primary" style={{ fontSize: '16px', padding: '16px 40px' }}
-          onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero más información sobre los planes de AutoMarket AR')}`, '_blank')}>
-          Consultar por WhatsApp →
-        </button>
       </div>
+
     </div>
   )
 }

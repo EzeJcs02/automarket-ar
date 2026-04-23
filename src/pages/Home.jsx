@@ -39,13 +39,13 @@ export default function Home() {
         <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.15) 0%, transparent 70%)' }} />
         <div style={{ position: 'relative' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-            Plataforma N°1 de autos en Argentina
+            Plataforma N°1 de vehículos en Argentina
           </div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,10vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span>
           </h1>
           <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
-            Miles de autos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
+            Miles de vehículos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <button className="btn-primary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/catalogo')}>Ver catálogo completo</button>
@@ -190,7 +190,7 @@ export default function Home() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '4rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '2px', color: 'var(--white)', marginBottom: '1rem' }}>
-              AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+              FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
             </div>
             <p style={{ lineHeight: 1.6, marginBottom: '1.5rem' }}>
               La plataforma más avanzada para encontrar y publicar vehículos de agencias verificadas en Argentina.
@@ -217,7 +217,7 @@ export default function Home() {
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               
               {/* ACÁ ESTÁ EL ICONO DE INSTAGRAM MODIFICADO */}
-              <a href="https://www.instagram.com/TU_USUARIO_AQUI" target="_blank" rel="noopener noreferrer" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', textDecoration: 'none', cursor: 'pointer', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E1306C'} onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
+              <a href="https://www.instagram.com/fiora.market?igsh=MW1jZGR1bXF5em52bw%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', textDecoration: 'none', cursor: 'pointer', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E1306C'} onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
                 ig
               </a>
 

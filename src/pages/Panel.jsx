@@ -142,7 +142,7 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
   if (!concesionaria?.aprobada) return (
     <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', border: '1px solid rgba(201,168,76,.3)', maxWidth: '600px' }}>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--gold)', marginBottom: '1rem' }}>CUENTA EN REVISIÓN</div>
-      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu perfil comercial está siendo validado por el equipo de FIORA AR. Recibirás un correo cuando puedas comenzar a publicar stock.</p>
+      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu perfil comercial está siendo validado por el equipo de FIORA.MARKET. Recibirás un correo cuando puedas comenzar a publicar stock.</p>
     </div>
   )
 

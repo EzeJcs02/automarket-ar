@@ -14,7 +14,7 @@ export default function Legales() {
         <section style={{ marginBottom: '3rem' }}>
           <h2 style={{ color: 'var(--accent)', fontSize: '20px', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>01. TÉRMINOS Y CONDICIONES</h2>
           <p style={{ color: 'var(--gray4)', lineHeight: '1.8' }}>
-            Bienvenido a FIORA AR. Al utilizar nuestro sitio, usted acepta nuestros términos de uso. 
+            Bienvenido a FIORA.MARKET. Al utilizar nuestro sitio, usted acepta nuestros términos de uso. 
             Nuestra plataforma funciona como un nexo entre concesionarias y compradores. No participamos 
             de forma directa en las transacciones de compraventa... [Aquí va tu texto legal detallado].
           </p>
@@ -33,7 +33,7 @@ export default function Legales() {
           <h2 style={{ color: 'var(--accent)', fontSize: '20px', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>03. DEFENSA DEL CONSUMIDOR</h2>
           <p style={{ color: 'var(--gray4)', lineHeight: '1.8' }}>
             Para consultas y/o denuncias ingrese en el portal oficial de Defensa del Consumidor. 
-            FIORA AR tiene su sede administrativa en Salta, Argentina.
+            FIORA.MARKET tiene su sede administrativa en Salta, Argentina.
           </p>
         </section>
       </div>

@@ -51,7 +51,7 @@ export default function Navbar() {
             </g>
           </svg>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '2px', color: 'var(--white)' }}>
-            FIORA<span style={{ color: 'var(--accent)' }}> AR</span>
+            FIORA<span style={{ color: 'var(--accent)' }}>.MARKET</span>
           </span>
         </Link>
 

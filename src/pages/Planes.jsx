@@ -17,7 +17,7 @@ const PLANES = [
       'Renovación paga disponible',
     ],
     noIncluye: ['Destacados incluidos', 'Mejor posicionamiento', 'Badge verificada'],
-    msg: 'Hola! Quiero contratar el Plan Básico de FIORA AR ($30.000/mes)',
+    msg: 'Hola! Quiero contratar el Plan Básico de FIORA.MARKET ($30.000/mes)',
   },
   {
     id: 'pro',
@@ -35,7 +35,7 @@ const PLANES = [
       'Renovación paga disponible',
     ],
     noIncluye: ['Destacados ilimitados', 'Badge verificada'],
-    msg: 'Hola! Quiero contratar el Plan Pro de FIORA AR ($70.000/mes)',
+    msg: 'Hola! Quiero contratar el Plan Pro de FIORA.MARKET ($70.000/mes)',
   },
   {
     id: 'premium',
@@ -53,7 +53,7 @@ const PLANES = [
       'Renovación paga disponible',
     ],
     noIncluye: [],
-    msg: 'Hola! Quiero contratar el Plan Premium de FIORA AR ($150.000/mes)',
+    msg: 'Hola! Quiero contratar el Plan Premium de FIORA.MARKET ($150.000/mes)',
   },
 ]
 
@@ -290,7 +290,7 @@ export default function Planes() {
               ))}
             </div>
             <button
-              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero comprar un boost para mi publicación en FIORA AR')}`, '_blank')}
+              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero comprar un boost para mi publicación en FIORA.MARKET')}`, '_blank')}
               style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: 'var(--gray4)', fontSize: '13px', cursor: 'pointer', transition: 'all .2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
@@ -313,7 +313,7 @@ export default function Planes() {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>${b.precio}</div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '1.5rem' }}>{b.desc}</div>
               <button
-                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero comprar "${b.nombre}" ($${b.precio}) para mi agencia en FIORA AR`)}`, '_blank')}
+                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero comprar "${b.nombre}" ($${b.precio}) para mi agencia en FIORA.MARKET`)}`, '_blank')}
                 style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--gray4)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', cursor: 'pointer', transition: 'all .2s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
@@ -328,7 +328,7 @@ export default function Planes() {
       <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Publicidad</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PUBLICIDAD EN LA PLATAFORMA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA AR para máxima exposición.</p>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA.MARKET para máxima exposición.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {PUBLICIDAD.map(p => (
             <div key={p.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
@@ -339,7 +339,7 @@ export default function Planes() {
               </div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>{p.desc}</div>
               <button
-                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero contratar "${p.nombre}" ($${p.precio}/mes) en FIORA AR`)}`, '_blank')}
+                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero contratar "${p.nombre}" ($${p.precio}/mes) en FIORA.MARKET`)}`, '_blank')}
                 className="btn-primary"
                 style={{ width: '100%' }}
                 onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
@@ -385,7 +385,7 @@ export default function Planes() {
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn-primary" style={{ fontSize: '15px', padding: '15px 36px' }}
-              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero más información sobre los planes de FIORA AR')}`, '_blank')}>
+              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero más información sobre los planes de FIORA.MARKET')}`, '_blank')}>
               Consultar por WhatsApp →
             </button>
             <button className="btn-secondary" style={{ fontSize: '15px', padding: '15px 36px' }} onClick={() => navigate('/registro')}>

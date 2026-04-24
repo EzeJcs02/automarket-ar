@@ -89,7 +89,7 @@ export default function Panel() {
         {loading ? <div className="spinner" /> : (
           <>
             {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}
-            {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} />}
+            {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} concesionaria={concesionaria} />}
             {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
             {tab === 'consultas' && <Consultas consultas={consultas} reload={loadData} />}
             {tab === 'perfil' && <Perfil concesionaria={concesionaria} onSave={() => fetchConcesionaria(user.id)} />}
@@ -102,9 +102,9 @@ export default function Panel() {
 
 function UpgradeModal({ onClose, planActual }) {
   const planes = [
-    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de FIORA.MARKET' },
-    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de FIORA.MARKET' },
-    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de FIORA.MARKET' },
+    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
+    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
+    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
   ]
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
@@ -213,9 +213,9 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
         {concesionaria?.plan !== 'premium' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', paddingTop: '1.25rem', borderTop: '1px solid var(--gray2)' }}>
             {[
-              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de FIORA.MARKET' },
-              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de FIORA.MARKET' },
-              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de FIORA.MARKET' },
+              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
+              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
+              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
             ].filter(p => {
               const orden = { free: 0, basico: 1, pro: 2, premium: 3 }
               return orden[p.id] > orden[concesionaria?.plan || 'free']
@@ -242,46 +242,6 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
         ))}
       </div>
 
-      {/* BOOSTS */}
-      <div style={{ marginBottom: '3rem' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Complementos para agencias</div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1.5rem' }}>DESTACADOS Y BOOSTS</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          {[
-            { nombre: 'Destacado individual', precio: '$12.000', desc: 'Destacá un vehículo por 30 días con fondo diferenciado.', msg: 'Hola! Quiero contratar un Destacado individual en FIORA.MARKET' },
-            { nombre: 'Pack 10 destacados', precio: '$95.000', desc: 'Destacá hasta 10 vehículos. Ahorrás $25.000 vs precio unitario.', msg: 'Hola! Quiero contratar el Pack 10 destacados en FIORA.MARKET' },
-            { nombre: 'Urgente', precio: '$20.000', desc: 'Máxima visibilidad. Badge rojo "URGENTE" en tu publicación.', msg: 'Hola! Quiero contratar el boost Urgente en FIORA.MARKET' },
-            { nombre: 'Subir al tope', precio: '$10.000', desc: 'Tu publicación vuelve al primer lugar dentro de su categoría.', msg: 'Hola! Quiero contratar Subir al tope en FIORA.MARKET' },
-          ].map(b => (
-            <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)' }}>{b.nombre}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--accent)' }}>{b.precio}</div>
-              <div style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.5, flex: 1 }}>{b.desc}</div>
-              <button className="btn-secondary" style={{ fontSize: '12px', padding: '8px 14px', marginTop: '4px' }} onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(b.msg)}`, '_blank')}>Consultar →</button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* PUBLICIDAD */}
-      <div style={{ marginBottom: '3rem' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Publicidad</div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1.5rem' }}>ESPACIO PUBLICITARIO</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-          {[
-            { nombre: 'Banner en Home', precio: '$120.000', desc: 'Tu banner visible en la página de inicio por 30 días.', msg: 'Hola! Quiero contratar Banner en Home en FIORA.MARKET' },
-            { nombre: 'Vehículo fijado en Home', precio: '$80.000', desc: 'Tu vehículo aparece fijo en la sección destacada del inicio por 30 días.', msg: 'Hola! Quiero contratar Vehículo fijado en Home en FIORA.MARKET' },
-          ].map(b => (
-            <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)' }}>{b.nombre}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--accent)' }}>{b.precio}</div>
-              <div style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.5, flex: 1 }}>{b.desc}</div>
-              <button className="btn-secondary" style={{ fontSize: '12px', padding: '8px 14px', marginTop: '4px' }} onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(b.msg)}`, '_blank')}>Consultar →</button>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>Bandeja de Entrada</div>
       {consultas.length === 0
         ? <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', color: 'var(--gray4)' }}>No hay consultas pendientes.</div>
@@ -304,10 +264,49 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
   )
 }
 
-function MisAutos({ autos, reload, setTab }) {
+function MisAutos({ autos, reload, setTab, concesionaria }) {
   const [editando, setEditando] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [saving, setSaving] = useState(false)
+
+  const plan = concesionaria?.plan || 'free'
+  const destacadosActivos = autos.filter(a => a.destacado).length
+  const urgentesActivos = autos.filter(a => a.urgente).length
+  const limiteDestacados = plan === 'premium' ? Infinity : plan === 'pro' ? 3 : 0
+
+  async function toggleDestacado(auto) {
+    if (!auto.destacado) {
+      if (limiteDestacados === 0) {
+        alert('Tu plan no incluye boosts. Upgradá a Pro o Premium.')
+        return
+      }
+      if (limiteDestacados !== Infinity && destacadosActivos >= limiteDestacados) {
+        alert(`Tu plan Pro permite hasta ${limiteDestacados} destacados simultáneos. Ya tenés ${destacadosActivos} activos.`)
+        return
+      }
+      await supabase.from('autos').update({ destacado: true, urgente: false }).eq('id', auto.id)
+    } else {
+      await supabase.from('autos').update({ destacado: false }).eq('id', auto.id)
+    }
+    reload()
+  }
+
+  async function toggleUrgente(auto) {
+    if (!auto.urgente) {
+      if (limiteDestacados === 0) {
+        alert('Tu plan no incluye boosts. Upgradá a Pro o Premium.')
+        return
+      }
+      if (limiteDestacados !== Infinity && urgentesActivos >= limiteDestacados) {
+        alert(`Tu plan Pro permite hasta ${limiteDestacados} urgentes simultáneos. Ya tenés ${urgentesActivos} activos.`)
+        return
+      }
+      await supabase.from('autos').update({ urgente: true, destacado: false }).eq('id', auto.id)
+    } else {
+      await supabase.from('autos').update({ urgente: false }).eq('id', auto.id)
+    }
+    reload()
+  }
 
   async function toggleActivo(auto) {
     await supabase.from('autos').update({ activo: !auto.activo }).eq('id', auto.id)
@@ -320,7 +319,7 @@ function MisAutos({ autos, reload, setTab }) {
   }
   function abrirEdicion(auto) {
     setEditando(auto.id)
-    setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo, categoria: auto.categoria || '' })
+    setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo })
   }
   async function guardarEdicion() {
     setSaving(true)
@@ -345,8 +344,7 @@ function MisAutos({ autos, reload, setTab }) {
               <div className="form-field"><label>Modelo *</label><input type="text" required value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
               <div className="form-field"><label>Año *</label><input type="number" required value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
               <div className="form-field"><label>Kilometraje *</label><input type="number" required min="0" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
-              <div className="form-field"><label>Condición *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
-              <div className="form-field"><label>Categoría *</label><select required value={editForm.categoria || ''} onChange={e => setEF('categoria', e.target.value)}><option value="">Seleccioná...</option><optgroup label="Autos"><option>Camioneta</option><option>SUV</option><option>Hatchback</option><option>Sedán</option><option>Pickup</option><option>Minivan</option><option>Coupé</option></optgroup><optgroup label="Motos"><option>Naked</option><option>Deportiva</option><option>Touring</option><option>Scooter</option><option>Enduro</option><option>Custom</option></optgroup><optgroup label="Náutica"><option>Lancha</option><option>Velero</option><option>Yate</option><option>Moto de Agua</option><option>Semi-rígido</option></optgroup></select></div>
+              <div className="form-field"><label>Tipo *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
               <div className="form-field"><label>Combustible *</label><select required value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
               <div className="form-field"><label>Transmisión *</label><select required value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option></select></div>
               <div className="form-field"><label>Color *</label><input type="text" required placeholder="Ej: Plata Metalizado" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
@@ -370,10 +368,18 @@ function MisAutos({ autos, reload, setTab }) {
         <button className="btn-primary" onClick={() => setTab('nuevo-auto')}>NUEVA PUBLICACIÓN</button>
       </div>
 
+      {/* PLAN INFO BAR */}
+      {limiteDestacados > 0 && (
+        <div style={{ marginBottom: '1.5rem', padding: '12px 20px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', display: 'flex', gap: '2rem', fontSize: '12px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>
+          <span>★ Destacados: <strong style={{ color: destacadosActivos > 0 ? '#c9a84c' : 'var(--white)' }}>{destacadosActivos}</strong> / {limiteDestacados === Infinity ? '∞' : limiteDestacados}</span>
+          <span>⚡ Urgentes: <strong style={{ color: urgentesActivos > 0 ? 'var(--accent)' : 'var(--white)' }}>{urgentesActivos}</strong> / {limiteDestacados === Infinity ? '∞' : limiteDestacados}</span>
+        </div>
+      )}
+
       {autos.length === 0
         ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Inventario vacío.</p></div>
         : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-            <thead><tr>{['Vehículo','Precio (ARS)','Vistas','Estado','Administrar'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+            <thead><tr>{['Vehículo','Precio (ARS)','Vistas','Boosts','Estado','Administrar'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
             <tbody>
               {autos.map(a => (
                 <tr key={a.id} style={{ borderBottom: '1px solid var(--gray2)' }}>
@@ -381,6 +387,22 @@ function MisAutos({ autos, reload, setTab }) {
                   <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>${Number(a.precio_ars || 0).toLocaleString('es-AR')}</td>
                   <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
                     {a.vistas || 0}
+                  </td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => toggleDestacado(a)}
+                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
+                          background: a.destacado ? 'rgba(201,168,76,.25)' : 'rgba(255,255,255,.08)',
+                          color: a.destacado ? '#c9a84c' : 'var(--gray4)' }}>
+                        ★ Destacar
+                      </button>
+                      <button onClick={() => toggleUrgente(a)}
+                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
+                          background: a.urgente ? 'rgba(230,51,41,.25)' : 'rgba(255,255,255,.08)',
+                          color: a.urgente ? 'var(--accent)' : 'var(--gray4)' }}>
+                        ⚡ Urgente
+                      </button>
+                    </div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: a.activo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.1)', color: a.activo ? '#4ade80' : 'var(--gray4)' }}>
@@ -402,7 +424,7 @@ function MisAutos({ autos, reload, setTab }) {
 }
 
 function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess }) {
-  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', categoria: '', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
+  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -438,7 +460,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
       concesionaria_id: concesionaria.id,
       marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
       kilometraje: parseInt(form.kilometraje) || 0,
-      tipo: form.tipo, categoria: form.categoria || null, combustible: form.combustible, transmision: form.transmision,
+      tipo: form.tipo, combustible: form.combustible, transmision: form.transmision,
       color: form.color, precio_ars: form.precio_ars || null, precio_usd: form.precio_usd || null,
       descripcion: form.descripcion, fotos: fotoUrls, activo: true
     })
@@ -484,7 +506,6 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
             <div className="form-field"><label>Año *</label><input type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
             <div className="form-field"><label>Kilometraje *</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
             <div className="form-field"><label>Condición *</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
-            <div className="form-field"><label>Categoría *</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)} required><option value="">Seleccioná...</option><optgroup label="Autos"><option>Camioneta</option><option>SUV</option><option>Hatchback</option><option>Sedán</option><option>Pickup</option><option>Minivan</option><option>Coupé</option></optgroup><optgroup label="Motos"><option>Naked</option><option>Deportiva</option><option>Touring</option><option>Scooter</option><option>Enduro</option><option>Custom</option></optgroup><optgroup label="Náutica"><option>Lancha</option><option>Velero</option><option>Yate</option><option>Moto de Agua</option><option>Semi-rígido</option></optgroup></select></div>
             <div className="form-field"><label>Combustible *</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
             <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
             <div className="form-field"><label>Color Exterior *</label><input type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>

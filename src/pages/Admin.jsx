@@ -53,6 +53,16 @@ export default function Admin() {
     loadData()
   }
 
+  async function toggleBanner(c) {
+    await supabase.from('concesionarias').update({ banner_activo: !c.banner_activo }).eq('id', c.id)
+    loadData()
+  }
+
+  async function toggleFijado(auto) {
+    await supabase.from('autos').update({ fijado_home: !auto.fijado_home }).eq('id', auto.id)
+    loadData()
+  }
+
   async function cambiarPlan(c, nuevoPlan) {
     await supabase.from('concesionarias').update({ plan: nuevoPlan }).eq('id', c.id)
     loadData()
@@ -72,7 +82,6 @@ export default function Admin() {
     { id: 'pendientes', label: 'Solicitudes Pendientes', count: pendientes.length },
     { id: 'aprobadas', label: 'Agencias Activas', count: aprobadas.length },
     { id: 'publicaciones', label: 'Publicaciones', count: publicaciones.length },
-    { id: 'publicidad', label: 'Publicidad', count: 0 },
   ]
 
   return (
@@ -141,7 +150,7 @@ export default function Admin() {
                   : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
                       <thead>
                         <tr>
-                          {['Vehículo', 'Agencia', 'Precio', 'Destacado', 'Urgente'].map(h => (
+                          {['Vehículo', 'Agencia', 'Precio', 'Destacado', 'Urgente', 'Fijado Home'].map(h => (
                             <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>
                           ))}
                         </tr>
@@ -175,6 +184,14 @@ export default function Admin() {
                                 {a.urgente ? 'Urgente' : 'Normal'}
                               </button>
                             </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <button onClick={() => toggleFijado(a)}
+                                style={{ padding: '6px 14px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
+                                  background: a.fijado_home ? 'rgba(230,51,41,.25)' : 'rgba(255,255,255,.08)',
+                                  color: a.fijado_home ? 'var(--accent)' : 'var(--gray4)' }}>
+                                {a.fijado_home ? 'Fijado' : 'Normal'}
+                              </button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -191,7 +208,7 @@ export default function Admin() {
                 {aprobadas.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay agencias activas actualmente.</p></div>
                   : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-                      <thead><tr>{['Concesionaria','Ciudad','Plan','Destacada','Acciones'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <thead><tr>{['Concesionaria','Ciudad','Plan','Destacada','Banner Home','Acciones'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {aprobadas.map(c => (
                           <tr key={c.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -214,6 +231,11 @@ export default function Admin() {
                               </button>
                             </td>
                             <td style={{ padding: '16px 20px' }}>
+                              <button onClick={() => toggleBanner(c)} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', background: c.banner_activo ? 'rgba(230,51,41,.2)' : 'rgba(255,255,255,.1)', color: c.banner_activo ? 'var(--accent)' : 'var(--gray4)', transition: 'all .2s' }}>
+                                {c.banner_activo ? 'ACTIVO' : 'Inactivo'}
+                              </button>
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
                               <button className="btn-secondary" onClick={() => suspender(c.id)} style={{ padding: '6px 16px', fontSize: '12px' }}>Suspender</button>
                             </td>
                           </tr>
@@ -221,41 +243,6 @@ export default function Admin() {
                       </tbody>
                     </table>
                 }
-              </div>
-            )}
-            {/* PUBLICIDAD */}
-            {tab === 'publicidad' && (
-              <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PUBLICIDAD</div>
-                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Planes de visibilidad y espacios publicitarios disponibles.</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>Boosts de publicaciones</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
-                  {[
-                    { nombre: 'Destacado individual', precio: '$12.000', desc: 'Fondo diferenciado por 30 días.' },
-                    { nombre: 'Pack 10 destacados', precio: '$95.000', desc: 'Ahorrás $25.000 vs precio unitario.' },
-                    { nombre: 'Urgente', precio: '$20.000', desc: 'Badge rojo "URGENTE", máxima visibilidad.' },
-                    { nombre: 'Subir al tope', precio: '$10.000', desc: 'Vuelve al primer lugar de su categoría.' },
-                  ].map(b => (
-                    <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--white)', marginBottom: '4px' }}>{b.nombre}</div>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--accent)', marginBottom: '6px' }}>{b.precio}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{b.desc}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>Espacios publicitarios</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
-                  {[
-                    { nombre: 'Banner en Home', precio: '$120.000', desc: 'Banner visible en la página de inicio por 30 días.' },
-                    { nombre: 'Vehículo fijado en Home', precio: '$80.000', desc: 'Vehículo fijo en la sección destacada del inicio por 30 días.' },
-                  ].map(b => (
-                    <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--white)', marginBottom: '4px' }}>{b.nombre}</div>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--accent)', marginBottom: '6px' }}>{b.precio}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{b.desc}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
           </>

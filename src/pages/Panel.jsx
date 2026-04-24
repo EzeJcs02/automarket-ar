@@ -280,7 +280,7 @@ function MisAutos({ autos, reload, setTab }) {
   }
   function abrirEdicion(auto) {
     setEditando(auto.id)
-    setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo })
+    setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo, categoria: auto.categoria || '' })
   }
   async function guardarEdicion() {
     setSaving(true)
@@ -305,7 +305,8 @@ function MisAutos({ autos, reload, setTab }) {
               <div className="form-field"><label>Modelo *</label><input type="text" required value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
               <div className="form-field"><label>Año *</label><input type="number" required value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
               <div className="form-field"><label>Kilometraje *</label><input type="number" required min="0" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
-              <div className="form-field"><label>Tipo *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
+              <div className="form-field"><label>Condición *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
+              <div className="form-field"><label>Categoría *</label><select required value={editForm.categoria || ''} onChange={e => setEF('categoria', e.target.value)}><option value="">Seleccioná...</option><optgroup label="Autos"><option>Camioneta</option><option>SUV</option><option>Hatchback</option><option>Sedán</option><option>Pickup</option><option>Minivan</option><option>Coupé</option></optgroup><optgroup label="Motos"><option>Naked</option><option>Deportiva</option><option>Touring</option><option>Scooter</option><option>Enduro</option><option>Custom</option></optgroup><optgroup label="Náutica"><option>Lancha</option><option>Velero</option><option>Yate</option><option>Moto de Agua</option><option>Semi-rígido</option></optgroup></select></div>
               <div className="form-field"><label>Combustible *</label><select required value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
               <div className="form-field"><label>Transmisión *</label><select required value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option></select></div>
               <div className="form-field"><label>Color *</label><input type="text" required placeholder="Ej: Plata Metalizado" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
@@ -361,7 +362,7 @@ function MisAutos({ autos, reload, setTab }) {
 }
 
 function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess }) {
-  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
+  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', categoria: '', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -397,7 +398,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
       concesionaria_id: concesionaria.id,
       marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
       kilometraje: parseInt(form.kilometraje) || 0,
-      tipo: form.tipo, combustible: form.combustible, transmision: form.transmision,
+      tipo: form.tipo, categoria: form.categoria || null, combustible: form.combustible, transmision: form.transmision,
       color: form.color, precio_ars: form.precio_ars || null, precio_usd: form.precio_usd || null,
       descripcion: form.descripcion, fotos: fotoUrls, activo: true
     })
@@ -443,6 +444,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
             <div className="form-field"><label>Año *</label><input type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
             <div className="form-field"><label>Kilometraje *</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
             <div className="form-field"><label>Condición *</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
+            <div className="form-field"><label>Categoría *</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)} required><option value="">Seleccioná...</option><optgroup label="Autos"><option>Camioneta</option><option>SUV</option><option>Hatchback</option><option>Sedán</option><option>Pickup</option><option>Minivan</option><option>Coupé</option></optgroup><optgroup label="Motos"><option>Naked</option><option>Deportiva</option><option>Touring</option><option>Scooter</option><option>Enduro</option><option>Custom</option></optgroup><optgroup label="Náutica"><option>Lancha</option><option>Velero</option><option>Yate</option><option>Moto de Agua</option><option>Semi-rígido</option></optgroup></select></div>
             <div className="form-field"><label>Combustible *</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
             <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
             <div className="form-field"><label>Color Exterior *</label><input type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>

@@ -14,7 +14,7 @@ export default function Catalogo() {
   const [concesionarias, setConcesionarias] = useState([])
   const [loading, setLoading] = useState(true)
   const [favoritoIds, setFavoritoIds] = useState(new Set())
-  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: searchParams.get('tipo') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
+  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', categoria: searchParams.get('categoria') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
 
   const esParticular = user && !concesionaria && !isAdmin
 
@@ -54,6 +54,7 @@ export default function Catalogo() {
     setLoading(true)
     let q = supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)').eq('activo', true)
     if (filtros.tipo) q = q.eq('tipo', filtros.tipo)
+    if (filtros.categoria) q = q.eq('categoria', filtros.categoria)
     if (filtros.marca) q = q.eq('marca', filtros.marca)
     if (filtros.precioMin) q = q.gte('precio_ars', filtros.precioMin)
     if (filtros.precioMax) q = q.lte('precio_ars', filtros.precioMax)
@@ -89,9 +90,19 @@ export default function Catalogo() {
             <input style={inputStyle} placeholder="Marca, modelo..." value={filtros.busqueda} onChange={e => setF('busqueda', e.target.value)} />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Condición</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {['', 'nuevo', 'usado'].map(t => (
+                <button key={t} style={filtros.tipo === t ? chipActive : chipBase} onClick={() => setF('tipo', t)}>
+                  {t === '' ? 'Todos' : t === 'nuevo' ? 'Nuevo' : 'Usado'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Categoría</div>
-            <select style={{ ...inputStyle, cursor: 'pointer' }} value={filtros.tipo} onChange={e => setF('tipo', e.target.value)}>
-              <option value="">Todos</option>
+            <select style={{ ...inputStyle, cursor: 'pointer' }} value={filtros.categoria} onChange={e => setF('categoria', e.target.value)}>
+              <option value="">Todas</option>
               <optgroup label="Autos">
                 {['Camioneta','SUV','Hatchback','Sedán','Pickup','Minivan','Coupé'].map(t => <option key={t} value={t}>{t}</option>)}
               </optgroup>
@@ -142,7 +153,7 @@ export default function Catalogo() {
             </div>
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={fetchAutos}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'' }); setTimeout(fetchAutos, 100) }}>Limpiar</button>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'' }); setTimeout(fetchAutos, 100) }}>Limpiar</button>
         </div>
         {/* RESULTS */}
         <div style={{ flex: 1, padding: '2rem' }}>

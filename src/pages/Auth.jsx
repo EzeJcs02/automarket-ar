@@ -180,7 +180,7 @@ export function Registro() {
             onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
             onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray2)'}>
             <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--white)', marginBottom: '6px' }}>Soy comprador / vendedor particular</div>
-            <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Explorá el catálogo, publicá tu vehículo, guardá favoritos y contactá directamente.</div>
+            <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Publicá tu vehículo particular, explorá el catálogo, guardá favoritos y contactá agencias directamente.</div>
           </button>
         </div>
         <p style={{ fontSize: '12px', color: 'var(--gray4)', textAlign: 'center', marginTop: '2rem' }}>

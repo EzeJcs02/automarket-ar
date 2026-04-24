@@ -72,6 +72,7 @@ export default function Admin() {
     { id: 'pendientes', label: 'Solicitudes Pendientes', count: pendientes.length },
     { id: 'aprobadas', label: 'Agencias Activas', count: aprobadas.length },
     { id: 'publicaciones', label: 'Publicaciones', count: publicaciones.length },
+    { id: 'publicidad', label: 'Publicidad', count: 0 },
   ]
 
   return (
@@ -220,6 +221,41 @@ export default function Admin() {
                       </tbody>
                     </table>
                 }
+              </div>
+            )}
+            {/* PUBLICIDAD */}
+            {tab === 'publicidad' && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PUBLICIDAD</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Planes de visibilidad y espacios publicitarios disponibles.</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>Boosts de publicaciones</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
+                  {[
+                    { nombre: 'Destacado individual', precio: '$12.000', desc: 'Fondo diferenciado por 30 días.' },
+                    { nombre: 'Pack 10 destacados', precio: '$95.000', desc: 'Ahorrás $25.000 vs precio unitario.' },
+                    { nombre: 'Urgente', precio: '$20.000', desc: 'Badge rojo "URGENTE", máxima visibilidad.' },
+                    { nombre: 'Subir al tope', precio: '$10.000', desc: 'Vuelve al primer lugar de su categoría.' },
+                  ].map(b => (
+                    <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--white)', marginBottom: '4px' }}>{b.nombre}</div>
+                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--accent)', marginBottom: '6px' }}>{b.precio}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{b.desc}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>Espacios publicitarios</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+                  {[
+                    { nombre: 'Banner en Home', precio: '$120.000', desc: 'Banner visible en la página de inicio por 30 días.' },
+                    { nombre: 'Vehículo fijado en Home', precio: '$80.000', desc: 'Vehículo fijo en la sección destacada del inicio por 30 días.' },
+                  ].map(b => (
+                    <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--white)', marginBottom: '4px' }}>{b.nombre}</div>
+                      <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--accent)', marginBottom: '6px' }}>{b.precio}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{b.desc}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </>

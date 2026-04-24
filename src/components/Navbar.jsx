@@ -77,7 +77,7 @@ export default function Navbar() {
           ) : (
             <div style={{ display: 'flex', gap: '8px' }}>
               <Link to="/login"><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Ingresar</button></Link>
-              <Link to="/registro"><button className="btn-primary" style={{ padding: '7px 16px', fontSize: '13px' }}>Publicar auto</button></Link>
+              <Link to="/registro"><button className="btn-primary" style={{ padding: '7px 16px', fontSize: '13px' }}>Publicar vehículo</button></Link>
             </div>
           )}
         </div>
@@ -113,7 +113,7 @@ export default function Navbar() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'auto' }}>
               <Link to="/login" onClick={() => setMenuOpen(false)}><button className="btn-secondary" style={{ width: '100%', padding: '14px', fontSize: '15px' }}>Ingresar</button></Link>
-              <Link to="/registro" onClick={() => setMenuOpen(false)}><button className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px' }}>Publicar auto</button></Link>
+              <Link to="/registro" onClick={() => setMenuOpen(false)}><button className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px' }}>Publicar vehículo</button></Link>
             </div>
           )}
         </div>

@@ -263,6 +263,25 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
         </div>
       </div>
 
+      {/* PUBLICIDAD */}
+      <div style={{ marginBottom: '3rem' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Publicidad</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1.5rem' }}>ESPACIO PUBLICITARIO</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+          {[
+            { nombre: 'Banner en Home', precio: '$120.000', desc: 'Tu banner visible en la página de inicio por 30 días.', msg: 'Hola! Quiero contratar Banner en Home en FIORA.MARKET' },
+            { nombre: 'Vehículo fijado en Home', precio: '$80.000', desc: 'Tu vehículo aparece fijo en la sección destacada del inicio por 30 días.', msg: 'Hola! Quiero contratar Vehículo fijado en Home en FIORA.MARKET' },
+          ].map(b => (
+            <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)' }}>{b.nombre}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--accent)' }}>{b.precio}</div>
+              <div style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.5, flex: 1 }}>{b.desc}</div>
+              <button className="btn-secondary" style={{ fontSize: '12px', padding: '8px 14px', marginTop: '4px' }} onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(b.msg)}`, '_blank')}>Consultar →</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>Bandeja de Entrada</div>
       {consultas.length === 0
         ? <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', color: 'var(--gray4)' }}>No hay consultas pendientes.</div>

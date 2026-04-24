@@ -5,7 +5,21 @@ import { useAuth } from '../context/AuthContext'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
 const LIMITES_PLAN = { free: 1, basico: 8, pro: 20, premium: 50 }
-const WA_PLANES = 'https://wa.me/5493874111111'
+
+async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null } = {}) {
+  try {
+    const res = await fetch('/api/mp-create-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo, auto_id, concesionaria_id, user_id, origen: 'panel' }),
+    })
+    const data = await res.json()
+    if (data.init_point) window.location.href = data.init_point
+    else alert('Error al iniciar el pago. Intente nuevamente.')
+  } catch {
+    alert('Error de conexión. Intente nuevamente.')
+  }
+}
 
 export default function Panel() {
   const { user, concesionaria, fetchConcesionaria, isAdmin, loading: authLoading } = useAuth()
@@ -14,6 +28,18 @@ export default function Panel() {
   const [autos, setAutos] = useState([])
   const [consultas, setConsultas] = useState([])
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const mp = params.get('mp')
+    if (mp === 'ok') {
+      alert('¡Pago exitoso! Tu boost/plan se activará en breve.')
+      window.history.replaceState({}, '', '/panel')
+    } else if (mp === 'fail') {
+      alert('El pago no se completó. Podés intentarlo nuevamente.')
+      window.history.replaceState({}, '', '/panel')
+    }
+  }, [])
 
   useEffect(() => {
     if (authLoading) return
@@ -89,7 +115,7 @@ export default function Panel() {
         {loading ? <div className="spinner" /> : (
           <>
             {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}
-            {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} />}
+            {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} concesionaria={concesionaria} />}
             {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
             {tab === 'consultas' && <Consultas consultas={consultas} reload={loadData} />}
             {tab === 'perfil' && <Perfil concesionaria={concesionaria} onSave={() => fetchConcesionaria(user.id)} />}
@@ -100,12 +126,22 @@ export default function Panel() {
   )
 }
 
-function UpgradeModal({ onClose, planActual }) {
+function UpgradeModal({ onClose }) {
+  const { user, concesionaria } = useAuth()
+  const [paying, setPaying] = useState(null)
+
   const planes = [
-    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
-    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
-    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: '#4ade80' },
+    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020' },
+    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)' },
   ]
+
+  async function contratar(plan_id) {
+    setPaying(plan_id)
+    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id })
+    setPaying(null)
+  }
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
       <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '680px', border: '1px solid var(--gray2)' }}>
@@ -122,9 +158,9 @@ function UpgradeModal({ onClose, planActual }) {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: p.color }}>{p.nombre}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--white)' }}>${p.precio}<span style={{ fontSize: '12px', color: 'var(--gray4)', marginLeft: '4px' }}>/mes</span></div>
               <div style={{ fontSize: '12px', color: 'var(--gray4)', flex: 1 }}>{p.limite}</div>
-              <button onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(p.msg)}`, '_blank')}
-                style={{ padding: '9px', borderRadius: 'var(--radius)', border: 'none', background: p.id === 'premium' ? 'var(--accent)' : 'var(--gray2)', color: 'var(--white)', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
-                Contratar →
+              <button onClick={() => contratar(p.id)} disabled={!!paying}
+                style={{ padding: '9px', borderRadius: 'var(--radius)', border: 'none', background: p.id === 'premium' ? 'var(--accent)' : 'var(--gray2)', color: 'var(--white)', fontSize: '12px', fontWeight: 700, cursor: paying ? 'wait' : 'pointer', opacity: paying ? .7 : 1 }}>
+                {paying === p.id ? 'Procesando...' : 'Contratar con MP →'}
               </button>
             </div>
           ))}
@@ -136,8 +172,16 @@ function UpgradeModal({ onClose, planActual }) {
 }
 
 function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado, setTab }) {
+  const { user } = useAuth()
   const [consultaDetalle, setConsultaDetalle] = useState(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [paying, setPaying] = useState(null)
+
+  async function contratarPlan(plan_id) {
+    setPaying(plan_id)
+    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id })
+    setPaying(null)
+  }
 
   if (!concesionaria?.aprobada) return (
     <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', border: '1px solid rgba(201,168,76,.3)', maxWidth: '600px' }}>
@@ -220,13 +264,13 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
               const orden = { free: 0, basico: 1, pro: 2, premium: 3 }
               return orden[p.id] > orden[concesionaria?.plan || 'free']
             }).map(p => (
-              <button key={p.id} onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(p.msg)}`, '_blank')}
-                style={{ background: 'var(--black)', border: `1px solid ${p.color}22`, borderRadius: 'var(--radius)', padding: '12px', textAlign: 'left', cursor: 'pointer', transition: 'border-color .2s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = p.color}
+              <button key={p.id} onClick={() => contratarPlan(p.id)} disabled={!!paying}
+                style={{ background: 'var(--black)', border: `1px solid ${p.color}22`, borderRadius: 'var(--radius)', padding: '12px', textAlign: 'left', cursor: paying ? 'wait' : 'pointer', transition: 'border-color .2s', opacity: paying ? .7 : 1 }}
+                onMouseEnter={e => { if (!paying) e.currentTarget.style.borderColor = p.color }}
                 onMouseLeave={e => e.currentTarget.style.borderColor = `${p.color}22`}>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: p.color, marginBottom: '4px' }}>{p.nombre}</div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--white)', marginBottom: '2px' }}>{p.precio}<span style={{ fontSize: '10px', color: 'var(--gray4)', marginLeft: '3px' }}>/mes</span></div>
-                <div style={{ fontSize: '11px', color: 'var(--gray4)' }}>{p.limite}</div>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)' }}>{paying === p.id ? 'Procesando...' : p.limite}</div>
               </button>
             ))}
           </div>
@@ -264,10 +308,54 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
   )
 }
 
-function MisAutos({ autos, reload, setTab }) {
+function MisAutos({ autos, reload, setTab, concesionaria }) {
+  const { user } = useAuth()
   const [editando, setEditando] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [saving, setSaving] = useState(false)
+
+  const plan = concesionaria?.plan || 'free'
+  const destacadosActivos = autos.filter(a => a.destacado).length
+  const urgentesActivos = autos.filter(a => a.urgente).length
+  const limiteDestacados = plan === 'premium' ? Infinity : plan === 'pro' ? 3 : 0
+
+  async function toggleDestacado(auto) {
+    if (!auto.destacado) {
+      if (limiteDestacados === 0) {
+        if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Destacado individual por $15.000 para ${auto.marca} ${auto.modelo}?`)) {
+          pagarConMP('destacado', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id })
+        }
+        return
+      }
+      if (limiteDestacados !== Infinity && destacadosActivos >= limiteDestacados) {
+        alert(`Tu plan Pro permite hasta ${limiteDestacados} destacados simultáneos. Ya tenés ${destacadosActivos} activos.`)
+        return
+      }
+      await supabase.from('autos').update({ destacado: true, urgente: false }).eq('id', auto.id)
+    } else {
+      await supabase.from('autos').update({ destacado: false }).eq('id', auto.id)
+    }
+    reload()
+  }
+
+  async function toggleUrgente(auto) {
+    if (!auto.urgente) {
+      if (limiteDestacados === 0) {
+        if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Urgente individual por $20.000 para ${auto.marca} ${auto.modelo}?`)) {
+          pagarConMP('urgente', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id })
+        }
+        return
+      }
+      if (limiteDestacados !== Infinity && urgentesActivos >= limiteDestacados) {
+        alert(`Tu plan Pro permite hasta ${limiteDestacados} urgentes simultáneos. Ya tenés ${urgentesActivos} activos.`)
+        return
+      }
+      await supabase.from('autos').update({ urgente: true, destacado: false }).eq('id', auto.id)
+    } else {
+      await supabase.from('autos').update({ urgente: false }).eq('id', auto.id)
+    }
+    reload()
+  }
 
   async function toggleActivo(auto) {
     await supabase.from('autos').update({ activo: !auto.activo }).eq('id', auto.id)
@@ -329,10 +417,18 @@ function MisAutos({ autos, reload, setTab }) {
         <button className="btn-primary" onClick={() => setTab('nuevo-auto')}>NUEVA PUBLICACIÓN</button>
       </div>
 
+      {/* PLAN INFO BAR */}
+      {limiteDestacados > 0 && (
+        <div style={{ marginBottom: '1.5rem', padding: '12px 20px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', display: 'flex', gap: '2rem', fontSize: '12px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>
+          <span>★ Destacados: <strong style={{ color: destacadosActivos > 0 ? '#c9a84c' : 'var(--white)' }}>{destacadosActivos}</strong> / {limiteDestacados === Infinity ? '∞' : limiteDestacados}</span>
+          <span>⚡ Urgentes: <strong style={{ color: urgentesActivos > 0 ? 'var(--accent)' : 'var(--white)' }}>{urgentesActivos}</strong> / {limiteDestacados === Infinity ? '∞' : limiteDestacados}</span>
+        </div>
+      )}
+
       {autos.length === 0
         ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Inventario vacío.</p></div>
         : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-            <thead><tr>{['Vehículo','Precio (ARS)','Vistas','Estado','Administrar'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+            <thead><tr>{['Vehículo','Precio (ARS)','Vistas','Boosts','Estado','Administrar'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
             <tbody>
               {autos.map(a => (
                 <tr key={a.id} style={{ borderBottom: '1px solid var(--gray2)' }}>
@@ -340,6 +436,22 @@ function MisAutos({ autos, reload, setTab }) {
                   <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>${Number(a.precio_ars || 0).toLocaleString('es-AR')}</td>
                   <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
                     {a.vistas || 0}
+                  </td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => toggleDestacado(a)}
+                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
+                          background: a.destacado ? 'rgba(201,168,76,.25)' : 'rgba(255,255,255,.08)',
+                          color: a.destacado ? '#c9a84c' : 'var(--gray4)' }}>
+                        ★ Destacar
+                      </button>
+                      <button onClick={() => toggleUrgente(a)}
+                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
+                          background: a.urgente ? 'rgba(230,51,41,.25)' : 'rgba(255,255,255,.08)',
+                          color: a.urgente ? 'var(--accent)' : 'var(--gray4)' }}>
+                        ⚡ Urgente
+                      </button>
+                    </div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: a.activo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.1)', color: a.activo ? '#4ade80' : 'var(--gray4)' }}>

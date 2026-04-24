@@ -25,7 +25,7 @@ export function Login() {
         navigate('/admin')
       } else {
         const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).single()
-        navigate(conc ? '/panel' : '/')
+        navigate(conc ? '/panel' : '/mi-cuenta')
       }
     }
   }
@@ -39,7 +39,7 @@ export function Login() {
         <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.25) 0%, transparent 70%)' }} />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '64px', lineHeight: .95, marginBottom: '1.5rem' }}>
-            TU PRÓXIMO<br />AUTO<br /><span style={{ color: 'var(--accent)' }}>TE ESPERA</span>
+            TU PRÓXIMO<br />VEHÍCULO<br /><span style={{ color: 'var(--accent)' }}>TE ESPERA</span>
           </div>
           <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '340px', lineHeight: 1.7 }}>
             La plataforma de concesionarias más avanzada de Argentina.
@@ -51,7 +51,7 @@ export function Login() {
       <div style={{ width: '100%', maxWidth: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '380px' }}>
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '3px', display: 'block', marginBottom: '3rem' }}>
-            AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+            FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
           </Link>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '44px', lineHeight: 1, marginBottom: '.5rem' }}>BIENVENIDO</div>
           <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Ingresá a tu cuenta</div>
@@ -165,7 +165,7 @@ export function Registro() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--black)' }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
         <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '3rem', textAlign: 'center' }}>
-          AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+          FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
         </Link>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '.75rem', textAlign: 'center' }}>CREAR CUENTA</div>
         <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', textAlign: 'center' }}>¿Cómo querés registrarte?</div>
@@ -197,7 +197,7 @@ export function Registro() {
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
-            AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+            FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
           </Link>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '.5rem' }}>TU CUENTA</div>
           <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Creá tu perfil de comprador</div>
@@ -239,7 +239,7 @@ export function Registro() {
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
-            AUTO<span style={{ color: 'var(--accent)' }}>MARKET</span> AR
+            FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
           </Link>
 
           {/* INDICADOR DE PASOS */}

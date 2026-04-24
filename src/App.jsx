@@ -12,6 +12,7 @@ import Panel from './pages/Panel'
 import Admin from './pages/Admin'
 import Planes from './pages/Planes'
 import Favoritos from './pages/Favoritos'
+import MiCuenta from './pages/MiCuenta'
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/planes" element={<Planes />} />
                 <Route path="/favoritos" element={<Favoritos />} />
+                <Route path="/mi-cuenta" element={<MiCuenta />} />
                 <Route path="/legales" element={<Legales />} />
                 <Route path="/arrepentimiento" element={<Arrepentimiento />} />
               </Routes>

@@ -11,7 +11,7 @@ const PLANES = [
     border: 'var(--gray2)',
     publicaciones: 8,
     beneficios: [
-      'Hasta 8 autos publicados',
+      'Hasta 8 vehículos publicados',
       'Publicaciones por 30 días',
       'Perfil de agencia en directorio',
       'Renovación paga disponible',
@@ -28,7 +28,7 @@ const PLANES = [
     publicaciones: 20,
     tag: 'MÁS POPULAR',
     beneficios: [
-      'Hasta 20 autos publicados',
+      'Hasta 20 vehículos publicados',
       'Publicaciones por 30 días',
       '3 destacados incluidos por mes',
       'Mejor posicionamiento en resultados',
@@ -45,7 +45,7 @@ const PLANES = [
     border: 'rgba(230,51,41,.5)',
     publicaciones: 50,
     beneficios: [
-      'Hasta 50 autos publicados',
+      'Hasta 50 vehículos publicados',
       'Publicaciones por 30 días',
       'Destacados ilimitados incluidos',
       'Máxima prioridad en resultados',
@@ -64,20 +64,20 @@ const COMPARACION = [
   { label: 'Posicionamiento', basico: 'Estándar', pro: 'Prioritario', premium: 'Máximo' },
   { label: 'Badge verificada', basico: false, pro: false, premium: true },
   { label: 'Perfil en directorio', basico: true, pro: true, premium: true },
-  { label: 'Autos extra (c/u)', basico: '$10.000/mes', pro: '$10.000/mes', premium: '$10.000/mes' },
+  { label: 'Vehículos extra (c/u)', basico: '$10.000/mes', pro: '$10.000/mes', premium: '$10.000/mes' },
 ]
 
 const BOOSTS = [
   {
     nombre: 'Destacado individual',
     precio: '12.000',
-    desc: 'Destacá un auto en particular por 30 días con fondo diferenciado.',
+    desc: 'Destacá un vehículo en particular por 30 días con fondo diferenciado.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
   },
   {
     nombre: 'Pack 10 destacados',
     precio: '95.000',
-    desc: 'Destacá hasta 10 autos. Ahorrás $25.000 vs precio unitario.',
+    desc: 'Destacá hasta 10 vehículos. Ahorrás $25.000 vs precio unitario.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>,
   },
   {
@@ -102,7 +102,7 @@ const PUBLICIDAD = [
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
   },
   {
-    nombre: 'Auto fijado en Home',
+    nombre: 'Vehículo fijado en Home',
     precio: '80.000',
     desc: 'Tu vehículo aparece fijo en la sección destacada del inicio por 30 días.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
@@ -158,7 +158,7 @@ export default function Planes() {
       <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para agencias y concesionarias</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,4vw,56px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES DE AGENCIA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem' }}>Auto extra por encima del límite del plan: <strong style={{ color: 'var(--white)' }}>$10.000/mes c/u</strong></p>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem' }}>Vehículo extra por encima del límite del plan: <strong style={{ color: 'var(--white)' }}>$10.000/mes c/u</strong></p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
           {PLANES.map(p => {

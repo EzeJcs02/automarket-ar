@@ -11,7 +11,7 @@ export default function AutoDetalle() {
   const [loading, setLoading] = useState(true)
   const [fotoIdx, setFotoIdx] = useState(0)
   const [zoom, setZoom] = useState(false)
-  const [consulta, setConsulta] = useState({ nombre: '', email: '', mensaje: '' })
+  const [consulta, setConsulta] = useState({ nombre: '', email: '', telefono: '', mensaje: '' })
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [isFavorito, setIsFavorito] = useState(false)
@@ -51,6 +51,7 @@ export default function AutoDetalle() {
       concesionaria_id: auto.concesionaria_id,
       nombre_comprador: consulta.nombre,
       email_comprador: consulta.email,
+      telefono_comprador: consulta.telefono || null,
       mensaje: consulta.mensaje,
       canal: 'formulario'
     })
@@ -216,6 +217,7 @@ export default function AutoDetalle() {
               : <>
                   <input type="text" placeholder="Tu nombre" value={consulta.nombre} onChange={e => setConsulta(p => ({ ...p, nombre: e.target.value }))} />
                   <input type="email" placeholder="Tu email" value={consulta.email} onChange={e => setConsulta(p => ({ ...p, email: e.target.value }))} />
+                  <input type="tel" placeholder="Tu teléfono (opcional)" value={consulta.telefono} onChange={e => setConsulta(p => ({ ...p, telefono: e.target.value }))} />
                   <textarea placeholder="Hola, me interesa este vehículo..." value={consulta.mensaje} onChange={e => setConsulta(p => ({ ...p, mensaje: e.target.value }))} style={{ minHeight: '100px' }} />
                   <button className="btn-primary" onClick={enviarConsulta} disabled={enviando} style={{ marginTop: '0.5rem', width: '100%' }}>
                     {enviando ? 'Enviando...' : 'Enviar consulta'}

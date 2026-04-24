@@ -102,9 +102,9 @@ export default function Panel() {
 
 function UpgradeModal({ onClose, planActual }) {
   const planes = [
-    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
-    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
-    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: 'var(--gray4)', msg: 'Hola! Quiero contratar el Plan Básico de FIORA.MARKET' },
+    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de FIORA.MARKET' },
+    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de FIORA.MARKET' },
   ]
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
@@ -213,9 +213,9 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
         {concesionaria?.plan !== 'premium' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', paddingTop: '1.25rem', borderTop: '1px solid var(--gray2)' }}>
             {[
-              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
-              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
-              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de FIORA.MARKET' },
+              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de FIORA.MARKET' },
+              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de FIORA.MARKET' },
             ].filter(p => {
               const orden = { free: 0, basico: 1, pro: 2, premium: 3 }
               return orden[p.id] > orden[concesionaria?.plan || 'free']
@@ -240,6 +240,27 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>{val}</div>
           </div>
         ))}
+      </div>
+
+      {/* BOOSTS */}
+      <div style={{ marginBottom: '3rem' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Complementos para agencias</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1.5rem' }}>DESTACADOS Y BOOSTS</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          {[
+            { nombre: 'Destacado individual', precio: '$12.000', desc: 'Destacá un vehículo por 30 días con fondo diferenciado.', msg: 'Hola! Quiero contratar un Destacado individual en FIORA.MARKET' },
+            { nombre: 'Pack 10 destacados', precio: '$95.000', desc: 'Destacá hasta 10 vehículos. Ahorrás $25.000 vs precio unitario.', msg: 'Hola! Quiero contratar el Pack 10 destacados en FIORA.MARKET' },
+            { nombre: 'Urgente', precio: '$20.000', desc: 'Máxima visibilidad. Badge rojo "URGENTE" en tu publicación.', msg: 'Hola! Quiero contratar el boost Urgente en FIORA.MARKET' },
+            { nombre: 'Subir al tope', precio: '$10.000', desc: 'Tu publicación vuelve al primer lugar dentro de su categoría.', msg: 'Hola! Quiero contratar Subir al tope en FIORA.MARKET' },
+          ].map(b => (
+            <div key={b.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)' }}>{b.nombre}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--accent)' }}>{b.precio}</div>
+              <div style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.5, flex: 1 }}>{b.desc}</div>
+              <button className="btn-secondary" style={{ fontSize: '12px', padding: '8px 14px', marginTop: '4px' }} onClick={() => window.open(`${WA_PLANES}?text=${encodeURIComponent(b.msg)}`, '_blank')}>Consultar →</button>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>Bandeja de Entrada</div>

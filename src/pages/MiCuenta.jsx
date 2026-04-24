@@ -73,6 +73,9 @@ export default function MiCuenta() {
         <button style={tabStyle(tab === 'consultas')} onClick={() => setTab('consultas')}>
           Consultas enviadas ({consultas.length})
         </button>
+        <button style={tabStyle(tab === 'planes')} onClick={() => setTab('planes')}>
+          Mi Plan
+        </button>
       </div>
 
       {/* FAVORITOS */}
@@ -95,6 +98,53 @@ export default function MiCuenta() {
       )}
 
       {/* CONSULTAS */}
+      {/* PLANES */}
+      {tab === 'planes' && (
+        <div style={{ padding: '2rem 4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px' }}>
+            {/* PLAN BASE */}
+            <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Base</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: '#4ade80', lineHeight: 1, marginBottom: '2rem' }}>GRATIS</div>
+              {[
+                '1 publicación activa por 30 días',
+                'Sin prioridad en resultados',
+                'Acceso al catálogo completo',
+                'Consultas directas a agencias',
+                'Guardado de favoritos',
+              ].map(b => (
+                <div key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                  <span style={{ fontSize: '14px', color: 'var(--gray4)' }}>{b}</span>
+                </div>
+              ))}
+              <button className="btn-secondary" style={{ width: '100%', marginTop: '1.5rem' }} onClick={() => window.location.href = '/registro'}>Registrarse gratis</button>
+            </div>
+            {/* EXTRAS */}
+            <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Extras pagos</div>
+              {[
+                { nombre: 'Subir al tope', precio: '$10.000', desc: 'Tu publicación vuelve al primer lugar.', msg: 'Hola! Quiero contratar Subir al tope (particular) en FIORA.MARKET' },
+                { nombre: 'Destacado', precio: '$15.000', desc: 'Fondo diferenciado y badge en el catálogo.', msg: 'Hola! Quiero contratar Destacado (particular) en FIORA.MARKET' },
+                { nombre: 'Urgente', precio: '$20.000', desc: 'Badge rojo "URGENTE", máxima visibilidad.', msg: 'Hola! Quiero contratar Urgente (particular) en FIORA.MARKET' },
+                { nombre: 'Renovar 30 días', precio: '$10.000', desc: 'Extendé tu publicación y volvé arriba.', msg: 'Hola! Quiero renovar mi publicación particular en FIORA.MARKET' },
+              ].map(e => (
+                <div key={e.nombre} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--gray2)' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)', marginBottom: '2px' }}>{e.nombre}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{e.desc}</div>
+                  </div>
+                  <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px', marginLeft: '1rem', flexShrink: 0, color: 'var(--accent)', borderColor: 'var(--accent)' }}
+                    onClick={() => window.open(`https://wa.me/5493874111111?text=${encodeURIComponent(e.msg)}`, '_blank')}>
+                    {e.precio}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {tab === 'consultas' && (
         <div style={{ padding: '2rem 4rem' }}>
           {consultas.length === 0 ? (

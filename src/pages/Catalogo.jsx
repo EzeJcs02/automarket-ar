@@ -14,7 +14,7 @@ export default function Catalogo() {
   const [concesionarias, setConcesionarias] = useState([])
   const [loading, setLoading] = useState(true)
   const [favoritoIds, setFavoritoIds] = useState(new Set())
-  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
+  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: searchParams.get('tipo') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
 
   const esParticular = user && !concesionaria && !isAdmin
 
@@ -89,14 +89,19 @@ export default function Catalogo() {
             <input style={inputStyle} placeholder="Marca, modelo..." value={filtros.busqueda} onChange={e => setF('busqueda', e.target.value)} />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Tipo</div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {['', 'nuevo', 'usado'].map(t => (
-                <button key={t} style={filtros.tipo === t ? chipActive : chipBase} onClick={() => setF('tipo', t)}>
-                  {t === '' ? 'Todos' : t === 'nuevo' ? 'Nuevo' : 'Usado'}
-                </button>
-              ))}
-            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Categoría</div>
+            <select style={{ ...inputStyle, cursor: 'pointer' }} value={filtros.tipo} onChange={e => setF('tipo', e.target.value)}>
+              <option value="">Todos</option>
+              <optgroup label="Autos">
+                {['Camioneta','SUV','Hatchback','Sedán','Pickup','Minivan','Coupé'].map(t => <option key={t} value={t}>{t}</option>)}
+              </optgroup>
+              <optgroup label="Motos">
+                {['Naked','Deportiva','Touring','Scooter','Enduro','Custom'].map(t => <option key={t} value={t}>{t}</option>)}
+              </optgroup>
+              <optgroup label="Náutica">
+                {['Lancha','Velero','Yate','Moto de Agua','Semi-rígido'].map(t => <option key={t} value={t}>{t}</option>)}
+              </optgroup>
+            </select>
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Marca</div>

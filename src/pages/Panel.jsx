@@ -262,20 +262,21 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
         {concesionaria?.plan !== 'premium' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', paddingTop: '1.25rem', borderTop: '1px solid var(--gray2)' }}>
             {[
-              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', msg: 'Hola! Quiero contratar el Plan Básico de AutoMarket AR' },
-              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', msg: 'Hola! Quiero contratar el Plan Pro de AutoMarket AR' },
-              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: 'var(--accent)', msg: 'Hola! Quiero contratar el Plan Premium de AutoMarket AR' },
+              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', colorDim: 'rgba(74,222,128,.15)' },
+              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', colorDim: 'rgba(224,160,32,.15)' },
+              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: '#e63329', colorDim: 'rgba(230,51,41,.15)' },
             ].filter(p => {
               const orden = { free: 0, basico: 1, pro: 2, premium: 3 }
               return orden[p.id] > orden[concesionaria?.plan || 'free']
             }).map(p => (
               <button key={p.id} onClick={() => contratarPlan(p.id)} disabled={!!paying}
-                style={{ background: 'var(--black)', border: `1px solid ${p.color}22`, borderRadius: 'var(--radius)', padding: '12px', textAlign: 'left', cursor: paying ? 'wait' : 'pointer', transition: 'border-color .2s', opacity: paying ? .7 : 1 }}
-                onMouseEnter={e => { if (!paying) e.currentTarget.style.borderColor = p.color }}
-                onMouseLeave={e => e.currentTarget.style.borderColor = `${p.color}22`}>
+                style={{ background: 'var(--black)', border: `1px solid ${p.colorDim}`, borderRadius: 'var(--radius)', padding: '12px', textAlign: 'left', cursor: paying ? 'wait' : 'pointer', transition: 'border-color .2s, background .2s', opacity: paying ? .7 : 1 }}
+                onMouseEnter={e => { if (!paying) { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.background = p.colorDim } }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = p.colorDim; e.currentTarget.style.background = 'var(--black)' }}>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: p.color, marginBottom: '4px' }}>{p.nombre}</div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--white)', marginBottom: '2px' }}>{p.precio}<span style={{ fontSize: '10px', color: 'var(--gray4)', marginLeft: '3px' }}>/mes</span></div>
                 <div style={{ fontSize: '11px', color: 'var(--gray4)' }}>{paying === p.id ? 'Procesando...' : p.limite}</div>
+                <div style={{ fontSize: '10px', color: p.color, marginTop: '6px', fontWeight: 700, letterSpacing: '.05em' }}>Contratar con MP →</div>
               </button>
             ))}
           </div>

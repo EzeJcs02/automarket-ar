@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 
 export default function Home() {
   const navigate = useNavigate()
+  const { user, concesionaria } = useAuth()
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
   const [tabGuia, setTabGuia] = useState('comprar')

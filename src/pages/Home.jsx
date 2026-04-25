@@ -101,7 +101,7 @@ export default function Home() {
       {/* PUBLICIDAD INFERIOR — 1 banner dinámico cycling */}
       <div style={{ borderBottom: '1px solid var(--gray2)', background: '#050505' }}>
         <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', padding: '8px 2rem 6px', textTransform: 'uppercase' }}>Publicidad</div>
-        <div style={{ position: 'relative', height: '130px', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
           {banners.length > 0 ? banners.map((b, i) => (
             <div key={b.id} style={{ position: 'absolute', inset: 0, opacity: i === bottomIdx ? 1 : 0, transition: 'opacity .8s ease-in-out', pointerEvents: i === bottomIdx ? 'auto' : 'none' }}>
               {b.portada_url
@@ -110,10 +110,9 @@ export default function Home() {
               }
             </div>
           )) : (
-            <div style={{ width: '100%', height: '100%', background: 'var(--gray1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-              {Array.from({ length: 10 }, (_, i) => (
-                <div key={i} style={{ width: '120px', height: '90px', border: '1px dashed var(--gray2)', borderRadius: 'var(--radius)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.1em', textAlign: 'center', lineHeight: 1.8, flexShrink: 0 }}>ESPACIO<br/>PUBLICITARIO</div>
-              ))}
+            <div style={{ width: '100%', height: '100%', border: '1px dashed var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.12em' }}>Espacio publicitario</div>
+              <div style={{ fontSize: '10px', color: 'var(--gray2)', fontFamily: 'var(--font-mono)' }}>Hasta 10 banners · cycling automático</div>
             </div>
           )}
           {/* dots */}

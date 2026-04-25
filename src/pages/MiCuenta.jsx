@@ -272,7 +272,7 @@ export default function MiCuenta() {
 }
 
 function PublicarForm({ user, onSuccess, onCancel }) {
-  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '', tipo: 'usado', categoria: '', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', descripcion: '' })
+  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '', tipo: 'usado', categoria: '', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', descripcion: '', whatsapp: '' })
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -307,6 +307,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
       combustible: form.combustible, transmision: form.transmision,
       color: form.color, precio_ars: form.precio_ars || null,
       descripcion: form.descripcion, fotos: fotoUrls, activo: true,
+      whatsapp: form.whatsapp || null,
     })
     setLoading(false)
     if (insErr) setError(insErr.message)
@@ -345,6 +346,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
             <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
             <div className="form-field"><label>Color *</label><input type="text" placeholder="Ej: Blanco" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>
             <div className="form-field"><label>Precio ARS *</label><input type="number" placeholder="Ej: 8000000" value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} required /></div>
+            <div className="form-field"><label>WhatsApp *</label><input type="tel" placeholder="Ej: 3874123456" value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} required /></div>
           </div>
           <div className="form-field" style={{ marginTop: '1rem' }}><label>Descripción</label><textarea rows={3} placeholder="Describí el estado, equipamiento, historial..." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: 'var(--white)', padding: '10px 12px', fontSize: '14px', resize: 'vertical' }} /></div>
         </div>

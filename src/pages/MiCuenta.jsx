@@ -218,7 +218,7 @@ export default function MiCuenta() {
                 </div>
               ))}
             </div>
-            <ExtrasConMP user={user} />
+            <ExtrasConMP user={user} autoId={misAutos[0]?.id || null} />
           </div>
         </div>
       )}
@@ -312,12 +312,22 @@ function PublicarForm({ user, onSuccess, onCancel }) {
   )
 }
 
-function ExtrasConMP({ user }) {
+function ExtrasConMP({ user, autoId }) {
   const [paying, setPaying] = useState(null)
 
   async function pagar(tipo) {
+    if (!autoId) { alert('Necesitás tener una publicación activa para usar este boost.'); return }
     setPaying(tipo)
-    await pagarConMP(tipo, user.id, user.email)
+    try {
+      const res = await fetch('/api/mp-create-preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo, user_id: user.id, user_email: user.email, auto_id: autoId, origen: 'mi-cuenta' }),
+      })
+      const data = await res.json()
+      if (data.init_point) window.location.href = data.init_point
+      else alert('Error al iniciar el pago. Intente nuevamente.')
+    } catch { alert('Error de conexión.') }
     setPaying(null)
   }
 

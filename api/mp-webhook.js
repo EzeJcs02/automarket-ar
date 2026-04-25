@@ -59,6 +59,23 @@ export default async function handler(req, res) {
         headers,
         body: JSON.stringify({ plan }),
       })
+    } else if ((tipo === 'subir_tope' || tipo === 'destacado_individual' || tipo === 'urgente_individual') && auto_id) {
+      const patch = tipo === 'subir_tope'
+        ? { created_at: new Date().toISOString() }
+        : tipo === 'destacado_individual'
+          ? { destacado: true, urgente: false, destacado_expira_at: in30days }
+          : { urgente: true, destacado: false, urgente_expira_at: in30days }
+      await fetch(`${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(patch),
+      })
+    } else if (tipo === 'renovar' && auto_id) {
+      await fetch(`${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ created_at: new Date().toISOString() }),
+      })
     }
 
     await fetch(`${supabaseUrl}/rest/v1/pagos`, {

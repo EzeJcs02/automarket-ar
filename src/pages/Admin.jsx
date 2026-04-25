@@ -11,8 +11,11 @@ export default function Admin() {
   const [publicaciones, setPublicaciones] = useState([])
   const [pagos, setPagos] = useState([])
   const [usuarios, setUsuarios] = useState([])
+  const [publicidades, setPublicidades] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
+  const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '' })
+  const [adLoading, setAdLoading] = useState(false)
 
   useEffect(() => {
     if (authLoading) return
@@ -23,18 +26,20 @@ export default function Admin() {
 
   async function loadData() {
     const { data: { session } } = await supabase.auth.getSession()
-    const [p, a, pub, pag, usersRes] = await Promise.all([
+    const [p, a, pub, pag, usersRes, ads] = await Promise.all([
       supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
       supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
       supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
       supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200),
       fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()),
+      supabase.from('publicidades').select('*').order('created_at', { ascending: false }),
     ])
     setPendientes(p.data || [])
     setAprobadas(a.data || [])
     setPublicaciones(pub.data || [])
     setPagos(pag.data || [])
     setUsuarios(usersRes.users || [])
+    setPublicidades(ads.data || [])
     setDataLoading(false)
   }
 
@@ -85,12 +90,34 @@ export default function Admin() {
     loadData()
   }
 
+  async function agregarAd() {
+    if (!nuevaAd.nombre.trim() || !nuevaAd.imagen_url.trim()) return
+    setAdLoading(true)
+    await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url: nuevaAd.imagen_url.trim(), link_url: nuevaAd.link_url.trim() || null })
+    setNuevaAd({ nombre: '', imagen_url: '', link_url: '' })
+    const { data } = await supabase.from('publicidades').select('*').order('created_at', { ascending: false })
+    setPublicidades(data || [])
+    setAdLoading(false)
+  }
+
+  async function toggleAd(ad) {
+    await supabase.from('publicidades').update({ activo: !ad.activo }).eq('id', ad.id)
+    setPublicidades(prev => prev.map(a => a.id === ad.id ? { ...a, activo: !a.activo } : a))
+  }
+
+  async function eliminarAd(id) {
+    if (!confirm('¿Eliminar esta publicidad?')) return
+    await supabase.from('publicidades').delete().eq('id', id)
+    setPublicidades(prev => prev.filter(a => a.id !== id))
+  }
+
   const navItems = [
     { id: 'pendientes', label: 'Solicitudes Pendientes', count: pendientes.length },
     { id: 'aprobadas', label: 'Agencias Activas', count: aprobadas.length },
     { id: 'publicaciones', label: 'Publicaciones', count: publicaciones.length },
     { id: 'pagos', label: 'Historial de Pagos', count: pagos.length },
     { id: 'usuarios', label: 'Usuarios Registrados', count: usuarios.length },
+    { id: 'publicidades', label: 'Publicidades Laterales', count: publicidades.filter(a => a.activo).length },
   ]
 
   return (
@@ -291,6 +318,69 @@ export default function Admin() {
                         ))}
                       </tbody>
                     </table>
+                }
+              </div>
+            )}
+
+            {/* PUBLICIDADES LATERALES */}
+            {tab === 'publicidades' && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PUBLICIDADES LATERALES</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Ads externas (mecánicos, lubricentros, etc.) que aparecen en la columna derecha del home.</div>
+
+                {/* FORM NUEVA AD */}
+                <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2rem', marginBottom: '2rem' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Agregar nueva publicidad</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr', gap: '12px', marginBottom: '12px' }}>
+                    <div className="form-field" style={{ margin: 0 }}>
+                      <label>Nombre del negocio *</label>
+                      <input placeholder="Ej: Lubricentro López" value={nuevaAd.nombre} onChange={e => setNuevaAd(p => ({ ...p, nombre: e.target.value }))} />
+                    </div>
+                    <div className="form-field" style={{ margin: 0 }}>
+                      <label>URL de la imagen * (180×200px recomendado)</label>
+                      <input placeholder="https://..." value={nuevaAd.imagen_url} onChange={e => setNuevaAd(p => ({ ...p, imagen_url: e.target.value }))} />
+                    </div>
+                    <div className="form-field" style={{ margin: 0 }}>
+                      <label>Link al hacer click (opcional)</label>
+                      <input placeholder="https://wa.me/..." value={nuevaAd.link_url} onChange={e => setNuevaAd(p => ({ ...p, link_url: e.target.value }))} />
+                    </div>
+                  </div>
+                  {nuevaAd.imagen_url && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '6px' }}>Preview:</div>
+                      <img src={nuevaAd.imagen_url} alt="preview" style={{ width: '90px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)' }} onError={e => e.target.style.display='none'} />
+                    </div>
+                  )}
+                  <button className="btn-primary" onClick={agregarAd} disabled={adLoading || !nuevaAd.nombre.trim() || !nuevaAd.imagen_url.trim()} style={{ padding: '8px 24px', fontSize: '13px' }}>
+                    {adLoading ? 'Guardando...' : '+ Agregar publicidad'}
+                  </button>
+                </div>
+
+                {/* LISTA */}
+                {publicidades.length === 0
+                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay publicidades cargadas aún.</p></div>
+                  : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                      {publicidades.map(ad => (
+                        <div key={ad.id} style={{ background: 'var(--gray1)', border: `1px solid ${ad.activo ? 'rgba(230,51,41,0.3)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                          {ad.imagen_url
+                            ? <img src={ad.imagen_url} alt={ad.nombre} style={{ width: '100%', height: '130px', objectFit: 'cover', display: 'block' }} />
+                            : <div style={{ width: '100%', height: '130px', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: 'var(--gray4)' }}>Sin imagen</div>
+                          }
+                          <div style={{ padding: '12px' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--white)', marginBottom: '4px' }}>{ad.nombre}</div>
+                            {ad.link_url && <div style={{ fontSize: '10px', color: 'var(--gray4)', marginBottom: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ad.link_url}</div>}
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                              <button onClick={() => toggleAd(ad)} style={{ flex: 1, padding: '5px 0', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: ad.activo ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: ad.activo ? '#4ade80' : 'var(--gray4)', transition: 'all .2s' }}>
+                                {ad.activo ? 'Activa' : 'Inactiva'}
+                              </button>
+                              <button onClick={() => eliminarAd(ad.id)} style={{ padding: '5px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(230,51,41,0.3)', cursor: 'pointer', background: 'transparent', color: 'var(--accent)', transition: 'all .2s' }}>
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                 }
               </div>
             )}

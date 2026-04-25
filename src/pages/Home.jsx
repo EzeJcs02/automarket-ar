@@ -11,6 +11,7 @@ export default function Home() {
   const [concesionarias, setConcesionarias] = useState([])
   const [tabGuia, setTabGuia] = useState('comprar')
   const [banners, setBanners] = useState([])
+  const [rightAds, setRightAds] = useState([])
   const [autoFijado, setAutoFijado] = useState(null)
   const [rightIdx, setRightIdx] = useState(0)
   const [bottomIdx, setBottomIdx] = useState(0)
@@ -20,13 +21,15 @@ export default function Home() {
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(6).order('created_at', { ascending: false }).then(({ data }) => setAutos(data || []))
     supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6).then(({ data }) => setConcesionarias(data || []))
     supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10).then(({ data }) => setBanners(data || []))
+    supabase.from('publicidades').select('id, nombre, imagen_url, link_url').eq('activo', true).order('created_at', { ascending: false }).then(({ data }) => setRightAds(data || []))
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).limit(1).then(({ data }) => setAutoFijado(data?.[0] || null))
   }, [])
 
   useEffect(() => {
-    const t = setInterval(() => setRightIdx(i => i + 1), 3500)
+    if (rightAds.length === 0) return
+    const t = setInterval(() => setRightIdx(i => (i + 1) % rightAds.length), 3500)
     return () => clearInterval(t)
-  }, [])
+  }, [rightAds.length])
 
   useEffect(() => {
     if (banners.length === 0) return
@@ -84,12 +87,13 @@ export default function Home() {
         <div className="hero-ads-right" style={{ width: '180px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
           <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
           {Array.from({ length: 6 }, (_, i) => {
-            const idx = banners.length > 0 ? (rightIdx + i) % banners.length : -1
-            const b = idx >= 0 ? banners[idx] : null
+            const idx = rightAds.length > 0 ? (rightIdx + i) % rightAds.length : -1
+            const ad = idx >= 0 ? rightAds[idx] : null
             return (
-              <div key={i} style={{ flex: 1, overflow: 'hidden', borderBottom: i < 5 ? '1px solid var(--gray2)' : 'none', position: 'relative' }}>
-                {b?.portada_url
-                  ? <img src={b.portada_url} alt={b.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <div key={i} style={{ flex: 1, overflow: 'hidden', borderBottom: i < 5 ? '1px solid var(--gray2)' : 'none', position: 'relative', cursor: ad?.link_url ? 'pointer' : 'default' }}
+                onClick={() => ad?.link_url && window.open(ad.link_url, '_blank', 'noopener')}>
+                {ad?.imagen_url
+                  ? <img src={ad.imagen_url} alt={ad.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: 'var(--gray2)', textTransform: 'uppercase', letterSpacing: '.1em', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
                 }
               </div>

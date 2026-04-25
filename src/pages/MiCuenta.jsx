@@ -27,7 +27,7 @@ export default function MiCuenta() {
   const [consultas, setConsultas] = useState([])
   const [misAutos, setMisAutos] = useState([])
   const [pagos, setPagos] = useState([])
-  const [tab, setTab] = useState('favoritos')
+  const [tab, setTab] = useState('publicaciones')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
@@ -105,10 +105,14 @@ export default function MiCuenta() {
       </div>
 
       <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button style={tabStyle(tab === 'favoritos')} onClick={() => setTab('favoritos')}>Favoritos ({favoritos.length})</button>
-        <button style={tabStyle(tab === 'consultas')} onClick={() => setTab('consultas')}>Consultas enviadas ({consultas.length})</button>
         <button style={tabStyle(tab === 'publicaciones')} onClick={() => { setTab('publicaciones'); setShowForm(false) }}>Mis publicaciones ({misAutos.length})</button>
-        <button style={tabStyle(tab === 'planes')} onClick={() => setTab('planes')}>Mi Plan</button>
+        <button style={tabStyle(tab === 'consultas')} onClick={() => setTab('consultas')}>Consultas enviadas ({consultas.length})</button>
+        <button style={tabStyle(tab === 'favoritos')} onClick={() => setTab('favoritos')}>Favoritos ({favoritos.length})</button>
+        <button
+          style={{ ...tabStyle(tab === 'planes'), ...(tab !== 'planes' ? { color: 'var(--accent)', textDecoration: 'underline', textUnderlineOffset: '3px' } : {}) }}
+          onClick={() => setTab('planes')}>
+          Mi Plan
+        </button>
       </div>
 
       {tab === 'favoritos' && (

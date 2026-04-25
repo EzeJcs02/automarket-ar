@@ -329,6 +329,7 @@ export default function Planes() {
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--white)', marginBottom: '1.5rem' }}>EXTRAS PAGOS</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '2rem' }}>
               {[
+                { nombre: 'Publicación adicional', precio: '15.000', desc: 'A partir de la 1ra (gratis). Por 30 días.' },
                 { nombre: 'Subir al tope', precio: '10.000', desc: 'Tu publicación vuelve al primer lugar.' },
                 { nombre: 'Destacado', precio: '15.000', desc: 'Fondo diferenciado y badge en el catálogo.' },
                 { nombre: 'Urgente', precio: '20.000', desc: 'Badge rojo "URGENTE" máxima visibilidad.' },

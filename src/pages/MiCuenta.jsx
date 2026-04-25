@@ -4,12 +4,12 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 
-async function pagarConMP(tipo, user_id) {
+async function pagarConMP(tipo, user_id, user_email) {
   try {
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, user_id, origen: 'mi-cuenta' }),
+      body: JSON.stringify({ tipo, user_id, user_email, origen: 'mi-cuenta' }),
     })
     const data = await res.json()
     if (data.init_point) window.location.href = data.init_point
@@ -169,7 +169,7 @@ function ExtrasConMP({ user }) {
 
   async function pagar(tipo) {
     setPaying(tipo)
-    await pagarConMP(tipo, user.id)
+    await pagarConMP(tipo, user.id, user.email)
     setPaying(null)
   }
 

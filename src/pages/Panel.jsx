@@ -6,12 +6,12 @@ import { useAuth } from '../context/AuthContext'
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
 const LIMITES_PLAN = { free: 1, basico: 8, pro: 20, premium: 50 }
 
-async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null } = {}) {
+async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}) {
   try {
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, auto_id, concesionaria_id, user_id, origen: 'panel' }),
+      body: JSON.stringify({ tipo, auto_id, concesionaria_id, user_id, user_email, origen: 'panel' }),
     })
     const data = await res.json()
     if (data.init_point) window.location.href = data.init_point
@@ -138,7 +138,7 @@ function UpgradeModal({ onClose }) {
 
   async function contratar(plan_id) {
     setPaying(plan_id)
-    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id })
+    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
     setPaying(null)
   }
 
@@ -179,7 +179,7 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
 
   async function contratarPlan(plan_id) {
     setPaying(plan_id)
-    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id })
+    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
     setPaying(null)
   }
 
@@ -323,7 +323,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
     if (!auto.destacado) {
       if (limiteDestacados === 0) {
         if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Destacado individual por $15.000 para ${auto.marca} ${auto.modelo}?`)) {
-          pagarConMP('destacado', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id })
+          pagarConMP('destacado', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
         }
         return
       }
@@ -342,7 +342,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
     if (!auto.urgente) {
       if (limiteDestacados === 0) {
         if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Urgente individual por $20.000 para ${auto.marca} ${auto.modelo}?`)) {
-          pagarConMP('urgente', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id })
+          pagarConMP('urgente', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
         }
         return
       }

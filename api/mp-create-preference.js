@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { tipo, auto_id, concesionaria_id, user_id, origen } = req.body
+  const { tipo, auto_id, concesionaria_id, user_id, user_email, origen } = req.body
 
   const PRECIOS = {
     destacado:            { monto: 15000,  titulo: 'Boost Destacado – FIORA.MARKET' },
@@ -39,6 +39,7 @@ export default async function handler(req, res) {
       auto_id: auto_id || null,
       concesionaria_id: concesionaria_id || null,
       user_id: user_id || null,
+      user_email: user_email || null,
     },
     back_urls: {
       success: `${back_url}?mp=ok`,

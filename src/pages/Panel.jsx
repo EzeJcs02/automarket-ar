@@ -164,7 +164,7 @@ function UpgradeModal({ onClose }) {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--white)' }}>${p.precio}<span style={{ fontSize: '12px', color: 'var(--gray4)', marginLeft: '4px' }}>/mes</span></div>
               <div style={{ fontSize: '12px', color: 'var(--gray4)', flex: 1 }}>{p.limite}</div>
               <button onClick={() => contratar(p.id)} disabled={!!paying}
-                style={{ padding: '9px', borderRadius: 'var(--radius)', border: 'none', background: p.id === 'premium' ? 'var(--accent)' : 'var(--gray2)', color: 'var(--white)', fontSize: '12px', fontWeight: 700, cursor: paying ? 'wait' : 'pointer', opacity: paying ? .7 : 1 }}>
+                style={{ padding: '9px', borderRadius: 'var(--radius)', border: 'none', background: p.color, color: p.id === 'basico' ? '#000' : '#fff', fontSize: '12px', fontWeight: 700, cursor: paying ? 'wait' : 'pointer', opacity: paying ? .7 : 1 }}>
                 {paying === p.id ? 'Procesando...' : 'Contratar con MP →'}
               </button>
             </div>

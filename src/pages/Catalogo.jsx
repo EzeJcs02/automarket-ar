@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 
 const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot', 'Fiat', 'Honda', 'Nissan', 'Jeep', 'Citroën']
+const PAGE_SIZE = 24
 
 export default function Catalogo() {
   const { user, concesionaria, isAdmin } = useAuth()
@@ -14,6 +15,7 @@ export default function Catalogo() {
   const [concesionarias, setConcesionarias] = useState([])
   const [loading, setLoading] = useState(true)
   const [favoritoIds, setFavoritoIds] = useState(new Set())
+  const [page, setPage] = useState(1)
   const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', categoria: searchParams.get('categoria') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '' })
 
   const esParticular = user && !concesionaria && !isAdmin
@@ -67,10 +69,19 @@ export default function Catalogo() {
     if (filtros.busqueda) q = q.or(`marca.ilike.%${filtros.busqueda}%,modelo.ilike.%${filtros.busqueda}%`)
     const { data } = await q
     setAutos(sortByPriority(data || []))
+    setPage(1)
     setLoading(false)
   }
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
+
+  const totalPages = Math.ceil(autos.length / PAGE_SIZE)
+  const autosPagina = autos.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  function irAPagina(p) {
+    setPage(p)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const inputStyle = { width: '100%', background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none' }
   const chipBase = { padding: '6px 14px', borderRadius: '100px', border: '1px solid var(--gray3)', fontSize: '12px', cursor: 'pointer', transition: 'all .2s', color: 'var(--gray4)', background: 'transparent' }
@@ -81,7 +92,7 @@ export default function Catalogo() {
       <div style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.5rem' }}>CATÁLOGO</div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
-          {loading ? 'Cargando...' : `${autos.length} resultado${autos.length !== 1 ? 's' : ''}`}
+          {loading ? 'Cargando...' : `${autos.length} resultado${autos.length !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
         </div>
       </div>
       <div style={{ display: 'flex' }}>
@@ -155,7 +166,7 @@ export default function Catalogo() {
             </div>
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={fetchAutos}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'' }); setTimeout(fetchAutos, 100) }}>Limpiar</button>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'' }); setPage(1); setTimeout(fetchAutos, 100) }}>Limpiar</button>
         </div>
         {/* RESULTS */}
         <div style={{ flex: 1, padding: '2rem' }}>
@@ -163,9 +174,38 @@ export default function Catalogo() {
             ? <div className="spinner" />
             : autos.length === 0
               ? <p style={{ color: 'var(--gray4)', fontSize: '15px', padding: '2rem 0' }}>No se encontraron autos con esos filtros.</p>
-              : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
-                  {autos.map(a => <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={esParticular ? toggleFavorito : undefined} />)}
-                </div>
+              : <>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
+                    {autosPagina.map(a => <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={esParticular ? toggleFavorito : undefined} />)}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', padding: '2.5rem 0 1rem', flexWrap: 'wrap' }}>
+                      <button onClick={() => irAPagina(page - 1)} disabled={page === 1}
+                        style={{ padding: '8px 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)', background: 'transparent', color: page === 1 ? 'var(--gray3)' : 'var(--white)', cursor: page === 1 ? 'not-allowed' : 'pointer', fontSize: '13px' }}>
+                        ← Anterior
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
+                        const show = p === 1 || p === totalPages || Math.abs(p - page) <= 1
+                        const isDot = !show && (p === 2 && page > 4) || (!show && p === totalPages - 1 && page < totalPages - 3)
+                        if (!show && !isDot) return null
+                        if (isDot) return <span key={p} style={{ color: 'var(--gray4)', padding: '0 4px' }}>…</span>
+                        return (
+                          <button key={p} onClick={() => irAPagina(p)}
+                            style={{ width: '36px', height: '36px', borderRadius: 'var(--radius)', border: `1px solid ${p === page ? 'var(--accent)' : 'var(--gray2)'}`, background: p === page ? 'var(--accent)' : 'transparent', color: p === page ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', fontSize: '13px', fontWeight: p === page ? 700 : 400 }}>
+                            {p}
+                          </button>
+                        )
+                      })}
+
+                      <button onClick={() => irAPagina(page + 1)} disabled={page === totalPages}
+                        style={{ padding: '8px 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)', background: 'transparent', color: page === totalPages ? 'var(--gray3)' : 'var(--white)', cursor: page === totalPages ? 'not-allowed' : 'pointer', fontSize: '13px' }}>
+                        Siguiente →
+                      </button>
+                    </div>
+                  )}
+                </>
           }
         </div>
       </div>

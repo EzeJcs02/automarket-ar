@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useComparador } from '../context/ComparadorContext'
 
 export default function AutoDetalle() {
   const { id } = useParams()
@@ -18,6 +19,9 @@ export default function AutoDetalle() {
   const [dolarBlue, setDolarBlue] = useState(null)
 
   const esParticular = user && !concesionaria && !isAdmin
+  const { agregar, quitar, estaEnLista, lista } = useComparador()
+  const [cuotasMeses, setCuotasMeses] = useState(24)
+  const [cuotasTNA, setCuotasTNA] = useState(80)
 
   useEffect(() => {
     fetch('https://dolarapi.com/v1/dolares/blue')
@@ -212,6 +216,56 @@ export default function AutoDetalle() {
               })()}
             </div>
           )}
+
+          {/* COMPARADOR */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            {estaEnLista(auto.id) ? (
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', color: '#4ade80' }}>✓ Agregado al comparador</span>
+                <button onClick={() => quitar(auto.id)} style={{ fontSize: '12px', color: 'var(--gray4)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Quitar</button>
+                {lista.length >= 2 && (
+                  <button onClick={() => navigate('/comparador')} style={{ fontSize: '12px', color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Ver comparación →</button>
+                )}
+              </div>
+            ) : (
+              <button onClick={() => agregar(auto)} disabled={lista.length >= 3}
+                className="btn-secondary" style={{ width: '100%', fontSize: '13px', padding: '10px' }}>
+                {lista.length >= 3 ? 'Comparador lleno (máx. 3)' : '⇄ Agregar al comparador'}
+              </button>
+            )}
+          </div>
+
+          {/* CALCULADORA DE CUOTAS */}
+          {Number(auto.precio_ars) > 0 && (() => {
+            const capital = Number(auto.precio_ars)
+            const tnaDecimal = cuotasTNA / 100
+            const tem = Math.pow(1 + tnaDecimal, 1/12) - 1
+            const cuota = tem === 0 ? capital / cuotasMeses : capital * (tem * Math.pow(1 + tem, cuotasMeses)) / (Math.pow(1 + tem, cuotasMeses) - 1)
+            return (
+              <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid var(--gray2)' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '1rem' }}>Calculadora de cuotas</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Plazo</div>
+                    <select value={cuotasMeses} onChange={e => setCuotasMeses(Number(e.target.value))}
+                      style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '7px 10px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none' }}>
+                      {[6,12,18,24,36,48,60].map(m => <option key={m} value={m}>{m} meses</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>TNA %</div>
+                    <input type="number" value={cuotasTNA} onChange={e => setCuotasTNA(Number(e.target.value))} min="0" max="500"
+                      style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '7px 10px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none' }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--gray2)', padding: '12px 14px', borderRadius: 'var(--radius)' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{cuotasMeses} cuotas de</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--white)' }}>${Math.round(cuota).toLocaleString('es-AR')}</div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--gray3)', marginTop: '6px' }}>Estimación orientativa. Consultá con tu banco o financiera.</div>
+              </div>
+            )
+          })()}
 
           {!c && auto.whatsapp && (
             <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', border: '1px solid var(--gray2)' }}>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 const COLORS = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
@@ -64,18 +65,44 @@ export function Concesionarias() {
 
 export function ConcesionariaDetalle() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [c, setC] = useState(null)
   const [autos, setAutos] = useState([])
+  const [resenas, setResenas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [resenaForm, setResenaForm] = useState({ nombre: '', rating: 5, comentario: '' })
+  const [resenaEnviando, setResenaEnviando] = useState(false)
+  const [resenaOk, setResenaOk] = useState(false)
+
+  const pathId = window.location.pathname.split('/').pop()
 
   useEffect(() => {
-    const pathId = window.location.pathname.split('/').pop()
     supabase.from('concesionarias').select('*').eq('id', pathId).single().then(({ data }) => setC(data))
     supabase.from('autos').select('*').eq('concesionaria_id', pathId).eq('activo', true).then(({ data }) => {
       setAutos(data || [])
       setLoading(false)
     })
+    supabase.from('resenas').select('*').eq('concesionaria_id', pathId).order('created_at', { ascending: false }).then(({ data }) => setResenas(data || []))
   }, [])
+
+  async function enviarResena() {
+    if (!resenaForm.nombre.trim() || !resenaForm.comentario.trim()) return
+    setResenaEnviando(true)
+    await supabase.from('resenas').insert({
+      concesionaria_id: pathId,
+      user_id: user?.id || null,
+      nombre: resenaForm.nombre.trim(),
+      rating: resenaForm.rating,
+      comentario: resenaForm.comentario.trim(),
+    })
+    setResenaOk(true)
+    setResenaEnviando(false)
+    setResenaForm({ nombre: '', rating: 5, comentario: '' })
+    const { data } = await supabase.from('resenas').select('*').eq('concesionaria_id', pathId).order('created_at', { ascending: false })
+    setResenas(data || [])
+  }
+
+  const promedioRating = resenas.length > 0 ? (resenas.reduce((s, r) => s + r.rating, 0) / resenas.length).toFixed(1) : null
 
   function formatPrice(n) {
     if (!n) return 'Consultar'
@@ -151,14 +178,22 @@ export function ConcesionariaDetalle() {
       </div>
 
       {/* STATS */}
-      <div style={{ display: 'flex', gap: '3rem', padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div style={{ display: 'flex', gap: '3rem', padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)', flexWrap: 'wrap' }}>
         <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Autos publicados</div></div>
         <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.filter(a => a.tipo === 'nuevo').length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Nuevos</div></div>
         <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.filter(a => a.tipo === 'usado').length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Usados</div></div>
+        {promedioRating && (
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: '#c9a84c' }}>
+              {promedioRating} <span style={{ fontSize: '24px' }}>★</span>
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>{resenas.length} reseña{resenas.length !== 1 ? 's' : ''}</div>
+          </div>
+        )}
       </div>
 
       {/* STOCK */}
-      <div style={{ padding: '2rem 4rem' }}>
+      <div style={{ padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Stock disponible</div>
         {autos.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Esta concesionaria no tiene autos publicados todavía.</p>
@@ -176,6 +211,66 @@ export function ConcesionariaDetalle() {
                     <div className="car-specs"><span>{a.anio}</span><span>{a.kilometraje === 0 ? '0 km' : `${Number(a.kilometraje).toLocaleString('es-AR')} km`}</span></div>
                     <div className="car-price">{formatPrice(a.precio_ars)}</div>
                   </div>
+                </div>
+              ))}
+            </div>
+        }
+      </div>
+
+      {/* RESEÑAS */}
+      <div style={{ padding: '3rem 4rem' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '2rem' }}>
+          Reseñas{resenas.length > 0 ? ` · ${resenas.length}` : ''}
+        </div>
+
+        {/* FORM */}
+        <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2rem', marginBottom: '2rem', maxWidth: '560px' }}>
+          <div style={{ fontSize: '15px', fontWeight: 600, marginBottom: '1.5rem' }}>{resenaOk ? '¡Gracias por tu reseña!' : 'Dejá tu reseña'}</div>
+          {!resenaOk ? (
+            <>
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Tu nombre</div>
+                <input value={resenaForm.nombre} onChange={e => setResenaForm(p => ({ ...p, nombre: e.target.value }))}
+                  placeholder="Juan Pérez" style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none' }} />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Puntuación</div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {[1,2,3,4,5].map(n => (
+                    <button key={n} onClick={() => setResenaForm(p => ({ ...p, rating: n }))}
+                      style={{ fontSize: '22px', background: 'none', border: 'none', cursor: 'pointer', opacity: n <= resenaForm.rating ? 1 : 0.3, transition: 'opacity .15s' }}>★</button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Comentario</div>
+                <textarea value={resenaForm.comentario} onChange={e => setResenaForm(p => ({ ...p, comentario: e.target.value }))}
+                  placeholder="Contá tu experiencia..." rows={3}
+                  style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'var(--font-body)' }} />
+              </div>
+              <button className="btn-primary" onClick={enviarResena} disabled={resenaEnviando || !resenaForm.nombre.trim() || !resenaForm.comentario.trim()} style={{ padding: '10px 24px', fontSize: '13px' }}>
+                {resenaEnviando ? 'Enviando...' : 'Publicar reseña'}
+              </button>
+            </>
+          ) : (
+            <p style={{ color: 'var(--gray4)', fontSize: '14px' }}>Tu reseña fue publicada. ¡Gracias!</p>
+          )}
+        </div>
+
+        {/* LISTADO */}
+        {resenas.length === 0
+          ? <p style={{ color: 'var(--gray4)', fontSize: '14px' }}>Todavía no hay reseñas. ¡Sé el primero!</p>
+          : <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '680px' }}>
+              {resenas.map(r => (
+                <div key={r.id} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '2px' }}>{r.nombre}</div>
+                      <div style={{ color: '#c9a84c', fontSize: '14px' }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>{new Date(r.created_at).toLocaleDateString('es-AR')}</div>
+                  </div>
+                  {r.comentario && <p style={{ fontSize: '14px', color: 'var(--gray5)', lineHeight: 1.7, margin: 0 }}>{r.comentario}</p>}
                 </div>
               ))}
             </div>

@@ -55,6 +55,11 @@ export function AuthProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: datos.nombre, email, telefono: datos.telefono, ciudad: datos.ciudad }),
       }).catch(() => {})
+      fetch('/api/welcome-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: datos.nombre, email, tipo: 'concesionaria' }),
+      }).catch(() => {})
     }
     return { error: null }
   }
@@ -62,6 +67,11 @@ export function AuthProvider({ children }) {
   async function signUpUsuario(email, password, nombre) {
     const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
     if (error) return { error }
+    fetch('/api/welcome-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, email, tipo: 'particular' }),
+    }).catch(() => {})
     return { error: null }
   }
 

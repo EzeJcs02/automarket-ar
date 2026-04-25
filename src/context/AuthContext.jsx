@@ -79,7 +79,7 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut()
   }
 
-  const isAdmin = user?.email === 'admin@automarket.ar'
+  const isAdmin = user?.email === 'austerlitzezequiel02@gmail.com'
 
   return (
     <AuthContext.Provider value={{ user, concesionaria, loading, signIn, signUp, signUpUsuario, signOut, isAdmin, fetchConcesionaria }}>

@@ -572,11 +572,18 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
 
   function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
 
-  async function handleFotos(e) {
-    const files = Array.from(e.target.files)
-    if (files.length < 5) { setError('Debés subir mínimo 5 fotos.'); setFotos([]); return }
-    setError('')
-    setFotos(files)
+  function handleFotos(e) {
+    const nuevas = Array.from(e.target.files)
+    setFotos(prev => {
+      const combinadas = [...prev, ...nuevas]
+      if (combinadas.length >= 5) setError('')
+      return combinadas
+    })
+    e.target.value = ''
+  }
+
+  function eliminarFoto(idx) {
+    setFotos(prev => prev.filter((_, i) => i !== idx))
   }
 
   async function handleSubmit(e) {
@@ -629,13 +636,39 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
 
       <form onSubmit={handleSubmit}>
         <div style={{ background: 'var(--gray1)', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
-          <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>GALERÍA DE IMÁGENES</div>
-          <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--green)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: '3rem', textAlign: 'center', cursor: 'pointer', marginBottom: '2rem', transition: 'border .2s' }}>
-            <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
-            <div style={{ fontSize: '15px', fontWeight: 600, color: fotos.length >= 5 ? '#4ade80' : 'var(--white)', marginBottom: '4px' }}>
-              {fotos.length > 0 ? `${fotos.length} fotos seleccionadas ${fotos.length >= 5 ? '✓' : `(faltan ${5 - fotos.length})`}` : 'Click para subir fotografías'}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)' }}>GALERÍA DE IMÁGENES</div>
+            <div style={{ fontSize: '12px', color: fotos.length >= 5 ? '#4ade80' : 'var(--gray4)' }}>
+              {fotos.length}/5 mínimo {fotos.length >= 5 ? '✓' : ''}
             </div>
-            <div style={{ fontSize: '13px', color: 'var(--gray5)' }}>Mínimo 5 fotos · Sin límite máximo · JPG, PNG</div>
+          </div>
+
+          {fotos.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '10px', marginBottom: '1rem' }}>
+              {fotos.map((f, i) => (
+                <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
+                  <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button type="button" onClick={() => eliminarFoto(i)}
+                    style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,.7)', border: 'none', color: '#fff', borderRadius: '100px', width: '22px', height: '22px', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    ×
+                  </button>
+                  {i === 0 && (
+                    <div style={{ position: 'absolute', bottom: '4px', left: '4px', background: 'var(--accent)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', letterSpacing: '.05em' }}>PORTADA</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--gray2)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: fotos.length > 0 ? '1.2rem' : '3rem', textAlign: 'center', cursor: 'pointer', marginBottom: '2rem', transition: 'all .2s' }}>
+            <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
+            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray4)' }}>
+              {fotos.length === 0 ? 'Click para subir fotografías' : '+ Agregar más fotos'}
+            </div>
+            {fotos.length === 0 && <div style={{ fontSize: '13px', color: 'var(--gray5)', marginTop: '4px' }}>Mínimo 5 fotos · JPG, PNG</div>}
+            {fotos.length > 0 && fotos.length < 5 && (
+              <div style={{ fontSize: '12px', color: 'var(--gold)', marginTop: '4px' }}>Faltan {5 - fotos.length} foto{5 - fotos.length !== 1 ? 's' : ''} para el mínimo</div>
+            )}
           </label>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>ESPECIFICACIONES TÉCNICAS</div>

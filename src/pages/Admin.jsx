@@ -10,6 +10,7 @@ export default function Admin() {
   const [aprobadas, setAprobadas] = useState([])
   const [publicaciones, setPublicaciones] = useState([])
   const [pagos, setPagos] = useState([])
+  const [usuarios, setUsuarios] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
 
@@ -21,16 +22,19 @@ export default function Admin() {
   }, [user, isAdmin, authLoading])
 
   async function loadData() {
-    const [p, a, pub, pag] = await Promise.all([
+    const { data: { session } } = await supabase.auth.getSession()
+    const [p, a, pub, pag, usersRes] = await Promise.all([
       supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
       supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
       supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
-      supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200)
+      supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200),
+      fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()),
     ])
     setPendientes(p.data || [])
     setAprobadas(a.data || [])
     setPublicaciones(pub.data || [])
     setPagos(pag.data || [])
+    setUsuarios(usersRes.users || [])
     setDataLoading(false)
   }
 
@@ -86,6 +90,7 @@ export default function Admin() {
     { id: 'aprobadas', label: 'Agencias Activas', count: aprobadas.length },
     { id: 'publicaciones', label: 'Publicaciones', count: publicaciones.length },
     { id: 'pagos', label: 'Historial de Pagos', count: pagos.length },
+    { id: 'usuarios', label: 'Usuarios Registrados', count: usuarios.length },
   ]
 
   return (
@@ -282,6 +287,30 @@ export default function Admin() {
                               </span>
                             </td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{p.mp_payment_id || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                }
+              </div>
+            )}
+
+            {/* USUARIOS */}
+            {tab === 'usuarios' && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>USUARIOS REGISTRADOS</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todos los usuarios particulares registrados en la plataforma.</div>
+                {usuarios.length === 0
+                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay usuarios registrados aún.</p></div>
+                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                      <thead><tr>{['Nombre','Email','Registro','Último acceso'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <tbody>
+                        {usuarios.map(u => (
+                          <tr key={u.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{u.nombre || <span style={{ color: 'var(--gray4)', fontWeight: 400 }}>—</span>}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{u.email}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('es-AR') : '—'}</td>
                           </tr>
                         ))}
                       </tbody>

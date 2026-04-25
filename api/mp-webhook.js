@@ -1,11 +1,10 @@
 export default async function handler(req, res) {
-  res.status(200).json({ received: true })
-
   const topic = req.query.topic || req.body?.type
   const id = req.query.id || req.body?.data?.id
 
-  if (!id) return
-  if (topic !== 'payment' && topic !== 'payment.updated') return
+  if (!id || (topic !== 'payment' && topic !== 'payment.updated')) {
+    return res.status(200).json({ received: true })
+  }
 
   try {
     const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
@@ -13,7 +12,7 @@ export default async function handler(req, res) {
     })
     const payment = await mpRes.json()
 
-    if (payment.status !== 'approved') return
+    if (payment.status !== 'approved') return res.status(200).json({ received: true, status: payment.status })
 
     const { tipo, auto_id, concesionaria_id, user_id, user_email } = payment.metadata || {}
 
@@ -139,7 +138,9 @@ export default async function handler(req, res) {
         }),
       })
     }
+    res.status(200).json({ received: true, processed: true })
   } catch (err) {
     console.error('mp-webhook error:', err)
+    res.status(200).json({ received: true, error: err.message })
   }
 }

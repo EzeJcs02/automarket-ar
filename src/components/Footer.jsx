@@ -76,7 +76,7 @@ export default function Footer() {
               style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.05em' }}>
               Defensa del Consumidor
             </a>
-            <a href="https://www.instagram.com/fioramarket" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.instagram.com/fiora.market?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer"
               style={{ color: 'var(--gray4)', transition: 'color .2s', display: 'flex', alignItems: 'center' }}
               onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'}
               onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>

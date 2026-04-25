@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIORA MARKET — Presentación</title>
+<style>
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --accent: #e63329;
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --gray1: #111111;
+    --gray2: #1a1a1a;
+    --gray3: #2a2a2a;
+    --gray4: #666;
+    --gray5: #999;
+    --green: #22c55e;
+    --gold: #c9a84c;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); }
+  .mono { font-family: 'Consolas', 'Courier New', monospace; }
+
+  /* ── SLIDES ── */
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 8rem;
+    border-bottom: 1px solid var(--gray2);
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  /* slide number watermark */
+  .slide::before {
+    content: attr(data-n);
+    position: absolute;
+    right: 5rem;
+    top: 4rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--gray3);
+    letter-spacing: .2em;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .label {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .label::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+
+  h1 {
+    font-size: clamp(52px, 6vw, 88px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: .95;
+    margin-bottom: 2.5rem;
+  }
+  h2 {
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 2.5rem;
+  }
+  .accent { color: var(--accent); }
+  .sub {
+    font-size: 17px;
+    color: var(--gray5);
+    line-height: 1.75;
+    max-width: 600px;
+    font-weight: 400;
+  }
+
+  /* ── COVER ── */
+  .slide-cover { background: var(--black); }
+  .slide-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(230,51,41,.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4rem;
+  }
+  .logo-text {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    font-family: 'Consolas', 'Courier New', monospace;
+  }
+
+  .url-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 3rem;
+    border: 1px solid var(--gray3);
+    border-radius: 4px;
+    padding: 12px 20px;
+  }
+  .url-pill span { font-family: 'Consolas', 'Courier New', monospace; font-size: 15px; color: var(--gray5); }
+  .url-pill strong { font-family: 'Consolas', 'Courier New', monospace; font-size: 15px; color: var(--white); }
+
+  /* ── STATS ROW ── */
+  .stats { display: flex; gap: 1px; background: var(--gray2); margin-top: 3rem; border: 1px solid var(--gray2); border-radius: 8px; overflow: hidden; }
+  .stat { flex: 1; background: var(--gray1); padding: 2rem 1.5rem; }
+  .stat-num { font-size: 48px; font-weight: 900; color: var(--accent); line-height: 1; letter-spacing: -2px; }
+  .stat-label { font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; color: var(--gray4); margin-top: 8px; text-transform: uppercase; letter-spacing: .15em; }
+
+  /* ── GRID CARDS ── */
+  .grid { display: grid; gap: 1px; background: var(--gray2); border: 1px solid var(--gray2); border-radius: 8px; overflow: hidden; margin-top: 2.5rem; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card { background: var(--gray1); padding: 2rem; }
+  .card-label { font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; color: var(--accent); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 1rem; }
+  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: .6rem; color: var(--white); }
+  .card p { font-size: 13px; color: var(--gray5); line-height: 1.7; }
+
+  /* ── FEATURE LIST ── */
+  .feature-list { margin-top: 2rem; border: 1px solid var(--gray2); border-radius: 8px; overflow: hidden; }
+  .feature { display: grid; grid-template-columns: 200px 1fr; border-bottom: 1px solid var(--gray2); }
+  .feature:last-child { border-bottom: none; }
+  .feature-key { background: var(--gray1); padding: 1.25rem 1.5rem; font-family: 'Consolas', 'Courier New', monospace; font-size: 11px; color: var(--gray4); text-transform: uppercase; letter-spacing: .1em; display: flex; align-items: center; border-right: 1px solid var(--gray2); }
+  .feature-val { padding: 1.25rem 1.5rem; font-size: 14px; color: var(--gray5); line-height: 1.6; display: flex; align-items: center; }
+
+  /* ── PLAN TABLE ── */
+  .plan-table { width: 100%; border-collapse: collapse; margin-top: 2.5rem; border: 1px solid var(--gray2); border-radius: 8px; overflow: hidden; }
+  .plan-table th { background: var(--gray1); padding: 12px 20px; text-align: left; font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .15em; color: var(--gray4); border-bottom: 1px solid var(--gray2); }
+  .plan-table td { padding: 16px 20px; font-size: 14px; color: var(--gray5); border-bottom: 1px solid var(--gray2); }
+  .plan-table tr:last-child td { border-bottom: none; }
+  .plan-table tr:hover td { background: var(--gray1); }
+  .plan-name { font-weight: 700; color: var(--white); font-size: 15px; }
+  .plan-price { font-family: 'Consolas', 'Courier New', monospace; font-weight: 700; color: var(--white); font-size: 15px; }
+  .tag-pill { display: inline-block; font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; padding: 3px 10px; border-radius: 3px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .tag-red { background: rgba(230,51,41,.15); color: var(--accent); border: 1px solid rgba(230,51,41,.25); }
+  .tag-green { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+  .tag-gold { background: rgba(201,168,76,.1); color: var(--gold); border: 1px solid rgba(201,168,76,.2); }
+  .tag-gray { background: var(--gray2); color: var(--gray5); border: 1px solid var(--gray3); }
+
+  /* ── TECH STACK ── */
+  .tech-row { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 0; border-bottom: 1px solid var(--gray2); }
+  .tech-row:last-child { border-bottom: none; }
+  .tech-name { font-size: 15px; font-weight: 600; }
+  .tech-desc { font-size: 13px; color: var(--gray5); }
+  .tech-badge { font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; color: var(--gray4); }
+
+  /* ── CLOSE SLIDE ── */
+  .slide-close { background: var(--accent); }
+  .slide-close .label { color: rgba(255,255,255,.5); }
+  .slide-close .label::before { background: rgba(255,255,255,.3); }
+  .slide-close h2 { color: #fff; font-size: clamp(40px, 5vw, 72px); }
+  .slide-close .sub { color: rgba(255,255,255,.7); }
+
+  .contact-row { display: flex; gap: 3rem; margin-top: 3rem; flex-wrap: wrap; }
+  .contact-item dt { font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .15em; margin-bottom: 6px; }
+  .contact-item dd { font-size: 16px; font-weight: 600; color: #fff; }
+
+  /* decorative line */
+  .h-line { width: 48px; height: 1px; background: var(--accent); margin-bottom: 2rem; }
+
+  @media print {
+    .slide { min-height: 100vh; page-break-after: always; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── 01 COVER ── -->
+<div class="slide slide-cover" data-n="01 / 09">
+  <div class="logo-mark">
+    <svg width="20" height="26" viewBox="0 0 28 36" fill="none">
+      <rect x="0" y="0" width="6" height="36" fill="#f5f3ee"/>
+      <path d="M6,0 H20 Q28,0 28,9 Q28,18 20,18 H6 Z" fill="#f5f3ee"/>
+      <polygon points="14,18 20,18 27,36 21,36" fill="#f5f3ee"/>
+    </svg>
+    <span class="logo-text">FIORA<span class="accent"> MARKET</span></span>
+  </div>
+
+  <div class="label">Presentación del producto · 2025</div>
+
+  <h1>LA PLATAFORMA<br>DE VEHÍCULOS<br><span class="accent">DEL NOA</span></h1>
+
+  <p class="sub">Marketplace digital profesional para la compra, venta y publicación de vehículos nuevos y usados en Argentina.</p>
+
+  <div class="url-pill">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+    <strong>fioramarket.store</strong>
+    <span>· en producción</span>
+  </div>
+</div>
+
+<!-- ── 02 QUÉ ES ── -->
+<div class="slide" data-n="02 / 09">
+  <div class="label">Descripción general</div>
+  <h2>QUÉ ES<br>FIORA MARKET</h2>
+  <p class="sub">Un marketplace B2C de vehículos que conecta concesionarias y particulares con compradores activos en el NOA y toda Argentina. Tres tipos de usuarios, un solo ecosistema.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Roles de usuario</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">15</div>
+      <div class="stat-label">Páginas y secciones</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Planes de suscripción</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">9</div>
+      <div class="stat-label">APIs serverless</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 03 COMPRADORES ── -->
+<div class="slide" data-n="03 / 09">
+  <div class="label">Funcionalidades · Compradores</div>
+  <h2>PARA QUIENES<br><span class="accent">BUSCAN</span></h2>
+
+  <div class="feature-list">
+    <div class="feature"><div class="feature-key">Catálogo</div><div class="feature-val">Búsqueda por marca, modelo, categoría, año, precio, combustible y ciudad. Paginación de 24 resultados.</div></div>
+    <div class="feature"><div class="feature-key">Favoritos</div><div class="feature-val">Guardado de vehículos en lista personal sincronizada con la cuenta del usuario.</div></div>
+    <div class="feature"><div class="feature-key">Comparador</div><div class="feature-val">Comparación de hasta 3 vehículos simultáneos con tabla de especificaciones lado a lado.</div></div>
+    <div class="feature"><div class="feature-key">Alertas</div><div class="feature-val">Notificación automática por email cuando se publique un vehículo que coincida con los filtros guardados.</div></div>
+    <div class="feature"><div class="feature-key">Contacto</div><div class="feature-val">Formulario de consulta integrado y acceso directo a WhatsApp de la concesionaria desde la ficha del vehículo.</div></div>
+    <div class="feature"><div class="feature-key">Financiación</div><div class="feature-val">Simulador de cuotas con TNA y plazo configurables. Cotización en USD actualizada con dólar blue en tiempo real.</div></div>
+  </div>
+</div>
+
+<!-- ── 04 CONCESIONARIAS ── -->
+<div class="slide" data-n="04 / 09">
+  <div class="label">Funcionalidades · Concesionarias</div>
+  <h2>PARA QUIENES<br><span class="accent">VENDEN</span></h2>
+
+  <div class="feature-list">
+    <div class="feature"><div class="feature-key">Publicaciones</div><div class="feature-val">Alta de stock con galería de fotos acumulativa, especificaciones técnicas completas y precios en ARS y USD.</div></div>
+    <div class="feature"><div class="feature-key">Panel de control</div><div class="feature-val">Dashboard con métricas: vistas por vehículo, consultas recibidas, historial de pagos. Exportación a CSV.</div></div>
+    <div class="feature"><div class="feature-key">Consultas</div><div class="feature-val">Bandeja con notificación en tiempo real. Badge en el menú con contador de mensajes no leídos.</div></div>
+    <div class="feature"><div class="feature-key">Boosts</div><div class="feature-val">Sistema de impulso pago: URGENTE, DESTACADO y fijado en Home. Activación inmediata vía MercadoPago.</div></div>
+    <div class="feature"><div class="feature-key">Perfil público</div><div class="feature-val">Página de agencia con logo, descripción, estadísticas, reseñas de clientes y catálogo completo.</div></div>
+    <div class="feature"><div class="feature-key">Pagos</div><div class="feature-val">Planes y boosts con MercadoPago. Historial de transacciones disponible en el panel.</div></div>
+  </div>
+</div>
+
+<!-- ── 05 PLANES ── -->
+<div class="slide" data-n="05 / 09">
+  <div class="label">Monetización</div>
+  <h2>PLANES DE<br><span class="accent">SUSCRIPCIÓN</span></h2>
+  <p class="sub">Modelo freemium con cuatro niveles. Las concesionarias pagan mensualmente con MercadoPago y el plan se activa de forma automática.</p>
+
+  <table class="plan-table">
+    <thead>
+      <tr>
+        <th>Plan</th>
+        <th>Publicaciones</th>
+        <th>Precio / mes</th>
+        <th>Incluye</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="plan-name">Free</span></td>
+        <td>1 vehículo</td>
+        <td><span class="plan-price">$0</span></td>
+        <td><span class="tag-pill tag-gray">Básico</span></td>
+      </tr>
+      <tr>
+        <td><span class="plan-name">Básico</span></td>
+        <td>5 vehículos</td>
+        <td><span class="plan-price">$9.999</span></td>
+        <td><span class="tag-pill tag-green">Estadísticas</span></td>
+      </tr>
+      <tr>
+        <td><span class="plan-name">Pro</span></td>
+        <td>20 vehículos</td>
+        <td><span class="plan-price">$24.999</span></td>
+        <td><span class="tag-pill tag-gold">Badge verificado</span> <span class="tag-pill tag-gold">Boosts</span></td>
+      </tr>
+      <tr>
+        <td><span class="plan-name">Premium</span></td>
+        <td>Ilimitados</td>
+        <td><span class="plan-price">$49.999</span></td>
+        <td><span class="tag-pill tag-red">Prioridad máxima</span> <span class="tag-pill tag-red">Home</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 06 ADMIN ── -->
+<div class="slide" data-n="06 / 09">
+  <div class="label">Administración</div>
+  <h2>PANEL DE<br><span class="accent">CONTROL</span></h2>
+  <p class="sub">Acceso exclusivo para el administrador. Gestión total de la plataforma desde un único panel centralizado.</p>
+
+  <div class="grid grid-2" style="margin-top:2.5rem;">
+    <div class="card">
+      <div class="card-label">Concesionarias</div>
+      <h3>Gestión de agencias</h3>
+      <p>Aprobar o suspender agencias registradas. Vista completa de datos, plan activo y actividad.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Usuarios</div>
+      <h3>Gestión de compradores</h3>
+      <p>Listado de todos los usuarios registrados con su actividad y datos de contacto.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Publicidades</div>
+      <h3>Banners del sitio</h3>
+      <p>Control de los espacios publicitarios del Home: lateral derecho y banner inferior con cycling automático.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Pagos</div>
+      <h3>Historial de transacciones</h3>
+      <p>Registro completo de pagos de planes y boosts por concesionaria con fecha y monto.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 07 TECH ── -->
+<div class="slide" data-n="07 / 09">
+  <div class="label">Infraestructura</div>
+  <h2>TECNOLOGÍA Y<br><span class="accent">POSICIONAMIENTO</span></h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;margin-top:2rem;">
+    <div>
+      <p class="mono" style="font-size:11px;color:var(--gray4);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.5rem;">Stack tecnológico</p>
+      <div class="tech-row">
+        <div><div class="tech-name">React 19 + Vite</div><div class="tech-desc">Frontend SPA moderno</div></div>
+        <span class="tech-badge">Frontend</span>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">Supabase</div><div class="tech-desc">Base de datos, auth y storage</div></div>
+        <span class="tech-badge">Backend</span>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">Vercel</div><div class="tech-desc">Hosting + APIs serverless</div></div>
+        <span class="tech-badge">Infraestructura</span>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">MercadoPago</div><div class="tech-desc">Pagos online certificados</div></div>
+        <span class="tech-badge">Pagos</span>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">Resend</div><div class="tech-desc">Emails transaccionales</div></div>
+        <span class="tech-badge">Email</span>
+      </div>
+    </div>
+    <div>
+      <p class="mono" style="font-size:11px;color:var(--gray4);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.5rem;">SEO y marketing digital</p>
+      <div class="tech-row">
+        <div><div class="tech-name">Sitemap dinámico</div><div class="tech-desc">Indexación automática de cada vehículo</div></div>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">Open Graph</div><div class="tech-desc">Preview en redes sociales</div></div>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">JSON-LD Schema</div><div class="tech-desc">Datos estructurados para Google</div></div>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">Vercel Analytics</div><div class="tech-desc">Métricas de tráfico en tiempo real</div></div>
+      </div>
+      <div class="tech-row">
+        <div><div class="tech-name">Cron diario</div><div class="tech-desc">Alertas automáticas a las 9am</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 08 LEGAL ── -->
+<div class="slide" data-n="08 / 09">
+  <div class="label">Cumplimiento normativo</div>
+  <h2>COBERTURA<br><span class="accent">LEGAL</span></h2>
+  <p class="sub">La plataforma cumple con la normativa argentina vigente de comercio electrónico y protección al consumidor.</p>
+
+  <div class="grid grid-3" style="margin-top:2.5rem;">
+    <div class="card">
+      <div class="card-label">Términos</div>
+      <h3>Términos y condiciones</h3>
+      <p>Página completa con condiciones de uso, responsabilidades y política de privacidad de datos.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Res. 424/2020</div>
+      <h3>Botón de arrepentimiento</h3>
+      <p>Formulario legal que registra el reclamo en base de datos con fecha y hora. Notificación al administrador y al solicitante.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Privacidad</div>
+      <h3>Consentimiento de cookies</h3>
+      <p>Banner de cookies con opciones de aceptar o rechazar. Enlace a Defensa del Consumidor en el footer.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 09 CIERRE ── -->
+<div class="slide slide-close" data-n="09 / 09">
+  <div class="label">Resumen</div>
+  <div class="h-line" style="background:rgba(255,255,255,.3);"></div>
+  <h2>EN PRODUCCIÓN<br>Y LISTO PARA<br>CRECER</h2>
+  <p class="sub">La plataforma está deployada, optimizada para buscadores y preparada para recibir concesionarias y compradores desde el día uno.</p>
+
+  <div class="contact-row">
+    <div class="contact-item">
+      <dt>Sitio web</dt>
+      <dd>fioramarket.store</dd>
+    </div>
+    <div class="contact-item">
+      <dt>Instagram</dt>
+      <dd>@fiora.market</dd>
+    </div>
+    <div class="contact-item">
+      <dt>Contacto</dt>
+      <dd>contacto@fioramarket.store</dd>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── NAVEGACIÓN ── -->
+<div id="nav-controls" style="position:fixed;bottom:2rem;right:2rem;z-index:1000;display:flex;align-items:center;gap:10px;">
+  <button id="btn-prev" onclick="cambiarSlide(-1)" style="width:40px;height:40px;border-radius:50%;background:#1a1a1a;border:1px solid #2a2a2a;color:#888;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;">&#8592;</button>
+  <span id="slide-counter" style="font-family:'Consolas','Courier New',monospace;font-size:11px;color:#555;min-width:40px;text-align:center;letter-spacing:.1em;"></span>
+  <button id="btn-next" onclick="cambiarSlide(1)" style="width:40px;height:40px;border-radius:50%;background:#1a1a1a;border:1px solid #2a2a2a;color:#888;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;">&#8594;</button>
+</div>
+
+<style>
+  .slide { cursor: default; }
+  #btn-prev:hover, #btn-next:hover { background: #e63329; border-color: #e63329; color: #fff; }
+  #btn-prev:disabled, #btn-next:disabled { opacity: .25; pointer-events: none; }
+</style>
+
+<script>
+  const slides = document.querySelectorAll('.slide')
+  let current = 0
+
+  function mostrar(idx) {
+    slides.forEach((s, i) => {
+      s.style.display = i === idx ? 'flex' : 'none'
+    })
+    current = idx
+    document.getElementById('slide-counter').textContent = (idx + 1) + ' / ' + slides.length
+    document.getElementById('btn-prev').disabled = idx === 0
+    document.getElementById('btn-next').disabled = idx === slides.length - 1
+  }
+
+  function cambiarSlide(dir) {
+    const next = current + dir
+    if (next >= 0 && next < slides.length) mostrar(next)
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); cambiarSlide(1) }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); cambiarSlide(-1) }
+  })
+
+  mostrar(0)
+</script>
+
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIORA MARKET — Manual de Usuario</title>
+<style>
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --accent: #e63329;
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --gray1: #111;
+    --gray2: #1a1a1a;
+    --gray3: #252525;
+    --gray4: #555;
+    --gray5: #888;
+    --gray6: #aaa;
+    --green: #22c55e;
+    --gold: #c9a84c;
+    --nav-w: 260px;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); display: flex; min-height: 100vh; }
+
+  /* ── NAV ── */
+  nav {
+    width: var(--nav-w);
+    flex-shrink: 0;
+    background: var(--gray1);
+    border-right: 1px solid var(--gray2);
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .nav-head {
+    padding: 2rem 1.75rem 1.75rem;
+    border-bottom: 1px solid var(--gray2);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; margin-bottom: .5rem; }
+  .nav-logo-text { font-family: 'Consolas', 'Courier New', monospace; font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+  .nav-sub { font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; color: var(--gray5); letter-spacing: .15em; text-transform: uppercase; }
+
+  .nav-section {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 9px;
+    color: var(--gray4);
+    text-transform: uppercase;
+    letter-spacing: .2em;
+    padding: 1.5rem 1.75rem .5rem;
+  }
+  nav a {
+    display: block;
+    padding: .55rem 1.75rem;
+    font-size: 13px;
+    color: var(--gray5);
+    text-decoration: none;
+    transition: color .15s;
+    border-left: 2px solid transparent;
+    line-height: 1.4;
+  }
+  nav a:hover { color: var(--white); }
+  nav a.active { color: var(--white); border-left-color: var(--accent); background: rgba(230,51,41,.04); }
+
+  /* ── MAIN ── */
+  main { margin-left: var(--nav-w); flex: 1; padding: 0; }
+
+  /* ── HERO ── */
+  .doc-hero {
+    padding: 5rem 5rem 4rem;
+    border-bottom: 1px solid var(--gray2);
+  }
+  .doc-label {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .doc-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--accent); }
+  .doc-hero h1 { font-size: 48px; font-weight: 900; letter-spacing: -1px; line-height: 1; margin-bottom: 1rem; }
+  .doc-hero p { font-size: 15px; color: var(--gray6); line-height: 1.7; max-width: 560px; }
+
+  /* ── SECTIONS ── */
+  .section { padding: 4rem 5rem; border-bottom: 1px solid var(--gray2); }
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--accent); }
+
+  h2 { font-size: 32px; font-weight: 900; letter-spacing: -.5px; margin-bottom: 1rem; }
+  h3 { font-size: 16px; font-weight: 700; margin: 2.5rem 0 1rem; color: var(--white); }
+  h3:first-of-type { margin-top: 1.75rem; }
+
+  p { font-size: 14px; color: var(--gray6); line-height: 1.8; margin-bottom: 1rem; max-width: 680px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; border: 1px solid var(--gray2); border-radius: 6px; overflow: hidden; }
+  .step { display: grid; grid-template-columns: 52px 1fr; border-bottom: 1px solid var(--gray2); }
+  .step:last-child { border-bottom: none; }
+  .step-n { background: var(--gray2); display: flex; align-items: center; justify-content: center; font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; color: var(--gray5); border-right: 1px solid var(--gray2); }
+  .step-body { padding: 1.1rem 1.5rem; }
+  .step-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .step-desc { font-size: 13px; color: var(--gray5); line-height: 1.6; }
+
+  /* ── CALLOUTS ── */
+  .callout { border-radius: 6px; padding: 1rem 1.25rem; margin: 1.5rem 0; font-size: 13px; color: var(--gray6); line-height: 1.7; border-left: 3px solid; }
+  .callout strong { font-weight: 600; }
+  .callout-red { background: rgba(230,51,41,.06); border-color: var(--accent); }
+  .callout-red strong { color: var(--accent); }
+  .callout-green { background: rgba(34,197,94,.05); border-color: var(--green); }
+  .callout-green strong { color: var(--green); }
+  .callout-gold { background: rgba(201,168,76,.05); border-color: var(--gold); }
+  .callout-gold strong { color: var(--gold); }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; border: 1px solid var(--gray2); border-radius: 6px; overflow: hidden; font-size: 13px; }
+  .data-table th { background: var(--gray2); padding: 10px 16px; text-align: left; font-family: 'Consolas', 'Courier New', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: .15em; color: var(--gray5); border-bottom: 1px solid var(--gray3); font-weight: 500; }
+  .data-table td { padding: 11px 16px; color: var(--gray6); border-bottom: 1px solid var(--gray2); vertical-align: top; line-height: 1.6; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,.01); }
+  .td-label { font-weight: 600; color: var(--white); white-space: nowrap; }
+
+  /* ── BADGES ── */
+  .badge { display: inline-block; font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; padding: 2px 9px; border-radius: 3px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .badge-red { background: rgba(230,51,41,.15); color: var(--accent); border: 1px solid rgba(230,51,41,.2); }
+  .badge-green { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.15); }
+  .badge-gold { background: rgba(201,168,76,.1); color: var(--gold); border: 1px solid rgba(201,168,76,.15); }
+  .badge-gray { background: var(--gray2); color: var(--gray5); border: 1px solid var(--gray3); }
+
+  /* ── USER ROLES ── */
+  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--gray2); border: 1px solid var(--gray2); border-radius: 6px; overflow: hidden; margin: 1.5rem 0; }
+  .role { background: var(--gray1); padding: 1.5rem; }
+  .role-tag { font-family: 'Consolas', 'Courier New', monospace; font-size: 9px; color: var(--accent); letter-spacing: .2em; text-transform: uppercase; margin-bottom: .75rem; }
+  .role-name { font-size: 15px; font-weight: 700; margin-bottom: .5rem; }
+  .role-desc { font-size: 13px; color: var(--gray5); line-height: 1.6; }
+
+  /* ── FEATURE LIST ── */
+  .feat-list { border: 1px solid var(--gray2); border-radius: 6px; overflow: hidden; margin: 1.5rem 0; }
+  .feat-item { display: grid; grid-template-columns: 160px 1fr; border-bottom: 1px solid var(--gray2); }
+  .feat-item:last-child { border-bottom: none; }
+  .feat-key { background: var(--gray1); padding: 1rem 1.25rem; font-family: 'Consolas', 'Courier New', monospace; font-size: 10px; color: var(--gray5); text-transform: uppercase; letter-spacing: .1em; border-right: 1px solid var(--gray2); display: flex; align-items: center; }
+  .feat-val { padding: 1rem 1.25rem; font-size: 13px; color: var(--gray6); line-height: 1.6; display: flex; align-items: center; }
+
+  /* ── FOOTER ── */
+  .doc-footer { padding: 2.5rem 5rem; border-top: 1px solid var(--gray2); display: flex; justify-content: space-between; align-items: center; }
+  .doc-footer span { font-family: 'Consolas', 'Courier New', monospace; font-size: 11px; color: var(--gray4); letter-spacing: .1em; }
+
+  @media print {
+    nav { display: none; }
+    main { margin-left: 0; }
+    .section { page-break-inside: avoid; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<nav>
+  <div class="nav-head">
+    <div class="nav-logo">
+      <svg width="14" height="18" viewBox="0 0 28 36" fill="none">
+        <rect x="0" y="0" width="6" height="36" fill="#f5f3ee"/>
+        <path d="M6,0 H20 Q28,0 28,9 Q28,18 20,18 H6 Z" fill="#f5f3ee"/>
+        <polygon points="14,18 20,18 27,36 21,36" fill="#f5f3ee"/>
+      </svg>
+      <span class="nav-logo-text">FIORA<span style="color:var(--accent)"> MARKET</span></span>
+    </div>
+    <div class="nav-sub">Manual de usuario</div>
+  </div>
+
+  <div class="nav-section">Introducción</div>
+  <a href="#intro">Cómo funciona</a>
+  <a href="#acceso">Acceso al sistema</a>
+
+  <div class="nav-section">Administrador</div>
+  <a href="#admin-panel">Panel de administración</a>
+  <a href="#admin-concesionarias">Gestionar concesionarias</a>
+  <a href="#admin-publicidades">Banners publicitarios</a>
+
+  <div class="nav-section">Concesionarias</div>
+  <a href="#conc-registro">Registro</a>
+  <a href="#conc-publicar">Publicar vehículos</a>
+  <a href="#conc-consultas">Consultas</a>
+  <a href="#conc-planes">Planes y pagos</a>
+  <a href="#conc-boosts">Boosts y destacados</a>
+
+  <div class="nav-section">Compradores</div>
+  <a href="#comp-buscar">Buscar vehículos</a>
+  <a href="#comp-favoritos">Favoritos</a>
+  <a href="#comp-comparar">Comparador</a>
+  <a href="#comp-alertas">Alertas de búsqueda</a>
+  <a href="#comp-contacto">Contactar vendedor</a>
+
+  <div class="nav-section">Legal</div>
+  <a href="#legal">Arrepentimiento</a>
+</nav>
+
+<!-- ── CONTENT ── -->
+<main>
+
+  <div class="doc-hero">
+    <div class="doc-label">fioramarket.store</div>
+    <h1>MANUAL DE<br><span style="color:var(--accent)">USUARIO</span></h1>
+    <p>Guía completa de uso para administradores, concesionarias y compradores de la plataforma FIORA MARKET.</p>
+  </div>
+
+  <!-- INTRO -->
+  <div class="section" id="intro">
+    <div class="section-label">Introducción</div>
+    <h2>Cómo funciona</h2>
+    <p>FIORA MARKET opera con tres roles diferenciados. Cada usuario accede a una experiencia distinta según su perfil.</p>
+
+    <div class="roles">
+      <div class="role">
+        <div class="role-tag">Rol 01</div>
+        <div class="role-name">Administrador</div>
+        <div class="role-desc">Control total de la plataforma: aprobaciones, publicidades, usuarios y pagos.</div>
+      </div>
+      <div class="role">
+        <div class="role-tag">Rol 02</div>
+        <div class="role-name">Concesionaria</div>
+        <div class="role-desc">Publica y gestiona su inventario, recibe consultas y contrata planes o boosts.</div>
+      </div>
+      <div class="role">
+        <div class="role-tag">Rol 03</div>
+        <div class="role-name">Comprador</div>
+        <div class="role-desc">Busca vehículos, guarda favoritos, compara opciones y contacta vendedores.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCESO -->
+  <div class="section" id="acceso">
+    <div class="section-label">Introducción</div>
+    <h2>Acceso al sistema</h2>
+    <p>Ingresá a <strong style="color:var(--white)">fioramarket.store</strong> y hacé clic en <strong style="color:var(--white)">Ingresar</strong> en el menú superior derecho.</p>
+
+    <table class="data-table" style="margin-top:1.5rem;">
+      <thead><tr><th>Rol</th><th>Cómo ingresar</th><th>Destino tras login</th></tr></thead>
+      <tbody>
+        <tr><td><span class="td-label">Administrador</span></td><td>Email <code style="font-family:monospace;font-size:12px;color:var(--accent)">rlautomotores24@gmail.com</code></td><td>/admin</td></tr>
+        <tr><td><span class="td-label">Concesionaria</span></td><td>Email registrado como agencia</td><td>/panel</td></tr>
+        <tr><td><span class="td-label">Comprador</span></td><td>Email registrado como particular</td><td>/mi-cuenta</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-gold">
+      <strong>Recuperar contraseña:</strong> En la pantalla de login, hacé clic en "¿Olvidaste tu contraseña?" e ingresá tu email. Recibirás un enlace de recuperación.
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="section" id="admin-panel">
+    <div class="section-label">Administrador</div>
+    <h2>Panel de administración</h2>
+    <p>Accesible únicamente para el email del administrador. El sistema redirige automáticamente a <code style="font-family:monospace;font-size:12px;color:var(--accent)">/admin</code> al iniciar sesión.</p>
+
+    <div class="feat-list">
+      <div class="feat-item"><div class="feat-key">Concesionarias</div><div class="feat-val">Ver, aprobar y gestionar todas las agencias registradas en la plataforma.</div></div>
+      <div class="feat-item"><div class="feat-key">Usuarios</div><div class="feat-val">Listado completo de compradores registrados con datos de contacto.</div></div>
+      <div class="feat-item"><div class="feat-key">Publicidades</div><div class="feat-val">Alta y baja de banners para el Home (lateral y sección inferior).</div></div>
+      <div class="feat-item"><div class="feat-key">Pagos</div><div class="feat-val">Historial de todas las transacciones de planes y boosts.</div></div>
+    </div>
+  </div>
+
+  <!-- ADMIN CONCESIONARIAS -->
+  <div class="section" id="admin-concesionarias">
+    <div class="section-label">Administrador</div>
+    <h2>Gestionar concesionarias</h2>
+
+    <h3>Ver concesionarias registradas</h3>
+    <p>En el panel admin, la pestaña <strong style="color:var(--white)">Concesionarias</strong> muestra todas las agencias con nombre, email, ciudad, plan activo y fecha de registro.</p>
+
+    <h3>Aprobar o suspender una agencia</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Localizar la concesionaria en la lista</div><div class="step-desc">Podés filtrar por nombre o estado.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Usar el botón de acción correspondiente</div><div class="step-desc">Aprobar para habilitarla, suspender para bloquear el acceso temporalmente.</div></div></div>
+    </div>
+
+    <div class="callout callout-red">
+      <strong>Registro automático:</strong> Al registrarse, las concesionarias quedan activas de inmediato y recibís una notificación por email con sus datos.
+    </div>
+  </div>
+
+  <!-- ADMIN PUBLICIDADES -->
+  <div class="section" id="admin-publicidades">
+    <div class="section-label">Administrador</div>
+    <h2>Banners publicitarios</h2>
+    <p>El Home muestra espacios publicitarios en el lateral derecho (6 slots rotativos) y en la sección inferior (cycling automático cada 4 segundos). Se administran desde la tabla <code style="font-family:monospace;font-size:12px;color:var(--accent)">publicidades</code> en Supabase.</p>
+
+    <h3>Agregar un banner</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Subir la imagen al storage de Supabase</div><div class="step-desc">Ir a Supabase → Storage → bucket de fotos. Subir la imagen y copiar la URL pública.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Insertar un registro en la tabla publicidades</div><div class="step-desc">Campos requeridos: <code style="font-family:monospace;font-size:12px;">nombre</code> (descripción interna), <code style="font-family:monospace;font-size:12px;">imagen_url</code>, <code style="font-family:monospace;font-size:12px;">link_url</code> (destino del clic), <code style="font-family:monospace;font-size:12px;">activo: true</code>.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">El banner aparece en el Home de forma automática</div><div class="step-desc">Sin necesidad de redeploy. El cambio es inmediato.</div></div></div>
+    </div>
+
+    <h3>Desactivar un banner</h3>
+    <p>En Supabase, cambiá el campo <code style="font-family:monospace;font-size:12px;color:var(--accent)">activo</code> a <code style="font-family:monospace;font-size:12px;">false</code> en el registro correspondiente. El banner deja de mostrarse de inmediato.</p>
+  </div>
+
+  <!-- CONC REGISTRO -->
+  <div class="section" id="conc-registro">
+    <div class="section-label">Concesionarias</div>
+    <h2>Registro de concesionaria</h2>
+    <p>Cualquier agencia puede registrarse de forma gratuita. El plan Free permite publicar 1 vehículo sin costo.</p>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Ir a fioramarket.store/registro</div><div class="step-desc">O hacer clic en "Publicar vehículo" en el menú superior.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Completar los datos de la agencia</div><div class="step-desc">Nombre de la agencia, responsable, email, teléfono, ciudad y contraseña.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Confirmar el email</div><div class="step-desc">Llegará un email de verificación. Hacer clic en el enlace para activar la cuenta.</div></div></div>
+      <div class="step"><div class="step-n">04</div><div class="step-body"><div class="step-title">Ingresar al panel</div><div class="step-desc">Una vez confirmado, iniciá sesión y serás redirigido automáticamente a /panel.</div></div></div>
+    </div>
+  </div>
+
+  <!-- CONC PUBLICAR -->
+  <div class="section" id="conc-publicar">
+    <div class="section-label">Concesionarias</div>
+    <h2>Publicar vehículos</h2>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Panel → Nueva publicación</div><div class="step-desc">En el menú lateral del panel de control.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Subir las fotos</div><div class="step-desc">Mínimo 5 fotos. Se pueden agregar de a una o en lote. La primera foto es la portada. Eliminación individual con el botón ×.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Completar especificaciones técnicas</div><div class="step-desc">Marca, modelo exacto, año, kilometraje, tipo (nuevo/usado), categoría, combustible, transmisión y color.</div></div></div>
+      <div class="step"><div class="step-n">04</div><div class="step-body"><div class="step-title">Ingresar precio</div><div class="step-desc">En ARS, USD o ambos. Si solo se carga ARS, el sistema calcula el equivalente en dólar blue automáticamente.</div></div></div>
+      <div class="step"><div class="step-n">05</div><div class="step-body"><div class="step-title">Publicar</div><div class="step-desc">El vehículo queda visible en el catálogo de forma inmediata.</div></div></div>
+    </div>
+
+    <div class="callout callout-gold">
+      <strong>Límite de plan:</strong> Si se alcanzó el límite de publicaciones del plan actual, el sistema avisa y ofrece actualizar al siguiente nivel.
+    </div>
+
+    <h3>Editar o eliminar un vehículo</h3>
+    <p>Desde <strong style="color:var(--white)">Panel → Inventario de autos</strong> se puede editar cualquier dato o eliminar la publicación.</p>
+  </div>
+
+  <!-- CONC CONSULTAS -->
+  <div class="section" id="conc-consultas">
+    <div class="section-label">Concesionarias</div>
+    <h2>Gestión de consultas</h2>
+    <p>Cuando un comprador envía un mensaje desde la ficha de un vehículo, la consulta aparece en el panel y se recibe también por email.</p>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Panel → Consultas</div><div class="step-desc">Lista completa de mensajes recibidos, ordenados por fecha. Las no leídas aparecen marcadas.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Badge de notificación en tiempo real</div><div class="step-desc">El menú muestra un indicador numérico con las consultas no leídas. Se actualiza sin recargar la página.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Exportar a CSV</div><div class="step-desc">Botón "Exportar CSV" para descargar el historial completo de consultas en formato planilla.</div></div></div>
+    </div>
+  </div>
+
+  <!-- CONC PLANES -->
+  <div class="section" id="conc-planes">
+    <div class="section-label">Concesionarias</div>
+    <h2>Planes y pagos</h2>
+
+    <table class="data-table">
+      <thead><tr><th>Plan</th><th>Publicaciones</th><th>Precio mensual</th><th>Destacado</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-gray">Free</span></td><td>1</td><td>Gratis</td><td>—</td></tr>
+        <tr><td><span class="badge badge-green">Básico</span></td><td>5</td><td>$9.999</td><td>Estadísticas</td></tr>
+        <tr><td><span class="badge badge-gold">Pro</span></td><td>20</td><td>$24.999</td><td>Badge verificado + Boosts</td></tr>
+        <tr><td><span class="badge badge-red">Premium</span></td><td>Ilimitados</td><td>$49.999</td><td>Prioridad máxima + Fijado en Home</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Cómo contratar o cambiar de plan</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Panel → Mis pagos → Ver planes</div><div class="step-desc">O ingresar directamente en fioramarket.store/planes.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Seleccionar el plan y hacer clic en Contratar</div><div class="step-desc">Se abre el checkout de MercadoPago.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Completar el pago</div><div class="step-desc">Tarjeta de crédito, débito u otros medios disponibles en MercadoPago.</div></div></div>
+      <div class="step"><div class="step-n">04</div><div class="step-body"><div class="step-title">Activación automática</div><div class="step-desc">El plan se activa inmediatamente al confirmarse el pago. No requiere intervención manual.</div></div></div>
+    </div>
+  </div>
+
+  <!-- CONC BOOSTS -->
+  <div class="section" id="conc-boosts">
+    <div class="section-label">Concesionarias</div>
+    <h2>Boosts y destacados</h2>
+    <p>Los boosts aumentan la visibilidad de un vehículo específico dentro del catálogo.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Boost</th><th>Efecto en el catálogo</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-red">Urgente</span></td><td>Posición máxima en el catálogo con indicador rojo. Mayor exposición.</td></tr>
+        <tr><td><span class="badge badge-gold">Destacado</span></td><td>Jerarquía alta en el catálogo con indicador dorado.</td></tr>
+        <tr><td><span class="badge badge-gray">Fijado en Home</span></td><td>El vehículo aparece en la sección destacada de la página principal.</td></tr>
+      </tbody>
+    </table>
+
+    <p>Se contratan desde <strong style="color:var(--white)">Panel → Inventario → botón Impulsar</strong> sobre el vehículo deseado y se pagan con MercadoPago.</p>
+  </div>
+
+  <!-- COMP BUSCAR -->
+  <div class="section" id="comp-buscar">
+    <div class="section-label">Compradores</div>
+    <h2>Buscar vehículos</h2>
+    <p>El catálogo es público. No se requiere cuenta para navegar ni filtrar.</p>
+
+    <h3>Filtros disponibles</h3>
+    <div class="feat-list">
+      <div class="feat-item"><div class="feat-key">Búsqueda libre</div><div class="feat-val">Escribí marca o modelo en el campo de búsqueda del sidebar.</div></div>
+      <div class="feat-item"><div class="feat-key">Condición</div><div class="feat-val">Nuevo / Usado / Todos.</div></div>
+      <div class="feat-item"><div class="feat-key">Categoría</div><div class="feat-val">SUV, Sedán, Pickup, Hatchback, Motos, Náutica y más.</div></div>
+      <div class="feat-item"><div class="feat-key">Marca</div><div class="feat-val">Listado de marcas principales del mercado.</div></div>
+      <div class="feat-item"><div class="feat-key">Precio</div><div class="feat-val">Rango mínimo y máximo en pesos argentinos.</div></div>
+      <div class="feat-item"><div class="feat-key">Año</div><div class="feat-val">Filtro desde / hasta.</div></div>
+      <div class="feat-item"><div class="feat-key">Combustible</div><div class="feat-val">Nafta, Diesel, Híbrido, Eléctrico.</div></div>
+      <div class="feat-item"><div class="feat-key">Ciudad</div><div class="feat-val">Filtrá por la ciudad donde está la concesionaria.</div></div>
+    </div>
+
+    <div class="callout callout-green">
+      <strong>Paginación:</strong> El catálogo muestra 24 vehículos por página. Usá la paginación inferior para navegar entre páginas.
+    </div>
+  </div>
+
+  <!-- COMP FAVORITOS -->
+  <div class="section" id="comp-favoritos">
+    <div class="section-label">Compradores</div>
+    <h2>Favoritos</h2>
+    <p>Guardá vehículos para volver a verlos más tarde. Requiere cuenta de comprador.</p>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Iniciá sesión como comprador</div><div class="step-desc">fioramarket.store/login</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Hacé clic en el ícono de corazón</div><div class="step-desc">Disponible en las cards del catálogo y dentro de cada ficha de vehículo.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Accedé a tu lista en Menú → Favoritos</div><div class="step-desc">Todos tus vehículos guardados en un solo lugar.</div></div></div>
+    </div>
+  </div>
+
+  <!-- COMP COMPARAR -->
+  <div class="section" id="comp-comparar">
+    <div class="section-label">Compradores</div>
+    <h2>Comparador de vehículos</h2>
+    <p>Comparar hasta 3 vehículos lado a lado con todas sus especificaciones técnicas.</p>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">En el catálogo, hacer clic en "Comparar" en una card</div><div class="step-desc">El botón aparece en la esquina inferior de cada tarjeta de vehículo.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Agregar hasta 3 vehículos</div><div class="step-desc">Aparece una barra fija en la parte inferior de la pantalla con los seleccionados.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Hacer clic en Comparar</div><div class="step-desc">Se abre la tabla de comparación en fioramarket.store/comparador.</div></div></div>
+    </div>
+  </div>
+
+  <!-- COMP ALERTAS -->
+  <div class="section" id="comp-alertas">
+    <div class="section-label">Compradores</div>
+    <h2>Alertas de búsqueda</h2>
+    <p>El sistema envía un email automático cuando se publique un vehículo que coincida con los filtros guardados.</p>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Configurar los filtros deseados en el catálogo</div><div class="step-desc">Marca, categoría, precio, combustible, etc.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">En el sidebar, encontrar la sección "Alerta de búsqueda"</div><div class="step-desc">Al final del panel de filtros.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Ingresar el email y guardar</div><div class="step-desc">Si el usuario está logueado, el email se completa automáticamente.</div></div></div>
+    </div>
+
+    <div class="callout callout-green">
+      <strong>Frecuencia de envío:</strong> Las alertas se procesan una vez por día a las 9am. Se agrupan todos los vehículos nuevos que coincidan en un único email.
+    </div>
+  </div>
+
+  <!-- COMP CONTACTO -->
+  <div class="section" id="comp-contacto">
+    <div class="section-label">Compradores</div>
+    <h2>Contactar al vendedor</h2>
+
+    <h3>Por WhatsApp</h3>
+    <p>Si la concesionaria tiene WhatsApp configurado, aparece el botón de contacto directo en la ficha del vehículo. Al hacer clic se abre WhatsApp con un mensaje predefinido sobre el vehículo.</p>
+
+    <h3>Por formulario</h3>
+    <p>Completar nombre, email, teléfono y mensaje en el formulario "Enviar Mensaje" dentro de la ficha del vehículo. La concesionaria recibe la consulta por email y en su panel de control.</p>
+
+    <div class="callout callout-red">
+      <strong>Sin cuenta requerida:</strong> Los compradores pueden enviar consultas sin necesidad de registrarse en la plataforma.
+    </div>
+  </div>
+
+  <!-- LEGAL -->
+  <div class="section" id="legal">
+    <div class="section-label">Legal</div>
+    <h2>Botón de arrepentimiento</h2>
+    <p>Conforme a la Resolución 424/2020, los compradores tienen 10 días corridos desde la celebración del contrato para revocar una compra o reserva.</p>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Ingresar a fioramarket.store/arrepentimiento</div><div class="step-desc">Accesible también desde el footer del sitio.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Completar el formulario</div><div class="step-desc">Nombre completo, email, número de reserva u operación y motivo (opcional).</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Enviar la solicitud</div><div class="step-desc">El sistema registra la solicitud con fecha y hora en la base de datos. Se envía comprobante por email al solicitante y notificación al administrador.</div></div></div>
+    </div>
+
+    <div class="callout callout-red">
+      <strong>Para el administrador:</strong> Cada solicitud llega por email con todos los datos del solicitante. El plazo para responder es de 24 horas hábiles.
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <span>FIORA MARKET · fioramarket.store</span>
+    <span>contacto@fioramarket.store</span>
+  </div>
+
+</main>
+
+<script>
+  const links = document.querySelectorAll('nav a')
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id))
+      }
+    })
+  }, { rootMargin: '-20% 0px -70% 0px' })
+  document.querySelectorAll('[id]').forEach(s => observer.observe(s))
+</script>
+</body>
+</html>

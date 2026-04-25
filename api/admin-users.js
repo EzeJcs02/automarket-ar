@@ -1,17 +1,27 @@
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'rlautomotores24@gmail.com'
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end()
 
   const authHeader = req.headers.authorization
-  if (!authHeader) return res.status(401).json({ error: 'Unauthorized' })
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' })
 
+  const token = authHeader.replace('Bearer ', '')
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY
 
+  // Verificar que el token pertenece al usuario admin
+  const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+    headers: { apikey: supabaseKey, Authorization: `Bearer ${token}` },
+  })
+
+  if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' })
+
+  const { email } = await userRes.json()
+  if (email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' })
+
   const usersRes = await fetch(`${supabaseUrl}/auth/v1/admin/users?per_page=500`, {
-    headers: {
-      apikey: supabaseKey,
-      Authorization: `Bearer ${supabaseKey}`,
-    },
+    headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
   })
 
   if (!usersRes.ok) return res.status(500).json({ error: 'Failed to fetch users' })

@@ -1,4 +1,33 @@
-﻿export default async function handler(req, res) {
+﻿import crypto from 'crypto'
+
+function verifyMpSignature(req) {
+  const secret = process.env.MP_WEBHOOK_SECRET
+  if (!secret) return true // skip if not configured
+
+  const xSignature = req.headers['x-signature']
+  const xRequestId = req.headers['x-request-id']
+  if (!xSignature) return false
+
+  const parts = Object.fromEntries(xSignature.split(',').map(p => p.split('=')))
+  const ts = parts['ts']
+  const v1 = parts['v1']
+  if (!ts || !v1) return false
+
+  const dataId = req.body?.data?.id ?? req.query.id ?? ''
+  const manifest = `id:${dataId};request-id:${xRequestId ?? ''};ts:${ts};`
+  const expected = crypto.createHmac('sha256', secret).update(manifest).digest('hex')
+
+  return crypto.timingSafeEqual(Buffer.from(v1, 'hex'), Buffer.from(expected, 'hex'))
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end()
+
+  if (!verifyMpSignature(req)) {
+    console.warn('mp-webhook: invalid signature')
+    return res.status(401).json({ error: 'Invalid signature' })
+  }
+
   const topic = req.query.topic || req.body?.type
   const id = req.query.id || req.body?.data?.id
 

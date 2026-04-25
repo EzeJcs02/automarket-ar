@@ -1,14 +1,53 @@
-﻿export default async function handler(req, res) {
+// Rate limiting simple en memoria (se resetea con cada cold start de Vercel)
+const rateLimit = new Map()
+const WINDOW_MS = 60 * 1000  // 1 minuto
+const MAX_REQUESTS = 5        // max 5 consultas por IP por minuto
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  const entry = rateLimit.get(ip)
+  if (!entry || now - entry.start > WINDOW_MS) {
+    rateLimit.set(ip, { count: 1, start: now })
+    return true
+  }
+  if (entry.count >= MAX_REQUESTS) return false
+  entry.count++
+  return true
+}
+
+function sanitizeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .slice(0, 2000)
+}
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
+
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown'
+  if (!checkRateLimit(ip)) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
 
   const { auto_id, nombre, email, mensaje, telefono } = req.body
   if (!auto_id || !nombre || !email || !mensaje) return res.status(400).json({ error: 'Faltan datos' })
+
+  // Validar email básico
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Email inválido' })
+  if (nombre.length > 200 || mensaje.length > 5000) return res.status(400).json({ error: 'Datos demasiado largos' })
 
   if (!process.env.RESEND_API_KEY) return res.status(200).json({ sent: false, reason: 'no-resend-key' })
 
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY
   const sbHeaders = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+
+  // Sanitizar inputs antes de incluirlos en HTML
+  const sNombre = sanitizeHtml(nombre)
+  const sEmail = sanitizeHtml(email)
+  const sMensaje = sanitizeHtml(mensaje)
+  const sTelefono = telefono ? sanitizeHtml(telefono) : null
 
   try {
     const autoRes = await fetch(
@@ -37,7 +76,7 @@
       body: JSON.stringify({
         from: 'FIORA MARKET <noreply@fioramarket.store>',
         to: [sellerEmail],
-        reply_to: email,
+        reply_to: sEmail,
         subject: `Nueva consulta sobre tu ${auto.marca} ${auto.modelo} — FIORA MARKET`,
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0a0a0a;color:#f5f3ee;border-radius:12px;overflow:hidden">
@@ -49,12 +88,12 @@
               <p style="color:#888;font-size:14px;margin:0 0 24px">Alguien está interesado en tu <strong style="color:#f5f3ee">${auto.marca} ${auto.modelo}</strong>.</p>
               <div style="background:#1a1a1a;border-radius:8px;padding:20px;margin-bottom:20px">
                 <div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Nombre</div>
-                <div style="font-size:15px;font-weight:600;margin-bottom:14px">${nombre}</div>
+                <div style="font-size:15px;font-weight:600;margin-bottom:14px">${sNombre}</div>
                 <div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Email</div>
-                <div style="font-size:15px;margin-bottom:14px"><a href="mailto:${email}" style="color:#e63329">${email}</a></div>
-                ${telefono ? `<div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Teléfono</div><div style="font-size:15px;margin-bottom:14px">${telefono}</div>` : ''}
+                <div style="font-size:15px;margin-bottom:14px"><a href="mailto:${sEmail}" style="color:#e63329">${sEmail}</a></div>
+                ${sTelefono ? `<div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Teléfono</div><div style="font-size:15px;margin-bottom:14px">${sTelefono}</div>` : ''}
                 <div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Mensaje</div>
-                <div style="font-size:14px;color:#aaa;line-height:1.6">${mensaje}</div>
+                <div style="font-size:14px;color:#aaa;line-height:1.6">${sMensaje}</div>
               </div>
               <p style="color:#555;font-size:13px">Respondé directamente a este email para contactar al interesado.</p>
             </div>

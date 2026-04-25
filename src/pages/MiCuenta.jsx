@@ -211,7 +211,7 @@ export default function MiCuenta() {
             <PublicarForm user={user} onSuccess={() => { setShowForm(false); fetchData() }} onCancel={() => setShowForm(false)} />
           ) : (
             <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: misAutos.length > 0 ? '1rem' : '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>MIS PUBLICACIONES</div>
                   <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Plan gratuito: 1 publicación activa por 30 días.</div>
@@ -219,10 +219,27 @@ export default function MiCuenta() {
                 {misAutos.length === 0 && (
                   <button className="btn-primary" onClick={() => setShowForm(true)}>+ Publicar vehículo</button>
                 )}
-                {misAutos.length > 0 && (
-                  <button className="btn-secondary" onClick={() => setShowForm(true)} style={{ opacity: .5, cursor: 'not-allowed' }} title="Ya tenés una publicación activa">+ Publicar vehículo</button>
-                )}
               </div>
+              {misAutos.length > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(224,160,32,.08)', border: '1px solid rgba(224,160,32,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#e0a020', marginBottom: '2px' }}>Límite del plan gratuito alcanzado</div>
+                    <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Para publicar otro vehículo pagás $15.000 por 30 días.</div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/mp-create-preference', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo: 'publicacion_adicional', user_id: user.id, user_email: user.email, origen: 'mi-cuenta' }) })
+                        const data = await res.json()
+                        if (data.init_point) window.location.href = data.init_point
+                        else alert('Error al iniciar el pago.')
+                      } catch { alert('Error de conexión.') }
+                    }}
+                    style={{ padding: '9px 20px', borderRadius: 'var(--radius)', border: '1px solid #e0a020', background: 'transparent', color: '#e0a020', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    Agregar publicación — $15.000 →
+                  </button>
+                </div>
+              )}
               {misAutos.length === 0 ? (
                 <div style={{ padding: '5rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1rem' }}>SIN PUBLICACIONES AÚN</div>

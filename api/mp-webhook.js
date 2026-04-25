@@ -100,6 +100,7 @@ export default async function handler(req, res) {
         plan_basico: 'Plan Básico',
         plan_pro: 'Plan Pro',
         plan_premium: 'Plan Premium',
+        publicacion_adicional: 'Publicación adicional (30 días)',
         subir_tope: 'Subir al tope',
         destacado_individual: 'Destacado Individual',
         urgente_individual: 'Urgente Individual',

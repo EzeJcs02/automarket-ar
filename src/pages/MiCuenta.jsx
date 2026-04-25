@@ -285,7 +285,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (fotos.length < 3) { setError('Debés subir mínimo 3 fotos.'); return }
+    if (fotos.length < 5) { setError('Debés subir mínimo 5 fotos.'); return }
     setLoading(true)
     setError('')
     let fotoUrls = []
@@ -326,9 +326,9 @@ function PublicarForm({ user, onSuccess, onCancel }) {
           <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 3 ? 'var(--green)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
             <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
             <div style={{ fontSize: '14px', fontWeight: 600, color: fotos.length >= 3 ? '#4ade80' : 'var(--white)', marginBottom: '4px' }}>
-              {fotos.length > 0 ? `${fotos.length} fotos seleccionadas ${fotos.length >= 3 ? '✓' : `(faltan ${3 - fotos.length})`}` : 'Click para subir fotos'}
+              {fotos.length > 0 ? `${fotos.length} fotos seleccionadas ${fotos.length >= 5 ? '✓' : `(faltan ${5 - fotos.length})`}` : 'Click para subir fotos'}
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--gray5)' }}>Mínimo 3 fotos · JPG, PNG</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray5)' }}>Mínimo 5 fotos · JPG, PNG</div>
           </label>
         </div>
 
@@ -377,6 +377,7 @@ function ExtrasConMP({ user, autoId }) {
   }
 
   const extras = [
+    { id: 'publicacion_adicional', nombre: 'Publicación adicional', precio: '$15.000', desc: 'A partir de la 1ra (gratis). Por 30 días.' },
     { id: 'subir_tope', nombre: 'Subir al tope', precio: '$10.000', desc: 'Tu publicación vuelve al primer lugar.' },
     { id: 'destacado_individual', nombre: 'Destacado', precio: '$15.000', desc: 'Fondo diferenciado y badge en el catálogo.' },
     { id: 'urgente_individual', nombre: 'Urgente', precio: '$20.000', desc: 'Badge rojo "URGENTE", máxima visibilidad.' },

@@ -63,7 +63,7 @@ export function Login() {
       <div style={{ width: '100%', maxWidth: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '380px' }}>
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '3px', display: 'block', marginBottom: '3rem' }}>
-            FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
+            FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
           </Link>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '44px', lineHeight: 1, marginBottom: '.5rem' }}>BIENVENIDO</div>
           <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Ingresá a tu cuenta</div>
@@ -219,7 +219,7 @@ export function Registro() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--black)' }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
         <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '3rem', textAlign: 'center' }}>
-          FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
+          FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
         </Link>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '.75rem', textAlign: 'center' }}>CREAR CUENTA</div>
         <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', textAlign: 'center' }}>¿Cómo querés registrarte?</div>
@@ -254,7 +254,7 @@ export function Registro() {
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
-            FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
+            FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
           </Link>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '.5rem' }}>TU CUENTA</div>
           <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Creá tu perfil de comprador</div>
@@ -305,7 +305,7 @@ export function Registro() {
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
-            FIORA.<span style={{ color: 'var(--accent)' }}>MARKET</span>
+            FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
           </Link>
 
           {/* INDICADOR DE PASOS */}

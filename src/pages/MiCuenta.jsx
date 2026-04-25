@@ -4,6 +4,21 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 
+async function pagarConMP(tipo, user_id) {
+  try {
+    const res = await fetch('/api/mp-create-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo, user_id, origen: 'mi-cuenta' }),
+    })
+    const data = await res.json()
+    if (data.init_point) window.location.href = data.init_point
+    else alert('Error al iniciar el pago. Intente nuevamente.')
+  } catch {
+    alert('Error de conexión. Intente nuevamente.')
+  }
+}
+
 export default function MiCuenta() {
   const { user, concesionaria, isAdmin, loading: authLoading, signOut } = useAuth()
   const navigate = useNavigate()
@@ -12,6 +27,18 @@ export default function MiCuenta() {
   const [consultas, setConsultas] = useState([])
   const [tab, setTab] = useState('favoritos')
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const mp = params.get('mp')
+    if (mp === 'ok') {
+      alert('¡Pago exitoso! Tu boost se activará en breve.')
+      window.history.replaceState({}, '', '/mi-cuenta')
+    } else if (mp === 'fail') {
+      alert('El pago no se completó. Podés intentarlo nuevamente.')
+      window.history.replaceState({}, '', '/mi-cuenta')
+    }
+  }, [])
 
   useEffect(() => {
     if (authLoading) return
@@ -55,7 +82,6 @@ export default function MiCuenta() {
 
   return (
     <div className="page-wrapper">
-      {/* HEADER */}
       <div style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.5rem' }}>Mi cuenta</div>
@@ -65,20 +91,12 @@ export default function MiCuenta() {
         <button className="btn-secondary" onClick={handleSignOut}>Cerrar sesión</button>
       </div>
 
-      {/* TABS */}
       <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px' }}>
-        <button style={tabStyle(tab === 'favoritos')} onClick={() => setTab('favoritos')}>
-          Favoritos ({favoritos.length})
-        </button>
-        <button style={tabStyle(tab === 'consultas')} onClick={() => setTab('consultas')}>
-          Consultas enviadas ({consultas.length})
-        </button>
-        <button style={tabStyle(tab === 'planes')} onClick={() => setTab('planes')}>
-          Mi Plan
-        </button>
+        <button style={tabStyle(tab === 'favoritos')} onClick={() => setTab('favoritos')}>Favoritos ({favoritos.length})</button>
+        <button style={tabStyle(tab === 'consultas')} onClick={() => setTab('consultas')}>Consultas enviadas ({consultas.length})</button>
+        <button style={tabStyle(tab === 'planes')} onClick={() => setTab('planes')}>Mi Plan</button>
       </div>
 
-      {/* FAVORITOS */}
       {tab === 'favoritos' && (
         <div style={{ padding: '2rem 4rem' }}>
           {favoritos.length === 0 ? (
@@ -97,54 +115,6 @@ export default function MiCuenta() {
         </div>
       )}
 
-      {/* CONSULTAS */}
-      {/* PLANES */}
-      {tab === 'planes' && (
-        <div style={{ padding: '2rem 4rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px' }}>
-            {/* PLAN BASE */}
-            <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Base</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: '#4ade80', lineHeight: 1, marginBottom: '2rem' }}>GRATIS</div>
-              {[
-                '1 publicación activa por 30 días',
-                'Sin prioridad en resultados',
-                'Acceso al catálogo completo',
-                'Consultas directas a agencias',
-                'Guardado de favoritos',
-              ].map(b => (
-                <div key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                  <span style={{ fontSize: '14px', color: 'var(--gray4)' }}>{b}</span>
-                </div>
-              ))}
-              <button className="btn-secondary" style={{ width: '100%', marginTop: '1.5rem' }} onClick={() => window.location.href = '/registro'}>Registrarse gratis</button>
-            </div>
-            {/* EXTRAS */}
-            <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Extras pagos</div>
-              {[
-                { nombre: 'Subir al tope', precio: '$10.000', desc: 'Tu publicación vuelve al primer lugar.', msg: 'Hola! Quiero contratar Subir al tope (particular) en FIORA.MARKET' },
-                { nombre: 'Destacado', precio: '$15.000', desc: 'Fondo diferenciado y badge en el catálogo.', msg: 'Hola! Quiero contratar Destacado (particular) en FIORA.MARKET' },
-                { nombre: 'Urgente', precio: '$20.000', desc: 'Badge rojo "URGENTE", máxima visibilidad.', msg: 'Hola! Quiero contratar Urgente (particular) en FIORA.MARKET' },
-                { nombre: 'Renovar 30 días', precio: '$10.000', desc: 'Extendé tu publicación y volvé arriba.', msg: 'Hola! Quiero renovar mi publicación particular en FIORA.MARKET' },
-              ].map(e => (
-                <div key={e.nombre} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--gray2)' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)', marginBottom: '2px' }}>{e.nombre}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{e.desc}</div>
-                  </div>
-                  <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px', marginLeft: '1rem', flexShrink: 0, color: 'var(--accent)', borderColor: 'var(--accent)' }}
-                    onClick={() => window.open(`https://wa.me/5493874111111?text=${encodeURIComponent(e.msg)}`, '_blank')}>
-                    {e.precio}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       {tab === 'consultas' && (
         <div style={{ padding: '2rem 4rem' }}>
           {consultas.length === 0 ? (
@@ -157,16 +127,12 @@ export default function MiCuenta() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '700px' }}>
               {consultas.map(c => (
                 <Link to={`/auto/${c.auto_id}`} key={c.id} style={{ textDecoration: 'none' }}>
-                  <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', transition: 'border-color .2s', cursor: 'pointer' }}
+                  <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', transition: 'border-color .2s' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray2)'}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <div style={{ fontWeight: 700, color: 'var(--white)', fontSize: '15px' }}>
-                        {c.autos ? `${c.autos.marca} ${c.autos.modelo}` : 'Vehículo'}
-                      </div>
-                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>
-                        {new Date(c.created_at).toLocaleDateString('es-AR')}
-                      </div>
+                      <div style={{ fontWeight: 700, color: 'var(--white)', fontSize: '15px' }}>{c.autos ? `${c.autos.marca} ${c.autos.modelo}` : 'Vehículo'}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</div>
                     </div>
                     <p style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.5 }}>{c.mensaje}</p>
                   </div>
@@ -176,6 +142,59 @@ export default function MiCuenta() {
           )}
         </div>
       )}
+
+      {tab === 'planes' && (
+        <div style={{ padding: '2rem 4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px' }}>
+            <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Base</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: '#4ade80', lineHeight: 1, marginBottom: '2rem' }}>GRATIS</div>
+              {['1 publicación activa por 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias', 'Guardado de favoritos'].map(b => (
+                <div key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                  <span style={{ fontSize: '14px', color: 'var(--gray4)' }}>{b}</span>
+                </div>
+              ))}
+            </div>
+            <ExtrasConMP user={user} />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ExtrasConMP({ user }) {
+  const [paying, setPaying] = useState(null)
+
+  async function pagar(tipo) {
+    setPaying(tipo)
+    await pagarConMP(tipo, user.id)
+    setPaying(null)
+  }
+
+  const extras = [
+    { id: 'subir_tope', nombre: 'Subir al tope', precio: '$10.000', desc: 'Tu publicación vuelve al primer lugar.' },
+    { id: 'destacado_individual', nombre: 'Destacado', precio: '$15.000', desc: 'Fondo diferenciado y badge en el catálogo.' },
+    { id: 'urgente_individual', nombre: 'Urgente', precio: '$20.000', desc: 'Badge rojo "URGENTE", máxima visibilidad.' },
+    { id: 'renovar', nombre: 'Renovar 30 días', precio: '$10.000', desc: 'Extendé tu publicación y volvé arriba.' },
+  ]
+
+  return (
+    <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Extras pagos</div>
+      {extras.map(e => (
+        <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--gray2)' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)', marginBottom: '2px' }}>{e.nombre}</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{e.desc}</div>
+          </div>
+          <button onClick={() => pagar(e.id)} disabled={!!paying}
+            style={{ fontSize: '12px', padding: '6px 14px', marginLeft: '1rem', flexShrink: 0, borderRadius: 'var(--radius)', border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontWeight: 700, cursor: paying ? 'wait' : 'pointer', opacity: paying ? .7 : 1 }}>
+            {paying === e.id ? '...' : e.precio}
+          </button>
+        </div>
+      ))}
     </div>
   )
 }

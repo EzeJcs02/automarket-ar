@@ -48,8 +48,13 @@ export function AuthProvider({ children }) {
         email,
         telefono: datos.telefono,
         ciudad: datos.ciudad,
-        aprobada: false,
+        aprobada: true,
       })
+      fetch('/api/notify-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: datos.nombre, email, telefono: datos.telefono, ciudad: datos.ciudad }),
+      }).catch(() => {})
     }
     return { error: null }
   }

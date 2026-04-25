@@ -25,11 +25,13 @@ export default function MiCuenta() {
   const [favoritos, setFavoritos] = useState([])
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [consultas, setConsultas] = useState([])
+  const [consultasRecibidas, setConsultasRecibidas] = useState([])
   const [misAutos, setMisAutos] = useState([])
   const [pagos, setPagos] = useState([])
   const [tab, setTab] = useState('publicaciones')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editandoAuto, setEditandoAuto] = useState(null)
   const [editandoPerfil, setEditandoPerfil] = useState(false)
   const [perfilForm, setPerfilForm] = useState({ nombre: '', telefono: '' })
   const [savingPerfil, setSavingPerfil] = useState(false)
@@ -66,6 +68,13 @@ export default function MiCuenta() {
     setConsultas(consData || [])
     setMisAutos(autosData || [])
     setPagos(pagosData || [])
+    const autoIds = autosData?.map(a => a.id) || []
+    if (autoIds.length > 0) {
+      const { data: consRecibidas } = await supabase.from('consultas').select('*, autos(marca, modelo)').in('auto_id', autoIds).order('created_at', { ascending: false })
+      setConsultasRecibidas(consRecibidas || [])
+    } else {
+      setConsultasRecibidas([])
+    }
     setLoading(false)
   }
 
@@ -150,6 +159,9 @@ export default function MiCuenta() {
 
       <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button style={tabStyle(tab === 'publicaciones')} onClick={() => { setTab('publicaciones'); setShowForm(false) }}>Mis publicaciones ({misAutos.length})</button>
+        <button style={tabStyle(tab === 'consultas-recibidas')} onClick={() => setTab('consultas-recibidas')}>
+          Consultas recibidas {consultasRecibidas.filter(c => !c.leido).length > 0 && <span style={{ marginLeft: '6px', background: tab === 'consultas-recibidas' ? 'rgba(255,255,255,.3)' : 'var(--accent)', color: 'var(--white)', padding: '1px 7px', borderRadius: '100px', fontSize: '10px' }}>{consultasRecibidas.filter(c => !c.leido).length}</span>}
+        </button>
         <button style={tabStyle(tab === 'consultas')} onClick={() => setTab('consultas')}>Consultas enviadas ({consultas.length})</button>
         <button style={tabStyle(tab === 'favoritos')} onClick={() => setTab('favoritos')}>Favoritos ({favoritos.length})</button>
         <button
@@ -173,6 +185,25 @@ export default function MiCuenta() {
                 <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={toggleFavorito} />
               ))}
             </div>
+          )}
+        </div>
+      )}
+
+      {editandoAuto && (
+        <EditarAutoModal auto={editandoAuto} onClose={() => setEditandoAuto(null)} onSave={() => { setEditandoAuto(null); fetchData() }} />
+      )}
+
+      {tab === 'consultas-recibidas' && (
+        <div style={{ padding: '2rem 4rem' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>CONSULTAS RECIBIDAS</div>
+          <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '2rem' }}>Mensajes de interesados en tus publicaciones.</div>
+          {consultasRecibidas.length === 0 ? (
+            <div style={{ padding: '5rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1rem' }}>SIN CONSULTAS AÚN</div>
+              <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Cuando alguien contacte tus publicaciones, aparecerá aquí.</p>
+            </div>
+          ) : (
+            <ConsultasRecibidasList consultas={consultasRecibidas} onRead={fetchData} />
           )}
         </div>
       )}
@@ -284,6 +315,7 @@ export default function MiCuenta() {
                         <Link to={`/auto/${a.id}`} style={{ textDecoration: 'none' }}>
                           <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px' }}>Ver →</button>
                         </Link>
+                        <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => setEditandoAuto(a)}>Editar</button>
                         <button onClick={() => despublicar(a.id)} style={{ fontSize: '12px', padding: '6px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(230,51,41,.4)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer' }}>Eliminar</button>
                       </div>
                     </div>
@@ -428,6 +460,144 @@ function PublicarForm({ user, onSuccess, onCancel }) {
         </button>
       </form>
     </div>
+  )
+}
+
+function EditarAutoModal({ auto, onClose, onSave }) {
+  const [form, setForm] = useState({
+    marca: auto.marca || '', modelo: auto.modelo || '', anio: auto.anio || '', kilometraje: auto.kilometraje || '',
+    tipo: auto.tipo || 'usado', categoria: auto.categoria || '', combustible: auto.combustible || 'Nafta',
+    transmision: auto.transmision || 'Manual', color: auto.color || '', precio_ars: auto.precio_ars || '',
+    descripcion: auto.descripcion || '', whatsapp: auto.whatsapp || '',
+  })
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const setF = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  async function handleSave(e) {
+    e.preventDefault()
+    setSaving(true)
+    setError('')
+    const { error: err } = await supabase.from('autos').update({
+      marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
+      kilometraje: parseInt(form.kilometraje) || 0, tipo: form.tipo,
+      categoria: form.categoria || null, combustible: form.combustible,
+      transmision: form.transmision, color: form.color,
+      precio_ars: form.precio_ars || null, descripcion: form.descripcion,
+      whatsapp: form.whatsapp || null,
+    }).eq('id', auto.id)
+    setSaving(false)
+    if (err) setError(err.message)
+    else onSave()
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '620px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--gray2)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>EDITAR PUBLICACIÓN</div>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+        </div>
+        {error && <div style={{ background: 'rgba(230,51,41,.1)', border: '1px solid rgba(230,51,41,.3)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--accent)', fontSize: '13px', marginBottom: '1rem' }}>{error}</div>}
+        <form onSubmit={handleSave}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-field"><label>Marca *</label><input type="text" required value={form.marca} onChange={e => setF('marca', e.target.value)} /></div>
+            <div className="form-field"><label>Modelo *</label><input type="text" required value={form.modelo} onChange={e => setF('modelo', e.target.value)} /></div>
+            <div className="form-field"><label>Año *</label><input type="number" required value={form.anio} onChange={e => setF('anio', e.target.value)} /></div>
+            <div className="form-field"><label>Kilometraje *</label><input type="number" required min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} /></div>
+            <div className="form-field"><label>Condición *</label><select required value={form.tipo} onChange={e => setF('tipo', e.target.value)}><option value="usado">Usado</option><option value="nuevo">0KM / Nuevo</option></select></div>
+            <div className="form-field"><label>Categoría</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)}><option value="">— Seleccionar —</option><optgroup label="Autos"><option value="Sedan">Sedán</option><option value="SUV">SUV</option><option value="Pickup">Pickup</option><option value="Hatchback">Hatchback</option><option value="Camioneta">Camioneta</option><option value="Deportivo">Deportivo</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Cruiser">Cruiser</option><option value="Enduro">Enduro</option><option value="Scooter">Scooter</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Yate">Yate</option><option value="Jet Ski">Jet Ski</option></optgroup></select></div>
+            <div className="form-field"><label>Combustible *</label><select required value={form.combustible} onChange={e => setF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+            <div className="form-field"><label>Transmisión *</label><select required value={form.transmision} onChange={e => setF('transmision', e.target.value)}><option>Manual</option><option>Automática</option></select></div>
+            <div className="form-field"><label>Color *</label><input type="text" required placeholder="Ej: Blanco" value={form.color} onChange={e => setF('color', e.target.value)} /></div>
+            <div className="form-field"><label>Precio ARS *</label><input type="number" required value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} /></div>
+            <div className="form-field"><label>WhatsApp</label><input type="tel" placeholder="Ej: 3874123456" value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} /></div>
+          </div>
+          <div className="form-field" style={{ marginTop: '1rem' }}><label>Descripción</label><textarea rows={3} value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: 'var(--white)', padding: '10px 12px', fontSize: '14px', resize: 'vertical' }} /></div>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
+            <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancelar</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function ConsultasRecibidasList({ consultas, onRead }) {
+  const [detalle, setDetalle] = useState(null)
+
+  async function verDetalle(c) {
+    setDetalle(c)
+    if (!c.leido) {
+      await supabase.from('consultas').update({ leido: true }).eq('id', c.id)
+      onRead()
+    }
+  }
+
+  return (
+    <>
+      {detalle && (
+        <div onClick={() => setDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
+              <button onClick={() => setDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+            </div>
+            <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1.25rem', marginBottom: '1.5rem' }}>
+              <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Vehículo</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--white)' }}>{detalle.autos?.marca} {detalle.autos?.modelo}</div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Nombre</div>
+                <div style={{ fontSize: '14px', color: 'var(--white)' }}>{detalle.nombre_comprador}</div>
+              </div>
+              <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Email</div>
+                <div style={{ fontSize: '14px', color: 'var(--accent)', wordBreak: 'break-all' }}>{detalle.email_comprador}</div>
+              </div>
+            </div>
+            <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1.25rem', marginBottom: '2rem' }}>
+              <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '8px' }}>Mensaje</div>
+              <p style={{ fontSize: '14px', color: 'var(--white)', lineHeight: 1.7 }}>{detalle.mensaje}</p>
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '1.5rem', fontFamily: 'var(--font-mono)' }}>
+              {new Date(detalle.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </div>
+            {detalle.email_comprador && (
+              <button className="btn-primary" style={{ width: '100%' }}
+                onClick={() => window.open(`mailto:${detalle.email_comprador}?subject=Re: ${detalle.autos?.marca} ${detalle.autos?.modelo}&body=Hola ${detalle.nombre_comprador},%0D%0A%0D%0A`)}>
+                Responder por email
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: 'var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', maxWidth: '800px' }}>
+        {consultas.map(c => (
+          <div key={c.id} onClick={() => verDetalle(c)}
+            style={{ background: c.leido ? 'var(--gray1)' : '#0d0d0d', padding: '1.25rem 1.5rem', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', transition: 'background .2s' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#1a1a1a'}
+            onMouseLeave={e => e.currentTarget.style.background = c.leido ? 'var(--gray1)' : '#0d0d0d'}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+              {!c.leido && <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />}
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span style={{ fontWeight: c.leido ? 500 : 700, color: 'var(--white)', fontSize: '14px' }}>{c.autos?.marca} {c.autos?.modelo}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--gray4)' }}>— {c.nombre_comprador}</span>
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--gray4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '400px' }}>{c.mensaje}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+              <span style={{ fontSize: '12px', color: 'var(--gray5)', fontFamily: 'var(--font-mono)' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</span>
+              <span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>Ver →</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   )
 }
 

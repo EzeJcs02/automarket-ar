@@ -118,7 +118,7 @@ export default function Panel() {
       <div style={{ flex: 1, padding: '3rem 4rem', overflowY: 'auto' }}>
         {loading ? <div className="spinner" /> : (
           <>
-            {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}
+            {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}
             {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} concesionaria={concesionaria} />}
             {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
             {tab === 'consultas' && <Consultas consultas={consultas} reload={loadData} />}
@@ -176,24 +176,22 @@ function UpgradeModal({ onClose }) {
   )
 }
 
-function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado, setTab }) {
+function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAlcanzado, setTab }) {
   const { user } = useAuth()
   const [consultaDetalle, setConsultaDetalle] = useState(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [paying, setPaying] = useState(null)
+
+  const ultimoPagoPlan = pagos?.filter(p => p.tipo?.startsWith('plan_') && p.estado === 'approved')
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+  const planExpira = ultimoPagoPlan ? new Date(new Date(ultimoPagoPlan.created_at).getTime() + 30 * 86400000) : null
+  const diasRestantes = planExpira ? Math.ceil((planExpira - new Date()) / 86400000) : null
 
   async function contratarPlan(plan_id) {
     setPaying(plan_id)
     await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
     setPaying(null)
   }
-
-  if (!concesionaria?.aprobada) return (
-    <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', border: '1px solid rgba(201,168,76,.3)', maxWidth: '600px' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--gold)', marginBottom: '1rem' }}>CUENTA EN REVISIÓN</div>
-      <p style={{ color: 'var(--gray4)', fontSize: '15px', lineHeight: 1.7 }}>Tu perfil comercial está siendo validado por el equipo de FIORA.MARKET. Recibirás un correo cuando puedas comenzar a publicar stock.</p>
-    </div>
-  )
 
   return (
     <div>
@@ -251,12 +249,28 @@ function Dashboard({ autos, consultas, concesionaria, esPremium, limiteAlcanzado
               {LIMITES_PLAN[concesionaria?.plan || 'free'] !== Infinity && ` / ${LIMITES_PLAN[concesionaria?.plan || 'free']} permitidos`}
               {LIMITES_PLAN[concesionaria?.plan || 'free'] === Infinity && ' · Sin límite'}
             </div>
+            {planExpira && (
+              <div style={{ fontSize: '12px', marginTop: '6px', color: diasRestantes !== null && diasRestantes <= 7 ? '#e0a020' : 'var(--gray4)' }}>
+                {diasRestantes !== null && diasRestantes > 0
+                  ? `Vence en ${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} · ${planExpira.toLocaleDateString('es-AR')}`
+                  : <span style={{ color: 'var(--accent)', fontWeight: 700 }}>Plan vencido · Renovar para mantener beneficios</span>
+                }
+              </div>
+            )}
           </div>
-          {concesionaria?.plan !== 'premium' && (
-            <button onClick={() => setShowUpgrade(true)} style={{ background: 'var(--accent)', border: 'none', color: 'var(--white)', padding: '10px 20px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
-              Mejorar plan →
-            </button>
-          )}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {planExpira && diasRestantes !== null && diasRestantes <= 7 && (
+              <button onClick={() => contratarPlan(concesionaria?.plan)} disabled={!!paying}
+                style={{ background: diasRestantes <= 0 ? 'var(--accent)' : 'rgba(224,160,32,.2)', border: `1px solid ${diasRestantes <= 0 ? 'var(--accent)' : '#e0a020'}`, color: diasRestantes <= 0 ? 'var(--white)' : '#e0a020', padding: '10px 18px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: paying ? 'wait' : 'pointer', opacity: paying ? .7 : 1 }}>
+                {paying === concesionaria?.plan ? 'Procesando...' : 'Renovar plan →'}
+              </button>
+            )}
+            {concesionaria?.plan !== 'premium' && (
+              <button onClick={() => setShowUpgrade(true)} style={{ background: 'var(--accent)', border: 'none', color: 'var(--white)', padding: '10px 20px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                Mejorar plan →
+              </button>
+            )}
+          </div>
         </div>
         {/* PLANES DISPONIBLES */}
         {concesionaria?.plan !== 'premium' && (
@@ -525,7 +539,6 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!concesionaria?.aprobada) { setError('Tu cuenta debe estar aprobada para publicar.'); return }
     if (limiteAlcanzado) { setShowUpgrade(true); return }
     if (fotos.length < 5) { setError('Debés subir mínimo 5 fotos.'); return }
     setLoading(true)

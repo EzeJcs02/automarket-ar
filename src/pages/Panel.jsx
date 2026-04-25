@@ -442,33 +442,48 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                   <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
                     {a.vistas || 0}
                   </td>
-                  <td style={{ padding: '16px 20px' }}>
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                  <td style={{ padding: '12px 20px' }}>
+                    <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                       <button onClick={() => toggleDestacado(a)}
-                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
-                          background: a.destacado ? 'rgba(201,168,76,.25)' : 'rgba(255,255,255,.08)',
+                        title={a.destacado ? 'Quitar destacado' : 'Destacar vehículo (incluido en plan o pago)'}
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: `1px solid ${a.destacado ? 'rgba(201,168,76,.5)' : 'var(--gray2)'}`, cursor: 'pointer', transition: 'all .15s', letterSpacing: '.03em',
+                          background: a.destacado ? 'rgba(201,168,76,.15)' : 'transparent',
                           color: a.destacado ? '#c9a84c' : 'var(--gray4)' }}>
-                        ★ Destacar
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill={a.destacado ? '#c9a84c' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        Destacar
                       </button>
                       <button onClick={() => toggleUrgente(a)}
-                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .2s',
-                          background: a.urgente ? 'rgba(230,51,41,.25)' : 'rgba(255,255,255,.08)',
+                        title={a.urgente ? 'Quitar urgente' : 'Marcar como urgente'}
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: `1px solid ${a.urgente ? 'rgba(230,51,41,.5)' : 'var(--gray2)'}`, cursor: 'pointer', transition: 'all .15s', letterSpacing: '.03em',
+                          background: a.urgente ? 'rgba(230,51,41,.15)' : 'transparent',
                           color: a.urgente ? 'var(--accent)' : 'var(--gray4)' }}>
-                        ⚡ Urgente
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill={a.urgente ? 'var(--accent)' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Urgente
                       </button>
                       <button onClick={() => { if (confirm(`¿Subir "${a.marca} ${a.modelo}" al tope por $10.000?`)) pagarConMP('subir_tope', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
-                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,.08)', color: 'var(--gray4)', transition: 'all .2s' }}>
-                        ↑ Tope
+                        title="Subir al tope del catálogo — $10.000"
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                        Tope
                       </button>
                       <button onClick={() => { if (confirm(`¿Renovar "${a.marca} ${a.modelo}" por 30 días más por $10.000?`)) pagarConMP('renovar', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
-                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,.08)', color: 'var(--gray4)', transition: 'all .2s' }}>
-                        ↺ Renovar
+                        title="Renovar publicación 30 días — $10.000"
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+                        Renovar
                       </button>
-                      {!a.fijado_home && (
+                      {!a.fijado_home ? (
                         <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $80.000/mes?`)) pagarConMP('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
-                          style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,.08)', color: 'var(--gray4)', transition: 'all .2s' }}>
-                          📌 Fijar Home
+                          title="Fijar en página de inicio — $80.000/mes"
+                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          Fijar
                         </button>
+                      ) : (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(74,222,128,.3)', background: 'rgba(74,222,128,.08)', color: '#4ade80', letterSpacing: '.03em' }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          Fijado
+                        </span>
                       )}
                     </div>
                   </td>

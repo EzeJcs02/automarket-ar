@@ -24,6 +24,7 @@ export function Concesionarias() {
   const navigate = useNavigate()
   const [lista, setLista] = useState([])
   const [loading, setLoading] = useState(true)
+  const [busqueda, setBusqueda] = useState('')
 
   useEffect(() => {
     setPageMeta({ title: 'Concesionarias', description: 'Encontrá la concesionaria ideal. Red de agencias verificadas en toda Argentina con catálogo online, reseñas y contacto directo.', path: '/concesionarias' })
@@ -33,21 +34,36 @@ export function Concesionarias() {
     })
   }, [])
 
+  const filtradas = busqueda.trim()
+    ? lista.filter(c =>
+        c.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+        c.ciudad?.toLowerCase().includes(busqueda.toLowerCase())
+      )
+    : lista
+
   return (
     <div className="page-wrapper">
       <div style={{ padding: '4rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.5rem' }}>CONCESIONARIAS</div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
-          {loading ? 'Cargando...' : `${lista.length} concesionarias adheridas`}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
+            {loading ? 'Cargando...' : `${filtradas.length} de ${lista.length} concesionarias`}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px', maxWidth: '320px', flex: 1 }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
+            {busqueda && <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>}
+          </div>
         </div>
       </div>
       <div style={{ padding: '2rem 4rem' }}>
         {loading
           ? <div className="spinner" />
-          : lista.length === 0
-            ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay concesionarias registradas.</p>
+          : filtradas.length === 0
+            ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>{lista.length === 0 ? 'Todavía no hay concesionarias registradas.' : 'No hay concesionarias que coincidan con la búsqueda.'}</p>
             : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: '1px', background: 'var(--gray2)' }}>
-                {lista.map((c, i) => (
+                {filtradas.map((c, i) => (
                   <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
                     style={{ background: 'var(--gray1)', padding: '1.5rem', cursor: 'pointer', transition: 'background .2s' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#222'}

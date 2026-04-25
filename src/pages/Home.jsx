@@ -13,6 +13,7 @@ export default function Home() {
   const [banners, setBanners] = useState([])
   const [autoFijado, setAutoFijado] = useState(null)
   const [rightIdx, setRightIdx] = useState(0)
+  const [bottomIdx, setBottomIdx] = useState(0)
 
   useEffect(() => {
     document.title = 'FIORA.MARKET — Vehículos nuevos y usados en Argentina'
@@ -23,9 +24,15 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const t = setInterval(() => setRightIdx(i => i + 1), 3000)
+    const t = setInterval(() => setRightIdx(i => i + 1), 3500)
     return () => clearInterval(t)
   }, [])
+
+  useEffect(() => {
+    if (banners.length === 0) return
+    const t = setInterval(() => setBottomIdx(i => (i + 1) % Math.max(banners.length, 1)), 4000)
+    return () => clearInterval(t)
+  }, [banners.length])
 
   const colors = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
@@ -45,16 +52,19 @@ export default function Home() {
 
   return (
     <div>
-      {/* HERO */}
-      <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem', overflow: 'hidden' }}>
+      {/* HERO + ADS DERECHA */}
+      <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', overflow: 'hidden' }}>
+        {/* Backgrounds */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, opacity: .04, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
-        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.15) 0%, transparent 70%)' }} />
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', top: '-100px', right: '200px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.15) 0%, transparent 70%)' }} />
+
+        {/* Hero content */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem', position: 'relative' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
             Plataforma N°1 de vehículos en Argentina
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,10vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,8vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span>
           </h1>
           <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
@@ -69,19 +79,18 @@ export default function Home() {
             <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{concesionarias.length > 0 ? concesionarias.length : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Concesionarias</div></div>
           </div>
         </div>
-      </div>
 
-      {/* PUBLICIDAD INFERIOR — 10 slots estáticos */}
-      <div style={{ borderBottom: '1px solid var(--gray2)', padding: '10px 2rem 10px' }}>
-        <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', marginBottom: '6px' }}>PUBLICIDAD</div>
-        <div style={{ display: 'flex', gap: '4px', overflowX: 'auto' }}>
-          {Array.from({ length: 10 }, (_, i) => {
-            const b = banners[i] || null
+        {/* ADS DERECHA — 6 slots integrados */}
+        <div className="hero-ads-right" style={{ width: '180px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
+          <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
+          {Array.from({ length: 6 }, (_, i) => {
+            const idx = banners.length > 0 ? (rightIdx + i) % banners.length : -1
+            const b = idx >= 0 ? banners[idx] : null
             return (
-              <div key={i} style={{ flexShrink: 0, width: '160px', height: '90px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div key={i} style={{ flex: 1, overflow: 'hidden', borderBottom: i < 5 ? '1px solid var(--gray2)' : 'none', position: 'relative' }}>
                 {b?.portada_url
-                  ? <img src={b.portada_url} alt={b.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : <div style={{ fontSize: '9px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.1em', textAlign: 'center', lineHeight: 1.6 }}>ESPACIO<br/>PUBLICITARIO</div>
+                  ? <img src={b.portada_url} alt={b.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: 'var(--gray2)', textTransform: 'uppercase', letterSpacing: '.1em', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
                 }
               </div>
             )
@@ -89,21 +98,33 @@ export default function Home() {
         </div>
       </div>
 
-      {/* PUBLICIDAD LATERAL DERECHA — 5 slots cycling */}
-      <div className="right-ad-strip">
-        <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', marginBottom: '4px' }}>ADS</div>
-        {Array.from({ length: 5 }, (_, i) => {
-          const idx = banners.length > 0 ? (rightIdx + i) % banners.length : -1
-          const b = idx >= 0 ? banners[idx] : null
-          return (
-            <div key={i} style={{ width: '130px', height: '85px', background: 'var(--gray1)', border: '1px solid var(--gray2)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2px', transition: 'opacity .5s' }}>
-              {b?.portada_url
+      {/* PUBLICIDAD INFERIOR — 1 banner dinámico cycling */}
+      <div style={{ borderBottom: '1px solid var(--gray2)', background: '#050505' }}>
+        <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', padding: '8px 2rem 6px', textTransform: 'uppercase' }}>Publicidad</div>
+        <div style={{ position: 'relative', height: '130px', overflow: 'hidden' }}>
+          {banners.length > 0 ? banners.map((b, i) => (
+            <div key={b.id} style={{ position: 'absolute', inset: 0, opacity: i === bottomIdx ? 1 : 0, transition: 'opacity .8s ease-in-out', pointerEvents: i === bottomIdx ? 'auto' : 'none' }}>
+              {b.portada_url
                 ? <img src={b.portada_url} alt={b.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <div style={{ fontSize: '8px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.08em', textAlign: 'center', lineHeight: 1.6, padding: '4px' }}>ESPACIO<br/>PUBLICITARIO</div>
+                : <div style={{ width: '100%', height: '100%', background: 'var(--gray1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.1em' }}>{b.nombre}</div>
               }
             </div>
-          )
-        })}
+          )) : (
+            <div style={{ width: '100%', height: '100%', background: 'var(--gray1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+              {Array.from({ length: 10 }, (_, i) => (
+                <div key={i} style={{ width: '120px', height: '90px', border: '1px dashed var(--gray2)', borderRadius: 'var(--radius)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.1em', textAlign: 'center', lineHeight: 1.8, flexShrink: 0 }}>ESPACIO<br/>PUBLICITARIO</div>
+              ))}
+            </div>
+          )}
+          {/* dots */}
+          {banners.length > 1 && (
+            <div style={{ position: 'absolute', bottom: '6px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px' }}>
+              {banners.map((_, i) => (
+                <div key={i} onClick={() => setBottomIdx(i)} style={{ width: i === bottomIdx ? '18px' : '6px', height: '6px', borderRadius: '100px', background: i === bottomIdx ? 'var(--white)' : 'rgba(255,255,255,.3)', cursor: 'pointer', transition: 'all .3s' }} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* VEHÍCULO FIJADO */}

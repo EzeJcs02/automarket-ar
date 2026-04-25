@@ -451,6 +451,20 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                           color: a.urgente ? 'var(--accent)' : 'var(--gray4)' }}>
                         ⚡ Urgente
                       </button>
+                      <button onClick={() => { if (confirm(`¿Subir "${a.marca} ${a.modelo}" al tope por $10.000?`)) pagarConMP('subir_tope', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,.08)', color: 'var(--gray4)', transition: 'all .2s' }}>
+                        ↑ Tope
+                      </button>
+                      <button onClick={() => { if (confirm(`¿Renovar "${a.marca} ${a.modelo}" por 30 días más por $10.000?`)) pagarConMP('renovar', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                        style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,.08)', color: 'var(--gray4)', transition: 'all .2s' }}>
+                        ↺ Renovar
+                      </button>
+                      {!a.fijado_home && (
+                        <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $80.000/mes?`)) pagarConMP('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                          style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,.08)', color: 'var(--gray4)', transition: 'all .2s' }}>
+                          📌 Fijar Home
+                        </button>
+                      )}
                     </div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>

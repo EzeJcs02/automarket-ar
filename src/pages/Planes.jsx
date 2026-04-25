@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-
-const WA = 'https://wa.me/5493874111111'
+import { useAuth } from '../context/AuthContext'
 
 const PLANES = [
   {
@@ -17,7 +16,6 @@ const PLANES = [
       'Renovación paga disponible',
     ],
     noIncluye: ['Destacados incluidos', 'Mejor posicionamiento', 'Badge verificada'],
-    msg: 'Hola! Quiero contratar el Plan Básico de FIORA.MARKET ($30.000/mes)',
   },
   {
     id: 'pro',
@@ -35,7 +33,6 @@ const PLANES = [
       'Renovación paga disponible',
     ],
     noIncluye: ['Destacados ilimitados', 'Badge verificada'],
-    msg: 'Hola! Quiero contratar el Plan Pro de FIORA.MARKET ($70.000/mes)',
   },
   {
     id: 'premium',
@@ -53,7 +50,6 @@ const PLANES = [
       'Renovación paga disponible',
     ],
     noIncluye: [],
-    msg: 'Hola! Quiero contratar el Plan Premium de FIORA.MARKET ($150.000/mes)',
   },
 ]
 
@@ -97,12 +93,14 @@ const BOOSTS = [
 const PUBLICIDAD = [
   {
     nombre: 'Banner en Home',
+    tipo: 'banner_home',
     precio: '120.000',
     desc: 'Tu banner publicitario visible en la página de inicio por 30 días.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
   },
   {
     nombre: 'Vehículo fijado en Home',
+    tipo: 'fijado_home',
     precio: '80.000',
     desc: 'Tu vehículo aparece fijo en la sección destacada del inicio por 30 días.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
@@ -125,8 +123,64 @@ function XIcon() {
   )
 }
 
+async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}) {
+  try {
+    const res = await fetch('/api/mp-create-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo, auto_id, concesionaria_id, user_id, user_email, origen: 'planes' }),
+    })
+    const data = await res.json()
+    if (data.init_point) window.location.href = data.init_point
+    else alert('Error al iniciar el pago. Intente nuevamente.')
+  } catch {
+    alert('Error de conexión. Intente nuevamente.')
+  }
+}
+
 export default function Planes() {
   const navigate = useNavigate()
+  const { user, concesionaria } = useAuth()
+
+  function handlePlan(planId) {
+    if (concesionaria) {
+      pagarConMP(`plan_${planId}`, {
+        concesionaria_id: concesionaria.id,
+        user_id: user?.id,
+        user_email: user?.email,
+      })
+    } else {
+      navigate('/login')
+    }
+  }
+
+  function handleBannerHome() {
+    if (concesionaria) {
+      pagarConMP('banner_home', {
+        concesionaria_id: concesionaria.id,
+        user_id: user?.id,
+        user_email: user?.email,
+      })
+    } else {
+      navigate('/login')
+    }
+  }
+
+  function handleBoost() {
+    if (concesionaria) navigate('/panel')
+    else if (user) navigate('/mi-cuenta')
+    else navigate('/login')
+  }
+
+  function handleFijadoHome() {
+    if (concesionaria) navigate('/panel')
+    else navigate('/login')
+  }
+
+  function handleExtrasIndividual() {
+    if (user) navigate('/mi-cuenta')
+    else navigate('/login')
+  }
 
   return (
     <div className="page-wrapper">
@@ -201,7 +255,7 @@ export default function Planes() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => window.open(`${WA}?text=${encodeURIComponent(p.msg)}`, '_blank')}
+                  onClick={() => handlePlan(p.id)}
                   className={p.id === 'premium' ? 'btn-primary' : ''}
                   style={{
                     width: '100%', padding: '14px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'opacity .2s', letterSpacing: '.04em',
@@ -210,7 +264,7 @@ export default function Planes() {
                   }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-                  Contratar por WhatsApp →
+                  {concesionaria ? 'Contratar con MercadoPago →' : 'Iniciar sesión para contratar →'}
                 </button>
               </div>
             )
@@ -290,11 +344,11 @@ export default function Planes() {
               ))}
             </div>
             <button
-              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero comprar un boost para mi publicación en FIORA.MARKET')}`, '_blank')}
+              onClick={handleExtrasIndividual}
               style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: 'var(--gray4)', fontSize: '13px', cursor: 'pointer', transition: 'all .2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
-              Consultar por WhatsApp →
+              {user ? 'Ir a Mi Cuenta →' : 'Iniciar sesión para comprar →'}
             </button>
           </div>
         </div>
@@ -313,11 +367,11 @@ export default function Planes() {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>${b.precio}</div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '1.5rem' }}>{b.desc}</div>
               <button
-                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero comprar "${b.nombre}" ($${b.precio}) para mi agencia en FIORA.MARKET`)}`, '_blank')}
+                onClick={handleBoost}
                 style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--gray4)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', cursor: 'pointer', transition: 'all .2s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
-                Consultar →
+                {concesionaria ? 'Ir al Panel →' : user ? 'Ir a Mi Cuenta →' : 'Iniciar sesión →'}
               </button>
             </div>
           ))}
@@ -339,12 +393,14 @@ export default function Planes() {
               </div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>{p.desc}</div>
               <button
-                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero contratar "${p.nombre}" ($${p.precio}/mes) en FIORA.MARKET`)}`, '_blank')}
+                onClick={() => p.tipo === 'banner_home' ? handleBannerHome() : handleFijadoHome()}
                 className="btn-primary"
                 style={{ width: '100%' }}
                 onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
                 onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-                Consultar por WhatsApp →
+                {concesionaria
+                  ? p.tipo === 'banner_home' ? 'Contratar con MercadoPago →' : 'Seleccionar vehículo en Panel →'
+                  : 'Iniciar sesión para contratar →'}
               </button>
             </div>
           ))}
@@ -381,13 +437,18 @@ export default function Planes() {
             ¿LISTO PARA<br /><span style={{ color: 'var(--accent)' }}>EMPEZAR?</span>
           </div>
           <p style={{ fontSize: '16px', color: 'var(--gray4)', marginBottom: '2.5rem', maxWidth: '480px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
-            Contactanos por WhatsApp y te ayudamos a elegir el plan ideal para tu agencia.
+            Creá tu cuenta y empezá a vender hoy mismo.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn-primary" style={{ fontSize: '15px', padding: '15px 36px' }}
-              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero más información sobre los planes de FIORA.MARKET')}`, '_blank')}>
-              Consultar por WhatsApp →
-            </button>
+            {concesionaria ? (
+              <button className="btn-primary" style={{ fontSize: '15px', padding: '15px 36px' }} onClick={() => navigate('/panel')}>
+                Ir al Panel →
+              </button>
+            ) : (
+              <button className="btn-primary" style={{ fontSize: '15px', padding: '15px 36px' }} onClick={() => navigate('/login')}>
+                Iniciar sesión →
+              </button>
+            )}
             <button className="btn-secondary" style={{ fontSize: '15px', padding: '15px 36px' }} onClick={() => navigate('/registro')}>
               Crear cuenta gratis
             </button>

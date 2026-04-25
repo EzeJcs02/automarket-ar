@@ -1,12 +1,25 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
 export default function Navbar() {
   const { user, concesionaria, signOut, isAdmin } = useAuth()
   const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [noLeidas, setNoLeidas] = useState(0)
+
+  useEffect(() => {
+    if (!concesionaria) return
+    supabase.from('consultas').select('id', { count: 'exact' }).eq('concesionaria_id', concesionaria.id).eq('leido', false)
+      .then(({ count }) => setNoLeidas(count || 0))
+    const channel = supabase.channel('consultas-badge')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'consultas', filter: `concesionaria_id=eq.${concesionaria.id}` },
+        () => setNoLeidas(n => n + 1))
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [concesionaria])
 
   async function handleSignOut() {
     await signOut()
@@ -73,7 +86,16 @@ export default function Navbar() {
                 </>
               )}
               {(isAdmin || concesionaria) && (
-                <Link to={isAdmin ? '/admin' : '/panel'}><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>{isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}</button></Link>
+                <Link to={isAdmin ? '/admin' : '/panel'}>
+                  <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px', position: 'relative' }}>
+                    {isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}
+                    {noLeidas > 0 && (
+                      <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '10px', fontWeight: 700, padding: '2px 6px', minWidth: '18px', textAlign: 'center', lineHeight: 1.4 }}>
+                        {noLeidas > 99 ? '99+' : noLeidas}
+                      </span>
+                    )}
+                  </button>
+                </Link>
               )}
               <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }} onClick={handleSignOut}>Salir</button>
             </div>
@@ -112,7 +134,14 @@ export default function Navbar() {
                 </>
               )}
               {(isAdmin || concesionaria) && (
-                <Link to={isAdmin ? '/admin' : '/panel'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>{isAdmin ? 'Panel Admin' : 'Mi Panel'}</Link>
+                <Link to={isAdmin ? '/admin' : '/panel'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {isAdmin ? 'Panel Admin' : 'Mi Panel'}
+                  {noLeidas > 0 && (
+                    <span style={{ background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '12px', fontWeight: 700, padding: '2px 8px' }}>
+                      {noLeidas > 99 ? '99+' : noLeidas}
+                    </span>
+                  )}
+                </Link>
               )}
               <button onClick={handleSignOut} style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '14px', borderRadius: 'var(--radius)', fontSize: '15px', cursor: 'pointer', marginTop: 'auto' }}>Cerrar sesión</button>
             </>

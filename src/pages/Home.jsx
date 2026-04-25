@@ -364,7 +364,7 @@ export default function Home() {
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               
               {/* ACÁ ESTÁ EL ICONO DE INSTAGRAM MODIFICADO */}
-              <a href="https://www.instagram.com/fiora.market?igsh=MW1jZGR1bXF5em52bw%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', textDecoration: 'none', cursor: 'pointer', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E1306C'} onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
+              <a href="https://www.instagram.com/fiora.market?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', textDecoration: 'none', cursor: 'pointer', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E1306C'} onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
                 ig
               </a>
 

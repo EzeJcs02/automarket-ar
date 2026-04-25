@@ -693,6 +693,28 @@ function Consultas({ consultas, reload }) {
             {consultas.length > 0 && ` · ${consultas.length} en total`}
           </div>
         </div>
+        {consultas.length > 0 && (
+          <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '12px' }}
+            onClick={() => {
+              const header = 'Fecha,Vehículo,Nombre,Email,Mensaje,Leída'
+              const rows = consultas.map(c => [
+                new Date(c.created_at).toLocaleDateString('es-AR'),
+                `"${c.autos?.marca || ''} ${c.autos?.modelo || ''}"`,
+                `"${c.nombre_comprador || ''}"`,
+                c.email_comprador || '',
+                `"${(c.mensaje || '').replace(/"/g, '""')}"`,
+                c.leido ? 'Sí' : 'No'
+              ].join(','))
+              const csv = [header, ...rows].join('\n')
+              const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url; a.download = `consultas-${new Date().toISOString().slice(0,10)}.csv`
+              a.click(); URL.revokeObjectURL(url)
+            }}>
+            Exportar CSV ↓
+          </button>
+        )}
       </div>
 
       {consultas.length === 0

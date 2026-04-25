@@ -133,3 +133,84 @@ input, select, textarea { font-family: var(--font-body); }
   animation: spin .7s linear infinite; margin: 4rem auto; display: block;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVE MOBILE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Reducir padding general en page-wrapper */
+  .page-wrapper { padding-top: 58px; }
+
+  /* Botones full-width en mobile cuando están solos */
+  .btn-primary, .btn-secondary { padding: 12px 20px; font-size: 13px; }
+
+  /* Car cards en mobile */
+  .car-img-placeholder, .car-img-real { height: 200px; }
+
+  /* Formularios */
+  .form-field input, .form-field select, .form-field textarea { font-size: 16px; /* evita zoom en iOS */ }
+}
+
+/* Panel responsive — sidebar collapsa arriba en mobile */
+@media (max-width: 900px) {
+  .panel-layout {
+    flex-direction: column !important;
+  }
+  .panel-sidebar {
+    width: 100% !important;
+    min-height: unset !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--gray2);
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    padding: 1rem !important;
+    gap: 8px;
+  }
+  .panel-sidebar .sidebar-nav { flex-direction: row !important; flex-wrap: wrap; gap: 4px; }
+  .panel-content { padding: 1.5rem !important; }
+}
+
+/* AutoDetalle — stacks on mobile */
+@media (max-width: 900px) {
+  .autodetalle-layout {
+    flex-direction: column !important;
+  }
+  .autodetalle-sidebar {
+    position: static !important;
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid var(--gray2);
+    padding: 1.5rem !important;
+  }
+  .autodetalle-photos { padding: 1rem !important; }
+}
+
+/* Catálogo — filtros arriba en mobile */
+@media (max-width: 768px) {
+  .catalogo-layout {
+    flex-direction: column !important;
+  }
+  .catalogo-filters {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--gray2);
+    padding: 1rem !important;
+  }
+  .catalogo-results { padding: 1rem !important; }
+}
+
+/* Home sections */
+@media (max-width: 768px) {
+  .home-hero { padding: 3rem 1.5rem !important; }
+  .home-section { padding: 3rem 1.5rem !important; }
+  .home-grid-2 { grid-template-columns: 1fr !important; }
+  .home-grid-3 { grid-template-columns: 1fr !important; }
+  .home-guide-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Navbar mobile */
+@media (max-width: 768px) {
+  .nav-desktop { display: none !important; }
+  .nav-hamburger { display: flex !important; }
+}
+@media (min-width: 769px) {
+  .nav-hamburger { display: none !important; }
+}

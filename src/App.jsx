@@ -1,5 +1,6 @@
 import Arrepentimiento from './pages/Arrepentimiento'
 import Legales from './pages/Legales'
+import NotFound from './pages/NotFound'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
@@ -37,6 +38,7 @@ export default function App() {
                 <Route path="/mi-cuenta" element={<MiCuenta />} />
                 <Route path="/legales" element={<Legales />} />
                 <Route path="/arrepentimiento" element={<Arrepentimiento />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </>
           } />

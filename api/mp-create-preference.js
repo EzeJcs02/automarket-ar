@@ -15,6 +15,7 @@ export default async function handler(req, res) {
     plan_basico:          { monto: 30000,  titulo: 'Plan Básico – FIORA.MARKET' },
     plan_pro:             { monto: 70000,  titulo: 'Plan Pro – FIORA.MARKET' },
     plan_premium:         { monto: 150000, titulo: 'Plan Premium – FIORA.MARKET' },
+    publicacion_adicional:{ monto: 15000,  titulo: 'Publicación Adicional – FIORA.MARKET' },
     subir_tope:           { monto: 10000,  titulo: 'Subir al tope – FIORA.MARKET' },
     destacado_individual: { monto: 15000,  titulo: 'Destacado Individual – FIORA.MARKET' },
     urgente_individual:   { monto: 20000,  titulo: 'Urgente Individual – FIORA.MARKET' },

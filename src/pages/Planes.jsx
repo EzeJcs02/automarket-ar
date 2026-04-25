@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 const PLANES = [
@@ -141,6 +142,8 @@ async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_
 export default function Planes() {
   const navigate = useNavigate()
   const { user, concesionaria } = useAuth()
+
+  useEffect(() => { document.title = 'Planes y Precios — FIORA.MARKET' }, [])
 
   function handlePlan(planId) {
     if (concesionaria) {

@@ -30,6 +30,7 @@ export default function AutoDetalle() {
     supabase.from('autos').select('*, concesionarias(*)').eq('id', id).single().then(({ data }) => {
       setAuto(data)
       setLoading(false)
+      if (data) document.title = `${data.marca} ${data.modelo} ${data.anio} — FIORA.MARKET`
     })
     supabase.rpc('incrementar_vistas', { auto_id: id }).then()
   }, [id])
@@ -63,6 +64,12 @@ export default function AutoDetalle() {
       mensaje: consulta.mensaje,
       canal: 'formulario'
     })
+    // Notificar al vendedor por email
+    fetch('/api/send-consulta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ auto_id: auto.id, nombre: consulta.nombre, email: consulta.email, mensaje: consulta.mensaje, telefono: consulta.telefono || null }),
+    }).catch(() => {})
     setEnviando(false)
     setEnviado(true)
   }
@@ -101,9 +108,9 @@ export default function AutoDetalle() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px' }}>
+      <div className="autodetalle-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 380px' }}>
         {/* COLUMNA IZQUIERDA */}
-        <div style={{ padding: '3rem 4rem', borderRight: '1px solid var(--gray2)' }}>
+        <div className="autodetalle-photos" style={{ padding: '3rem 4rem', borderRight: '1px solid var(--gray2)' }}>
 
           {/* FOTO PRINCIPAL */}
           <div onClick={() => fotos.length > 0 && setZoom(true)}
@@ -164,7 +171,7 @@ export default function AutoDetalle() {
         </div>
 
         {/* COLUMNA DERECHA */}
-        <div style={{ padding: '3rem 2rem', position: 'sticky', top: '58px', height: 'calc(100vh - 58px)', overflowY: 'auto' }}>
+        <div className="autodetalle-sidebar" style={{ padding: '3rem 2rem', position: 'sticky', top: '58px', height: 'calc(100vh - 58px)', overflowY: 'auto' }}>
           <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`} style={{ position: 'static', display: 'inline-block', marginBottom: '1rem' }}>
             {auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}
           </span>

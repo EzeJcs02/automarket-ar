@@ -14,6 +14,7 @@ export default function Home() {
   const [autoFijado, setAutoFijado] = useState(null)
 
   useEffect(() => {
+    document.title = 'FIORA.MARKET — Vehículos nuevos y usados en Argentina'
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(6).order('created_at', { ascending: false }).then(({ data }) => setAutos(data || []))
     supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6).then(({ data }) => setConcesionarias(data || []))
     supabase.from('concesionarias').select('*').eq('banner_activo', true).limit(1).then(({ data }) => setBanner(data?.[0] || null))

@@ -10,6 +10,18 @@ export function Login() {
   const [pass, setPass] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [resetMode, setResetMode] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
+
+  async function handleReset(e) {
+    e.preventDefault()
+    setResetLoading(true)
+    await supabase.auth.resetPasswordForEmail(resetEmail, { redirectTo: 'https://fioramarket.store/mi-cuenta' })
+    setResetLoading(false)
+    setResetSent(true)
+  }
 
   async function handleLogin(e) {
     e.preventDefault()
@@ -69,10 +81,49 @@ export function Login() {
               {loading ? 'Ingresando...' : 'Ingresar al panel'}
             </button>
           </form>
-          <p style={{ fontSize: '13px', color: 'var(--gray4)', textAlign: 'center' }}>
+          <p style={{ fontSize: '13px', color: 'var(--gray4)', textAlign: 'center', marginBottom: '8px' }}>
             ¿No tenés cuenta?{' '}
             <Link to="/registro" style={{ color: 'var(--accent)' }}>Registrate</Link>
           </p>
+          <p style={{ fontSize: '13px', color: 'var(--gray4)', textAlign: 'center' }}>
+            <button onClick={() => setResetMode(true)} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '13px', padding: 0 }}>
+              ¿Olvidaste tu contraseña?
+            </button>
+          </p>
+
+          {resetMode && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+              onClick={e => e.target === e.currentTarget && setResetMode(false)}>
+              <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '400px' }}>
+                {resetSent ? (
+                  <>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', marginBottom: '1rem' }}>REVISÁ TU EMAIL</div>
+                    <p style={{ color: 'var(--gray4)', fontSize: '14px', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+                      Si existe una cuenta con ese email, te enviamos un enlace para restablecer tu contraseña.
+                    </p>
+                    <button className="btn-secondary" style={{ width: '100%' }} onClick={() => { setResetMode(false); setResetSent(false) }}>Cerrar</button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', marginBottom: '0.5rem' }}>RECUPERAR CONTRASEÑA</div>
+                    <p style={{ color: 'var(--gray4)', fontSize: '13px', marginBottom: '1.5rem' }}>Te enviamos un enlace a tu email.</p>
+                    <form onSubmit={handleReset}>
+                      <div className="form-field">
+                        <label>Email</label>
+                        <input type="email" placeholder="tu@email.com" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required />
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
+                        <button type="submit" className="btn-primary" disabled={resetLoading} style={{ flex: 1 }}>
+                          {resetLoading ? 'Enviando...' : 'Enviar enlace'}
+                        </button>
+                        <button type="button" className="btn-secondary" onClick={() => setResetMode(false)}>Cancelar</button>
+                      </div>
+                    </form>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

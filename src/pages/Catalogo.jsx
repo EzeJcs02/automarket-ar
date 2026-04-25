@@ -18,6 +18,8 @@ export default function Catalogo() {
 
   const esParticular = user && !concesionaria && !isAdmin
 
+  useEffect(() => { document.title = 'Catálogo de vehículos — FIORA.MARKET' }, [])
+
   useEffect(() => {
     supabase.from('concesionarias').select('id, nombre').eq('aprobada', true).then(({ data }) => setConcesionarias(data || []))
     fetchAutos()

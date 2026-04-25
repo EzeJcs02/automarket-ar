@@ -211,21 +211,29 @@ export default function MiCuenta() {
             <PublicarForm user={user} onSuccess={() => { setShowForm(false); fetchData() }} onCancel={() => setShowForm(false)} />
           ) : (
             <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: misAutos.length > 0 ? '1rem' : '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>MIS PUBLICACIONES</div>
-                  <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Plan gratuito: 1 publicación activa por 30 días.</div>
-                </div>
-                {misAutos.length === 0 && (
-                  <button className="btn-primary" onClick={() => setShowForm(true)}>+ Publicar vehículo</button>
-                )}
-              </div>
-              {misAutos.length > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(224,160,32,.08)', border: '1px solid rgba(224,160,32,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#e0a020', marginBottom: '2px' }}>Límite del plan gratuito alcanzado</div>
-                    <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Para publicar otro vehículo pagás $15.000 por 30 días.</div>
-                  </div>
+              {(() => {
+                const adicionales = pagos.filter(p => p.tipo === 'publicacion_adicional' && p.estado === 'approved').length
+                const limite = 1 + adicionales
+                const puedePublicar = misAutos.length < limite
+                return (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>MIS PUBLICACIONES</div>
+                        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>
+                          {limite === 1 ? 'Plan gratuito: 1 publicación activa por 30 días.' : `Tenés ${limite} publicaciones disponibles (${adicionales} adicional${adicionales > 1 ? 'es' : ''} paga${adicionales > 1 ? 's' : ''}).`}
+                        </div>
+                      </div>
+                      {puedePublicar && (
+                        <button className="btn-primary" onClick={() => setShowForm(true)}>+ Publicar vehículo</button>
+                      )}
+                    </div>
+                    {!puedePublicar && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(224,160,32,.08)', border: '1px solid rgba(224,160,32,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#e0a020', marginBottom: '2px' }}>Límite del plan gratuito alcanzado</div>
+                          <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Para publicar otro vehículo pagás $15.000 por 30 días.</div>
+                        </div>
                   <button
                     onClick={async () => {
                       try {
@@ -240,6 +248,9 @@ export default function MiCuenta() {
                   </button>
                 </div>
               )}
+                  </>
+                )
+              })()}
               {misAutos.length === 0 ? (
                 <div style={{ padding: '5rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1rem' }}>SIN PUBLICACIONES AÚN</div>

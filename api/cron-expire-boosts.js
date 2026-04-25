@@ -14,7 +14,9 @@ export default async function handler(req, res) {
 
   const now = new Date().toISOString()
 
-  const [r1, r2] = await Promise.all([
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+  const [r1, r2, r3] = await Promise.all([
     fetch(`${supabaseUrl}/rest/v1/autos?destacado=eq.true&destacado_expira_at=lt.${now}`, {
       method: 'PATCH',
       headers,
@@ -25,7 +27,13 @@ export default async function handler(req, res) {
       headers,
       body: JSON.stringify({ urgente: false, urgente_expira_at: null }),
     }),
+    // Expirar autos de particulares (concesionaria_id IS NULL) con más de 30 días sin renovar
+    fetch(`${supabaseUrl}/rest/v1/autos?activo=eq.true&concesionaria_id=is.null&created_at=lt.${thirtyDaysAgo}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ activo: false }),
+    }),
   ])
 
-  res.status(200).json({ ok: true, destacado: r1.status, urgente: r2.status })
+  res.status(200).json({ ok: true, destacado: r1.status, urgente: r2.status, autos_expired: r3.status })
 }

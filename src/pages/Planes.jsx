@@ -1,6 +1,22 @@
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const WA = 'https://wa.me/5493874111111'
+
+async function pagarConMP(tipo, { concesionaria_id, user_id, user_email } = {}) {
+  try {
+    const res = await fetch('/api/mp-create-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo, concesionaria_id, user_id, user_email, origen: 'panel' }),
+    })
+    const data = await res.json()
+    if (data.init_point) window.location.href = data.init_point
+    else alert('Error al iniciar el pago. Intente nuevamente.')
+  } catch {
+    alert('Error de conexión. Intente nuevamente.')
+  }
+}
 
 const PLANES = [
   {
@@ -98,12 +114,14 @@ const PUBLICIDAD = [
   {
     nombre: 'Banner en Home',
     precio: '120.000',
+    tipo: 'banner_home',
     desc: 'Tu banner publicitario visible en la página de inicio por 30 días.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
   },
   {
     nombre: 'Vehículo fijado en Home',
     precio: '80.000',
+    tipo: null,
     desc: 'Tu vehículo aparece fijo en la sección destacada del inicio por 30 días.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   },
@@ -127,6 +145,23 @@ function XIcon() {
 
 export default function Planes() {
   const navigate = useNavigate()
+  const { user, concesionaria } = useAuth()
+
+  function handlePlan(planId) {
+    if (concesionaria) {
+      pagarConMP(`plan_${planId}`, { concesionaria_id: concesionaria.id, user_id: user?.id, user_email: user?.email })
+    } else {
+      navigate('/login')
+    }
+  }
+
+  function handlePublicidad(tipo) {
+    if (concesionaria) {
+      pagarConMP(tipo, { concesionaria_id: concesionaria.id, user_id: user?.id, user_email: user?.email })
+    } else {
+      navigate('/login')
+    }
+  }
 
   return (
     <div className="page-wrapper">
@@ -201,7 +236,7 @@ export default function Planes() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => window.open(`${WA}?text=${encodeURIComponent(p.msg)}`, '_blank')}
+                  onClick={() => handlePlan(p.id)}
                   className={p.id === 'premium' ? 'btn-primary' : ''}
                   style={{
                     width: '100%', padding: '14px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'opacity .2s', letterSpacing: '.04em',
@@ -210,7 +245,7 @@ export default function Planes() {
                   }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-                  Contratar por WhatsApp →
+                  {concesionaria ? 'Contratar con MercadoPago →' : 'Contratar →'}
                 </button>
               </div>
             )
@@ -290,11 +325,11 @@ export default function Planes() {
               ))}
             </div>
             <button
-              onClick={() => window.open(`${WA}?text=${encodeURIComponent('Hola! Quiero comprar un boost para mi publicación en FIORA.MARKET')}`, '_blank')}
+              onClick={() => user && !concesionaria ? navigate('/mi-cuenta') : navigate('/login')}
               style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: 'var(--gray4)', fontSize: '13px', cursor: 'pointer', transition: 'all .2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
-              Consultar por WhatsApp →
+              {user && !concesionaria ? 'Ir a Mi Cuenta →' : 'Comprar con MercadoPago →'}
             </button>
           </div>
         </div>
@@ -339,12 +374,12 @@ export default function Planes() {
               </div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>{p.desc}</div>
               <button
-                onClick={() => window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero contratar "${p.nombre}" ($${p.precio}/mes) en FIORA.MARKET`)}`, '_blank')}
+                onClick={() => p.tipo ? handlePublicidad(p.tipo) : window.open(`${WA}?text=${encodeURIComponent(`Hola! Quiero contratar "${p.nombre}" ($${p.precio}/mes) en FIORA.MARKET`)}`, '_blank')}
                 className="btn-primary"
                 style={{ width: '100%' }}
                 onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
                 onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-                Consultar por WhatsApp →
+                {p.tipo && concesionaria ? 'Contratar con MercadoPago →' : 'Consultar por WhatsApp →'}
               </button>
             </div>
           ))}

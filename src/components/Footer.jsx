@@ -43,6 +43,9 @@ export default function Footer() {
                 onMouseEnter={e => e.target.style.color = 'var(--white)'}
                 onMouseLeave={e => e.target.style.color = 'var(--gray4)'}>Iniciar sesión</Link>
               <Link to="/planes" style={{ fontSize: '13px', color: 'var(--accent)', transition: 'color .2s' }}>Ver planes →</Link>
+              <Link to="/publicitate" style={{ fontSize: '13px', color: 'var(--gray4)', transition: 'color .2s' }}
+                onMouseEnter={e => e.target.style.color = 'var(--white)'}
+                onMouseLeave={e => e.target.style.color = 'var(--gray4)'}>Publicitá aquí</Link>
             </div>
           </div>
 

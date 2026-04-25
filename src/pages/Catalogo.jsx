@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
+import { setPageMeta } from '../lib/seo'
 
 const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot', 'Fiat', 'Honda', 'Nissan', 'Jeep', 'Citroën']
 const PAGE_SIZE = 24
@@ -17,10 +18,13 @@ export default function Catalogo() {
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [page, setPage] = useState(1)
   const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', categoria: searchParams.get('categoria') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '', ciudad: '' })
+  const [alertaEmail, setAlertaEmail] = useState('')
+  const [alertaOk, setAlertaOk] = useState(false)
+  const [alertaGuardando, setAlertaGuardando] = useState(false)
 
   const esParticular = user && !concesionaria && !isAdmin
 
-  useEffect(() => { document.title = 'Catálogo de vehículos — FIORA.MARKET' }, [])
+  useEffect(() => { setPageMeta({ title: 'Catálogo de vehículos', description: 'Buscá entre miles de autos, motos y náutica nuevos y usados. Filtrá por marca, precio, año, ciudad y más.', path: '/catalogo' }) }, [])
 
   useEffect(() => {
     supabase.from('concesionarias').select('id, nombre').eq('aprobada', true).then(({ data }) => setConcesionarias(data || []))
@@ -77,6 +81,18 @@ export default function Catalogo() {
   }
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
+
+  async function guardarAlerta() {
+    const email = alertaEmail || user?.email
+    if (!email) return
+    const filtrosActivos = Object.fromEntries(Object.entries(filtros).filter(([, v]) => v))
+    if (Object.keys(filtrosActivos).length === 0) return
+    setAlertaGuardando(true)
+    await supabase.from('alertas_busqueda').insert({ email, filtros: filtrosActivos, user_id: user?.id || null })
+    setAlertaOk(true)
+    setAlertaGuardando(false)
+    setTimeout(() => setAlertaOk(false), 4000)
+  }
 
   const totalPages = Math.ceil(autos.length / PAGE_SIZE)
   const autosPagina = autos.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -174,6 +190,33 @@ export default function Catalogo() {
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={fetchAutos}>Aplicar filtros</button>
           <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'' }); setPage(1); setTimeout(fetchAutos, 100) }}>Limpiar</button>
+
+          {/* ALERTA DE BÚSQUEDA */}
+          <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray2)' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '.5rem' }}>🔔 Alerta de búsqueda</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '.75rem', lineHeight: 1.5 }}>
+              Recibí un email cuando se publique un vehículo con estos filtros.
+            </div>
+            {alertaOk
+              ? <div style={{ fontSize: '12px', color: '#4ade80', padding: '8px 12px', background: 'rgba(74,222,128,.08)', borderRadius: 'var(--radius)', border: '1px solid rgba(74,222,128,.2)' }}>✓ Alerta guardada</div>
+              : <>
+                  {!user && (
+                    <input
+                      type="email" placeholder="Tu email"
+                      value={alertaEmail} onChange={e => setAlertaEmail(e.target.value)}
+                      style={{ ...inputStyle, marginBottom: '8px' }}
+                    />
+                  )}
+                  <button
+                    onClick={guardarAlerta}
+                    disabled={alertaGuardando || (!user && !alertaEmail)}
+                    className="btn-secondary"
+                    style={{ width: '100%', fontSize: '12px', padding: '8px' }}>
+                    {alertaGuardando ? 'Guardando...' : 'Guardar alerta'}
+                  </button>
+                </>
+            }
+          </div>
         </div>
         {/* RESULTS */}
         <div style={{ flex: 1, padding: '2rem' }}>

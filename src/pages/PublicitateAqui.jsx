@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { setPageMeta } from '../lib/seo'
 
 const PLANES_PUB = [
   {
@@ -33,7 +34,7 @@ const PLANES_PUB = [
 ]
 
 export default function PublicitateAqui() {
-  useEffect(() => { document.title = 'Publicitá aquí — FIORA.MARKET' }, [])
+  useEffect(() => { setPageMeta({ title: 'Publicitá aquí', description: 'Anunciá tu negocio frente a miles de compradores de vehículos. Banners laterales, inferiores y premium en FIORA.MARKET.', path: '/publicitate' }) }, [])
 
   return (
     <div className="page-wrapper">

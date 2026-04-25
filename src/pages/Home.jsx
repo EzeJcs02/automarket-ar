@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
+import { setPageMeta } from '../lib/seo'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -17,7 +18,7 @@ export default function Home() {
   const [bottomIdx, setBottomIdx] = useState(0)
 
   useEffect(() => {
-    document.title = 'FIORA.MARKET — Vehículos nuevos y usados en Argentina'
+    setPageMeta({ title: null, description: 'La plataforma de vehículos más avanzada de Argentina. Miles de autos, motos y náutica de concesionarias verificadas.', path: '/' })
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(6).order('created_at', { ascending: false }).then(({ data }) => setAutos(data || []))
     supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6).then(({ data }) => setConcesionarias(data || []))
     supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10).then(({ data }) => setBanners(data || []))

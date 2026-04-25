@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useComparador } from '../context/ComparadorContext'
 
+import { setMeta, setCanonical, resetMeta } from '../lib/seo'
+
 export default function AutoDetalle() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -34,9 +36,52 @@ export default function AutoDetalle() {
     supabase.from('autos').select('*, concesionarias(*)').eq('id', id).single().then(({ data }) => {
       setAuto(data)
       setLoading(false)
-      if (data) document.title = `${data.marca} ${data.modelo} ${data.anio} — FIORA.MARKET`
+      if (data) {
+        const title = `${data.marca} ${data.modelo} ${data.anio} — FIORA.MARKET`
+        const desc = `${data.tipo === 'nuevo' ? 'Nuevo' : 'Usado'} · ${Number(data.kilometraje).toLocaleString('es-AR')} km · ${data.combustible}. ${data.descripcion?.slice(0, 120) || 'Consultá precio y condiciones.'}`
+        const img = data.fotos?.[0] || 'https://fioramarket.store/og-image.jpg'
+        const url = `https://fioramarket.store/auto/${data.id}`
+        document.title = title
+        setMeta('og:type', 'product')
+        setMeta('og:title', title)
+        setMeta('og:description', desc)
+        setMeta('og:image', img)
+        setMeta('og:url', url)
+        setMeta('twitter:title', title)
+        setMeta('twitter:description', desc)
+        setMeta('twitter:image', img)
+        setCanonical(url)
+
+        // JSON-LD Schema.org
+        const jsonld = {
+          '@context': 'https://schema.org',
+          '@type': 'Car',
+          name: `${data.marca} ${data.modelo} ${data.anio}`,
+          brand: { '@type': 'Brand', name: data.marca },
+          model: data.modelo,
+          modelDate: String(data.anio),
+          mileageFromOdometer: { '@type': 'QuantitativeValue', value: data.kilometraje, unitCode: 'KMT' },
+          fuelType: data.combustible,
+          color: data.color,
+          vehicleTransmission: data.transmision,
+          description: data.descripcion || '',
+          image: data.fotos?.[0] || '',
+          url,
+          offers: Number(data.precio_ars) > 0 ? {
+            '@type': 'Offer',
+            price: data.precio_ars,
+            priceCurrency: 'ARS',
+            availability: 'https://schema.org/InStock',
+            seller: data.concesionarias ? { '@type': 'AutoDealer', name: data.concesionarias.nombre, address: data.concesionarias.ciudad } : undefined,
+          } : undefined,
+        }
+        let ldEl = document.getElementById('jsonld-auto')
+        if (!ldEl) { ldEl = document.createElement('script'); ldEl.id = 'jsonld-auto'; ldEl.type = 'application/ld+json'; document.head.appendChild(ldEl) }
+        ldEl.textContent = JSON.stringify(jsonld)
+      }
     })
     supabase.rpc('incrementar_vistas', { auto_id: id }).then()
+    return () => resetMeta()
   }, [id])
 
   useEffect(() => {

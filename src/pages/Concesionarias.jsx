@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { setPageMeta, resetMeta } from '../lib/seo'
 
 const COLORS = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
@@ -25,6 +26,7 @@ export function Concesionarias() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setPageMeta({ title: 'Concesionarias', description: 'Encontrá la concesionaria ideal. Red de agencias verificadas en toda Argentina con catálogo online, reseñas y contacto directo.', path: '/concesionarias' })
     supabase.from('concesionarias').select('*').eq('aprobada', true).order('nombre').then(({ data }) => {
       setLista(data || [])
       setLoading(false)
@@ -77,12 +79,23 @@ export function ConcesionariaDetalle() {
   const pathId = window.location.pathname.split('/').pop()
 
   useEffect(() => {
-    supabase.from('concesionarias').select('*').eq('id', pathId).single().then(({ data }) => setC(data))
+    supabase.from('concesionarias').select('*').eq('id', pathId).single().then(({ data }) => {
+      setC(data)
+      if (data) {
+        setPageMeta({
+          title: data.nombre,
+          description: `${data.nombre} en ${data.ciudad || 'Argentina'}. ${data.descripcion?.slice(0, 120) || 'Catálogo online de vehículos nuevos y usados.'}`,
+          image: data.logo_url || data.portada_url || undefined,
+          path: `/concesionaria/${data.id}`,
+        })
+      }
+    })
     supabase.from('autos').select('*').eq('concesionaria_id', pathId).eq('activo', true).then(({ data }) => {
       setAutos(data || [])
       setLoading(false)
     })
     supabase.from('resenas').select('*').eq('concesionaria_id', pathId).order('created_at', { ascending: false }).then(({ data }) => setResenas(data || []))
+    return () => resetMeta()
   }, [])
 
   async function enviarResena() {

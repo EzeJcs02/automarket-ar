@@ -2,6 +2,9 @@ import Arrepentimiento from './pages/Arrepentimiento'
 import Legales from './pages/Legales'
 import NotFound from './pages/NotFound'
 import Footer from './components/Footer'
+import CookieBanner from './components/CookieBanner'
+import PublicitateAqui from './pages/PublicitateAqui'
+import { Analytics } from '@vercel/analytics/react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ComparadorProvider, useComparador } from './context/ComparadorContext'
@@ -71,12 +74,15 @@ export default function App() {
                 <Route path="/comparador" element={<Comparador />} />
                 <Route path="/legales" element={<Legales />} />
                 <Route path="/arrepentimiento" element={<Arrepentimiento />} />
+                <Route path="/publicitate" element={<PublicitateAqui />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </div>
               <Footer />
               </div>
               <ComparadorBar />
+              <CookieBanner />
+              <Analytics />
             </>
           } />
         </Routes>

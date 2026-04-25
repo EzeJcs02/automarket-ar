@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { setPageMeta } from '../lib/seo'
 
 const PLANES = [
   {
@@ -143,7 +144,7 @@ export default function Planes() {
   const navigate = useNavigate()
   const { user, concesionaria } = useAuth()
 
-  useEffect(() => { document.title = 'Planes y Precios — FIORA.MARKET' }, [])
+  useEffect(() => { setPageMeta({ title: 'Planes y Precios', description: 'Publicá tu concesionaria en FIORA.MARKET. Planes desde gratis hasta Premium con hasta 50 publicaciones, boosts y badge verificada.', path: '/planes' }) }, [])
 
   function handlePlan(planId) {
     if (concesionaria) {

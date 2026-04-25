@@ -306,6 +306,48 @@ function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAl
         ))}
       </div>
 
+      {/* ESTADÍSTICAS DETALLADAS */}
+      {autos.length > 0 && (
+        <div style={{ marginBottom: '3rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          {/* Top autos por vistas */}
+          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Top por vistas</div>
+            {[...autos].sort((a, b) => (b.vistas || 0) - (a.vistas || 0)).slice(0, 5).map((a, i) => (
+              <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 4 ? '1px solid var(--gray2)' : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', width: '16px' }}>#{i + 1}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--white)' }}>{a.marca} {a.modelo} <span style={{ color: 'var(--gray5)' }}>{a.anio}</span></span>
+                </div>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: i === 0 ? 'var(--accent)' : 'var(--white)' }}>{a.vistas || 0}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Consultas últimos 7 días */}
+          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Consultas últimos 7 días</div>
+            {Array.from({ length: 7 }, (_, i) => {
+              const d = new Date(); d.setDate(d.getDate() - (6 - i))
+              const label = d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' })
+              const count = consultas.filter(c => new Date(c.created_at).toDateString() === d.toDateString()).length
+              const max = Math.max(1, ...Array.from({ length: 7 }, (_, j) => {
+                const dd = new Date(); dd.setDate(dd.getDate() - (6 - j))
+                return consultas.filter(c => new Date(c.created_at).toDateString() === dd.toDateString()).length
+              }))
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--gray4)', width: '60px', textTransform: 'capitalize' }}>{label}</span>
+                  <div style={{ flex: 1, background: 'var(--gray2)', borderRadius: '100px', height: '8px', overflow: 'hidden' }}>
+                    <div style={{ width: `${count > 0 ? Math.max(8, (count / max) * 100) : 0}%`, height: '100%', background: 'var(--accent)', borderRadius: '100px', transition: 'width .4s' }} />
+                  </div>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '16px', color: count > 0 ? 'var(--white)' : 'var(--gray4)', width: '20px', textAlign: 'right' }}>{count}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>Bandeja de Entrada</div>
       {consultas.length === 0
         ? <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', color: 'var(--gray4)' }}>No hay consultas pendientes.</div>

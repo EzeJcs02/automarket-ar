@@ -5,4 +5,4 @@ Disallow: /panel
 Disallow: /mi-cuenta
 Disallow: /favoritos
 
-Sitemap: https://fioramarket.store/sitemap.xml
+Sitemap: https://fioramarket.store/api/sitemap

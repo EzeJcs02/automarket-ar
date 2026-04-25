@@ -36,7 +36,7 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
       )}
 
       {foto
-        ? <img className="car-img-real" src={foto} alt={auto.modelo} style={{ outline: auto.urgente ? '2px solid var(--accent)' : auto.destacado ? '2px solid #c9a84c' : 'none' }} />
+        ? <img className="car-img-real" src={foto} alt={`${auto.marca} ${auto.modelo} ${auto.anio}`} loading="lazy" decoding="async" style={{ outline: auto.urgente ? '2px solid var(--accent)' : auto.destacado ? '2px solid #c9a84c' : 'none' }} />
         : <div className="car-img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity=".3"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
       }
 

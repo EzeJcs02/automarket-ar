@@ -25,8 +25,10 @@ export default function MiCuenta() {
   const [favoritos, setFavoritos] = useState([])
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [consultas, setConsultas] = useState([])
+  const [misAutos, setMisAutos] = useState([])
   const [tab, setTab] = useState('favoritos')
   const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -48,14 +50,16 @@ export default function MiCuenta() {
 
   async function fetchData() {
     setLoading(true)
-    const [{ data: favData }, { data: consData }] = await Promise.all([
+    const [{ data: favData }, { data: consData }, { data: autosData }] = await Promise.all([
       supabase.from('favoritos').select('auto_id, autos(*, concesionarias(nombre, ciudad, plan))').eq('user_id', user.id).order('created_at', { ascending: false }),
-      supabase.from('consultas').select('*, autos(marca, modelo)').eq('email_comprador', user.email).order('created_at', { ascending: false })
+      supabase.from('consultas').select('*, autos(marca, modelo)').eq('email_comprador', user.email).order('created_at', { ascending: false }),
+      supabase.from('autos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     ])
     const lista = favData?.map(f => f.autos).filter(Boolean) || []
     setFavoritos(lista)
     setFavoritoIds(new Set(lista.map(a => a.id)))
     setConsultas(consData || [])
+    setMisAutos(autosData || [])
     setLoading(false)
   }
 
@@ -63,6 +67,12 @@ export default function MiCuenta() {
     await supabase.from('favoritos').delete().eq('user_id', user.id).eq('auto_id', autoId)
     setFavoritos(prev => prev.filter(a => a.id !== autoId))
     setFavoritoIds(prev => { const s = new Set(prev); s.delete(autoId); return s })
+  }
+
+  async function despublicar(autoId) {
+    if (!confirm('¿Desactivar esta publicación?')) return
+    await supabase.from('autos').update({ activo: false }).eq('id', autoId)
+    setMisAutos(prev => prev.filter(a => a.id !== autoId))
   }
 
   async function handleSignOut() {
@@ -91,9 +101,10 @@ export default function MiCuenta() {
         <button className="btn-secondary" onClick={handleSignOut}>Cerrar sesión</button>
       </div>
 
-      <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px' }}>
+      <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button style={tabStyle(tab === 'favoritos')} onClick={() => setTab('favoritos')}>Favoritos ({favoritos.length})</button>
         <button style={tabStyle(tab === 'consultas')} onClick={() => setTab('consultas')}>Consultas enviadas ({consultas.length})</button>
+        <button style={tabStyle(tab === 'publicaciones')} onClick={() => { setTab('publicaciones'); setShowForm(false) }}>Mis publicaciones ({misAutos.length})</button>
         <button style={tabStyle(tab === 'planes')} onClick={() => setTab('planes')}>Mi Plan</button>
       </div>
 
@@ -143,6 +154,57 @@ export default function MiCuenta() {
         </div>
       )}
 
+      {tab === 'publicaciones' && (
+        <div style={{ padding: '2rem 4rem' }}>
+          {showForm ? (
+            <PublicarForm user={user} onSuccess={() => { setShowForm(false); fetchData() }} onCancel={() => setShowForm(false)} />
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>MIS PUBLICACIONES</div>
+                  <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Plan gratuito: 1 publicación activa por 30 días.</div>
+                </div>
+                {misAutos.length === 0 && (
+                  <button className="btn-primary" onClick={() => setShowForm(true)}>+ Publicar vehículo</button>
+                )}
+                {misAutos.length > 0 && (
+                  <button className="btn-secondary" onClick={() => setShowForm(true)} style={{ opacity: .5, cursor: 'not-allowed' }} title="Ya tenés una publicación activa">+ Publicar vehículo</button>
+                )}
+              </div>
+              {misAutos.length === 0 ? (
+                <div style={{ padding: '5rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1rem' }}>SIN PUBLICACIONES AÚN</div>
+                  <p style={{ color: 'var(--gray4)', fontSize: '15px', marginBottom: '2rem' }}>Publicá tu vehículo gratis por 30 días.</p>
+                  <button className="btn-primary" onClick={() => setShowForm(true)}>+ Publicar ahora</button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '700px' }}>
+                  {misAutos.map(a => (
+                    <div key={a.id} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        {a.fotos?.[0] && <img src={a.fotos[0]} alt="" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: 'var(--radius)', flexShrink: 0 }} />}
+                        <div>
+                          <div style={{ fontWeight: 700, color: 'var(--white)', fontSize: '15px' }}>{a.marca} {a.modelo}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>{a.anio} · {Number(a.kilometraje || 0).toLocaleString('es-AR')} km</div>
+                          <div style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, marginTop: '4px' }}>${Number(a.precio_ars).toLocaleString('es-AR')}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <Link to={`/auto/${a.id}`} style={{ textDecoration: 'none' }}>
+                          <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px' }}>Ver →</button>
+                        </Link>
+                        <button onClick={() => despublicar(a.id)} style={{ fontSize: '12px', padding: '6px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(230,51,41,.4)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer' }}>Eliminar</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       {tab === 'planes' && (
         <div style={{ padding: '2rem 4rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px' }}>
@@ -160,6 +222,92 @@ export default function MiCuenta() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function PublicarForm({ user, onSuccess, onCancel }) {
+  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '', tipo: 'usado', categoria: '', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', descripcion: '' })
+  const [fotos, setFotos] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const setF = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
+
+  function handleFotos(e) {
+    setFotos(Array.from(e.target.files))
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (fotos.length < 3) { setError('Debés subir mínimo 3 fotos.'); return }
+    setLoading(true)
+    setError('')
+    let fotoUrls = []
+    for (const file of fotos) {
+      const ext = file.name.split('.').pop()
+      const path = `particulares/${user.id}/${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
+      if (!upErr) {
+        const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
+        fotoUrls.push(data.publicUrl)
+      }
+    }
+    const { error: insErr } = await supabase.from('autos').insert({
+      user_id: user.id,
+      concesionaria_id: null,
+      marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
+      kilometraje: parseInt(form.kilometraje) || 0,
+      tipo: form.tipo, categoria: form.categoria || null,
+      combustible: form.combustible, transmision: form.transmision,
+      color: form.color, precio_ars: form.precio_ars || null,
+      descripcion: form.descripcion, fotos: fotoUrls, activo: true,
+    })
+    setLoading(false)
+    if (insErr) setError(insErr.message)
+    else onSuccess()
+  }
+
+  return (
+    <div style={{ maxWidth: '700px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px' }}>PUBLICAR VEHÍCULO</div>
+        <button className="btn-secondary" onClick={onCancel}>Cancelar</button>
+      </div>
+      {error && <div style={{ background: 'rgba(230,51,41,.1)', border: '1px solid rgba(230,51,41,.3)', borderRadius: 'var(--radius)', padding: '12px 16px', color: 'var(--accent)', fontSize: '13px', marginBottom: '1.5rem' }}>{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div style={{ background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '8px' }}>FOTOS</div>
+          <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 3 ? 'var(--green)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
+            <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
+            <div style={{ fontSize: '14px', fontWeight: 600, color: fotos.length >= 3 ? '#4ade80' : 'var(--white)', marginBottom: '4px' }}>
+              {fotos.length > 0 ? `${fotos.length} fotos seleccionadas ${fotos.length >= 3 ? '✓' : `(faltan ${3 - fotos.length})`}` : 'Click para subir fotos'}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--gray5)' }}>Mínimo 3 fotos · JPG, PNG</div>
+          </label>
+        </div>
+
+        <div style={{ background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '8px' }}>DATOS DEL VEHÍCULO</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: Honda" value={form.marca} onChange={e => setF('marca', e.target.value)} required /></div>
+            <div className="form-field"><label>Modelo *</label><input type="text" placeholder="Ej: Civic" value={form.modelo} onChange={e => setF('modelo', e.target.value)} required /></div>
+            <div className="form-field"><label>Año *</label><input type="number" placeholder="2022" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
+            <div className="form-field"><label>Kilometraje *</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
+            <div className="form-field"><label>Condición *</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="usado">Usado</option><option value="nuevo">0KM / Nuevo</option></select></div>
+            <div className="form-field"><label>Categoría</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)}><option value="">— Seleccionar —</option><optgroup label="Autos"><option value="Sedan">Sedán</option><option value="SUV">SUV</option><option value="Pickup">Pickup</option><option value="Hatchback">Hatchback</option><option value="Camioneta">Camioneta</option><option value="Deportivo">Deportivo</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Cruiser">Cruiser</option><option value="Enduro">Enduro</option><option value="Scooter">Scooter</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Yate">Yate</option><option value="Jet Ski">Jet Ski</option></optgroup></select></div>
+            <div className="form-field"><label>Combustible *</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+            <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
+            <div className="form-field"><label>Color *</label><input type="text" placeholder="Ej: Blanco" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>
+            <div className="form-field"><label>Precio ARS *</label><input type="number" placeholder="Ej: 8000000" value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} required /></div>
+          </div>
+          <div className="form-field" style={{ marginTop: '1rem' }}><label>Descripción</label><textarea rows={3} placeholder="Describí el estado, equipamiento, historial..." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: 'var(--white)', padding: '10px 12px', fontSize: '14px', resize: 'vertical' }} /></div>
+        </div>
+
+        <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', padding: '14px', fontSize: '14px' }}>
+          {loading ? 'Publicando...' : 'Publicar vehículo →'}
+        </button>
+      </form>
     </div>
   )
 }

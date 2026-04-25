@@ -332,7 +332,7 @@ export default function Home() {
         </div>
       </div>
       
-      {/* FOOTER */}
+      {/* FOOTER ÚNICO Y PROFESIONAL */}
       <footer style={{ background: '#050505', borderTop: '1px solid var(--gray2)', padding: '5rem 4rem 2rem', color: 'var(--gray4)', fontSize: '13px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '4rem' }}>
           <div>
@@ -343,42 +343,44 @@ export default function Home() {
               La plataforma más avanzada para encontrar y publicar vehículos de agencias verificadas en Argentina.
             </p>
           </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Explorar</div>
             <Link to="/catalogo" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Catálogo de Vehículos</Link>
             <Link to="/concesionarias" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Red de Concesionarias</Link>
             <Link to="/planes" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Planes y Precios</Link>
-            <Link to="/registro" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Publicar mi stock</Link>
           </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Legales</div>
             <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Términos y Condiciones</Link>
             <Link to="/legales" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Políticas de Privacidad</Link>
-            <a href="https://www.argentina.gob.ar/produccion/defensadelconsumidor" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Defensa del Consumidor</a>
             <Link to="/arrepentimiento" style={{ color: 'var(--gray4)', textDecoration: 'none' }}>Botón de Arrepentimiento</Link>
           </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ color: 'var(--white)', fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Contacto</div>
             <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>Salta, Argentina</div>
-            <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>soporte@fiora.ar</div>
+            <div style={{ color: 'var(--gray4)', fontSize: '14px' }}>contacto@fioramarket.store</div>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              
-              {/* ACÁ ESTÁ EL ICONO DE INSTAGRAM MODIFICADO */}
-              <a href="https://www.instagram.com/fiora.market?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', textDecoration: 'none', cursor: 'pointer', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E1306C'} onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
-                ig
+              <a href="https://www.instagram.com/fiora.market" target="_blank" rel="noopener noreferrer" 
+                 style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--white)', textDecoration: 'none', transition: 'background .2s' }}
+                 onMouseEnter={e => e.currentTarget.style.background = '#E1306C'} 
+                 onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
+                <i className="fab fa-instagram"></i> ig
               </a>
-
             </div>
           </div>
         </div>
+
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>© 2026 FIORA.MARKET. Todos los derechos reservados.</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '30px', height: '40px', background: 'var(--gray2)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', textAlign: 'center', lineHeight: 1 }}>DATA<br/>FISCAL</div>
-            <span style={{ fontSize: '11px' }}>Sitio Seguro</span>
+          <div>© 2026 FIORA.MARKET — Salta, Argentina</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <a href="#" style={{ color: 'var(--gray4)', textDecoration: 'none', fontSize: '11px' }}>Defensa del Consumidor</a>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '30px', height: '40px', background: 'var(--gray2)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', textAlign: 'center', lineHeight: 1 }}>DATA<br/>FISCAL</div>
+              <span style={{ fontSize: '11px' }}>Sitio Seguro</span>
+            </div>
           </div>
         </div>
       </footer>
-    </div>
-  )
-}

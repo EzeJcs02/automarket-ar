@@ -30,6 +30,9 @@ export default function MiCuenta() {
   const [tab, setTab] = useState('publicaciones')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editandoPerfil, setEditandoPerfil] = useState(false)
+  const [perfilForm, setPerfilForm] = useState({ nombre: '', telefono: '' })
+  const [savingPerfil, setSavingPerfil] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -85,6 +88,19 @@ export default function MiCuenta() {
 
   const nombre = user?.user_metadata?.nombre || user?.email?.split('@')[0] || 'Usuario'
 
+  function abrirEditarPerfil() {
+    setPerfilForm({ nombre: user?.user_metadata?.nombre || '', telefono: user?.user_metadata?.telefono || '' })
+    setEditandoPerfil(true)
+  }
+
+  async function guardarPerfil(e) {
+    e.preventDefault()
+    setSavingPerfil(true)
+    await supabase.auth.updateUser({ data: { nombre: perfilForm.nombre, telefono: perfilForm.telefono } })
+    setSavingPerfil(false)
+    setEditandoPerfil(false)
+  }
+
   const tabStyle = active => ({
     padding: '10px 20px', borderRadius: 'var(--radius)', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 600, letterSpacing: '.05em', transition: 'all .2s',
     background: active ? 'var(--accent)' : 'transparent',
@@ -101,8 +117,36 @@ export default function MiCuenta() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', lineHeight: 1 }}>{nombre.toUpperCase()}</div>
           <div style={{ fontSize: '13px', color: 'var(--gray4)', marginTop: '6px' }}>{user?.email}</div>
         </div>
-        <button className="btn-secondary" onClick={handleSignOut}>Cerrar sesión</button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn-secondary" onClick={abrirEditarPerfil}>Editar perfil</button>
+          <button className="btn-secondary" onClick={handleSignOut}>Cerrar sesión</button>
+        </div>
       </div>
+
+      {editandoPerfil && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+          onClick={e => e.target === e.currentTarget && setEditandoPerfil(false)}>
+          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '460px' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', marginBottom: '2rem' }}>EDITAR PERFIL</div>
+            <form onSubmit={guardarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="form-field">
+                <label>Nombre</label>
+                <input type="text" placeholder="Tu nombre" value={perfilForm.nombre} onChange={e => setPerfilForm(p => ({ ...p, nombre: e.target.value }))} />
+              </div>
+              <div className="form-field">
+                <label>Teléfono / WhatsApp</label>
+                <input type="tel" placeholder="Ej: 3874123456" value={perfilForm.telefono} onChange={e => setPerfilForm(p => ({ ...p, telefono: e.target.value }))} />
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '0.5rem' }}>
+                <button type="submit" className="btn-primary" disabled={savingPerfil} style={{ flex: 1 }}>
+                  {savingPerfil ? 'Guardando...' : 'Guardar cambios'}
+                </button>
+                <button type="button" className="btn-secondary" onClick={() => setEditandoPerfil(false)}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button style={tabStyle(tab === 'publicaciones')} onClick={() => { setTab('publicaciones'); setShowForm(false) }}>Mis publicaciones ({misAutos.length})</button>

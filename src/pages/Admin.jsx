@@ -9,6 +9,7 @@ export default function Admin() {
   const [pendientes, setPendientes] = useState([])
   const [aprobadas, setAprobadas] = useState([])
   const [publicaciones, setPublicaciones] = useState([])
+  const [pagos, setPagos] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
 
@@ -20,14 +21,16 @@ export default function Admin() {
   }, [user, isAdmin, authLoading])
 
   async function loadData() {
-    const [p, a, pub] = await Promise.all([
+    const [p, a, pub, pag] = await Promise.all([
       supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
       supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
-      supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false })
+      supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
+      supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200)
     ])
     setPendientes(p.data || [])
     setAprobadas(a.data || [])
     setPublicaciones(pub.data || [])
+    setPagos(pag.data || [])
     setDataLoading(false)
   }
 
@@ -82,6 +85,7 @@ export default function Admin() {
     { id: 'pendientes', label: 'Solicitudes Pendientes', count: pendientes.length },
     { id: 'aprobadas', label: 'Agencias Activas', count: aprobadas.length },
     { id: 'publicaciones', label: 'Publicaciones', count: publicaciones.length },
+    { id: 'pagos', label: 'Historial de Pagos', count: pagos.length },
   ]
 
   return (
@@ -238,6 +242,46 @@ export default function Admin() {
                             <td style={{ padding: '16px 20px' }}>
                               <button className="btn-secondary" onClick={() => suspender(c.id)} style={{ padding: '6px 16px', fontSize: '12px' }}>Suspender</button>
                             </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                }
+              </div>
+            )}
+
+            {/* PAGOS */}
+            {tab === 'pagos' && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>HISTORIAL DE PAGOS</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todos los pagos procesados vía MercadoPago.</div>
+                {pagos.length === 0
+                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay pagos registrados aún.</p></div>
+                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                      <thead><tr>{['Fecha','Tipo','Vehículo / Agencia','Monto','Estado','MP ID'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <tbody>
+                        {pagos.map(p => (
+                          <tr key={p.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{new Date(p.created_at).toLocaleString('es-AR')}</td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <span style={{ background: 'rgba(201,168,76,.15)', color: '#c9a84c', padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>{p.tipo?.replace(/_/g, ' ')}</span>
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              {p.autos ? <div style={{ color: 'var(--white)', fontSize: '13px', fontWeight: 600 }}>{p.autos.marca} {p.autos.modelo}</div> : null}
+                              {p.concesionarias ? <div style={{ color: 'var(--gray4)', fontSize: '12px', marginTop: '2px' }}>{p.concesionarias.nombre}</div> : null}
+                              {!p.autos && !p.concesionarias ? <span style={{ color: 'var(--gray5)', fontSize: '12px' }}>—</span> : null}
+                            </td>
+                            <td style={{ padding: '16px 20px', color: 'var(--white)', fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700 }}>
+                              {p.monto ? '$' + Number(p.monto).toLocaleString('es-AR') : '—'}
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <span style={{ padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700,
+                                background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)',
+                                color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)' }}>
+                                {p.estado}
+                              </span>
+                            </td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{p.mp_payment_id || '—'}</td>
                           </tr>
                         ))}
                       </tbody>

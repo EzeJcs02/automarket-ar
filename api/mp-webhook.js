@@ -26,17 +26,19 @@ export default async function handler(req, res) {
       Prefer: 'return=minimal',
     }
 
+    const in30days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
     if (tipo === 'destacado' && auto_id) {
       await fetch(`${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}`, {
         method: 'PATCH',
         headers,
-        body: JSON.stringify({ destacado: true, urgente: false }),
+        body: JSON.stringify({ destacado: true, urgente: false, destacado_expira_at: in30days }),
       })
     } else if (tipo === 'urgente' && auto_id) {
       await fetch(`${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}`, {
         method: 'PATCH',
         headers,
-        body: JSON.stringify({ urgente: true, destacado: false }),
+        body: JSON.stringify({ urgente: true, destacado: false, urgente_expira_at: in30days }),
       })
     } else if (tipo === 'fijado_home' && auto_id) {
       await fetch(`${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}`, {

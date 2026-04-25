@@ -509,7 +509,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
       concesionaria_id: concesionaria.id,
       marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
       kilometraje: parseInt(form.kilometraje) || 0,
-      tipo: form.tipo, combustible: form.combustible, transmision: form.transmision,
+      tipo: form.tipo, categoria: form.categoria || null, combustible: form.combustible, transmision: form.transmision,
       color: form.color, precio_ars: form.precio_ars || null, precio_usd: form.precio_usd || null,
       descripcion: form.descripcion, fotos: fotoUrls, activo: true
     })
@@ -555,6 +555,7 @@ function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess
             <div className="form-field"><label>Año *</label><input type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
             <div className="form-field"><label>Kilometraje *</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
             <div className="form-field"><label>Condición *</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
+            <div className="form-field"><label>Categoría *</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)} required><optgroup label="Autos"><option value="Sedan">Sedán</option><option value="SUV">SUV</option><option value="Pickup">Pickup</option><option value="Hatchback">Hatchback</option><option value="Camioneta">Camioneta</option><option value="Deportivo">Deportivo</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Cruiser">Cruiser</option><option value="Enduro">Enduro</option><option value="Scooter">Scooter</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Yate">Yate</option><option value="Jet Ski">Jet Ski</option></optgroup></select></div>
             <div className="form-field"><label>Combustible *</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
             <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
             <div className="form-field"><label>Color Exterior *</label><input type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>

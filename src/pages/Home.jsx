@@ -157,7 +157,8 @@ export default function Home() {
               <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
                 Descubrí cuánto vale tu vehículo y elegí el mejor momento para vender
               </div>
-              <button className="btn-primary" style={{ fontSize: '14px', padding: '10px 24px' }} onClick={() => navigate('/registro')}>
+              <button className="btn-primary" style={{ fontSize: '14px', padding: '10px 24px' }}
+                onClick={() => concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro')}>
                 Publicar mi vehículo →
               </button>
             </div>

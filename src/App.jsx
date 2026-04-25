@@ -1,6 +1,7 @@
 import Arrepentimiento from './pages/Arrepentimiento'
 import Legales from './pages/Legales'
 import NotFound from './pages/NotFound'
+import Footer from './components/Footer'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
@@ -25,6 +26,8 @@ export default function App() {
           <Route path="*" element={
             <>
               <Navbar />
+              <div style={{ minHeight: 'calc(100vh - 58px)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/catalogo" element={<Catalogo />} />
@@ -40,6 +43,9 @@ export default function App() {
                 <Route path="/arrepentimiento" element={<Arrepentimiento />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </div>
+              <Footer />
+              </div>
             </>
           } />
         </Routes>

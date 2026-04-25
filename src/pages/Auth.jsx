@@ -143,10 +143,12 @@ export function Registro() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [ok, setOk] = useState(false)
+  const [aceptaTerminos, setAceptaTerminos] = useState(false)
 
   function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
 
   async function handleRegisterConcesionaria() {
+    if (!aceptaTerminos) { setError('Debés aceptar los Términos y Condiciones.'); return }
     setLoading(true)
     setError('')
     const { error } = await signUp(form.email, form.pass, form)
@@ -157,6 +159,7 @@ export function Registro() {
   async function handleRegisterParticular(e) {
     e.preventDefault()
     if (!form.nombre || !form.email || !form.pass) { setError('Completá todos los campos.'); return }
+    if (!aceptaTerminos) { setError('Debés aceptar los Términos y Condiciones.'); return }
     setLoading(true)
     setError('')
     const { error } = await signUpUsuario(form.email, form.pass, form.nombre)
@@ -268,8 +271,17 @@ export function Registro() {
               <label>Contraseña *</label>
               <input type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} required />
             </div>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginTop: '0.5rem' }}>
+              <input type="checkbox" checked={aceptaTerminos} onChange={e => setAceptaTerminos(e.target.checked)} style={{ marginTop: '3px', accentColor: 'var(--accent)', width: '15px', height: '15px', flexShrink: 0 }} />
+              <span style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6 }}>
+                Acepto los{' '}
+                <Link to="/legales" target="_blank" style={{ color: 'var(--accent)' }}>Términos y Condiciones</Link>
+                {' '}y la{' '}
+                <Link to="/legales" target="_blank" style={{ color: 'var(--accent)' }}>Política de Privacidad</Link>
+              </span>
+            </label>
             {error && <p className="error-msg">{error}</p>}
-            <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1.5rem' }} disabled={loading}>
+            <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
           </form>
@@ -352,6 +364,18 @@ export function Registro() {
                 <input type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} />
               </div>
             </div>
+          )}
+
+          {paso === 3 && (
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginTop: '1rem' }}>
+              <input type="checkbox" checked={aceptaTerminos} onChange={e => setAceptaTerminos(e.target.checked)} style={{ marginTop: '3px', accentColor: 'var(--accent)', width: '15px', height: '15px', flexShrink: 0 }} />
+              <span style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6 }}>
+                Acepto los{' '}
+                <Link to="/legales" target="_blank" style={{ color: 'var(--accent)' }}>Términos y Condiciones</Link>
+                {' '}y la{' '}
+                <Link to="/legales" target="_blank" style={{ color: 'var(--accent)' }}>Política de Privacidad</Link>
+              </span>
+            </label>
           )}
 
           {error && <p className="error-msg">{error}</p>}

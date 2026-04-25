@@ -27,6 +27,7 @@ export default function Panel() {
   const [tab, setTab] = useState('dashboard')
   const [autos, setAutos] = useState([])
   const [consultas, setConsultas] = useState([])
+  const [pagos, setPagos] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -50,12 +51,14 @@ export default function Panel() {
   }, [user, concesionaria, authLoading])
 
   async function loadData() {
-    const [autosRes, consultasRes] = await Promise.all([
+    const [autosRes, consultasRes, pagosRes] = await Promise.all([
       supabase.from('autos').select('*, vistas').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
-      supabase.from('consultas').select('*, autos(marca, modelo)').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false })
+      supabase.from('consultas').select('*, autos(marca, modelo)').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
+      supabase.from('pagos').select('*, autos(marca, modelo)').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
     ])
     setAutos(autosRes.data || [])
     setConsultas(consultasRes.data || [])
+    setPagos(pagosRes.data || [])
     setLoading(false)
   }
 
@@ -77,6 +80,7 @@ export default function Panel() {
     { id: 'mis-autos', label: 'Inventario de Autos' },
     { id: 'nuevo-auto', label: 'Nueva Publicación' },
     { id: 'consultas', label: 'Consultas', count: noLeidas },
+    { id: 'pagos', label: 'Mis Pagos', count: 0 },
     { id: 'perfil', label: 'Perfil de Agencia' },
   ]
 
@@ -118,6 +122,7 @@ export default function Panel() {
             {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} concesionaria={concesionaria} />}
             {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
             {tab === 'consultas' && <Consultas consultas={consultas} reload={loadData} />}
+            {tab === 'pagos' && <MisPagos pagos={pagos} />}
             {tab === 'perfil' && <Perfil concesionaria={concesionaria} onSave={() => fetchConcesionaria(user.id)} />}
           </>
         )}
@@ -774,6 +779,74 @@ function Perfil({ concesionaria, onSave }) {
           <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'ACTUALIZANDO...' : 'GUARDAR CONFIGURACIÓN'}</button>
         </div>
       </form>
+    </div>
+  )
+}
+
+function MisPagos({ pagos }) {
+  const LABELS = {
+    subir_tope: 'Subir al tope',
+    destacado: 'Destacado (30 días)',
+    destacado_individual: 'Destacado individual',
+    urgente: 'Urgente (30 días)',
+    urgente_individual: 'Urgente individual',
+    fijado_home: 'Vehículo fijado en Home',
+    banner_home: 'Banner en Home',
+    renovar: 'Renovar publicación',
+    plan_basico: 'Plan Básico',
+    plan_pro: 'Plan Pro',
+    plan_premium: 'Plan Premium',
+  }
+
+  if (pagos.length === 0) {
+    return (
+      <div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '2rem' }}>MIS PAGOS</div>
+        <div style={{ padding: '5rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}>
+          <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay pagos registrados aún.</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '.5rem' }}>MIS PAGOS</div>
+      <div style={{ fontSize: '13px', color: 'var(--gray5)', marginBottom: '2rem' }}>Historial de pagos procesados vía MercadoPago.</div>
+      <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--gray2)' }}>
+              {['Fecha', 'Servicio', 'Vehículo', 'Monto', 'Estado'].map(h => (
+                <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '14px 20px', fontWeight: 400 }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {pagos.map((p, i) => (
+              <tr key={p.id || i} style={{ borderBottom: i < pagos.length - 1 ? '1px solid var(--gray2)' : 'none' }}>
+                <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--gray4)', whiteSpace: 'nowrap' }}>
+                  {new Date(p.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </td>
+                <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--white)', fontWeight: 600 }}>
+                  {LABELS[p.tipo] || p.tipo}
+                </td>
+                <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--gray4)' }}>
+                  {p.autos ? `${p.autos.marca} ${p.autos.modelo}` : '—'}
+                </td>
+                <td style={{ padding: '14px 20px', fontSize: '14px', fontFamily: 'var(--font-display)', color: 'var(--accent)' }}>
+                  ${Number(p.monto).toLocaleString('es-AR')}
+                </td>
+                <td style={{ padding: '14px 20px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)', letterSpacing: '.05em' }}>
+                    {p.estado === 'approved' ? 'APROBADO' : p.estado?.toUpperCase()}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

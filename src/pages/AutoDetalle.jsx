@@ -15,8 +15,16 @@ export default function AutoDetalle() {
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [isFavorito, setIsFavorito] = useState(false)
+  const [dolarBlue, setDolarBlue] = useState(null)
 
   const esParticular = user && !concesionaria && !isAdmin
+
+  useEffect(() => {
+    fetch('https://dolarapi.com/v1/dolares/blue')
+      .then(r => r.json())
+      .then(d => setDolarBlue(d.venta))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     supabase.from('autos').select('*, concesionarias(*)').eq('id', id).single().then(({ data }) => {
@@ -180,11 +188,21 @@ export default function AutoDetalle() {
                   {formatPrice(auto.precio_ars)}
                 </div>
               )}
-              {Number(auto.precio_usd) > 0 && (
-                <div style={{ fontFamily: Number(auto.precio_ars) > 0 ? 'var(--font-body)' : 'var(--font-display)', fontSize: Number(auto.precio_ars) > 0 ? '16px' : '40px', color: Number(auto.precio_ars) > 0 ? 'var(--accent)' : 'var(--white)', fontWeight: '600', marginTop: Number(auto.precio_ars) > 0 ? '8px' : '0' }}>
-                  USD {Number(auto.precio_usd).toLocaleString('es-AR')}
-                </div>
-              )}
+              {(() => {
+                const usd = Number(auto.precio_usd)
+                const ars = Number(auto.precio_ars)
+                const usdCalc = (!usd && ars > 0 && dolarBlue) ? Math.round(ars / dolarBlue) : usd
+                const esAprox = !usd && !!usdCalc
+                if (!usdCalc) return null
+                return (
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: ars > 0 ? '8px' : '0' }}>
+                    <div style={{ fontFamily: ars > 0 ? 'var(--font-body)' : 'var(--font-display)', fontSize: ars > 0 ? '16px' : '40px', color: 'var(--accent)', fontWeight: 600 }}>
+                      USD {usdCalc.toLocaleString('es-AR')}
+                    </div>
+                    {esAprox && <div style={{ fontSize: '11px', color: 'var(--gray4)' }}>(aprox. dólar blue)</div>}
+                  </div>
+                )
+              })()}
             </div>
           )}
 

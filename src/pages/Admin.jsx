@@ -12,10 +12,13 @@ export default function Admin() {
   const [pagos, setPagos] = useState([])
   const [usuarios, setUsuarios] = useState([])
   const [publicidades, setPublicidades] = useState([])
+  const [consultasAdmin, setConsultasAdmin] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
   const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '' })
   const [adLoading, setAdLoading] = useState(false)
+  const [adFile, setAdFile] = useState(null)
+  const [consultaDetalle, setConsultaDetalle] = useState(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -26,13 +29,14 @@ export default function Admin() {
 
   async function loadData() {
     const { data: { session } } = await supabase.auth.getSession()
-    const [p, a, pub, pag, usersRes, ads] = await Promise.all([
+    const [p, a, pub, pag, usersRes, ads, cons] = await Promise.all([
       supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
       supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
       supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
       supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200),
       fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()),
       supabase.from('publicidades').select('*').order('created_at', { ascending: false }),
+      supabase.from('consultas').select('*, autos(marca, modelo), concesionarias(nombre)').order('created_at', { ascending: false }).limit(300),
     ])
     setPendientes(p.data || [])
     setAprobadas(a.data || [])
@@ -40,6 +44,7 @@ export default function Admin() {
     setPagos(pag.data || [])
     setUsuarios(usersRes.users || [])
     setPublicidades(ads.data || [])
+    setConsultasAdmin(cons.data || [])
     setDataLoading(false)
   }
 
@@ -77,6 +82,13 @@ export default function Admin() {
 
   async function cambiarPlan(c, nuevoPlan) {
     await supabase.from('concesionarias').update({ plan: nuevoPlan }).eq('id', c.id)
+    await supabase.from('pagos').insert({
+      concesionaria_id: c.id,
+      tipo: `plan_${nuevoPlan}`,
+      estado: 'approved',
+      monto: 0,
+      mp_payment_id: `admin_manual_${Date.now()}`,
+    })
     loadData()
   }
 
@@ -91,10 +103,22 @@ export default function Admin() {
   }
 
   async function agregarAd() {
-    if (!nuevaAd.nombre.trim() || !nuevaAd.imagen_url.trim()) return
+    if (!nuevaAd.nombre.trim()) return
     setAdLoading(true)
-    await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url: nuevaAd.imagen_url.trim(), link_url: nuevaAd.link_url.trim() || null })
+    let imagen_url = nuevaAd.imagen_url.trim()
+    if (adFile) {
+      const ext = adFile.name.split('.').pop()
+      const path = `ad_${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('publicidades').upload(path, adFile)
+      if (!upErr) {
+        const { data } = supabase.storage.from('publicidades').getPublicUrl(path)
+        imagen_url = data.publicUrl
+      }
+    }
+    if (!imagen_url) { setAdLoading(false); return }
+    await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null })
     setNuevaAd({ nombre: '', imagen_url: '', link_url: '' })
+    setAdFile(null)
     const { data } = await supabase.from('publicidades').select('*').order('created_at', { ascending: false })
     setPublicidades(data || [])
     setAdLoading(false)
@@ -118,6 +142,7 @@ export default function Admin() {
     { id: 'pagos', label: 'Historial de Pagos', count: pagos.length },
     { id: 'usuarios', label: 'Usuarios Registrados', count: usuarios.length },
     { id: 'publicidades', label: 'Publicidades Laterales', count: publicidades.filter(a => a.activo).length },
+    { id: 'consultas-admin', label: 'Consultas Globales', count: consultasAdmin.filter(c => !c.leido).length },
   ]
 
   return (
@@ -337,21 +362,25 @@ export default function Admin() {
                       <input placeholder="Ej: Lubricentro López" value={nuevaAd.nombre} onChange={e => setNuevaAd(p => ({ ...p, nombre: e.target.value }))} />
                     </div>
                     <div className="form-field" style={{ margin: 0 }}>
-                      <label>URL de la imagen * (180×200px recomendado)</label>
-                      <input placeholder="https://..." value={nuevaAd.imagen_url} onChange={e => setNuevaAd(p => ({ ...p, imagen_url: e.target.value }))} />
+                      <label>Imagen * — subí archivo o pegá URL (180×200px recomendado)</label>
+                      <input type="file" accept="image/*" onChange={e => { setAdFile(e.target.files[0] || null); setNuevaAd(p => ({ ...p, imagen_url: '' })) }} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '8px 12px', borderRadius: 'var(--radius)', fontSize: '13px', width: '100%' }} />
+                      <input placeholder="O pegá una URL de imagen..." value={nuevaAd.imagen_url} onChange={e => { setNuevaAd(p => ({ ...p, imagen_url: e.target.value })); setAdFile(null) }} style={{ marginTop: '6px' }} />
                     </div>
                     <div className="form-field" style={{ margin: 0 }}>
                       <label>Link al hacer click (opcional)</label>
                       <input placeholder="https://wa.me/..." value={nuevaAd.link_url} onChange={e => setNuevaAd(p => ({ ...p, link_url: e.target.value }))} />
                     </div>
                   </div>
-                  {nuevaAd.imagen_url && (
+                  {(nuevaAd.imagen_url || adFile) && (
                     <div style={{ marginBottom: '12px' }}>
                       <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '6px' }}>Preview:</div>
-                      <img src={nuevaAd.imagen_url} alt="preview" style={{ width: '90px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)' }} onError={e => e.target.style.display='none'} />
+                      {adFile
+                        ? <img src={URL.createObjectURL(adFile)} alt="preview" style={{ width: '90px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)' }} />
+                        : <img src={nuevaAd.imagen_url} alt="preview" style={{ width: '90px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)' }} onError={e => e.target.style.display='none'} />
+                      }
                     </div>
                   )}
-                  <button className="btn-primary" onClick={agregarAd} disabled={adLoading || !nuevaAd.nombre.trim() || !nuevaAd.imagen_url.trim()} style={{ padding: '8px 24px', fontSize: '13px' }}>
+                  <button className="btn-primary" onClick={agregarAd} disabled={adLoading || !nuevaAd.nombre.trim() || (!nuevaAd.imagen_url.trim() && !adFile)} style={{ padding: '8px 24px', fontSize: '13px' }}>
                     {adLoading ? 'Guardando...' : '+ Agregar publicidad'}
                   </button>
                 </div>
@@ -381,6 +410,71 @@ export default function Admin() {
                         </div>
                       ))}
                     </div>
+                }
+              </div>
+            )}
+
+            {/* CONSULTAS GLOBALES */}
+            {tab === 'consultas-admin' && (
+              <div>
+                {consultaDetalle && (
+                  <div onClick={() => setConsultaDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+                    <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
+                        <button onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+                      </div>
+                      <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem', marginBottom: '1rem' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>VEHÍCULO</div>
+                        <div style={{ fontWeight: 600 }}>{consultaDetalle.autos?.marca} {consultaDetalle.autos?.modelo}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '2px' }}>Concesionaria: {consultaDetalle.concesionarias?.nombre || '—'}</div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                        <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>NOMBRE</div>
+                          <div style={{ fontSize: '14px' }}>{consultaDetalle.nombre_comprador}</div>
+                        </div>
+                        <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>EMAIL</div>
+                          <div style={{ fontSize: '13px', color: 'var(--accent)' }}>{consultaDetalle.email_comprador}</div>
+                        </div>
+                      </div>
+                      <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem', marginBottom: '1.5rem' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginBottom: '8px' }}>MENSAJE</div>
+                        <p style={{ fontSize: '14px', lineHeight: 1.7, margin: 0 }}>{consultaDetalle.mensaje}</p>
+                      </div>
+                      <button className="btn-primary" style={{ width: '100%' }}
+                        onClick={() => window.open(`mailto:${consultaDetalle.email_comprador}?subject=Re: ${consultaDetalle.autos?.marca} ${consultaDetalle.autos?.modelo}`)}>
+                        Responder por email
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>CONSULTAS GLOBALES</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todas las consultas recibidas en la plataforma ({consultasAdmin.length} total).</div>
+                {consultasAdmin.length === 0
+                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay consultas registradas.</p></div>
+                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                      <thead><tr>{['Fecha','Vehículo','Agencia','Comprador','Mensaje',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <tbody>
+                        {consultasAdmin.map(c => (
+                          <tr key={c.id} style={{ borderBottom: '1px solid var(--gray2)', cursor: 'pointer', transition: 'background .2s' }}
+                            onClick={() => setConsultaDetalle(c)}
+                            onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            <td style={{ padding: '14px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
+                            <td style={{ padding: '14px 20px', color: 'var(--white)', fontSize: '13px', fontWeight: 600 }}>{c.autos?.marca} {c.autos?.modelo}</td>
+                            <td style={{ padding: '14px 20px', color: 'var(--gray4)', fontSize: '12px' }}>{c.concesionarias?.nombre || '—'}</td>
+                            <td style={{ padding: '14px 20px' }}>
+                              <div style={{ color: 'var(--white)', fontSize: '13px' }}>{c.nombre_comprador}</div>
+                              <div style={{ color: 'var(--accent)', fontSize: '11px' }}>{c.email_comprador}</div>
+                            </td>
+                            <td style={{ padding: '14px 20px', color: 'var(--gray4)', fontSize: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
+                            <td style={{ padding: '14px 20px' }}><span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>Ver →</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                 }
               </div>
             )}

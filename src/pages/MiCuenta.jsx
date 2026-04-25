@@ -26,6 +26,7 @@ export default function MiCuenta() {
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [consultas, setConsultas] = useState([])
   const [misAutos, setMisAutos] = useState([])
+  const [pagos, setPagos] = useState([])
   const [tab, setTab] = useState('favoritos')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -50,16 +51,18 @@ export default function MiCuenta() {
 
   async function fetchData() {
     setLoading(true)
-    const [{ data: favData }, { data: consData }, { data: autosData }] = await Promise.all([
+    const [{ data: favData }, { data: consData }, { data: autosData }, { data: pagosData }] = await Promise.all([
       supabase.from('favoritos').select('auto_id, autos(*, concesionarias(nombre, ciudad, plan))').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('consultas').select('*, autos(marca, modelo)').eq('email_comprador', user.email).order('created_at', { ascending: false }),
       supabase.from('autos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+      supabase.from('pagos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
     ])
     const lista = favData?.map(f => f.autos).filter(Boolean) || []
     setFavoritos(lista)
     setFavoritoIds(new Set(lista.map(a => a.id)))
     setConsultas(consData || [])
     setMisAutos(autosData || [])
+    setPagos(pagosData || [])
     setLoading(false)
   }
 
@@ -181,13 +184,24 @@ export default function MiCuenta() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '700px' }}>
                   {misAutos.map(a => (
-                    <div key={a.id} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div key={a.id} style={{ background: 'var(--gray1)', border: `1px solid ${a.destacado ? 'rgba(201,168,76,.4)' : a.urgente ? 'rgba(230,51,41,.4)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                         {a.fotos?.[0] && <img src={a.fotos[0]} alt="" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: 'var(--radius)', flexShrink: 0 }} />}
                         <div>
-                          <div style={{ fontWeight: 700, color: 'var(--white)', fontSize: '15px' }}>{a.marca} {a.modelo}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <div style={{ fontWeight: 700, color: 'var(--white)', fontSize: '15px' }}>{a.marca} {a.modelo}</div>
+                            {a.destacado && <span style={{ fontSize: '10px', fontWeight: 800, background: 'rgba(201,168,76,.2)', color: '#c9a84c', padding: '2px 8px', borderRadius: '100px', letterSpacing: '.05em' }}>★ DESTACADO</span>}
+                            {a.urgente && <span style={{ fontSize: '10px', fontWeight: 800, background: 'rgba(230,51,41,.2)', color: 'var(--accent)', padding: '2px 8px', borderRadius: '100px', letterSpacing: '.05em' }}>⚡ URGENTE</span>}
+                            {a.fijado_home && <span style={{ fontSize: '10px', fontWeight: 800, background: 'rgba(74,222,128,.15)', color: '#4ade80', padding: '2px 8px', borderRadius: '100px', letterSpacing: '.05em' }}>📌 FIJADO HOME</span>}
+                          </div>
                           <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>{a.anio} · {Number(a.kilometraje || 0).toLocaleString('es-AR')} km</div>
                           <div style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, marginTop: '4px' }}>${Number(a.precio_ars).toLocaleString('es-AR')}</div>
+                          {a.destacado && a.destacado_expira_at && (
+                            <div style={{ fontSize: '11px', color: '#c9a84c', marginTop: '4px' }}>Destacado hasta {new Date(a.destacado_expira_at).toLocaleDateString('es-AR')}</div>
+                          )}
+                          {a.urgente && a.urgente_expira_at && (
+                            <div style={{ fontSize: '11px', color: 'var(--accent)', marginTop: '4px' }}>Urgente hasta {new Date(a.urgente_expira_at).toLocaleDateString('es-AR')}</div>
+                          )}
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '8px' }}>
@@ -207,7 +221,7 @@ export default function MiCuenta() {
 
       {tab === 'planes' && (
         <div style={{ padding: '2rem 4rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px', marginBottom: '3rem' }}>
             <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Base</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: '#4ade80', lineHeight: 1, marginBottom: '2rem' }}>GRATIS</div>
@@ -220,6 +234,33 @@ export default function MiCuenta() {
             </div>
             <ExtrasConMP user={user} autoId={misAutos[0]?.id || null} />
           </div>
+          {pagos.length > 0 && (
+            <div style={{ maxWidth: '900px' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Historial de pagos</div>
+              <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                {pagos.map((p, i) => {
+                  const LABELS = { subir_tope: 'Subir al tope', destacado_individual: 'Destacado', urgente_individual: 'Urgente', renovar: 'Renovar 30 días', destacado: 'Destacado', urgente: 'Urgente', fijado_home: 'Fijado en Home' }
+                  return (
+                    <div key={p.id || i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: i < pagos.length - 1 ? '1px solid var(--gray2)' : 'none', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: p.estado === 'approved' ? '#4ade80' : 'var(--gray3)', flexShrink: 0, display: 'inline-block' }} />
+                        <div>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)' }}>{LABELS[p.tipo] || p.tipo}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--gray4)', marginTop: '2px' }}>{new Date(p.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--accent)' }}>${Number(p.monto).toLocaleString('es-AR')}</div>
+                        <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)', letterSpacing: '.05em' }}>
+                          {p.estado === 'approved' ? 'APROBADO' : p.estado?.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

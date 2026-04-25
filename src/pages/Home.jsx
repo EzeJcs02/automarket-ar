@@ -10,15 +10,21 @@ export default function Home() {
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
   const [tabGuia, setTabGuia] = useState('comprar')
-  const [banner, setBanner] = useState(null)
+  const [banners, setBanners] = useState([])
   const [autoFijado, setAutoFijado] = useState(null)
+  const [rightIdx, setRightIdx] = useState(0)
 
   useEffect(() => {
     document.title = 'FIORA.MARKET — Vehículos nuevos y usados en Argentina'
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(6).order('created_at', { ascending: false }).then(({ data }) => setAutos(data || []))
     supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6).then(({ data }) => setConcesionarias(data || []))
-    supabase.from('concesionarias').select('*').eq('banner_activo', true).limit(1).then(({ data }) => setBanner(data?.[0] || null))
+    supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10).then(({ data }) => setBanners(data || []))
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).limit(1).then(({ data }) => setAutoFijado(data?.[0] || null))
+  }, [])
+
+  useEffect(() => {
+    const t = setInterval(() => setRightIdx(i => i + 1), 3000)
+    return () => clearInterval(t)
   }, [])
 
   const colors = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
@@ -65,13 +71,40 @@ export default function Home() {
         </div>
       </div>
 
-      {/* BANNER SLOT */}
-      {banner && banner.portada_url && (
-        <div style={{ borderBottom: '1px solid var(--gray2)' }}>
-          <div style={{ padding: '0 4rem', paddingTop: '1rem', fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em' }}>PUBLICIDAD</div>
-          <img src={banner.portada_url} alt={banner.nombre} style={{ width: '100%', maxHeight: '140px', objectFit: 'cover', display: 'block', marginTop: '8px' }} />
+      {/* PUBLICIDAD INFERIOR — 10 slots estáticos */}
+      <div style={{ borderBottom: '1px solid var(--gray2)', padding: '10px 2rem 10px' }}>
+        <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', marginBottom: '6px' }}>PUBLICIDAD</div>
+        <div style={{ display: 'flex', gap: '4px', overflowX: 'auto' }}>
+          {Array.from({ length: 10 }, (_, i) => {
+            const b = banners[i] || null
+            return (
+              <div key={i} style={{ flexShrink: 0, width: '160px', height: '90px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {b?.portada_url
+                  ? <img src={b.portada_url} alt={b.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <div style={{ fontSize: '9px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.1em', textAlign: 'center', lineHeight: 1.6 }}>ESPACIO<br/>PUBLICITARIO</div>
+                }
+              </div>
+            )
+          })}
         </div>
-      )}
+      </div>
+
+      {/* PUBLICIDAD LATERAL DERECHA — 5 slots cycling */}
+      <div className="right-ad-strip">
+        <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', marginBottom: '4px' }}>ADS</div>
+        {Array.from({ length: 5 }, (_, i) => {
+          const idx = banners.length > 0 ? (rightIdx + i) % banners.length : -1
+          const b = idx >= 0 ? banners[idx] : null
+          return (
+            <div key={i} style={{ width: '130px', height: '85px', background: 'var(--gray1)', border: '1px solid var(--gray2)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2px', transition: 'opacity .5s' }}>
+              {b?.portada_url
+                ? <img src={b.portada_url} alt={b.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <div style={{ fontSize: '8px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.08em', textAlign: 'center', lineHeight: 1.6, padding: '4px' }}>ESPACIO<br/>PUBLICITARIO</div>
+              }
+            </div>
+          )
+        })}
+      </div>
 
       {/* VEHÍCULO FIJADO */}
       {autoFijado && (
@@ -213,7 +246,6 @@ export default function Home() {
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Autos</div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {[
-            { tipo: 'Camioneta', svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="2" y="14" width="60" height="12" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M4 14 L10 6 L40 6 L50 14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="10" y="7" width="18" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="14" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="50" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
             { tipo: 'SUV',       svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="2" y="14" width="60" height="12" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M5 14 L12 5 L52 5 L59 14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="13" y="6" width="38" height="8" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="14" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="50" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
             { tipo: 'Hatchback', svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="4" y="15" width="56" height="11" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M8 15 L18 6 L46 6 L56 15" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="19" y="7" width="26" height="8" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="16" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="48" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },
             { tipo: 'Sedán',     svg: <svg viewBox="0 0 64 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width:64,height:32}}><rect x="3" y="15" width="58" height="11" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M6 15 L14 7 L50 7 L58 15" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><rect x="16" y="8" width="22" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><circle cx="15" cy="26" r="4" stroke="currentColor" strokeWidth="2"/><circle cx="49" cy="26" r="4" stroke="currentColor" strokeWidth="2"/></svg> },

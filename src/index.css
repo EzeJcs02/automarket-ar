@@ -214,3 +214,18 @@ input, select, textarea { font-family: var(--font-body); }
 @media (min-width: 769px) {
   .nav-hamburger { display: none !important; }
 }
+
+/* Right ad strip */
+.right-ad-strip {
+  position: fixed;
+  right: 0;
+  top: 58px;
+  width: 134px;
+  z-index: 50;
+  padding: 6px 4px;
+  background: #050505;
+  border-left: 1px solid var(--gray2);
+}
+@media (max-width: 1300px) {
+  .right-ad-strip { display: none !important; }
+}

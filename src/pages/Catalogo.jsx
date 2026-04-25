@@ -106,7 +106,7 @@ export default function Catalogo() {
             <select style={{ ...inputStyle, cursor: 'pointer' }} value={filtros.categoria} onChange={e => setF('categoria', e.target.value)}>
               <option value="">Todas</option>
               <optgroup label="Autos">
-                {['Camioneta','SUV','Hatchback','Sedán','Pickup','Minivan','Coupé'].map(t => <option key={t} value={t}>{t}</option>)}
+                {['SUV','Hatchback','Sedán','Pickup','Minivan','Coupé'].map(t => <option key={t} value={t}>{t}</option>)}
               </optgroup>
               <optgroup label="Motos">
                 {['Naked','Deportiva','Touring','Scooter','Enduro','Custom'].map(t => <option key={t} value={t}>{t}</option>)}

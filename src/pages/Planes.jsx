@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+﻿import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { setPageMeta } from '../lib/seo'
@@ -144,7 +144,7 @@ export default function Planes() {
   const navigate = useNavigate()
   const { user, concesionaria } = useAuth()
 
-  useEffect(() => { setPageMeta({ title: 'Planes y Precios', description: 'Publicá tu concesionaria en FIORA.MARKET. Planes desde gratis hasta Premium con hasta 50 publicaciones, boosts y badge verificada.', path: '/planes' }) }, [])
+  useEffect(() => { setPageMeta({ title: 'Planes y Precios', description: 'Publicá tu concesionaria en FIORA MARKET. Planes desde gratis hasta Premium con hasta 50 publicaciones, boosts y badge verificada.', path: '/planes' }) }, [])
 
   function handlePlan(planId) {
     if (concesionaria) {
@@ -387,7 +387,7 @@ export default function Planes() {
       <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Publicidad</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PUBLICIDAD EN LA PLATAFORMA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA.MARKET para máxima exposición.</p>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA MARKET para máxima exposición.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {PUBLICIDAD.map(p => (
             <div key={p.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>

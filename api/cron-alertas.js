@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+﻿export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
@@ -64,13 +64,13 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'FIORA.MARKET <noreply@fioramarket.store>',
+        from: 'FIORA MARKET <noreply@fioramarket.store>',
         to: alerta.email,
         subject: `${coincidentes.length} vehículo${coincidentes.length > 1 ? 's' : ''} nuevo${coincidentes.length > 1 ? 's' : ''} que te puede${coincidentes.length > 1 ? 'n' : ''} interesar`,
         html: `
           <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#0a0a0a;color:#f5f3ee;border-radius:12px;overflow:hidden">
             <div style="background:#e63329;padding:20px 28px">
-              <div style="font-size:20px;font-weight:900;letter-spacing:.05em">FIORA.MARKET</div>
+              <div style="font-size:20px;font-weight:900;letter-spacing:.05em">FIORA MARKET</div>
               <div style="font-size:12px;opacity:.8;margin-top:2px">Alerta de búsqueda</div>
             </div>
             <div style="padding:28px">

@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+﻿export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const { auto_id, nombre, email, mensaje, telefono } = req.body
@@ -35,14 +35,14 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'FIORA.MARKET <noreply@fioramarket.store>',
+        from: 'FIORA MARKET <noreply@fioramarket.store>',
         to: [sellerEmail],
         reply_to: email,
-        subject: `Nueva consulta sobre tu ${auto.marca} ${auto.modelo} — FIORA.MARKET`,
+        subject: `Nueva consulta sobre tu ${auto.marca} ${auto.modelo} — FIORA MARKET`,
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0a0a0a;color:#f5f3ee;border-radius:12px;overflow:hidden">
             <div style="background:#e63329;padding:24px 32px">
-              <div style="font-size:22px;font-weight:900;letter-spacing:.05em">FIORA.MARKET</div>
+              <div style="font-size:22px;font-weight:900;letter-spacing:.05em">FIORA MARKET</div>
             </div>
             <div style="padding:32px">
               <div style="font-size:18px;font-weight:700;margin-bottom:6px">Nueva consulta recibida</div>

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Marca */}
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', letterSpacing: '2px', marginBottom: '1rem' }}>
-              FIORA<span style={{ color: 'var(--accent)' }}>.MARKET</span>
+              FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
             </div>
             <p style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, maxWidth: '220px' }}>
               La plataforma de vehículos más avanzada de Argentina.
@@ -72,7 +72,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid var(--gray2)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>
-            © {new Date().getFullYear()} FIORA.MARKET — Salta, Argentina
+            © {new Date().getFullYear()} FIORA MARKET — Salta, Argentina
           </div>
           <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
             <a href="https://www.argentina.gob.ar/produccion/defensadelconsumidor" target="_blank" rel="noopener noreferrer"

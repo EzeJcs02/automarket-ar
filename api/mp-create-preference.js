@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+﻿export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -8,19 +8,19 @@ export default async function handler(req, res) {
   const { tipo, auto_id, concesionaria_id, user_id, user_email, origen } = req.body
 
   const PRECIOS = {
-    destacado:            { monto: 15000,  titulo: 'Boost Destacado – FIORA.MARKET' },
-    urgente:              { monto: 20000,  titulo: 'Boost Urgente – FIORA.MARKET' },
-    fijado_home:          { monto: 50000,  titulo: 'Vehículo Fijado en Home – FIORA.MARKET' },
-    banner_home:          { monto: 80000,  titulo: 'Banner Publicitario en Home – FIORA.MARKET' },
-    plan_basico:          { monto: 30000,  titulo: 'Plan Básico – FIORA.MARKET' },
-    plan_pro:             { monto: 70000,  titulo: 'Plan Pro – FIORA.MARKET' },
-    plan_premium:         { monto: 150000, titulo: 'Plan Premium – FIORA.MARKET' },
-    publicacion_adicional:{ monto: 15000,  titulo: 'Publicación Adicional – FIORA.MARKET' },
-    subir_tope:           { monto: 10000,  titulo: 'Subir al tope – FIORA.MARKET' },
-    destacado_individual: { monto: 15000,  titulo: 'Destacado Individual – FIORA.MARKET' },
-    urgente_individual:   { monto: 20000,  titulo: 'Urgente Individual – FIORA.MARKET' },
-    renovar:              { monto: 10000,  titulo: 'Renovar publicación – FIORA.MARKET' },
-    publicidad_lateral:   { monto: 15000,  titulo: 'Espacio Publicitario Lateral – FIORA.MARKET' },
+    destacado:            { monto: 15000,  titulo: 'Boost Destacado – FIORA MARKET' },
+    urgente:              { monto: 20000,  titulo: 'Boost Urgente – FIORA MARKET' },
+    fijado_home:          { monto: 50000,  titulo: 'Vehículo Fijado en Home – FIORA MARKET' },
+    banner_home:          { monto: 80000,  titulo: 'Banner Publicitario en Home – FIORA MARKET' },
+    plan_basico:          { monto: 30000,  titulo: 'Plan Básico – FIORA MARKET' },
+    plan_pro:             { monto: 70000,  titulo: 'Plan Pro – FIORA MARKET' },
+    plan_premium:         { monto: 150000, titulo: 'Plan Premium – FIORA MARKET' },
+    publicacion_adicional:{ monto: 15000,  titulo: 'Publicación Adicional – FIORA MARKET' },
+    subir_tope:           { monto: 10000,  titulo: 'Subir al tope – FIORA MARKET' },
+    destacado_individual: { monto: 15000,  titulo: 'Destacado Individual – FIORA MARKET' },
+    urgente_individual:   { monto: 20000,  titulo: 'Urgente Individual – FIORA MARKET' },
+    renovar:              { monto: 10000,  titulo: 'Renovar publicación – FIORA MARKET' },
+    publicidad_lateral:   { monto: 15000,  titulo: 'Espacio Publicitario Lateral – FIORA MARKET' },
   }
 
   const precio = PRECIOS[tipo]

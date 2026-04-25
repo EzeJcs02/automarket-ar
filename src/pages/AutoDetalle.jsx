@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -37,7 +37,7 @@ export default function AutoDetalle() {
       setAuto(data)
       setLoading(false)
       if (data) {
-        const title = `${data.marca} ${data.modelo} ${data.anio} — FIORA.MARKET`
+        const title = `${data.marca} ${data.modelo} ${data.anio} — FIORA MARKET`
         const desc = `${data.tipo === 'nuevo' ? 'Nuevo' : 'Usado'} · ${Number(data.kilometraje).toLocaleString('es-AR')} km · ${data.combustible}. ${data.descripcion?.slice(0, 120) || 'Consultá precio y condiciones.'}`
         const img = data.fotos?.[0] || 'https://fioramarket.store/og-image.jpg'
         const url = `https://fioramarket.store/auto/${data.id}`

@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+﻿export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const { nombre, email, telefono, ciudad } = req.body || {}
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: 'FIORA.MARKET <noreply@fioramarket.store>',
+        from: 'FIORA MARKET <noreply@fioramarket.store>',
         to: ADMIN_EMAIL,
         subject: `Nueva concesionaria registrada: ${nombre}`,
         html: `

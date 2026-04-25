@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+﻿import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { setPageMeta } from '../lib/seo'
 
@@ -34,20 +34,20 @@ const PLANES_PUB = [
 ]
 
 export default function PublicitateAqui() {
-  useEffect(() => { setPageMeta({ title: 'Publicitá aquí', description: 'Anunciá tu negocio frente a miles de compradores de vehículos. Banners laterales, inferiores y premium en FIORA.MARKET.', path: '/publicitate' }) }, [])
+  useEffect(() => { setPageMeta({ title: 'Publicitá aquí', description: 'Anunciá tu negocio frente a miles de compradores de vehículos. Banners laterales, inferiores y premium en FIORA MARKET.', path: '/publicitate' }) }, [])
 
   return (
     <div className="page-wrapper">
       {/* HERO */}
       <div style={{ padding: '5rem 4rem 4rem', borderBottom: '1px solid var(--gray2)', maxWidth: '900px' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-          PUBLICIDAD · FIORA.MARKET
+          PUBLICIDAD · FIORA MARKET
         </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '64px', lineHeight: 1, marginBottom: '1.5rem' }}>
           LLEGÁ A MILES<br />DE COMPRADORES
         </div>
         <p style={{ fontSize: '18px', color: 'var(--gray4)', lineHeight: 1.7, maxWidth: '600px', marginBottom: '2.5rem' }}>
-          FIORA.MARKET es el marketplace de vehículos líder en el NOA. Anunciá tu negocio — taller, lubricentro, seguro, concesionaria — frente a compradores activos.
+          FIORA MARKET es el marketplace de vehículos líder en el NOA. Anunciá tu negocio — taller, lubricentro, seguro, concesionaria — frente a compradores activos.
         </p>
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
           {[['10.000+', 'Visitas mensuales'], ['500+', 'Vehículos publicados'], ['300+', 'Consultas por mes']].map(([num, label]) => (
@@ -91,7 +91,7 @@ export default function PublicitateAqui() {
                   </li>
                 ))}
               </ul>
-              <a href={`mailto:publicidad@fiora.market?subject=Consulta publicidad ${p.nombre}&body=Hola, me interesa el espacio "${p.nombre}" por ${p.precio}/mes.`}
+              <a href={`mailto:publicidad@fioramarket.store?subject=Consulta publicidad ${p.nombre}&body=Hola, me interesa el espacio "${p.nombre}" por ${p.precio}/mes.`}
                 style={{ textDecoration: 'none' }}>
                 <button className="btn-primary" style={{ width: '100%', background: p.color, borderColor: p.color, color: p.id === 'lateral' ? '#000' : '#fff' }}>
                   Contratar →
@@ -108,9 +108,9 @@ export default function PublicitateAqui() {
             <p style={{ fontSize: '15px', color: 'var(--gray4)', margin: 0 }}>Escribinos y te asesoramos sin compromiso.</p>
           </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <a href="mailto:publicidad@fiora.market" style={{ textDecoration: 'none' }}>
+            <a href="mailto:publicidad@fioramarket.store" style={{ textDecoration: 'none' }}>
               <button className="btn-secondary" style={{ padding: '12px 24px', fontSize: '14px' }}>
-                publicidad@fiora.market
+                publicidad@fioramarket.store
               </button>
             </a>
             <Link to="/planes">

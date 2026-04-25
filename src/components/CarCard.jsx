@@ -1,7 +1,10 @@
 import { useNavigate } from 'react-router-dom'
+import { useComparador } from '../context/ComparadorContext'
 
 export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) {
   const navigate = useNavigate()
+  const { agregar, quitar, estaEnLista, lista } = useComparador()
+  const enComparador = estaEnLista(auto.id)
   const foto = auto.fotos?.[0]
   const plan = auto.concesionarias?.plan
   const esVerificada = plan === 'premium'
@@ -34,6 +37,15 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
           {isFavorito ? '♥' : '♡'}
         </button>
       )}
+
+      {/* BOTÓN COMPARADOR */}
+      <button
+        onClick={e => { e.stopPropagation(); enComparador ? quitar(auto.id) : agregar(auto) }}
+        disabled={!enComparador && lista.length >= 3}
+        title={enComparador ? 'Quitar del comparador' : lista.length >= 3 ? 'Comparador lleno (máx. 3)' : 'Agregar al comparador'}
+        style={{ position: 'absolute', bottom: '10px', right: '10px', zIndex: 10, background: enComparador ? 'var(--accent)' : 'rgba(0,0,0,.55)', border: 'none', borderRadius: '6px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', cursor: !enComparador && lista.length >= 3 ? 'not-allowed' : 'pointer', fontSize: '10px', color: '#fff', fontWeight: 700, letterSpacing: '.05em', backdropFilter: 'blur(4px)', opacity: !enComparador && lista.length >= 3 ? 0.4 : 1, transition: 'all .2s' }}>
+        ⇄ {enComparador ? 'EN COMP.' : 'COMPARAR'}
+      </button>
 
       {foto
         ? <img className="car-img-real" src={foto} alt={`${auto.marca} ${auto.modelo} ${auto.anio}`} loading="lazy" decoding="async" style={{ outline: auto.urgente ? '2px solid var(--accent)' : auto.destacado ? '2px solid #c9a84c' : 'none' }} />

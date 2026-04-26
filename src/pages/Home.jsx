@@ -85,7 +85,7 @@ export default function Home() {
         </div>
 
         {/* ADS DERECHA — 6 slots cycling */}
-        <div className="hero-ads-right" style={{ width: '260px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
+        <div className="hero-ads-right" style={{ flex: '0 0 42%', minWidth: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
           <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
           {Array.from({ length: 6 }, (_, i) => {
             const idx = rightAds.length > 0 ? (rightIdx + i) % rightAds.length : -1

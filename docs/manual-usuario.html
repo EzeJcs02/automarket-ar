@@ -212,6 +212,8 @@
   <a href="#comp-comparar">Comparador</a>
   <a href="#comp-alertas">Alertas de búsqueda</a>
   <a href="#comp-contacto">Contactar vendedor</a>
+  <a href="#comp-precio-usd">Precio en dólares</a>
+  <a href="#comp-cuotas">Calculadora de cuotas</a>
 
   <div class="nav-section">Legal</div>
   <a href="#legal">Arrepentimiento</a>
@@ -490,6 +492,41 @@
 
     <div class="callout callout-red">
       <strong>Sin cuenta requerida:</strong> Los compradores pueden enviar consultas sin necesidad de registrarse en la plataforma.
+    </div>
+  </div>
+
+  <!-- COMP PRECIO USD -->
+  <div class="section" id="comp-precio-usd">
+    <div class="section-label">Compradores</div>
+    <h2>Precio en dólares</h2>
+    <p>Cada ficha de vehículo muestra el precio en pesos (ARS) y su equivalente en dólares. El sistema obtiene la cotización del dólar blue en tiempo real y la calcula automáticamente si el vendedor solo cargó el precio en ARS.</p>
+
+    <div class="feat-list">
+      <div class="feat-item"><div class="feat-key">Precio ARS</div><div class="feat-val">Precio en pesos argentinos ingresado por el vendedor.</div></div>
+      <div class="feat-item"><div class="feat-key">Precio USD</div><div class="feat-val">Si el vendedor lo cargó, se muestra ese valor. Si no, se calcula dividiendo el precio ARS por la cotización actual del dólar blue.</div></div>
+      <div class="feat-item"><div class="feat-key">Cotización</div><div class="feat-val">Se actualiza en tiempo real desde dolarapi.com. Se muestra la leyenda "aprox. dólar blue" cuando es un valor calculado.</div></div>
+    </div>
+
+    <div class="callout callout-gold">
+      <strong>Referencia:</strong> Los precios en USD son orientativos. El precio de venta oficial es el acordado con el vendedor.
+    </div>
+  </div>
+
+  <!-- COMP CUOTAS -->
+  <div class="section" id="comp-cuotas">
+    <div class="section-label">Compradores</div>
+    <h2>Calculadora de cuotas</h2>
+    <p>Disponible en la ficha de cada vehículo cuando tiene precio en ARS cargado. Permite estimar la cuota mensual de un financiamiento según plazo y tasa.</p>
+
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><div class="step-body"><div class="step-title">Abrir la ficha de un vehículo con precio</div><div class="step-desc">La calculadora aparece automáticamente si el vehículo tiene precio en ARS mayor a cero.</div></div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-body"><div class="step-title">Seleccionar cantidad de cuotas</div><div class="step-desc">Opciones: 6, 12, 18, 24, 36, 48 o 60 meses.</div></div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-body"><div class="step-title">Ajustar la TNA</div><div class="step-desc">Tasa Nominal Anual configurable. Consultá con tu banco o financiera el valor actual.</div></div></div>
+      <div class="step"><div class="step-n">04</div><div class="step-body"><div class="step-title">Ver el resultado</div><div class="step-desc">El sistema muestra la cuota mensual estimada en pesos argentinos.</div></div></div>
+    </div>
+
+    <div class="callout callout-red">
+      <strong>Importante:</strong> Es una estimación orientativa. El monto final depende de las condiciones de la entidad financiera que otorgue el crédito.
     </div>
   </div>
 

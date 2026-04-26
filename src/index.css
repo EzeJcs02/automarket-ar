@@ -216,6 +216,6 @@ input, select, textarea { font-family: var(--font-body); }
 }
 
 /* Hero ads right column */
-@media (max-width: 1100px) {
+@media (max-width: 900px) {
   .hero-ads-right { display: none !important; }
 }

@@ -84,8 +84,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ADS DERECHA — 6 slots integrados */}
-        <div className="hero-ads-right" style={{ width: '180px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
+        {/* ADS DERECHA — 6 slots cycling */}
+        <div className="hero-ads-right" style={{ width: '260px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
           <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
           {Array.from({ length: 6 }, (_, i) => {
             const idx = rightAds.length > 0 ? (rightIdx + i) % rightAds.length : -1
@@ -95,7 +95,11 @@ export default function Home() {
                 onClick={() => ad?.link_url && window.open(ad.link_url, '_blank', 'noopener')}>
                 {ad?.imagen_url
                   ? <img src={ad.imagen_url} alt={ad.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                  : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: 'var(--gray2)', textTransform: 'uppercase', letterSpacing: '.1em', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
+                  : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', border: '1px dashed #1e1e1e', margin: '4px', boxSizing: 'border-box' }}>
+                      <div style={{ fontSize: '9px', color: '#2a2a2a', textTransform: 'uppercase', letterSpacing: '.12em', fontFamily: 'var(--font-mono)', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
+                    </div>
+                  )
                 }
               </div>
             )

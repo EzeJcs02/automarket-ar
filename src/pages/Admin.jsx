@@ -17,7 +17,6 @@ export default function Admin() {
   const [tab, setTab] = useState('pendientes')
   const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '' })
   const [adLoading, setAdLoading] = useState(false)
-  const [adFile, setAdFile] = useState(null)
   const [consultaDetalle, setConsultaDetalle] = useState(null)
 
   useEffect(() => {
@@ -103,26 +102,9 @@ export default function Admin() {
   }
 
   async function agregarAd() {
-    if (!nuevaAd.nombre.trim()) return
+    const imagen_url = nuevaAd.imagen_url.trim()
+    if (!nuevaAd.nombre.trim() || !imagen_url) return
     setAdLoading(true)
-    let imagen_url = nuevaAd.imagen_url.trim()
-    if (adFile) {
-      const ext = adFile.name.split('.').pop()
-      const path = `ad_${Date.now()}.${ext}`
-      const { error: upErr } = await supabase.storage.from('publicidades').upload(path, adFile)
-      if (upErr) {
-        alert(`Error al subir la imagen: ${upErr.message}\n\nPodés pegar una URL de imagen directamente en el campo de texto.`)
-        setAdLoading(false)
-        return
-      }
-      const { data: urlData } = supabase.storage.from('publicidades').getPublicUrl(path)
-      imagen_url = urlData.publicUrl
-    }
-    if (!imagen_url) {
-      alert('Agregá una imagen: seleccioná un archivo o pegá una URL.')
-      setAdLoading(false)
-      return
-    }
     const { error: insErr } = await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null, activo: true })
     if (insErr) {
       alert(`Error al guardar: ${insErr.message}`)
@@ -130,7 +112,6 @@ export default function Admin() {
       return
     }
     setNuevaAd({ nombre: '', imagen_url: '', link_url: '' })
-    setAdFile(null)
     const { data } = await supabase.from('publicidades').select('*').order('created_at', { ascending: false })
     setPublicidades(data || [])
     setAdLoading(false)
@@ -374,25 +355,21 @@ export default function Admin() {
                       <input placeholder="Ej: Lubricentro López" value={nuevaAd.nombre} onChange={e => setNuevaAd(p => ({ ...p, nombre: e.target.value }))} />
                     </div>
                     <div className="form-field" style={{ margin: 0 }}>
-                      <label>Imagen * — subí archivo o pegá URL (180×200px recomendado)</label>
-                      <input type="file" accept="image/*" onChange={e => { setAdFile(e.target.files[0] || null); setNuevaAd(p => ({ ...p, imagen_url: '' })) }} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '8px 12px', borderRadius: 'var(--radius)', fontSize: '13px', width: '100%' }} />
-                      <input placeholder="O pegá una URL de imagen..." value={nuevaAd.imagen_url} onChange={e => { setNuevaAd(p => ({ ...p, imagen_url: e.target.value })); setAdFile(null) }} style={{ marginTop: '6px' }} />
+                      <label>URL de imagen * — subí tu imagen a <a href="https://imgur.com/upload" target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Imgur</a> o similar y pegá el link</label>
+                      <input placeholder="https://i.imgur.com/..." value={nuevaAd.imagen_url} onChange={e => setNuevaAd(p => ({ ...p, imagen_url: e.target.value }))} />
                     </div>
                     <div className="form-field" style={{ margin: 0 }}>
                       <label>Link al hacer click (opcional)</label>
                       <input placeholder="https://wa.me/..." value={nuevaAd.link_url} onChange={e => setNuevaAd(p => ({ ...p, link_url: e.target.value }))} />
                     </div>
                   </div>
-                  {(nuevaAd.imagen_url || adFile) && (
+                  {nuevaAd.imagen_url && (
                     <div style={{ marginBottom: '12px' }}>
                       <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '6px' }}>Preview:</div>
-                      {adFile
-                        ? <img src={URL.createObjectURL(adFile)} alt="preview" style={{ width: '90px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)' }} />
-                        : <img src={nuevaAd.imagen_url} alt="preview" style={{ width: '90px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)' }} onError={e => e.target.style.display='none'} />
-                      }
+                      <img src={nuevaAd.imagen_url} alt="preview" style={{ width: '90px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)' }} onError={e => e.target.style.display='none'} />
                     </div>
                   )}
-                  <button className="btn-primary" onClick={agregarAd} disabled={adLoading || !nuevaAd.nombre.trim() || (!nuevaAd.imagen_url.trim() && !adFile)} style={{ padding: '8px 24px', fontSize: '13px' }}>
+                  <button className="btn-primary" onClick={agregarAd} disabled={adLoading || !nuevaAd.nombre.trim() || !nuevaAd.imagen_url.trim()} style={{ padding: '8px 24px', fontSize: '13px' }}>
                     {adLoading ? 'Guardando...' : '+ Agregar publicidad'}
                   </button>
                 </div>

@@ -34,7 +34,7 @@ export default function Admin() {
       supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
       supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
       supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200),
-      fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()),
+      fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()).catch(() => ({ users: [] })),
       supabase.from('publicidades').select('*').order('created_at', { ascending: false }),
       supabase.from('consultas').select('*, autos(marca, modelo), concesionarias(nombre)').order('created_at', { ascending: false }).limit(300),
     ])

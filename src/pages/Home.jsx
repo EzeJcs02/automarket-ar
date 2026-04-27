@@ -27,7 +27,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (rightAds.length === 0) return
+    if (rightAds.length <= 6) return
     const t = setInterval(() => setRightIdx(i => (i + 1) % rightAds.length), 3500)
     return () => clearInterval(t)
   }, [rightAds.length])
@@ -88,19 +88,30 @@ export default function Home() {
         <div className="hero-ads-right" style={{ flex: '0 0 42%', minWidth: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
           <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
           {Array.from({ length: 6 }, (_, i) => {
-            const idx = rightAds.length > 0 ? (rightIdx + i) % rightAds.length : -1
-            const ad = idx >= 0 ? rightAds[idx] : null
+            // Un slot solo recibe un ad si hay uno asignado a esa posición.
+            // Si hay más de 6 ads, se rota la ventana de 6 con rightIdx.
+            const ad = i < rightAds.length
+              ? rightAds[rightAds.length > 6 ? (rightIdx + i) % rightAds.length : i]
+              : null
             return (
-              <div key={i} style={{ flex: 1, overflow: 'hidden', borderBottom: i < 5 ? '1px solid var(--gray2)' : 'none', position: 'relative', cursor: ad?.link_url ? 'pointer' : 'default' }}
-                onClick={() => ad?.link_url && window.open(ad.link_url, '_blank', 'noopener')}>
-                {ad?.imagen_url
-                  ? <img src={ad.imagen_url} alt={ad.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                  : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', border: '1px dashed #1e1e1e', margin: '4px', boxSizing: 'border-box' }}>
-                      <div style={{ fontSize: '9px', color: '#2a2a2a', textTransform: 'uppercase', letterSpacing: '.12em', fontFamily: 'var(--font-mono)', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
-                    </div>
-                  )
-                }
+              <div key={i}
+                onClick={() => ad?.link_url && window.open(ad.link_url, '_blank', 'noopener')}
+                style={{
+                  flex: 1, minHeight: 0,
+                  borderBottom: i < 5 ? '1px solid var(--gray2)' : 'none',
+                  position: 'relative',
+                  cursor: ad?.link_url ? 'pointer' : 'default',
+                  backgroundColor: '#050505',
+                  backgroundImage: ad?.imagen_url ? `url(${ad.imagen_url})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                }}>
+                {!ad && (
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ fontSize: '9px', color: '#2a2a2a', textTransform: 'uppercase', letterSpacing: '.12em', fontFamily: 'var(--font-mono)', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
+                  </div>
+                )}
               </div>
             )
           })}

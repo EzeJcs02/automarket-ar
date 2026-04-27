@@ -103,7 +103,7 @@ export default function Home() {
                   cursor: ad?.link_url ? 'pointer' : 'default',
                   backgroundColor: '#050505',
                   backgroundImage: ad?.imagen_url ? `url(${ad.imagen_url})` : 'none',
-                  backgroundSize: 'cover',
+                  backgroundSize: 'contain',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
                 }}>

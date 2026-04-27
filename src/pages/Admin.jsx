@@ -110,13 +110,25 @@ export default function Admin() {
       const ext = adFile.name.split('.').pop()
       const path = `ad_${Date.now()}.${ext}`
       const { error: upErr } = await supabase.storage.from('publicidades').upload(path, adFile)
-      if (!upErr) {
-        const { data } = supabase.storage.from('publicidades').getPublicUrl(path)
-        imagen_url = data.publicUrl
+      if (upErr) {
+        alert(`Error al subir la imagen: ${upErr.message}\n\nPodés pegar una URL de imagen directamente en el campo de texto.`)
+        setAdLoading(false)
+        return
       }
+      const { data: urlData } = supabase.storage.from('publicidades').getPublicUrl(path)
+      imagen_url = urlData.publicUrl
     }
-    if (!imagen_url) { setAdLoading(false); return }
-    await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null })
+    if (!imagen_url) {
+      alert('Agregá una imagen: seleccioná un archivo o pegá una URL.')
+      setAdLoading(false)
+      return
+    }
+    const { error: insErr } = await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null, activo: true })
+    if (insErr) {
+      alert(`Error al guardar: ${insErr.message}`)
+      setAdLoading(false)
+      return
+    }
     setNuevaAd({ nombre: '', imagen_url: '', link_url: '' })
     setAdFile(null)
     const { data } = await supabase.from('publicidades').select('*').order('created_at', { ascending: false })

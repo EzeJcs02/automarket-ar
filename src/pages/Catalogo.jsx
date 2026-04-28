@@ -21,6 +21,8 @@ export default function Catalogo() {
   const [alertaEmail, setAlertaEmail] = useState('')
   const [alertaOk, setAlertaOk] = useState(false)
   const [alertaGuardando, setAlertaGuardando] = useState(false)
+  const [ordenar, setOrdenar] = useState('relevancia')
+  const [autosRaw, setAutosRaw] = useState([])
 
   const esParticular = user && !concesionaria && !isAdmin
 
@@ -58,6 +60,14 @@ export default function Catalogo() {
     })
   }
 
+  function applySort(lista, ord) {
+    if (ord === 'precio_asc') return [...lista].sort((a, b) => (Number(a.precio_ars) || 0) - (Number(b.precio_ars) || 0))
+    if (ord === 'precio_desc') return [...lista].sort((a, b) => (Number(b.precio_ars) || 0) - (Number(a.precio_ars) || 0))
+    if (ord === 'anio_desc') return [...lista].sort((a, b) => b.anio - a.anio)
+    if (ord === 'anio_asc') return [...lista].sort((a, b) => a.anio - b.anio)
+    return sortByPriority(lista)
+  }
+
   async function fetchAutos() {
     setLoading(true)
     let q = supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)').eq('activo', true)
@@ -75,10 +85,15 @@ export default function Catalogo() {
     const filtered = filtros.ciudad
       ? (data || []).filter(a => a.concesionarias?.ciudad?.toLowerCase().includes(filtros.ciudad.toLowerCase()))
       : (data || [])
-    setAutos(sortByPriority(filtered))
+    setAutosRaw(filtered)
+    setAutos(applySort(filtered, ordenar))
     setPage(1)
     setLoading(false)
   }
+
+  useEffect(() => {
+    if (autosRaw.length > 0) { setAutos(applySort(autosRaw, ordenar)); setPage(1) }
+  }, [ordenar])
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
 
@@ -155,9 +170,25 @@ export default function Catalogo() {
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Precio (ARS)</div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input style={inputStyle} placeholder="Mínimo" value={filtros.precioMin} onChange={e => setF('precioMin', e.target.value)} />
-              <input style={inputStyle} placeholder="Máximo" value={filtros.precioMax} onChange={e => setF('precioMax', e.target.value)} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--gray5)', marginBottom: '6px' }}>
+              <span>{filtros.precioMin ? `$${Number(filtros.precioMin).toLocaleString('es-AR')}` : '$0'}</span>
+              <span style={{ color: 'var(--white)' }}>{filtros.precioMax ? `$${Number(filtros.precioMax).toLocaleString('es-AR')}` : 'Sin límite'}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Mínimo</div>
+                <input type="range" min="0" max="200000000" step="500000"
+                  value={filtros.precioMin || 0}
+                  onChange={e => setF('precioMin', e.target.value === '0' ? '' : e.target.value)}
+                  style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Máximo</div>
+                <input type="range" min="0" max="200000000" step="500000"
+                  value={filtros.precioMax || 200000000}
+                  onChange={e => setF('precioMax', e.target.value === '200000000' ? '' : e.target.value)}
+                  style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }} />
+              </div>
             </div>
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
@@ -189,7 +220,7 @@ export default function Catalogo() {
             <input style={inputStyle} placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={fetchAutos}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'' }); setPage(1); setTimeout(fetchAutos, 100) }}>Limpiar</button>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'' }); setOrdenar('relevancia'); setPage(1); setTimeout(fetchAutos, 100) }}>Limpiar</button>
 
           {/* ALERTA DE BÚSQUEDA */}
           <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray2)' }}>
@@ -220,6 +251,19 @@ export default function Catalogo() {
         </div>
         {/* RESULTS */}
         <div style={{ flex: 1, padding: '2rem' }}>
+          {!loading && autos.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>{autos.length} resultado{autos.length !== 1 ? 's' : ''}</div>
+              <select value={ordenar} onChange={e => setOrdenar(e.target.value)}
+                style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '7px 12px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none', cursor: 'pointer' }}>
+                <option value="relevancia">Relevancia</option>
+                <option value="precio_asc">Precio: menor a mayor</option>
+                <option value="precio_desc">Precio: mayor a menor</option>
+                <option value="anio_desc">Año: más reciente</option>
+                <option value="anio_asc">Año: más antiguo</option>
+              </select>
+            </div>
+          )}
           {loading
             ? <div className="spinner" />
             : autos.length === 0

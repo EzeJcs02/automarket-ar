@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useComparador } from '../context/ComparadorContext'
-
+import CarCard from '../components/CarCard'
 import { setMeta, setCanonical, resetMeta } from '../lib/seo'
 
 export default function AutoDetalle() {
@@ -19,6 +19,8 @@ export default function AutoDetalle() {
   const [enviado, setEnviado] = useState(false)
   const [isFavorito, setIsFavorito] = useState(false)
   const [dolarBlue, setDolarBlue] = useState(null)
+  const [autosSimilares, setAutosSimilares] = useState([])
+  const [linkCopiado, setLinkCopiado] = useState(false)
 
   const esParticular = user && !concesionaria && !isAdmin
   const { agregar, quitar, estaEnLista, lista } = useComparador()
@@ -81,6 +83,12 @@ export default function AutoDetalle() {
       }
     })
     supabase.rpc('incrementar_vistas', { auto_id: id }).then()
+    // Autos similares (misma marca, excluir el actual)
+    if (data?.marca) {
+      supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)')
+        .eq('activo', true).eq('marca', data.marca).neq('id', id).limit(4)
+        .then(({ data: sim }) => setAutosSimilares(sim || []))
+    }
     return () => resetMeta()
   }, [id])
 
@@ -217,6 +225,18 @@ export default function AutoDetalle() {
               </p>
             </div>
           )}
+
+          {/* AUTOS SIMILARES */}
+          {autosSimilares.length > 0 && (
+            <div style={{ marginTop: '3rem', paddingTop: '3rem', borderTop: '1px solid var(--gray2)' }}>
+              <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+                También te puede interesar
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
+                {autosSimilares.map(a => <CarCard key={a.id} auto={a} />)}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* COLUMNA DERECHA */}
@@ -235,6 +255,28 @@ export default function AutoDetalle() {
             )}
           </div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', lineHeight: 1, marginBottom: '1rem' }}>{auto.modelo.toUpperCase()}</div>
+
+          {/* COMPARTIR */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
+            <button onClick={() => {
+              const url = window.location.href
+              const txt = `${auto.marca} ${auto.modelo} ${auto.anio} — ${auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}`
+              window.open(`https://wa.me/?text=${encodeURIComponent(txt + '\n' + url)}`, '_blank')
+            }} style={{ flex: 1, padding: '8px', background: '#25D366', border: 'none', borderRadius: 'var(--radius)', color: '#fff', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600 }}>
+              Compartir WA
+            </button>
+            <button onClick={() => {
+              navigator.clipboard.writeText(window.location.href)
+              setLinkCopiado(true)
+              setTimeout(() => setLinkCopiado(false), 2000)
+            }} style={{ flex: 1, padding: '8px', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: linkCopiado ? '#4ade80' : 'var(--white)', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-body)', transition: 'color .2s' }}>
+              {linkCopiado ? '✓ Copiado' : 'Copiar link'}
+            </button>
+            <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${auto.marca} ${auto.modelo} ${auto.anio} en FIORA MARKET`)}&url=${encodeURIComponent(window.location.href)}`, '_blank')}
+              style={{ padding: '8px 12px', background: '#000', border: '1px solid #333', borderRadius: 'var(--radius)', color: '#fff', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+              𝕏
+            </button>
+          </div>
 
           {(Number(auto.precio_ars) > 0 || Number(auto.precio_usd) > 0) && (
             <div style={{ padding: '1.25rem', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', marginTop: '2rem', marginBottom: '2rem', border: '1px solid var(--gray2)' }}>

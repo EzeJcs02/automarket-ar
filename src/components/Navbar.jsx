@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 export default function Navbar() {
@@ -9,6 +9,10 @@ export default function Navbar() {
   const [busqueda, setBusqueda] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [noLeidas, setNoLeidas] = useState(0)
+  const [sugerencias, setSugerencias] = useState([])
+  const [showSug, setShowSug] = useState(false)
+  const debounceRef = useRef(null)
+  const searchRef = useRef(null)
 
   useEffect(() => {
     if (!concesionaria) return
@@ -27,8 +31,30 @@ export default function Navbar() {
     setMenuOpen(false)
   }
 
+  function handleBusquedaChange(val) {
+    setBusqueda(val)
+    clearTimeout(debounceRef.current)
+    if (!val.trim() || val.length < 2) { setSugerencias([]); setShowSug(false); return }
+    debounceRef.current = setTimeout(async () => {
+      const { data } = await supabase.from('autos')
+        .select('id, marca, modelo, anio, tipo')
+        .eq('activo', true)
+        .or(`marca.ilike.%${val}%,modelo.ilike.%${val}%`)
+        .limit(6)
+      setSugerencias(data || [])
+      setShowSug(true)
+    }, 280)
+  }
+
+  function elegirSugerencia(a) {
+    setShowSug(false)
+    setBusqueda('')
+    navigate(`/auto/${a.id}`)
+  }
+
   function handleSearch(e) {
     e.preventDefault()
+    setShowSug(false)
     if (busqueda.trim()) navigate(`/catalogo?q=${encodeURIComponent(busqueda.trim())}`)
     else navigate('/catalogo')
     setMenuOpen(false)
@@ -70,10 +96,35 @@ export default function Navbar() {
 
         {/* DESKTOP: buscador + links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'flex-end' }} className="nav-desktop">
-          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px', maxWidth: '360px', width: '100%' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Buscar vehículo, marca, modelo..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
-          </form>
+          <div ref={searchRef} style={{ position: 'relative', maxWidth: '360px', width: '100%' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Buscar vehículo, marca, modelo..." value={busqueda}
+                onChange={e => handleBusquedaChange(e.target.value)}
+                onFocus={() => sugerencias.length > 0 && setShowSug(true)}
+                onBlur={() => setTimeout(() => setShowSug(false), 150)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
+            </form>
+            {showSug && sugerencias.length > 0 && (
+              <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', zIndex: 2000, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                {sugerencias.map(a => (
+                  <div key={a.id} onMouseDown={() => elegirSugerencia(a)}
+                    style={{ padding: '10px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray2)', transition: 'background .15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--gray2)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <span style={{ fontSize: '13px', color: 'var(--white)', fontWeight: 500 }}>{a.marca} {a.modelo}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>{a.anio} · {a.tipo}</span>
+                  </div>
+                ))}
+                <div onMouseDown={handleSearch}
+                  style={{ padding: '9px 16px', cursor: 'pointer', fontSize: '12px', color: 'var(--accent)', textAlign: 'center', fontWeight: 600 }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--gray2)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  Ver todos los resultados →
+                </div>
+              </div>
+            )}
+          </div>
           <Link to="/catalogo" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Catálogo</Link>
           <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Concesionarias</Link>
           <Link to="/planes" style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Planes</Link>

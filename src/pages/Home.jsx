@@ -27,7 +27,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (rightAds.length <= 3) return
+    if (rightAds.length <= 4) return
     const t = setInterval(() => setRightIdx(i => (i + 1) % rightAds.length), 3500)
     return () => clearInterval(t)
   }, [rightAds.length])
@@ -84,19 +84,19 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ADS DERECHA — 3 slots cycling */}
+        {/* ADS DERECHA — 4 slots cycling */}
         <div className="hero-ads-right" style={{ flex: '0 0 38%', minWidth: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
           <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
-          {Array.from({ length: 3 }, (_, i) => {
+          {Array.from({ length: 4 }, (_, i) => {
             const ad = i < rightAds.length
-              ? rightAds[rightAds.length > 3 ? (rightIdx + i) % rightAds.length : i]
+              ? rightAds[rightAds.length > 4 ? (rightIdx + i) % rightAds.length : i]
               : null
             return (
               <div key={i}
                 onClick={() => ad?.link_url && window.open(ad.link_url, '_blank', 'noopener')}
                 style={{
                   flex: 1, minHeight: 0,
-                  borderBottom: i < 2 ? '1px solid var(--gray2)' : 'none',
+                  borderBottom: i < 3 ? '1px solid var(--gray2)' : 'none',
                   position: 'relative',
                   cursor: ad?.link_url ? 'pointer' : 'default',
                   backgroundColor: ad?.imagen_url ? '#fff' : '#050505',

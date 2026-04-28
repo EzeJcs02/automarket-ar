@@ -21,6 +21,8 @@ export default function AutoDetalle() {
   const [dolarBlue, setDolarBlue] = useState(null)
   const [autosSimilares, setAutosSimilares] = useState([])
   const [linkCopiado, setLinkCopiado] = useState(false)
+  const [erroresConsulta, setErroresConsulta] = useState({})
+  const [telCopiado, setTelCopiado] = useState(false)
 
   const esParticular = user && !concesionaria && !isAdmin
   const { agregar, quitar, estaEnLista, lista } = useComparador()
@@ -110,7 +112,13 @@ export default function AutoDetalle() {
   }
 
   async function enviarConsulta() {
-    if (!consulta.nombre || !consulta.email || !consulta.mensaje) return
+    const errs = {}
+    if (!consulta.nombre.trim()) errs.nombre = 'El nombre es requerido'
+    if (!consulta.email.trim()) errs.email = 'El email es requerido'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(consulta.email)) errs.email = 'Ingresá un email válido'
+    if (!consulta.mensaje.trim()) errs.mensaje = 'El mensaje es requerido'
+    setErroresConsulta(errs)
+    if (Object.keys(errs).length > 0) return
     setEnviando(true)
     await supabase.from('consultas').insert({
       auto_id: auto.id,
@@ -381,20 +389,32 @@ export default function AutoDetalle() {
             <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', border: '1px solid var(--gray2)' }}>
               <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '1rem', color: 'var(--white)' }}>Contactar concesionaria</div>
               {c.whatsapp && (
-                <button onClick={() => window.open(`https://wa.me/${c.whatsapp.replace(/\D/g,'')}?text=Hola! Me interesa el ${auto.marca} ${auto.modelo}`, '_blank')}
-                  className="btn-primary"
-                  style={{ width: '100%', background: '#25D366', color: '#fff', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37,211,102,0.2)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
-                  WhatsApp
-                </button>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                  <button onClick={() => window.open(`https://wa.me/${c.whatsapp.replace(/\D/g,'')}?text=Hola! Me interesa el ${auto.marca} ${auto.modelo}`, '_blank')}
+                    className="btn-primary"
+                    style={{ flex: 1, background: '#25D366', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37,211,102,0.2)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
+                    WhatsApp
+                  </button>
+                  <button onClick={() => { navigator.clipboard.writeText(c.whatsapp); setTelCopiado(true); setTimeout(() => setTelCopiado(false), 2000) }}
+                    style={{ padding: '0 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: telCopiado ? '#4ade80' : 'var(--gray4)', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color .2s' }}>
+                    {telCopiado ? '✓ Copiado' : '📋 Número'}
+                  </button>
+                </div>
               )}
               {c.telefono && !c.whatsapp && (
-                <button onClick={() => window.open(`https://wa.me/${c.telefono.replace(/\D/g,'')}?text=Hola! Me interesa el ${auto.marca} ${auto.modelo}`, '_blank')}
-                  className="btn-primary"
-                  style={{ width: '100%', background: '#25D366', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37,211,102,0.2)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
-                  WhatsApp
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={() => window.open(`https://wa.me/${c.telefono.replace(/\D/g,'')}?text=Hola! Me interesa el ${auto.marca} ${auto.modelo}`, '_blank')}
+                    className="btn-primary"
+                    style={{ flex: 1, background: '#25D366', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37,211,102,0.2)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
+                    WhatsApp
+                  </button>
+                  <button onClick={() => { navigator.clipboard.writeText(c.telefono); setTelCopiado(true); setTimeout(() => setTelCopiado(false), 2000) }}
+                    style={{ padding: '0 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: telCopiado ? '#4ade80' : 'var(--gray4)', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color .2s' }}>
+                    {telCopiado ? '✓ Copiado' : '📋 Número'}
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -404,10 +424,13 @@ export default function AutoDetalle() {
             {enviado
               ? <div style={{ padding: '1rem', background: 'rgba(74,222,128,0.1)', color: '#4ade80', borderRadius: 'var(--radius)', border: '1px solid rgba(74,222,128,0.2)', textAlign: 'center' }}>✓ Mensaje enviado con éxito.</div>
               : <>
-                  <input type="text" placeholder="Tu nombre" value={consulta.nombre} onChange={e => setConsulta(p => ({ ...p, nombre: e.target.value }))} />
-                  <input type="email" placeholder="Tu email" value={consulta.email} onChange={e => setConsulta(p => ({ ...p, email: e.target.value }))} />
+                  <input type="text" placeholder="Tu nombre *" value={consulta.nombre} onChange={e => { setConsulta(p => ({ ...p, nombre: e.target.value })); setErroresConsulta(p => ({ ...p, nombre: '' })) }} style={erroresConsulta.nombre ? { borderColor: '#f87171' } : {}} />
+                  {erroresConsulta.nombre && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '-8px', marginBottom: '4px' }}>⚠ {erroresConsulta.nombre}</div>}
+                  <input type="email" placeholder="Tu email *" value={consulta.email} onChange={e => { setConsulta(p => ({ ...p, email: e.target.value })); setErroresConsulta(p => ({ ...p, email: '' })) }} style={erroresConsulta.email ? { borderColor: '#f87171' } : {}} />
+                  {erroresConsulta.email && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '-8px', marginBottom: '4px' }}>⚠ {erroresConsulta.email}</div>}
                   <input type="tel" placeholder="Tu teléfono (opcional)" value={consulta.telefono} onChange={e => setConsulta(p => ({ ...p, telefono: e.target.value }))} />
-                  <textarea placeholder="Hola, me interesa este vehículo..." value={consulta.mensaje} onChange={e => setConsulta(p => ({ ...p, mensaje: e.target.value }))} style={{ minHeight: '100px' }} />
+                  <textarea placeholder="Hola, me interesa este vehículo... *" value={consulta.mensaje} onChange={e => { setConsulta(p => ({ ...p, mensaje: e.target.value })); setErroresConsulta(p => ({ ...p, mensaje: '' })) }} style={{ minHeight: '100px', ...(erroresConsulta.mensaje ? { borderColor: '#f87171' } : {}) }} />
+                  {erroresConsulta.mensaje && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '-8px', marginBottom: '4px' }}>⚠ {erroresConsulta.mensaje}</div>}
                   <button className="btn-primary" onClick={enviarConsulta} disabled={enviando} style={{ marginTop: '0.5rem', width: '100%' }}>
                     {enviando ? 'Enviando...' : 'Enviar consulta'}
                   </button>

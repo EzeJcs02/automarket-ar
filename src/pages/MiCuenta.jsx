@@ -274,8 +274,8 @@ export default function MiCuenta() {
                         const res = await fetch('/api/mp-create-preference', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo: 'publicacion_adicional', user_id: user.id, user_email: user.email, origen: 'mi-cuenta' }) })
                         const data = await res.json()
                         if (data.init_point) window.location.href = data.init_point
-                        else alert('Error al iniciar el pago.')
-                      } catch { alert('Error de conexión.') }
+                        else toast('Error al iniciar el pago.', 'error')
+                      } catch { toast('Error de conexión.', 'error') }
                     }}
                     style={{ padding: '9px 20px', borderRadius: 'var(--radius)', border: '1px solid #e0a020', background: 'transparent', color: '#e0a020', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                     Agregar publicación — $15.000 →

@@ -99,7 +99,7 @@ export default function Home() {
                   borderBottom: i < 3 ? '1px solid var(--gray2)' : 'none',
                   position: 'relative',
                   cursor: ad?.link_url ? 'pointer' : 'default',
-                  backgroundColor: ad?.imagen_url ? '#fff' : '#050505',
+                  backgroundColor: ad?.imagen_url ? (ad.fondo === 'claro' ? '#fff' : '#0a0a0a') : '#050505',
                   backgroundImage: ad?.imagen_url ? `url(${ad.imagen_url})` : 'none',
                   backgroundSize: '85%',
                   backgroundPosition: 'center',

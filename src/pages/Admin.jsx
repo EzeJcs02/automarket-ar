@@ -15,7 +15,7 @@ export default function Admin() {
   const [consultasAdmin, setConsultasAdmin] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
-  const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '' })
+  const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '', fondo: 'oscuro' })
   const [adLoading, setAdLoading] = useState(false)
   const [consultaDetalle, setConsultaDetalle] = useState(null)
 
@@ -105,13 +105,13 @@ export default function Admin() {
     const imagen_url = nuevaAd.imagen_url.trim()
     if (!nuevaAd.nombre.trim() || !imagen_url) return
     setAdLoading(true)
-    const { error: insErr } = await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null, activo: true })
+    const { error: insErr } = await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null, fondo: nuevaAd.fondo, activo: true })
     if (insErr) {
       alert(`Error al guardar: ${insErr.message}`)
       setAdLoading(false)
       return
     }
-    setNuevaAd({ nombre: '', imagen_url: '', link_url: '' })
+    setNuevaAd({ nombre: '', imagen_url: '', link_url: '', fondo: 'oscuro' })
     const { data } = await supabase.from('publicidades').select('*').order('created_at', { ascending: false })
     setPublicidades(data || [])
     setAdLoading(false)
@@ -361,6 +361,21 @@ export default function Admin() {
                     <div className="form-field" style={{ margin: 0 }}>
                       <label>Link al hacer click (opcional)</label>
                       <input placeholder="https://wa.me/..." value={nuevaAd.link_url} onChange={e => setNuevaAd(p => ({ ...p, link_url: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '8px', fontWeight: 500 }}>Fondo de la imagen</div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {['oscuro', 'claro'].map(f => (
+                        <button key={f} onClick={() => setNuevaAd(p => ({ ...p, fondo: f }))}
+                          style={{ padding: '7px 20px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 500, border: '1px solid', cursor: 'pointer', fontFamily: 'var(--font-body)', transition: 'all .2s',
+                            background: nuevaAd.fondo === f ? (f === 'oscuro' ? '#111' : '#fff') : 'transparent',
+                            color: nuevaAd.fondo === f ? (f === 'oscuro' ? '#fff' : '#111') : 'var(--gray4)',
+                            borderColor: nuevaAd.fondo === f ? (f === 'oscuro' ? 'var(--gray3)' : '#ccc') : 'var(--gray2)',
+                          }}>
+                          {f === 'oscuro' ? '■ Oscuro' : '□ Claro'}
+                        </button>
+                      ))}
                     </div>
                   </div>
                   {nuevaAd.imagen_url && (

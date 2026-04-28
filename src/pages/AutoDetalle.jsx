@@ -81,14 +81,14 @@ export default function AutoDetalle() {
         if (!ldEl) { ldEl = document.createElement('script'); ldEl.id = 'jsonld-auto'; ldEl.type = 'application/ld+json'; document.head.appendChild(ldEl) }
         ldEl.textContent = JSON.stringify(jsonld)
       }
+      // Autos similares (misma marca, excluir el actual)
+      if (data?.marca) {
+        supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)')
+          .eq('activo', true).eq('marca', data.marca).neq('id', id).limit(4)
+          .then(({ data: sim }) => setAutosSimilares(sim || []))
+      }
     })
     supabase.rpc('incrementar_vistas', { auto_id: id }).then()
-    // Autos similares (misma marca, excluir el actual)
-    if (data?.marca) {
-      supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)')
-        .eq('activo', true).eq('marca', data.marca).neq('id', id).limit(4)
-        .then(({ data: sim }) => setAutosSimilares(sim || []))
-    }
     return () => resetMeta()
   }, [id])
 

@@ -309,18 +309,26 @@ function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAl
       {/* ESTADÍSTICAS DETALLADAS */}
       {autos.length > 0 && (
         <div style={{ marginBottom: '3rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-          {/* Top autos por vistas */}
+          {/* Top autos por vistas — gráfico de barras */}
           <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Top por vistas</div>
-            {[...autos].sort((a, b) => (b.vistas || 0) - (a.vistas || 0)).slice(0, 5).map((a, i) => (
-              <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 4 ? '1px solid var(--gray2)' : 'none' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', width: '16px' }}>#{i + 1}</span>
-                  <span style={{ fontSize: '13px', color: 'var(--white)' }}>{a.marca} {a.modelo} <span style={{ color: 'var(--gray5)' }}>{a.anio}</span></span>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.25rem' }}>Vistas por vehículo</div>
+            {(() => {
+              const top = [...autos].sort((a, b) => (b.vistas || 0) - (a.vistas || 0)).slice(0, 5)
+              const maxV = Math.max(1, top[0]?.vistas || 0)
+              return top.map((a, i) => (
+                <div key={a.id} style={{ marginBottom: i < top.length - 1 ? '14px' : 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--white)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+                      {a.marca} {a.modelo} <span style={{ color: 'var(--gray5)', fontWeight: 'normal' }}>{a.anio}</span>
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: i === 0 ? 'var(--accent)' : 'var(--white)', flexShrink: 0, marginLeft: '8px' }}>{a.vistas || 0}</span>
+                  </div>
+                  <div style={{ background: 'var(--gray2)', borderRadius: '100px', height: '6px', overflow: 'hidden' }}>
+                    <div style={{ width: `${Math.max(4, ((a.vistas || 0) / maxV) * 100)}%`, height: '100%', background: i === 0 ? 'var(--accent)' : `rgba(230,51,41,${0.6 - i * 0.1})`, borderRadius: '100px', transition: 'width .5s ease' }} />
+                  </div>
                 </div>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: i === 0 ? 'var(--accent)' : 'var(--white)' }}>{a.vistas || 0}</span>
-              </div>
-            ))}
+              ))
+            })()}
           </div>
 
           {/* Consultas últimos 7 días */}

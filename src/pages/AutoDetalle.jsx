@@ -127,6 +127,17 @@ export default function AutoDetalle() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ auto_id: auto.id, nombre: consulta.nombre, email: consulta.email, mensaje: consulta.mensaje, telefono: consulta.telefono || null }),
     }).catch(() => {})
+    // Confirmación al comprador
+    fetch('/api/send-confirma', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: consulta.email,
+        nombre: consulta.nombre,
+        auto: `${auto.marca} ${auto.modelo} ${auto.anio}`,
+        concesionaria: auto.concesionarias?.nombre || 'el vendedor',
+      }),
+    }).catch(() => {})
     setEnviando(false)
     setEnviado(true)
   }

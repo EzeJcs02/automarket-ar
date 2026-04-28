@@ -3,8 +3,9 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
+import { useToast } from '../context/ToastContext'
 
-async function pagarConMP(tipo, user_id, user_email) {
+async function pagarConMP(tipo, user_id, user_email, onError = (m) => alert(m)) {
   try {
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
@@ -13,15 +14,17 @@ async function pagarConMP(tipo, user_id, user_email) {
     })
     const data = await res.json()
     if (data.init_point) window.location.href = data.init_point
-    else alert('Error al iniciar el pago. Intente nuevamente.')
+    else onError('Error al iniciar el pago. Intentá nuevamente.')
   } catch {
-    alert('Error de conexión. Intente nuevamente.')
+    onError('Error de conexión. Intentá nuevamente.')
   }
 }
 
 export default function MiCuenta() {
   const { user, concesionaria, isAdmin, loading: authLoading, signOut } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
+  const pay = (tipo) => pagarConMP(tipo, user?.id, user?.email, msg => toast(msg, 'error'))
   const [favoritos, setFavoritos] = useState([])
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [consultas, setConsultas] = useState([])
@@ -40,10 +43,10 @@ export default function MiCuenta() {
     const params = new URLSearchParams(window.location.search)
     const mp = params.get('mp')
     if (mp === 'ok') {
-      alert('¡Pago exitoso! Tu boost se activará en breve.')
+      toast('¡Pago exitoso! Tu boost se activará en breve.', 'success')
       window.history.replaceState({}, '', '/mi-cuenta')
     } else if (mp === 'fail') {
-      alert('El pago no se completó. Podés intentarlo nuevamente.')
+      toast('El pago no se completó. Podés intentarlo nuevamente.', 'error')
       window.history.replaceState({}, '', '/mi-cuenta')
     }
   }, [])
@@ -605,7 +608,7 @@ function ExtrasConMP({ user, autoId }) {
   const [paying, setPaying] = useState(null)
 
   async function pagar(tipo) {
-    if (!autoId && tipo !== 'publicacion_adicional') { alert('Necesitás tener una publicación activa para usar este boost.'); return }
+    if (!autoId && tipo !== 'publicacion_adicional') { toast('Necesitás tener una publicación activa para usar este boost.', 'warning'); return }
     setPaying(tipo)
     try {
       const res = await fetch('/api/mp-create-preference', {
@@ -615,8 +618,8 @@ function ExtrasConMP({ user, autoId }) {
       })
       const data = await res.json()
       if (data.init_point) window.location.href = data.init_point
-      else alert('Error al iniciar el pago. Intente nuevamente.')
-    } catch { alert('Error de conexión.') }
+      else toast('Error al iniciar el pago. Intentá nuevamente.', 'error')
+    } catch { toast('Error de conexión.', 'error') }
     setPaying(null)
   }
 

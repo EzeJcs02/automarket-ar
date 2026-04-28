@@ -17,7 +17,7 @@ export default function Catalogo() {
   const [loading, setLoading] = useState(true)
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [page, setPage] = useState(1)
-  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', categoria: searchParams.get('categoria') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '', ciudad: '' })
+  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', categoria: searchParams.get('categoria') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '', ciudad: '', kmMax: '', transmision: '' })
   const [alertaEmail, setAlertaEmail] = useState('')
   const [alertaOk, setAlertaOk] = useState(false)
   const [alertaGuardando, setAlertaGuardando] = useState(false)
@@ -80,6 +80,8 @@ export default function Catalogo() {
     if (filtros.anioHasta) q = q.lte('anio', filtros.anioHasta)
     if (filtros.concesionaria) q = q.eq('concesionaria_id', filtros.concesionaria)
     if (filtros.combustible) q = q.eq('combustible', filtros.combustible)
+    if (filtros.transmision) q = q.eq('transmision', filtros.transmision)
+    if (filtros.kmMax) q = q.lte('kilometraje', filtros.kmMax)
     if (filtros.busqueda) q = q.or(`marca.ilike.%${filtros.busqueda}%,modelo.ilike.%${filtros.busqueda}%`)
     const { data } = await q
     const filtered = filtros.ciudad
@@ -216,11 +218,32 @@ export default function Catalogo() {
             </div>
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Transmisión</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {['', 'Manual', 'Automática'].map(t => (
+                <button key={t} style={filtros.transmision === t ? chipActive : chipBase} onClick={() => setF('transmision', t)}>
+                  {t === '' ? 'Todas' : t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Kilometraje máximo</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--gray5)', marginBottom: '6px' }}>
+              <span>0 km</span>
+              <span style={{ color: 'var(--white)' }}>{filtros.kmMax ? `${Number(filtros.kmMax).toLocaleString('es-AR')} km` : 'Sin límite'}</span>
+            </div>
+            <input type="range" min="0" max="300000" step="5000"
+              value={filtros.kmMax || 300000}
+              onChange={e => setF('kmMax', e.target.value === '300000' ? '' : e.target.value)}
+              style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }} />
+          </div>
+          <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Ciudad / Localidad</div>
             <input style={inputStyle} placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={fetchAutos}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'' }); setOrdenar('relevancia'); setPage(1); setTimeout(fetchAutos, 100) }}>Limpiar</button>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }); setOrdenar('relevancia'); setPage(1); setTimeout(fetchAutos, 100) }}>Limpiar</button>
 
           {/* ALERTA DE BÚSQUEDA */}
           <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray2)' }}>

@@ -8,6 +8,8 @@ import { Analytics } from '@vercel/analytics/react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ComparadorProvider, useComparador } from './context/ComparadorContext'
+import { ToastProvider } from './context/ToastContext'
+import { useEffect, useState } from 'react'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Catalogo from './pages/Catalogo'
@@ -20,6 +22,25 @@ import Planes from './pages/Planes'
 import Favoritos from './pages/Favoritos'
 import MiCuenta from './pages/MiCuenta'
 import Comparador from './pages/Comparador'
+
+function ScrollToTop() {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 400)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  if (!visible) return null
+  return (
+    <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      title="Volver arriba"
+      style={{ position: 'fixed', bottom: '90px', left: '1.25rem', zIndex: 900, width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,.4)', transition: 'all .2s' }}
+      onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
+      ↑
+    </button>
+  )
+}
 
 function ComparadorBar() {
   const { lista, quitar, limpiar } = useComparador()
@@ -50,6 +71,7 @@ function ComparadorBar() {
 export default function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <ComparadorProvider>
       <BrowserRouter>
         <Routes>
@@ -81,6 +103,7 @@ export default function App() {
               <Footer />
               </div>
               <ComparadorBar />
+              <ScrollToTop />
               <CookieBanner />
               <Analytics />
             </>
@@ -88,6 +111,7 @@ export default function App() {
         </Routes>
       </BrowserRouter>
       </ComparadorProvider>
+      </ToastProvider>
     </AuthProvider>
   )
 }

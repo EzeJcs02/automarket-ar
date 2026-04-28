@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
 const LIMITES_PLAN = { free: 1, basico: 8, pro: 20, premium: 50 }
 
-async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}) {
+async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
   try {
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
@@ -15,15 +16,17 @@ async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_
     })
     const data = await res.json()
     if (data.init_point) window.location.href = data.init_point
-    else alert('Error al iniciar el pago. Intente nuevamente.')
+    else onError('Error al iniciar el pago. Intentá nuevamente.')
   } catch {
-    alert('Error de conexión. Intente nuevamente.')
+    onError('Error de conexión. Intentá nuevamente.')
   }
 }
 
 export default function Panel() {
   const { user, concesionaria, fetchConcesionaria, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
+  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
   const [tab, setTab] = useState('dashboard')
   const [autos, setAutos] = useState([])
   const [consultas, setConsultas] = useState([])
@@ -34,10 +37,10 @@ export default function Panel() {
     const params = new URLSearchParams(window.location.search)
     const mp = params.get('mp')
     if (mp === 'ok') {
-      alert('¡Pago exitoso! Tu boost/plan se activará en breve.')
+      toast('¡Pago exitoso! Tu boost/plan se activará en breve.', 'success')
       window.history.replaceState({}, '', '/panel')
     } else if (mp === 'fail') {
-      alert('El pago no se completó. Podés intentarlo nuevamente.')
+      toast('El pago no se completó. Podés intentarlo nuevamente.', 'error')
       window.history.replaceState({}, '', '/panel')
     }
   }, [])
@@ -143,7 +146,7 @@ function UpgradeModal({ onClose }) {
 
   async function contratar(plan_id) {
     setPaying(plan_id)
-    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
+    await pay(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
     setPaying(null)
   }
 
@@ -189,7 +192,7 @@ function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAl
 
   async function contratarPlan(plan_id) {
     setPaying(plan_id)
-    await pagarConMP(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
+    await pay(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
     setPaying(null)
   }
 
@@ -393,12 +396,12 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
     if (!auto.destacado) {
       if (limiteDestacados === 0) {
         if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Destacado individual por $15.000 para ${auto.marca} ${auto.modelo}?`)) {
-          pagarConMP('destacado', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
+          pay('destacado', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
         }
         return
       }
       if (limiteDestacados !== Infinity && destacadosActivos >= limiteDestacados) {
-        alert(`Tu plan Pro permite hasta ${limiteDestacados} destacados simultáneos. Ya tenés ${destacadosActivos} activos.`)
+        toast(`Tu plan Pro permite hasta ${limiteDestacados} destacados simultáneos. Ya tenés ${destacadosActivos} activos.`, 'warning')
         return
       }
       await supabase.from('autos').update({ destacado: true, urgente: false }).eq('id', auto.id)
@@ -412,12 +415,12 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
     if (!auto.urgente) {
       if (limiteDestacados === 0) {
         if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Urgente individual por $20.000 para ${auto.marca} ${auto.modelo}?`)) {
-          pagarConMP('urgente', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
+          pay('urgente', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
         }
         return
       }
       if (limiteDestacados !== Infinity && urgentesActivos >= limiteDestacados) {
-        alert(`Tu plan Pro permite hasta ${limiteDestacados} urgentes simultáneos. Ya tenés ${urgentesActivos} activos.`)
+        toast(`Tu plan Pro permite hasta ${limiteDestacados} urgentes simultáneos. Ya tenés ${urgentesActivos} activos.`, 'warning')
         return
       }
       await supabase.from('autos').update({ urgente: true, destacado: false }).eq('id', auto.id)
@@ -525,20 +528,20 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                         <svg width="11" height="11" viewBox="0 0 24 24" fill={a.urgente ? 'var(--accent)' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                         Urgente
                       </button>
-                      <button onClick={() => { if (confirm(`¿Subir "${a.marca} ${a.modelo}" al tope por $10.000?`)) pagarConMP('subir_tope', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                      <button onClick={() => { if (confirm(`¿Subir "${a.marca} ${a.modelo}" al tope por $10.000?`)) pay('subir_tope', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
                         title="Subir al tope del catálogo — $10.000"
                         style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                         Tope
                       </button>
-                      <button onClick={() => { if (confirm(`¿Renovar "${a.marca} ${a.modelo}" por 30 días más por $10.000?`)) pagarConMP('renovar', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                      <button onClick={() => { if (confirm(`¿Renovar "${a.marca} ${a.modelo}" por 30 días más por $10.000?`)) pay('renovar', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
                         title="Renovar publicación 30 días — $10.000"
                         style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
                         Renovar
                       </button>
                       {!a.fijado_home ? (
-                        <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $80.000/mes?`)) pagarConMP('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                        <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $80.000/mes?`)) pay('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
                           title="Fijar en página de inicio — $80.000/mes"
                           style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>

@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 export default function Admin() {
   const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const [pendientes, setPendientes] = useState([])
   const [aprobadas, setAprobadas] = useState([])
   const [publicaciones, setPublicaciones] = useState([])
@@ -107,7 +109,7 @@ export default function Admin() {
     setAdLoading(true)
     const { error: insErr } = await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null, fondo: nuevaAd.fondo, activo: true })
     if (insErr) {
-      alert(`Error al guardar: ${insErr.message}`)
+      toast(`Error al guardar: ${insErr.message}`, 'error')
       setAdLoading(false)
       return
     }

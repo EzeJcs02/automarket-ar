@@ -1,6 +1,7 @@
 ﻿import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import { setPageMeta } from '../lib/seo'
 
 const PLANES = [
@@ -125,7 +126,7 @@ function XIcon() {
   )
 }
 
-async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}) {
+async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
   try {
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
@@ -134,21 +135,23 @@ async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_
     })
     const data = await res.json()
     if (data.init_point) window.location.href = data.init_point
-    else alert('Error al iniciar el pago. Intente nuevamente.')
+    else onError('Error al iniciar el pago. Intentá nuevamente.')
   } catch {
-    alert('Error de conexión. Intente nuevamente.')
+    onError('Error de conexión. Intentá nuevamente.')
   }
 }
 
 export default function Planes() {
   const navigate = useNavigate()
   const { user, concesionaria } = useAuth()
+  const { toast } = useToast()
+  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
 
   useEffect(() => { setPageMeta({ title: 'Planes y Precios', description: 'Publicá tu concesionaria en FIORA MARKET. Planes desde gratis hasta Premium con hasta 50 publicaciones, boosts y badge verificada.', path: '/planes' }) }, [])
 
   function handlePlan(planId) {
     if (concesionaria) {
-      pagarConMP(`plan_${planId}`, {
+      pay(`plan_${planId}`, {
         concesionaria_id: concesionaria.id,
         user_id: user?.id,
         user_email: user?.email,
@@ -160,7 +163,7 @@ export default function Planes() {
 
   function handleBannerHome() {
     if (concesionaria) {
-      pagarConMP('banner_home', {
+      pay('banner_home', {
         concesionaria_id: concesionaria.id,
         user_id: user?.id,
         user_email: user?.email,

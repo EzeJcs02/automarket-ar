@@ -22,7 +22,7 @@ export default function Home() {
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(6).order('created_at', { ascending: false }).then(({ data }) => setAutos(data || []))
     supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6).then(({ data }) => setConcesionarias(data || []))
     supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10).then(({ data }) => setBanners(data || []))
-    supabase.from('publicidades').select('id, nombre, imagen_url, link_url').eq('activo', true).order('created_at', { ascending: false }).then(({ data }) => setRightAds(data || []))
+    supabase.from('publicidades').select('id, nombre, imagen_url, link_url, fondo').eq('activo', true).order('created_at', { ascending: false }).then(({ data }) => setRightAds(data || []))
     supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).limit(1).then(({ data }) => setAutoFijado(data?.[0] || null))
   }, [])
 

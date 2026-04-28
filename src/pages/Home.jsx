@@ -27,7 +27,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (rightAds.length <= 6) return
+    if (rightAds.length <= 3) return
     const t = setInterval(() => setRightIdx(i => (i + 1) % rightAds.length), 3500)
     return () => clearInterval(t)
   }, [rightAds.length])
@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <div>
       {/* HERO + ADS DERECHA */}
-      <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: 'calc(100vh - 58px)', display: 'flex', overflow: 'hidden' }}>
         {/* Backgrounds */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, opacity: .04, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
@@ -84,26 +84,24 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ADS DERECHA — 6 slots cycling */}
-        <div className="hero-ads-right" style={{ flex: '0 0 42%', minWidth: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
+        {/* ADS DERECHA — 3 slots cycling */}
+        <div className="hero-ads-right" style={{ flex: '0 0 38%', minWidth: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
           <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
-          {Array.from({ length: 6 }, (_, i) => {
-            // Un slot solo recibe un ad si hay uno asignado a esa posición.
-            // Si hay más de 6 ads, se rota la ventana de 6 con rightIdx.
+          {Array.from({ length: 3 }, (_, i) => {
             const ad = i < rightAds.length
-              ? rightAds[rightAds.length > 6 ? (rightIdx + i) % rightAds.length : i]
+              ? rightAds[rightAds.length > 3 ? (rightIdx + i) % rightAds.length : i]
               : null
             return (
               <div key={i}
                 onClick={() => ad?.link_url && window.open(ad.link_url, '_blank', 'noopener')}
                 style={{
                   flex: 1, minHeight: 0,
-                  borderBottom: i < 5 ? '1px solid var(--gray2)' : 'none',
+                  borderBottom: i < 2 ? '1px solid var(--gray2)' : 'none',
                   position: 'relative',
                   cursor: ad?.link_url ? 'pointer' : 'default',
-                  backgroundColor: '#050505',
+                  backgroundColor: ad?.imagen_url ? '#fff' : '#050505',
                   backgroundImage: ad?.imagen_url ? `url(${ad.imagen_url})` : 'none',
-                  backgroundSize: 'contain',
+                  backgroundSize: '85%',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
                 }}>

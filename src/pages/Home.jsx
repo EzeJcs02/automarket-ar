@@ -84,35 +84,38 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ADS DERECHA — 4 slots cycling */}
+        {/* ADS DERECHA — cycling crossfade */}
         <div className="hero-ads-right" style={{ flex: '0 0 38%', minWidth: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
-          <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase' }}>Publicidad</div>
-          {Array.from({ length: 4 }, (_, i) => {
-            const ad = i < rightAds.length
-              ? rightAds[rightAds.length > 4 ? (rightIdx + i) % rightAds.length : i]
-              : null
-            return (
-              <div key={i}
-                onClick={() => ad?.link_url && window.open(ad.link_url, '_blank', 'noopener')}
+          <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase', flexShrink: 0 }}>Publicidad</div>
+          <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+            {rightAds.length > 0 ? rightAds.map((ad, i) => (
+              <div key={ad.id}
+                onClick={() => ad.link_url && window.open(ad.link_url, '_blank', 'noopener')}
                 style={{
-                  flex: 1, minHeight: 0,
-                  borderBottom: i < 3 ? '1px solid var(--gray2)' : 'none',
-                  position: 'relative',
-                  cursor: ad?.link_url ? 'pointer' : 'default',
-                  backgroundColor: ad?.imagen_url ? (ad.fondo === 'claro' ? '#fff' : '#0a0a0a') : '#050505',
-                  backgroundImage: ad?.imagen_url ? `url(${ad.imagen_url})` : 'none',
+                  position: 'absolute', inset: 0,
+                  opacity: i === rightIdx ? 1 : 0,
+                  transition: 'opacity .8s ease-in-out',
+                  pointerEvents: i === rightIdx ? 'auto' : 'none',
+                  cursor: ad.link_url ? 'pointer' : 'default',
+                  backgroundColor: ad.fondo === 'claro' ? '#fff' : '#0a0a0a',
+                  backgroundImage: `url(${ad.imagen_url})`,
                   backgroundSize: '85%',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
-                }}>
-                {!ad && (
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ fontSize: '9px', color: '#2a2a2a', textTransform: 'uppercase', letterSpacing: '.12em', fontFamily: 'var(--font-mono)', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
-                  </div>
-                )}
+                }} />
+            )) : (
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ fontSize: '9px', color: '#2a2a2a', textTransform: 'uppercase', letterSpacing: '.12em', fontFamily: 'var(--font-mono)', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
               </div>
-            )
-          })}
+            )}
+            {rightAds.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px' }}>
+                {rightAds.map((_, i) => (
+                  <div key={i} onClick={() => setRightIdx(i)} style={{ width: i === rightIdx ? '16px' : '5px', height: '5px', borderRadius: '100px', background: i === rightIdx ? 'var(--white)' : 'rgba(255,255,255,.25)', cursor: 'pointer', transition: 'all .3s' }} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -1,3 +1,5 @@
+const ALLOWED_ORIGIN = 'https://fioramarket.store'
+
 const rateLimit = new Map()
 const WINDOW_MS = 60 * 1000
 const MAX_REQUESTS = 3
@@ -24,6 +26,10 @@ function sanitize(str) {
 }
 
 export default async function handler(req, res) {
+  const origin = req.headers.origin
+  if (origin === ALLOWED_ORIGIN) res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN)
+  res.setHeader('Vary', 'Origin')
+  if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).end()
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown'

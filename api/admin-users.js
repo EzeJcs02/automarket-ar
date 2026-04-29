@@ -1,6 +1,11 @@
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'rlautomotores24@gmail.com'
+const ALLOWED_ORIGIN = 'https://fioramarket.store'
 
 export default async function handler(req, res) {
+  const origin = req.headers.origin
+  if (origin === ALLOWED_ORIGIN) res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN)
+  res.setHeader('Vary', 'Origin')
+  if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET') return res.status(405).end()
 
   const authHeader = req.headers.authorization

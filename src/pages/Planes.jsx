@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -47,7 +47,7 @@ const PLANES = [
     beneficios: [
       'Hasta 50 vehículos publicados',
       'Publicaciones por 30 días',
-      'Destacados ilimitados incluidos',
+      '5 destacados incluidos por mes',
       'Máxima prioridad en resultados',
       'Badge "Agencia Verificada"',
       'Renovación paga disponible',
@@ -59,7 +59,7 @@ const PLANES = [
 const COMPARACION = [
   { label: 'Publicaciones activas', basico: '8', pro: '20', premium: '50' },
   { label: 'Duración por publicación', basico: '30 días', pro: '30 días', premium: '30 días' },
-  { label: 'Destacados incluidos', basico: '—', pro: '3/mes', premium: 'Ilimitados' },
+  { label: 'Destacados incluidos', basico: '—', pro: '3/mes', premium: '5/mes' },
   { label: 'Posicionamiento', basico: 'Estándar', pro: 'Prioritario', premium: 'Máximo' },
   { label: 'Badge verificada', basico: false, pro: false, premium: true },
   { label: 'Perfil en directorio', basico: true, pro: true, premium: true },

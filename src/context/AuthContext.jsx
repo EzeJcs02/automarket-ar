@@ -9,17 +9,42 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) fetchConcesionaria(session.user.id)
-      else setLoading(false)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) fetchConcesionaria(session.user.id)
-      else { setConcesionaria(null); setLoading(false) }
-    })
-    return () => subscription.unsubscribe()
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          await fetchConcesionaria(session.user.id)
+        } else {
+          setLoading(false)
+        }
+      } catch (err) {
+        console.error("Auth initialization failed:", err)
+        setLoading(false)
+      }
+    }
+
+    initAuth()
+
+    let subscription = null
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          fetchConcesionaria(session.user.id)
+        } else {
+          setConcesionaria(null)
+          setLoading(false)
+        }
+      })
+      subscription = data.subscription
+    } catch (err) {
+      console.error("Auth state change listener failed:", err)
+    }
+
+    return () => {
+      if (subscription) subscription.unsubscribe()
+    }
   }, [])
 
   async function fetchConcesionaria(userId) {

@@ -135,6 +135,54 @@ input, select, textarea { font-family: var(--font-body); }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
 
+/* ── INTERACTIVITY & MICRO-ANIMATIONS ──────────────────────── */
+.car-card {
+  transform-origin: center center;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.car-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+  border-color: var(--accent);
+  z-index: 2;
+}
+.car-card .car-img-real {
+  transition: transform 0.5s ease;
+  object-fit: cover;
+}
+.car-card:hover .car-img-real {
+  transform: scale(1.05);
+}
+
+.btn-primary, .btn-secondary {
+  transition: all 0.2s ease !important;
+}
+.btn-primary:active, .btn-secondary:active {
+  transform: scale(0.95) !important;
+}
+
+/* ── SKELETON LOADING ─────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--gray2) 25%, var(--gray1) 50%, var(--gray2) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: var(--radius);
+}
+.skeleton-card {
+  background: var(--gray1);
+  border: 1px solid var(--gray2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.skeleton-img { width: 100%; height: 260px; border-radius: 0; }
+.skeleton-text { height: 14px; margin-bottom: 8px; }
+.skeleton-text-lg { height: 20px; margin-bottom: 12px; width: 60%; }
+.skeleton-text-sm { height: 12px; width: 80%; }
+
 /* ── RESPONSIVE MOBILE ─────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Reducir padding general en page-wrapper */
@@ -198,6 +246,53 @@ input, select, textarea { font-family: var(--font-body); }
   .catalogo-results { padding: 1rem !important; }
 }
 
+/* ── PREMIUM INTERACTIVITY ────────────────────────────────── */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+.type-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid var(--gray2) !important;
+}
+.type-card:hover {
+  border-color: var(--accent) !important;
+  background: linear-gradient(180deg, #110000 0%, #050505 100%) !important;
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(230,51,41,0.15);
+}
+.type-card img {
+  transition: transform 0.5s ease;
+}
+.type-card:hover img {
+  transform: scale(1.1) rotate(2deg);
+}
+
+.dealer-card {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+.dealer-card:hover {
+  background: var(--gray2) !important;
+  border-color: var(--gray3);
+  transform: translateY(-3px);
+}
+
+.step-card {
+  transition: all 0.3s ease;
+}
+.step-card:hover {
+  background: #151515 !important;
+}
+.step-card:hover .step-num {
+  transform: scale(1.1);
+  opacity: 0.8 !important;
+}
+
 /* Home sections */
 @media (max-width: 768px) {
   .home-hero { padding: 3rem 1.5rem !important; }
@@ -220,3 +315,17 @@ input, select, textarea { font-family: var(--font-body); }
 @media (max-width: 900px) {
   .hero-ads-right { display: none !important; }
 }
+
+/* ── ANIMATIONS ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.delay-1 { animation-delay: 0.2s; opacity: 0; }
+.delay-2 { animation-delay: 0.4s; opacity: 0; }
+.delay-3 { animation-delay: 0.6s; opacity: 0; }

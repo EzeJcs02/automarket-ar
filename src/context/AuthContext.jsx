@@ -23,13 +23,18 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function fetchConcesionaria(userId) {
-    const { data } = await supabase
-      .from('concesionarias')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-    setConcesionaria(data)
-    setLoading(false)
+    try {
+      const { data } = await supabase
+        .from('concesionarias')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+      setConcesionaria(data ?? null)
+    } catch {
+      setConcesionaria(null)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function signIn(email, password) {

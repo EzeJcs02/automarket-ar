@@ -1,10 +1,11 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useComparador } from '../context/ComparadorContext'
 import CarCard from '../components/CarCard'
 import { setMeta, setCanonical, resetMeta } from '../lib/seo'
+import { getDolarBlue } from '../lib/dolarBlue'
 
 export default function AutoDetalle() {
   const { id } = useParams()
@@ -23,6 +24,8 @@ export default function AutoDetalle() {
   const [linkCopiado, setLinkCopiado] = useState(false)
   const [erroresConsulta, setErroresConsulta] = useState({})
   const [telCopiado, setTelCopiado] = useState(false)
+  const [fetchError, setFetchError] = useState(null)
+  const [errorConsulta, setErrorConsulta] = useState(null)
 
   const esParticular = user && !concesionaria && !isAdmin
   const { agregar, quitar, estaEnLista, lista } = useComparador()
@@ -30,14 +33,25 @@ export default function AutoDetalle() {
   const [cuotasTNA, setCuotasTNA] = useState(80)
 
   useEffect(() => {
-    fetch('https://dolarapi.com/v1/dolares/blue')
-      .then(r => r.json())
-      .then(d => setDolarBlue(d.venta))
-      .catch(() => {})
+    getDolarBlue().then(v => { if (v) setDolarBlue(v) })
   }, [])
 
   useEffect(() => {
-    supabase.from('autos').select('*, concesionarias(*)').eq('id', id).single().then(({ data }) => {
+    let mounted = true
+
+    async function loadAuto() {
+      const { data, error } = await supabase
+        .from('autos').select('*, concesionarias(*)').eq('id', id).single()
+      if (!mounted) return
+      if (error) {
+        if (error.code === 'PGRST116') {
+          setAuto(null)
+        } else {
+          setFetchError('No pudimos cargar este vehículo. Revisá tu conexión e intentá de nuevo.')
+        }
+        setLoading(false)
+        return
+      }
       setAuto(data)
       setLoading(false)
       if (data) {
@@ -82,16 +96,22 @@ export default function AutoDetalle() {
         let ldEl = document.getElementById('jsonld-auto')
         if (!ldEl) { ldEl = document.createElement('script'); ldEl.id = 'jsonld-auto'; ldEl.type = 'application/ld+json'; document.head.appendChild(ldEl) }
         ldEl.textContent = JSON.stringify(jsonld)
+
+        // Autos similares (misma marca, excluir el actual)
+        if (data.marca) {
+          const { data: sim } = await supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)')
+            .eq('activo', true).eq('marca', data.marca).neq('id', id).limit(4)
+          if (mounted) setAutosSimilares(sim || [])
+        }
       }
-      // Autos similares (misma marca, excluir el actual)
-      if (data?.marca) {
-        supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)')
-          .eq('activo', true).eq('marca', data.marca).neq('id', id).limit(4)
-          .then(({ data: sim }) => setAutosSimilares(sim || []))
-      }
-    })
-    supabase.rpc('incrementar_vistas', { auto_id: id }).then()
-    return () => resetMeta()
+    }
+
+    loadAuto()
+    supabase.rpc('incrementar_vistas', { auto_id: id })
+    return () => {
+      mounted = false
+      resetMeta()
+    }
   }, [id])
 
   useEffect(() => {
@@ -120,7 +140,8 @@ export default function AutoDetalle() {
     setErroresConsulta(errs)
     if (Object.keys(errs).length > 0) return
     setEnviando(true)
-    await supabase.from('consultas').insert({
+    setErrorConsulta(null)
+    const { error: insertError } = await supabase.from('consultas').insert({
       auto_id: auto.id,
       concesionaria_id: auto.concesionaria_id,
       nombre_comprador: consulta.nombre,
@@ -129,6 +150,11 @@ export default function AutoDetalle() {
       mensaje: consulta.mensaje,
       canal: 'formulario'
     })
+    if (insertError) {
+      setEnviando(false)
+      setErrorConsulta('No pudimos enviar tu consulta. Intentá de nuevo en unos minutos.')
+      return
+    }
     // Notificar al vendedor por email
     fetch('/api/send-consulta', {
       method: 'POST',
@@ -156,6 +182,12 @@ export default function AutoDetalle() {
   }
 
   if (loading) return <div className="page-wrapper"><div className="spinner" /></div>
+  if (fetchError) return (
+    <div className="page-wrapper" style={{ padding: '4rem', textAlign: 'center' }}>
+      <p style={{ color: '#f87171', marginBottom: '1rem' }}>⚠ {fetchError}</p>
+      <button className="btn-secondary" onClick={() => window.location.reload()}>Reintentar</button>
+    </div>
+  )
   if (!auto) return <div className="page-wrapper" style={{ padding: '4rem' }}><p style={{ color: 'var(--gray4)' }}>Vehículo no encontrado.</p></div>
 
   const fotos = auto.fotos || []
@@ -308,7 +340,7 @@ export default function AutoDetalle() {
               {(() => {
                 const usd = Number(auto.precio_usd)
                 const ars = Number(auto.precio_ars)
-                const usdCalc = (!usd && ars > 0 && dolarBlue) ? Math.round(ars / dolarBlue) : usd
+                const usdCalc = (!usd && ars > 0 && dolarBlue && isFinite(ars / dolarBlue)) ? Math.round(ars / dolarBlue) : usd
                 const esAprox = !usd && !!usdCalc
                 if (!usdCalc) return null
                 return (
@@ -344,9 +376,11 @@ export default function AutoDetalle() {
           {/* CALCULADORA DE CUOTAS */}
           {Number(auto.precio_ars) > 0 && (() => {
             const capital = Number(auto.precio_ars)
-            const tnaDecimal = cuotasTNA / 100
-            const tem = Math.pow(1 + tnaDecimal, 1/12) - 1
+            const safeTNA = Math.min(Math.max(Number(cuotasTNA) || 0, 0), 500)
+            const tnaDecimal = safeTNA / 100
+            const tem = tnaDecimal / 12
             const cuota = tem === 0 ? capital / cuotasMeses : capital * (tem * Math.pow(1 + tem, cuotasMeses)) / (Math.pow(1 + tem, cuotasMeses) - 1)
+            const cuotaDisplay = isFinite(cuota) && cuota > 0 ? `$${Math.round(cuota).toLocaleString('es-AR')}` : '—'
             return (
               <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid var(--gray2)' }}>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '1rem' }}>Calculadora de cuotas</div>
@@ -360,13 +394,19 @@ export default function AutoDetalle() {
                   </div>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>TNA %</div>
-                    <input type="number" value={cuotasTNA} onChange={e => setCuotasTNA(Number(e.target.value))} min="0" max="500"
+                    <input type="number" value={cuotasTNA}
+                      onChange={e => {
+                        const v = Number(e.target.value)
+                        if (!isFinite(v)) return
+                        setCuotasTNA(Math.min(Math.max(v, 0), 500))
+                      }}
+                      min="0" max="500"
                       style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '7px 10px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none' }} />
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--gray2)', padding: '12px 14px', borderRadius: 'var(--radius)' }}>
                   <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{cuotasMeses} cuotas de</div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--white)' }}>${Math.round(cuota).toLocaleString('es-AR')}</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--white)' }}>{cuotaDisplay}</div>
                 </div>
                 <div style={{ fontSize: '10px', color: 'var(--gray3)', marginTop: '6px' }}>Estimación orientativa. Consultá con tu banco o financiera.</div>
               </div>
@@ -434,6 +474,9 @@ export default function AutoDetalle() {
                   <button className="btn-primary" onClick={enviarConsulta} disabled={enviando} style={{ marginTop: '0.5rem', width: '100%' }}>
                     {enviando ? 'Enviando...' : 'Enviar consulta'}
                   </button>
+                  {errorConsulta && (
+                    <div style={{ color: '#f87171', fontSize: '13px', marginTop: '8px' }}>⚠ {errorConsulta}</div>
+                  )}
                 </>
             }
           </div>

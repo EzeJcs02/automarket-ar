@@ -137,6 +137,8 @@ export default function Panel() {
 function UpgradeModal({ onClose }) {
   const { user, concesionaria } = useAuth()
   const [paying, setPaying] = useState(null)
+  const { toast } = useToast()
+  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
 
   const planes = [
     { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: '#4ade80' },
@@ -184,6 +186,8 @@ function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAl
   const [consultaDetalle, setConsultaDetalle] = useState(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [paying, setPaying] = useState(null)
+  const { toast } = useToast()
+  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
 
   const ultimoPagoPlan = pagos?.filter(p => p.tipo?.startsWith('plan_') && p.estado === 'approved')
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
@@ -386,6 +390,8 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   const [editando, setEditando] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
+  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
 
   const plan = concesionaria?.plan || 'free'
   const destacadosActivos = autos.filter(a => a.destacado).length

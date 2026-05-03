@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+﻿import crypto from 'crypto'
 
 function verifyMpSignature(req) {
   const secret = process.env.MP_WEBHOOK_SECRET
@@ -51,33 +51,20 @@ async function safeFetch(url, options) {
 
 // 🔒 DICCIONARIO DE PRECIOS MÍNIMOS ESPERADOS (Ejemplo)
 const PRECIOS_ESPERADOS = {
-  // Planes agencias
   plan_basico: 30000,
   plan_pro: 70000,
   plan_premium: 150000,
-
-  // Extras individuales
   publicacion_adicional: 15000,
   subir_tope: 10000,
   destacado: 15000,
   urgente: 20000,
   renovar: 10000,
-
-  // Boosts agencias
   destacado_individual: 12000,
+  urgente_individual: 12000,
   pack_destacados_10: 95000,
-  urgente_agencia: 20000,
-  subir_tope_agencia: 10000,
-  urgente_individual: 20000,
-
-  // Publicidad
   banner_home: 120000,
   fijado_home: 80000,
-
-  // Extra por vehículo adicional (agencias)
-  vehiculo_extra: 10000,
-};
-
+}
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 

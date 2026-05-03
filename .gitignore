@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .claude/
+.git_corrupted/
+temp_repo_2/
 .env
 .env.*
 !.env.example

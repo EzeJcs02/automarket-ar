@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { setPageMeta } from '../lib/seo'
+import { useAuth } from '../context/AuthContext'
 
 export default function Arrepentimiento() {
-  const [form, setForm] = useState({ nombre: '', email: '', telefono: '', nro_operacion: '', motivo: '' })
+  const { user } = useAuth()
+  const [form, setForm] = useState({ nombre: '', email: '', telefono: '', nro_operacion: '', motivo: '', fecha_operacion: '', monto_pagado: '' })
   const [enviado, setEnviado] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
@@ -22,7 +24,7 @@ export default function Arrepentimiento() {
       const res = await fetch('/api/arrepentimiento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, user_id: user?.id || null }),
       })
       if (!res.ok) throw new Error('Error al procesar la solicitud')
       setEnviado(true)
@@ -49,7 +51,14 @@ export default function Arrepentimiento() {
             <div style={{ fontSize: '40px', marginBottom: '1rem' }}>✅</div>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', marginBottom: '.75rem' }}>Solicitud registrada</h3>
             <p style={{ color: 'var(--gray4)', lineHeight: 1.7 }}>
-              Hemos registrado tu pedido de arrepentimiento y te enviamos un comprobante a <strong style={{ color: 'var(--white)' }}>{form.email}</strong>. Nos pondremos en contacto en las próximas 24 horas hábiles.
+              Hemos registrado tu solicitud y te enviamos un comprobante a{' '}
+              <strong style={{ color: 'var(--white)' }}>{form.email}</strong>.{' '}
+              Procesaremos tu pedido en un plazo máximo de{' '}
+              <strong style={{ color: 'var(--white)' }}>10 días hábiles</strong>{' '}
+              conforme a la{' '}
+              <strong style={{ color: 'var(--white)' }}>Resolución 424/2020</strong>.
+              Si tenés urgencia, escribinos a{' '}
+              <a href="mailto:contacto@fioramarket.store" style={{ color: 'var(--accent)' }}>contacto@fioramarket.store</a>.
             </p>
           </div>
         ) : (
@@ -77,6 +86,53 @@ export default function Arrepentimiento() {
               <label style={labelStyle}>Número de Reserva / Operación *</label>
               <input type="text" required style={inputStyle} placeholder="Ej: RES-987654"
                 value={form.nro_operacion} onChange={e => setF('nro_operacion', e.target.value)} />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Fecha de la compra / reserva *</label>
+              <input
+                type="date"
+                required
+                style={inputStyle}
+                max={new Date().toISOString().split('T')[0]}
+                value={form.fecha_operacion}
+                onChange={e => setF('fecha_operacion', e.target.value)}
+              />
+              {form.fecha_operacion && (() => {
+                // Calcular días hábiles transcurridos (excluye sábados y domingos)
+                const desde = new Date(form.fecha_operacion)
+                const hasta = new Date()
+                let diasHabiles = 0
+                const cursor = new Date(desde)
+                while (cursor < hasta) {
+                  cursor.setDate(cursor.getDate() + 1)
+                  const dow = cursor.getDay()
+                  if (dow !== 0 && dow !== 6) diasHabiles++
+                }
+                if (diasHabiles > 10) return (
+                  <p style={{ fontSize: '12px', color: '#ff8a80', marginTop: '6px', lineHeight: 1.5 }}>
+                    ⚠️ Han transcurrido más de <strong>10 días hábiles</strong> desde esa fecha.
+                    El plazo de arrepentimiento (Res. 424/2020) podría haber vencido.
+                    Igualmente podés enviar la solicitud y nos comunicaremos para informarte.
+                  </p>
+                )
+                return null
+              })()}
+            </div>
+
+            <div>
+              <label style={labelStyle}>Monto de la operación en ARS (opcional)</label>
+              <input
+                type="number"
+                min="0"
+                style={inputStyle}
+                placeholder="Ej: 70000"
+                value={form.monto_pagado}
+                onChange={e => setF('monto_pagado', e.target.value)}
+              />
+              <p style={{ fontSize: '11px', color: 'var(--gray3)', marginTop: '6px' }}>
+                Si lo recordás, indicá el importe pagado para agilizar el reembolso.
+              </p>
             </div>
 
             <div>

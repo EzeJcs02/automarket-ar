@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
@@ -8,8 +8,11 @@ export default function Footer() {
 
           {/* Marca */}
           <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', letterSpacing: '2px', marginBottom: '1rem' }}>
-              FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+              <img src="/fiora_logo.png" alt="Fiora Market Logo" style={{ height: '28px', mixBlendMode: 'lighten', borderRadius: '2px' }} />
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', letterSpacing: '2px' }}>
+                FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
+              </div>
             </div>
             <p style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, maxWidth: '220px' }}>
               La plataforma de vehículos más avanzada de Argentina.

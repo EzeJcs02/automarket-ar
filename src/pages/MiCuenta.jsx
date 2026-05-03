@@ -160,6 +160,17 @@ export default function MiCuenta() {
         </div>
       )}
 
+      {/* HALLAZGO 4 FIX: Acceso directo al Botón de Arrepentimiento — Res. 424/2020 */}
+      <div style={{ padding: '10px 4rem', background: 'rgba(230,51,41,.05)', borderBottom: '1px solid rgba(230,51,41,.12)', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '13px', color: 'var(--gray4)' }}>¿Querés cancelar una compra o reserva?</span>
+        <Link
+          to="/arrepentimiento"
+          style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px', whiteSpace: 'nowrap' }}
+        >
+          Botón de Arrepentimiento (Res. 424/2020) →
+        </Link>
+      </div>
+
       <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button style={tabStyle(tab === 'publicaciones')} onClick={() => { setTab('publicaciones'); setShowForm(false) }}>Mis publicaciones ({misAutos.length})</button>
         <button style={tabStyle(tab === 'consultas-recibidas')} onClick={() => setTab('consultas-recibidas')}>

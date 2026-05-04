@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -8,11 +8,28 @@ import { setPageMeta } from '../lib/seo'
 const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot', 'Fiat', 'Honda', 'Nissan', 'Jeep', 'Citroën']
 const PAGE_SIZE = 24
 
+function sortByPriority(lista) {
+  const planScore = { premium: 1000, pro: 100, basico: 10 }
+  return [...lista].sort((a, b) => {
+    const sa = (planScore[a.concesionarias?.plan] || 0) + (a.urgente ? 5 : 0) + (a.destacado ? 3 : 0)
+    const sb = (planScore[b.concesionarias?.plan] || 0) + (b.urgente ? 5 : 0) + (b.destacado ? 3 : 0)
+    if (sb !== sa) return sb - sa
+    return new Date(b.created_at) - new Date(a.created_at)
+  })
+}
+
+function applySort(lista, ord) {
+  if (ord === 'precio_asc') return [...lista].sort((a, b) => (Number(a.precio_ars) || 0) - (Number(b.precio_ars) || 0))
+  if (ord === 'precio_desc') return [...lista].sort((a, b) => (Number(b.precio_ars) || 0) - (Number(a.precio_ars) || 0))
+  if (ord === 'anio_desc') return [...lista].sort((a, b) => b.anio - a.anio)
+  if (ord === 'anio_asc') return [...lista].sort((a, b) => a.anio - b.anio)
+  return sortByPriority(lista)
+}
+
 export default function Catalogo() {
   const { user, concesionaria, isAdmin } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
   const [loading, setLoading] = useState(true)
   const [favoritoIds, setFavoritoIds] = useState(new Set())
@@ -23,6 +40,7 @@ export default function Catalogo() {
   const [alertaGuardando, setAlertaGuardando] = useState(false)
   const [ordenar, setOrdenar] = useState('relevancia')
   const [autosRaw, setAutosRaw] = useState([])
+  const autos = useMemo(() => applySort(autosRaw, ordenar), [autosRaw, ordenar])
 
   const esParticular = user && !concesionaria && !isAdmin
 
@@ -50,24 +68,6 @@ export default function Catalogo() {
     }
   }
 
-  function sortByPriority(lista) {
-    const planScore = { premium: 1000, pro: 100, basico: 10 }
-    return [...lista].sort((a, b) => {
-      const sa = (planScore[a.concesionarias?.plan] || 0) + (a.urgente ? 5 : 0) + (a.destacado ? 3 : 0)
-      const sb = (planScore[b.concesionarias?.plan] || 0) + (b.urgente ? 5 : 0) + (b.destacado ? 3 : 0)
-      if (sb !== sa) return sb - sa
-      return new Date(b.created_at) - new Date(a.created_at)
-    })
-  }
-
-  function applySort(lista, ord) {
-    if (ord === 'precio_asc') return [...lista].sort((a, b) => (Number(a.precio_ars) || 0) - (Number(b.precio_ars) || 0))
-    if (ord === 'precio_desc') return [...lista].sort((a, b) => (Number(b.precio_ars) || 0) - (Number(a.precio_ars) || 0))
-    if (ord === 'anio_desc') return [...lista].sort((a, b) => b.anio - a.anio)
-    if (ord === 'anio_asc') return [...lista].sort((a, b) => a.anio - b.anio)
-    return sortByPriority(lista)
-  }
-
   async function fetchAutos() {
     setLoading(true)
     let q = supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)').eq('activo', true)
@@ -88,14 +88,9 @@ export default function Catalogo() {
       ? (data || []).filter(a => a.concesionarias?.ciudad?.toLowerCase().includes(filtros.ciudad.toLowerCase()))
       : (data || [])
     setAutosRaw(filtered)
-    setAutos(applySort(filtered, ordenar))
     setPage(1)
     setLoading(false)
   }
-
-  useEffect(() => {
-    if (autosRaw.length > 0) { setAutos(applySort(autosRaw, ordenar)); setPage(1) }
-  }, [ordenar])
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
 
@@ -277,7 +272,7 @@ export default function Catalogo() {
           {!loading && autos.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>{autos.length} resultado{autos.length !== 1 ? 's' : ''}</div>
-              <select value={ordenar} onChange={e => setOrdenar(e.target.value)}
+              <select value={ordenar} onChange={e => { setOrdenar(e.target.value); setPage(1) }}
                 style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '7px 12px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none', cursor: 'pointer' }}>
                 <option value="relevancia">Relevancia</option>
                 <option value="precio_asc">Precio: menor a mayor</option>

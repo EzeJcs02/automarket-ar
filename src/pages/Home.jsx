@@ -18,7 +18,7 @@ export default function Home() {
   const [rightIdx, setRightIdx] = useState(0)
   const [bottomIdx, setBottomIdx] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [configMissing, setConfigMissing] = useState(!import.meta.env.VITE_SUPABASE_URL)
+  const [configMissing] = useState(!import.meta.env.VITE_SUPABASE_URL)
 
   useEffect(() => {
     setPageMeta({ title: null, description: 'La plataforma de vehículos más avanzada de Argentina. Miles de autos, motos y náutica de concesionarias verificadas.', path: '/' })

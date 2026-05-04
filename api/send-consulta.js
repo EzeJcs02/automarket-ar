@@ -63,15 +63,13 @@ export default async function handler(req, res) {
     const [auto] = await autoRes.json()
     if (!auto) return res.status(200).json({ sent: false, reason: 'auto-not-found' })
 
-    let sellerEmail, sellerNombre
+    let sellerEmail
     if (auto.concesionaria_id && auto.concesionarias?.email) {
       sellerEmail = auto.concesionarias.email
-      sellerNombre = auto.concesionarias.nombre
     } else if (auto.user_id) {
       const userRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${auto.user_id}`, { headers: sbHeaders })
       const userData = await userRes.json()
       sellerEmail = userData.email
-      sellerNombre = userData.user_metadata?.nombre || 'Vendedor'
     }
 
     if (!sellerEmail) return res.status(200).json({ sent: false, reason: 'no-seller-email' })

@@ -11,12 +11,6 @@ export default function Favoritos() {
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (authLoading) return
-    if (!user || concesionaria || isAdmin) { navigate('/'); return }
-    fetchFavoritos()
-  }, [user, concesionaria, isAdmin, authLoading])
-
   async function fetchFavoritos() {
     const { data } = await supabase
       .from('favoritos')
@@ -28,6 +22,13 @@ export default function Favoritos() {
     setFavoritoIds(new Set(lista.map(a => a.id)))
     setLoading(false)
   }
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!user || concesionaria || isAdmin) { navigate('/'); return }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchFavoritos()
+  }, [user, concesionaria, isAdmin, authLoading])
 
   async function toggleFavorito(autoId) {
     await supabase.from('favoritos').delete().eq('user_id', user.id).eq('auto_id', autoId)

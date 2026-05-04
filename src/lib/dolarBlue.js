@@ -22,7 +22,7 @@ export async function getDolarBlue() {
         const d = await r.json()
         venta = Number(d?.venta)
       }
-    } catch (e) {
+    } catch {
       console.warn('Fallback 1: API DolarApi falló, intentando secundaria');
     }
 

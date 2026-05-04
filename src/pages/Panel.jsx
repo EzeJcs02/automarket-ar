@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -26,7 +26,6 @@ export default function Panel() {
   const { user, concesionaria, fetchConcesionaria, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
   const [tab, setTab] = useState('dashboard')
   const [autos, setAutos] = useState([])
   const [consultas, setConsultas] = useState([])
@@ -50,6 +49,7 @@ export default function Panel() {
     if (!user) { navigate('/login'); return }
     if (isAdmin) { navigate('/admin'); return }
     if (concesionaria) loadData()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     else setLoading(false)
   }, [user, concesionaria, authLoading])
 
@@ -181,7 +181,7 @@ function UpgradeModal({ onClose }) {
   )
 }
 
-function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAlcanzado, setTab }) {
+function Dashboard({ autos, consultas, pagos, concesionaria }) {
   const { user } = useAuth()
   const [consultaDetalle, setConsultaDetalle] = useState(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -193,6 +193,8 @@ function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAl
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
   const planExpira = ultimoPagoPlan ? new Date(new Date(ultimoPagoPlan.created_at).getTime() + 30 * 86400000) : null
   const diasRestantes = planExpira ? Math.ceil((planExpira - new Date()) / 86400000) : null
+  // eslint-disable-next-line react-hooks/purity
+  const sevenDaysAgo = useMemo(() => new Date(Date.now() - 7 * 86400000), [])
 
   async function contratarPlan(plan_id) {
     setPaying(plan_id)
@@ -305,7 +307,7 @@ function Dashboard({ autos, consultas, pagos, concesionaria, esPremium, limiteAl
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        {[['Stock Activo', autos.filter(a => a.activo).length], ['Stock Pausado', autos.filter(a => !a.activo).length], ['Vistas Totales', autos.reduce((s, a) => s + (a.vistas || 0), 0)], ['Total Consultas', consultas.length], ['Consultas (7 días)', consultas.filter(c => new Date(c.created_at) > new Date(Date.now()-7*86400000)).length]].map(([label, val]) => (
+        {[['Stock Activo', autos.filter(a => a.activo).length], ['Stock Pausado', autos.filter(a => !a.activo).length], ['Vistas Totales', autos.reduce((s, a) => s + (a.vistas || 0), 0)], ['Total Consultas', consultas.length], ['Consultas (7 días)', consultas.filter(c => new Date(c.created_at) > sevenDaysAgo).length]].map(([label, val]) => (
           <div key={label} style={{ background: 'var(--gray1)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
             <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '8px', fontFamily: 'var(--font-mono)', letterSpacing: '.05em', textTransform: 'uppercase' }}>{label}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>{val}</div>
@@ -580,7 +582,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   )
 }
 
-function NuevoAuto({ concesionaria, autos, esPremium, limiteAlcanzado, onSuccess }) {
+function NuevoAuto({ concesionaria, limiteAlcanzado, onSuccess }) {
   const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(false)

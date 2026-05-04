@@ -28,7 +28,7 @@ export default function Arrepentimiento() {
       })
       if (!res.ok) throw new Error('Error al procesar la solicitud')
       setEnviado(true)
-    } catch (err) {
+    } catch {
       setError('No se pudo enviar la solicitud. Intentá nuevamente o escribinos a contacto@fioramarket.store')
     }
     setEnviando(false)

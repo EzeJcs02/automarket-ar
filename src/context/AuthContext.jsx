@@ -95,7 +95,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signUpUsuario(email, password, nombre) {
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
+    const { error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
     if (error) return { error }
     fetch('/api/welcome-email', {
       method: 'POST',
@@ -118,4 +118,5 @@ export function AuthProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext)

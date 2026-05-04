@@ -5,26 +5,10 @@ import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import { useToast } from '../context/ToastContext'
 
-async function pagarConMP(tipo, user_id, user_email, onError = (m) => alert(m)) {
-  try {
-    const res = await fetch('/api/mp-create-preference', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, user_id, user_email, origen: 'mi-cuenta' }),
-    })
-    const data = await res.json()
-    if (data.init_point) window.location.href = data.init_point
-    else onError('Error al iniciar el pago. Intentá nuevamente.')
-  } catch {
-    onError('Error de conexión. Intentá nuevamente.')
-  }
-}
-
 export default function MiCuenta() {
   const { user, concesionaria, isAdmin, loading: authLoading, signOut } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const pay = (tipo) => pagarConMP(tipo, user?.id, user?.email, msg => toast(msg, 'error'))
   const [favoritos, setFavoritos] = useState([])
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [consultas, setConsultas] = useState([])
@@ -617,6 +601,7 @@ function ConsultasRecibidasList({ consultas, onRead }) {
 
 function ExtrasConMP({ user, autoId }) {
   const [paying, setPaying] = useState(null)
+  const { toast } = useToast()
 
   async function pagar(tipo) {
     if (!autoId && tipo !== 'publicacion_adicional') { toast('Necesitás tener una publicación activa para usar este boost.', 'warning'); return }
@@ -628,7 +613,7 @@ function ExtrasConMP({ user, autoId }) {
         body: JSON.stringify({ tipo, user_id: user.id, user_email: user.email, auto_id: autoId, origen: 'mi-cuenta' }),
       })
       const data = await res.json()
-      if (data.init_point) window.location.href = data.init_point
+      if (data.init_point) window.location.assign(data.init_point)
       else toast('Error al iniciar el pago. Intentá nuevamente.', 'error')
     } catch { toast('Error de conexión.', 'error') }
     setPaying(null)

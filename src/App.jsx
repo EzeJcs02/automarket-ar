@@ -22,6 +22,7 @@ import Planes from './pages/Planes'
 import Favoritos from './pages/Favoritos'
 import MiCuenta from './pages/MiCuenta'
 import Comparador from './pages/Comparador'
+import DashboardAnalitico from './pages/DashboardAnalitico'
 
 function ScrollToTop() {
   const [visible, setVisible] = useState(false)
@@ -90,6 +91,7 @@ export default function App() {
                 <Route path="/concesionaria/:id" element={<ConcesionariaDetalle />} />
                 <Route path="/panel" element={<Panel />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/dashboard-analitico" element={<DashboardAnalitico />} />
                 <Route path="/planes" element={<Planes />} />
                 <Route path="/favoritos" element={<Favoritos />} />
                 <Route path="/mi-cuenta" element={<MiCuenta />} />

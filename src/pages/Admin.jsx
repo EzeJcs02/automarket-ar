@@ -21,6 +21,14 @@ export default function Admin() {
   const [adLoading, setAdLoading] = useState(false)
   const [consultaDetalle, setConsultaDetalle] = useState(null)
 
+  async function verConsulta(c) {
+    setConsultaDetalle(c)
+    if (!c.leido) {
+      await supabase.from('consultas').update({ leido: true }).eq('id', c.id)
+      setConsultasAdmin(prev => prev.map(x => x.id === c.id ? { ...x, leido: true } : x))
+    }
+  }
+
   useEffect(() => {
     if (authLoading) return
     if (!user) { navigate('/login'); return }
@@ -464,10 +472,10 @@ export default function Admin() {
                       <thead><tr>{['Fecha','Vehículo','Agencia','Comprador','Mensaje',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {consultasAdmin.map(c => (
-                          <tr key={c.id} style={{ borderBottom: '1px solid var(--gray2)', cursor: 'pointer', transition: 'background .2s' }}
-                            onClick={() => setConsultaDetalle(c)}
+                          <tr key={c.id} style={{ borderBottom: '1px solid var(--gray2)', cursor: 'pointer', transition: 'background .2s', background: c.leido ? 'transparent' : 'rgba(230,51,41,0.04)' }}
+                            onClick={() => verConsulta(c)}
                             onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            onMouseLeave={e => e.currentTarget.style.background = c.leido ? 'transparent' : 'rgba(230,51,41,0.04)'}>
                             <td style={{ padding: '14px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
                             <td style={{ padding: '14px 20px', color: 'var(--white)', fontSize: '13px', fontWeight: 600 }}>{c.autos?.marca} {c.autos?.modelo}</td>
                             <td style={{ padding: '14px 20px', color: 'var(--gray4)', fontSize: '12px' }}>{c.concesionarias?.nombre || '—'}</td>

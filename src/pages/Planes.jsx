@@ -151,11 +151,7 @@ export default function Planes() {
 
   function handlePlan(planId) {
     if (concesionaria) {
-      pay(`plan_${planId}`, {
-        concesionaria_id: concesionaria.id,
-        user_id: user?.id,
-        user_email: user?.email,
-      })
+      pay(`plan_${planId}`, { concesionaria_id: concesionaria.id, user_id: user?.id, user_email: user?.email })
     } else {
       navigate('/login')
     }
@@ -163,11 +159,7 @@ export default function Planes() {
 
   function handleBannerHome() {
     if (concesionaria) {
-      pay('banner_home', {
-        concesionaria_id: concesionaria.id,
-        user_id: user?.id,
-        user_email: user?.email,
-      })
+      pay('banner_home', { concesionaria_id: concesionaria.id, user_id: user?.id, user_email: user?.email })
     } else {
       navigate('/login')
     }
@@ -191,12 +183,7 @@ export default function Planes() {
 
   function handlePlanProfesional(tipo) {
     if (profesional) {
-      pay(tipo, {
-        profesional_id: profesional.id,
-        user_id: user?.id,
-        user_email: user?.email,
-        origen: 'planes',
-      })
+      pay(tipo, { profesional_id: profesional.id, user_id: user?.id, user_email: user?.email, origen: 'planes' })
     } else {
       navigate('/registro')
     }
@@ -206,21 +193,21 @@ export default function Planes() {
     <div className="page-wrapper">
 
       {/* HERO */}
-      <div style={{ position: 'relative', padding: '6rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--black)', textAlign: 'center', overflow: 'hidden' }}>
+      <div className="planes-section planes-hero" style={{ position: 'relative', borderBottom: '1px solid var(--gray2)', background: 'var(--black)', textAlign: 'center', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'relative' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Planes y precios</div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,7vw,96px)', lineHeight: 1, marginBottom: '1.5rem' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,7vw,96px)', lineHeight: 1, marginBottom: '1.5rem' }}>
             VISIBILIDAD<br /><span style={{ color: 'var(--accent)' }}>QUE VENDE</span>
           </h1>
-          <p style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '520px', margin: '0 auto 3rem', lineHeight: 1.7 }}>
+          <p style={{ fontSize: '16px', color: 'var(--gray4)', maxWidth: '520px', margin: '0 auto 3rem', lineHeight: 1.7 }}>
             El que más invierte, más aparece. Publicaciones de <strong style={{ color: 'var(--white)' }}>30 días</strong> con renovación paga. Sin contratos. Sin permanencia.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <div style={{ background: 'rgba(74,222,128,.07)', border: '1px solid rgba(74,222,128,.2)', borderRadius: 'var(--radius-lg)', padding: '.875rem 1.75rem', fontSize: '14px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: 'rgba(74,222,128,.07)', border: '1px solid rgba(74,222,128,.2)', borderRadius: 'var(--radius-lg)', padding: '.75rem 1.25rem', fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <CheckIcon /> Compradores particulares — <strong style={{ color: 'var(--white)' }}>GRATIS</strong>
             </div>
-            <div style={{ background: 'rgba(230,51,41,.07)', border: '1px solid rgba(230,51,41,.2)', borderRadius: 'var(--radius-lg)', padding: '.875rem 1.75rem', fontSize: '14px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: 'rgba(230,51,41,.07)', border: '1px solid rgba(230,51,41,.2)', borderRadius: 'var(--radius-lg)', padding: '.75rem 1.25rem', fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" style={{ flexShrink: 0 }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               Agencias — desde <strong style={{ color: 'var(--white)' }}>$30.000/mes</strong>
             </div>
@@ -229,10 +216,10 @@ export default function Planes() {
       </div>
 
       {/* PLANES AGENCIA - CARDS */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para agencias y concesionarias</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,4vw,56px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES DE AGENCIA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem' }}>Vehículo extra por encima del límite del plan: <strong style={{ color: 'var(--white)' }}>$10.000/mes c/u</strong></p>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,56px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES DE AGENCIA</h2>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem' }}>Vehículo extra por encima del límite del plan: <strong style={{ color: 'var(--white)' }}>$10.000/mes c/u</strong></p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
           {PLANES.map(p => {
@@ -245,7 +232,6 @@ export default function Planes() {
                 padding: '2.5rem',
                 display: 'flex', flexDirection: 'column',
                 position: 'relative', overflow: 'hidden',
-                transform: isPro ? 'scale(1.03)' : 'scale(1)',
                 boxShadow: isPro ? '0 0 40px rgba(224,160,32,.12)' : 'none',
               }}>
                 {isPro && (
@@ -256,7 +242,7 @@ export default function Planes() {
                 )}
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: p.color, marginBottom: '.75rem' }}>{p.nombre}</div>
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)', lineHeight: 1 }}>${p.precio}</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>${p.precio}</span>
                   <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
                 </div>
                 <div style={{ fontSize: '13px', color: p.color, fontWeight: 600, marginBottom: '2rem', fontFamily: 'var(--font-mono)', paddingBottom: '1.5rem', borderBottom: '1px solid var(--gray2)' }}>
@@ -293,25 +279,25 @@ export default function Planes() {
       </div>
 
       {/* TABLA COMPARATIVA */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Comparación detallada</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>¿QUÉ INCLUYE CADA PLAN?</h2>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--black)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '560px' }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,48px)', lineHeight: 1, marginBottom: '2.5rem' }}>¿QUÉ INCLUYE CADA PLAN?</h2>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--black)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '480px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--gray2)' }}>
-                <th style={{ padding: '1.25rem 1.5rem', textAlign: 'left', fontSize: '12px', color: 'var(--gray4)', fontWeight: 400, width: '40%' }}>Característica</th>
+                <th style={{ padding: '1rem 1.25rem', textAlign: 'left', fontSize: '12px', color: 'var(--gray4)', fontWeight: 400, width: '40%' }}>Característica</th>
                 {PLANES.map(p => (
-                  <th key={p.id} style={{ padding: '1.25rem 1rem', textAlign: 'center', fontSize: '12px', color: p.color, fontWeight: 700, letterSpacing: '.1em', fontFamily: 'var(--font-mono)' }}>{p.nombre}</th>
+                  <th key={p.id} style={{ padding: '1rem', textAlign: 'center', fontSize: '12px', color: p.color, fontWeight: 700, letterSpacing: '.1em', fontFamily: 'var(--font-mono)' }}>{p.nombre}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {COMPARACION.map((row, i) => (
                 <tr key={row.label} style={{ borderBottom: '1px solid var(--gray2)', background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,.02)' }}>
-                  <td style={{ padding: '1rem 1.5rem', fontSize: '13px', color: 'var(--gray4)' }}>{row.label}</td>
+                  <td style={{ padding: '.875rem 1.25rem', fontSize: '13px', color: 'var(--gray4)' }}>{row.label}</td>
                   {['basico', 'pro', 'premium'].map(k => (
-                    <td key={k} style={{ padding: '1rem', textAlign: 'center', fontSize: '13px', color: 'var(--white)' }}>
+                    <td key={k} style={{ padding: '.875rem 1rem', textAlign: 'center', fontSize: '13px', color: 'var(--white)' }}>
                       {typeof row[k] === 'boolean'
                         ? row[k]
                           ? <CheckIcon color={PLANES.find(p => p.id === k).color} />
@@ -328,13 +314,13 @@ export default function Planes() {
       </div>
 
       {/* PLAN INDIVIDUAL */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para compradores / particulares</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>PLAN INDIVIDUAL</h2>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,48px)', lineHeight: 1, marginBottom: '2.5rem' }}>PLAN INDIVIDUAL</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '860px' }}>
           <div className="plan-card plan-card-individual-free" style={{ background: 'var(--gray1)', border: '1px solid rgba(74,222,128,.25)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#4ade80', marginBottom: '.75rem' }}>BASE</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: '#4ade80', lineHeight: 1, marginBottom: '1.5rem' }}>GRATIS</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: '#4ade80', lineHeight: 1, marginBottom: '1.5rem' }}>GRATIS</div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {['1 publicación activa por 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias', 'Guardado de favoritos'].map(b => (
                 <li key={b} style={{ fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
@@ -376,10 +362,10 @@ export default function Planes() {
       </div>
 
       {/* PLANES PROFESIONALES */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para gestores, mecánicos, escribanos y más</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES PROFESIONALES</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7, maxWidth: '520px' }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES PROFESIONALES</h2>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', lineHeight: 1.7, maxWidth: '520px' }}>
           Publicá tu perfil en el directorio de profesionales y conectá con compradores y vendedores de toda Argentina.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '700px' }}>
@@ -388,7 +374,7 @@ export default function Planes() {
           <div className="plan-card plan-card-prof-base" style={{ background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', marginBottom: '.75rem' }}>BASE</div>
             <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)', lineHeight: 1 }}>$10.000</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>$10.000</span>
               <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
             </div>
             <div style={{ fontSize: '13px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', paddingBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', marginBottom: '2rem' }}>
@@ -426,7 +412,7 @@ export default function Planes() {
             <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>MÁS VISIBLE</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#c9a84c', marginBottom: '.75rem' }}>DESTACADO</div>
             <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)', lineHeight: 1 }}>$30.000</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>$30.000</span>
               <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
             </div>
             <div style={{ fontSize: '13px', color: '#c9a84c', fontFamily: 'var(--font-mono)', paddingBottom: '1.5rem', borderBottom: '1px solid rgba(201,168,76,.2)', marginBottom: '2rem' }}>
@@ -457,16 +443,16 @@ export default function Planes() {
       </div>
 
       {/* BOOSTS AGENCIA */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Complementos para agencias</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>DESTACADOS Y BOOSTS</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Aumentá la visibilidad de tus publicaciones más allá de tu plan.</p>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>DESTACADOS Y BOOSTS</h2>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', lineHeight: 1.7 }}>Aumentá la visibilidad de tus publicaciones más allá de tu plan.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
           {BOOSTS.map(b => (
-            <div key={b.nombre} className="boost-card" style={{ background: 'var(--black)', padding: '2.5rem' }}>
+            <div key={b.nombre} className="boost-card" style={{ background: 'var(--black)', padding: '2rem' }}>
               <div style={{ color: 'var(--accent)', marginBottom: '1.25rem' }}>{b.icon}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--white)', marginBottom: '6px' }}>{b.nombre}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>${b.precio}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '30px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>${b.precio}</div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '1.5rem' }}>{b.desc}</div>
               <button
                 onClick={handleBoost}
@@ -481,16 +467,16 @@ export default function Planes() {
       </div>
 
       {/* PUBLICIDAD */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Publicidad</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PUBLICIDAD EN LA PLATAFORMA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA MARKET para máxima exposición.</p>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PUBLICIDAD EN LA PLATAFORMA</h2>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA MARKET para máxima exposición.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {PUBLICIDAD.map(p => (
             <div key={p.nombre} className="plan-card pub-card" style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
               <div style={{ color: 'var(--accent)', marginBottom: '1.25rem' }}>{p.icon}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', marginBottom: '8px' }}>{p.nombre}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>
                 ${p.precio}<span style={{ fontSize: '14px', color: 'var(--gray4)', marginLeft: '6px' }}>/mes</span>
               </div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>{p.desc}</div>
@@ -510,10 +496,10 @@ export default function Planes() {
       </div>
 
       {/* ALGORITMO */}
-      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Algoritmo de visibilidad</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>ORDEN EN EL CATÁLOGO</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1px', background: 'var(--gray2)', maxWidth: '960px' }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,48px)', lineHeight: 1, marginBottom: '2.5rem' }}>ORDEN EN EL CATÁLOGO</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1px', background: 'var(--gray2)', maxWidth: '960px' }}>
           {[
             { pos: '1°', label: 'Agencias Premium', color: 'var(--accent)', desc: 'Siempre arriba. Urgentes y destacados primero.' },
             { pos: '2°', label: 'Agencias Pro', color: '#e0a020', desc: 'Debajo de Premium. Destacados primero, luego fecha.' },
@@ -522,8 +508,8 @@ export default function Planes() {
             { pos: '5°', label: 'Agencias Básicas', color: 'var(--gray4)', desc: 'Posición estándar. Orden por fecha.' },
             { pos: '6°', label: 'Individuales gratis', color: 'var(--gray5)', desc: 'Últimos en aparecer. Orden por fecha.' },
           ].map(r => (
-            <div key={r.pos} style={{ background: 'var(--black)', padding: '2rem' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: r.color, opacity: .3, lineHeight: 1, marginBottom: '.75rem' }}>{r.pos}</div>
+            <div key={r.pos} style={{ background: 'var(--black)', padding: '1.5rem' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', color: r.color, opacity: .3, lineHeight: 1, marginBottom: '.75rem' }}>{r.pos}</div>
               <div style={{ fontSize: '13px', fontWeight: 700, color: r.color, marginBottom: '8px' }}>{r.label}</div>
               <div style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6 }}>{r.desc}</div>
             </div>
@@ -532,10 +518,10 @@ export default function Planes() {
       </div>
 
       {/* CTA */}
-      <div style={{ padding: '6rem 4rem', textAlign: 'center', background: 'var(--black)', position: 'relative', overflow: 'hidden' }}>
+      <div className="planes-section planes-cta" style={{ textAlign: 'center', background: 'var(--black)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', bottom: '-100px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'relative' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,72px)', lineHeight: 1, marginBottom: '1.5rem' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,5vw,72px)', lineHeight: 1, marginBottom: '1.5rem' }}>
             ¿LISTO PARA<br /><span style={{ color: 'var(--accent)' }}>EMPEZAR?</span>
           </div>
           <p style={{ fontSize: '16px', color: 'var(--gray4)', marginBottom: '2.5rem', maxWidth: '480px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
@@ -559,51 +545,88 @@ export default function Planes() {
       </div>
 
       <style>{`
-        .plan-card {
-          transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+        .planes-section {
+          padding: 5rem 4rem;
         }
-        .plan-card:hover {
-          transform: translateY(-8px);
+        .planes-hero {
+          padding: 6rem 4rem;
         }
-        .plan-card-pro:hover {
-          transform: scale(1.03) translateY(-8px);
-          box-shadow: 0 24px 64px rgba(224,160,32,.28) !important;
-          border-color: rgba(224,160,32,.9) !important;
+        .planes-cta {
+          padding: 6rem 4rem;
         }
-        .plan-card-basico:hover {
-          box-shadow: 0 16px 48px rgba(0,0,0,.5);
-          border-color: var(--gray4) !important;
+
+        /* Hover effects — desactivados en touch */
+        @media (hover: hover) {
+          .plan-card {
+            transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+          }
+          .plan-card:hover {
+            transform: translateY(-8px);
+          }
+          .plan-card-pro:hover {
+            box-shadow: 0 24px 64px rgba(224,160,32,.28) !important;
+            border-color: rgba(224,160,32,.9) !important;
+          }
+          .plan-card-basico:hover {
+            box-shadow: 0 16px 48px rgba(0,0,0,.5);
+            border-color: var(--gray4) !important;
+          }
+          .plan-card-premium:hover {
+            box-shadow: 0 24px 64px rgba(230,51,41,.28) !important;
+            border-color: rgba(230,51,41,.8) !important;
+          }
+          .plan-card-individual-free:hover {
+            box-shadow: 0 16px 48px rgba(74,222,128,.15);
+            border-color: rgba(74,222,128,.6) !important;
+          }
+          .plan-card-individual-extra:hover {
+            box-shadow: 0 16px 48px rgba(0,0,0,.4);
+            border-color: var(--gray3) !important;
+          }
+          .plan-card-prof-base:hover {
+            box-shadow: 0 16px 48px rgba(0,0,0,.5);
+            border-color: var(--gray3) !important;
+          }
+          .plan-card-prof-dest:hover {
+            box-shadow: 0 24px 64px rgba(201,168,76,.28) !important;
+            border-color: rgba(201,168,76,.9) !important;
+          }
+          .boost-card {
+            transition: background 0.2s ease, transform 0.2s ease;
+          }
+          .boost-card:hover {
+            background: #111 !important;
+            transform: translateY(-4px);
+          }
+          .pub-card:hover {
+            box-shadow: 0 16px 48px rgba(230,51,41,.18) !important;
+            border-color: rgba(230,51,41,.4) !important;
+          }
         }
-        .plan-card-premium:hover {
-          box-shadow: 0 24px 64px rgba(230,51,41,.28) !important;
-          border-color: rgba(230,51,41,.8) !important;
+
+        /* Mobile */
+        @media (max-width: 640px) {
+          .planes-section {
+            padding: 3rem 1.25rem !important;
+          }
+          .planes-hero {
+            padding: 3.5rem 1.25rem !important;
+          }
+          .planes-cta {
+            padding: 3.5rem 1.25rem !important;
+          }
         }
-        .plan-card-individual-free:hover {
-          box-shadow: 0 16px 48px rgba(74,222,128,.15);
-          border-color: rgba(74,222,128,.6) !important;
-        }
-        .plan-card-individual-extra:hover {
-          box-shadow: 0 16px 48px rgba(0,0,0,.4);
-          border-color: var(--gray3) !important;
-        }
-        .plan-card-prof-base:hover {
-          box-shadow: 0 16px 48px rgba(0,0,0,.5);
-          border-color: var(--gray3) !important;
-        }
-        .plan-card-prof-dest:hover {
-          box-shadow: 0 24px 64px rgba(201,168,76,.28) !important;
-          border-color: rgba(201,168,76,.9) !important;
-        }
-        .boost-card {
-          transition: background 0.2s ease, transform 0.2s ease;
-        }
-        .boost-card:hover {
-          background: #111 !important;
-          transform: translateY(-4px);
-        }
-        .pub-card:hover {
-          box-shadow: 0 16px 48px rgba(230,51,41,.18) !important;
-          border-color: rgba(230,51,41,.4) !important;
+
+        @media (max-width: 768px) and (min-width: 641px) {
+          .planes-section {
+            padding: 4rem 2rem !important;
+          }
+          .planes-hero {
+            padding: 4.5rem 2rem !important;
+          }
+          .planes-cta {
+            padding: 4.5rem 2rem !important;
+          }
         }
       `}</style>
     </div>

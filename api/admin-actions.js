@@ -23,13 +23,15 @@ export default async function handler(req, res) {
   })
 
   if (!userRes.ok) {
-    console.error('Auth error: status', userRes.status, 'token length:', token?.length)
-    return res.status(401).json({ error: 'Invalid token' })
+    const body = await userRes.text().catch(() => '(no body)')
+    console.error('Auth error: status', userRes.status, '| url:', supabaseUrl, '| body:', body, '| token starts with:', token?.slice(0, 20))
+    return res.status(401).json({ error: 'Invalid token', status: userRes.status, detail: body })
   }
 
-  const { email } = await userRes.json()
+  const userData = await userRes.json()
+  const email = userData.email
   if (email !== ADMIN_EMAIL) {
-    return res.status(403).json({ error: 'Forbidden', email })
+    return res.status(403).json({ error: 'Forbidden', email, expected: ADMIN_EMAIL })
   }
 
   // Cliente con service role key para bypasear RLS en todas las operaciones

@@ -71,8 +71,8 @@ export default function Admin() {
       body: JSON.stringify({ action, ...params }),
     })
     if (!res.ok) {
-      const { error } = await res.json().catch(() => ({}))
-      toast(`Error: ${error || res.statusText}`, 'error')
+      const data = await res.json().catch(() => ({}))
+      toast(`Error: ${data.error || res.statusText} | ${data.detail || data.status || ''}`, 'error')
       return false
     }
     return true

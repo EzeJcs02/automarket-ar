@@ -92,7 +92,7 @@ export default function Home() {
         <div style={{ position: 'absolute', top: '-100px', right: '200px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.15) 0%, transparent 70%)' }} />
 
         {/* Hero content */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4rem', paddingTop: '6rem', position: 'relative' }}>
+        <div className="home-hero responsive-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4rem', paddingTop: '6rem', position: 'relative' }}>
           <div className="animate-fade-in" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
             Plataforma N°1 de vehículos en Argentina
           </div>
@@ -106,7 +106,7 @@ export default function Home() {
             <button className="btn-primary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/catalogo')}>Ver catálogo completo</button>
             <button className="btn-secondary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/concesionarias')}>Ver concesionarias</button>
           </div>
-          <div style={{ display: 'flex', gap: '3rem', marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--gray2)' }}>
+          <div className="home-stats" style={{ display: 'flex', gap: '3rem', marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--gray2)' }}>
             <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length > 0 ? `${autos.length}+` : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Vehículos publicados</div></div>
             <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{concesionarias.length > 0 ? concesionarias.length : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Concesionarias</div></div>
           </div>
@@ -177,12 +177,12 @@ export default function Home() {
 
       {/* VEHÍCULO FIJADO */}
       {autoFijado && (
-        <div style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'rgba(230,51,41,0.03)' }}>
+        <div className="home-section responsive-section" style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'rgba(230,51,41,0.03)' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>⭐ Vehículo destacado del día</div>
-          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', background: 'var(--gray1)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', cursor: 'pointer', maxWidth: '700px' }}
+          <div className="home-fijado-card" style={{ display: 'flex', gap: '2rem', alignItems: 'center', background: 'var(--gray1)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', cursor: 'pointer', maxWidth: '700px' }}
             onClick={() => navigate(`/auto/${autoFijado.id}`)}>
             {autoFijado.fotos?.[0] && (
-              <img src={autoFijado.fotos[0]} alt={autoFijado.modelo} style={{ width: '200px', height: '130px', objectFit: 'cover', borderRadius: 'var(--radius)', flexShrink: 0 }} />
+              <img src={autoFijado.fotos[0]} alt={autoFijado.modelo} className="home-fijado-img" style={{ width: '200px', height: '130px', objectFit: 'cover', borderRadius: 'var(--radius)', flexShrink: 0 }} />
             )}
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)', marginBottom: '4px' }}>{autoFijado.marca}</div>
@@ -196,7 +196,7 @@ export default function Home() {
       )}
 
       {/* FEATURED CARS */}
-      <div style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
+      <div className="home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Lo último</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>VEHÍCULOS DESTACADOS</h2>
         {loading ? (
@@ -216,7 +216,7 @@ export default function Home() {
       </div>
 
       {/* INSTRUCCIONES COMPRAR Y VENDER */}
-      <div className="animate-fade-in" style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--black)' }}>
+      <div className="animate-fade-in home-section responsive-section" style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--black)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Guía práctica</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,52px)', lineHeight: 1, marginBottom: '2.5rem' }}>INSTRUCCIONES COMPRAR Y VENDER</h2>
 
@@ -235,7 +235,7 @@ export default function Home() {
 
         <div key={tabGuia} className="animate-fade-in">
           {tabGuia === 'comprar' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
+            <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
               <div style={{ background: 'var(--gray1)', padding: '2.5rem' }}>
                 <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
                   Encontrá el vehículo ideal al mejor precio del mercado
@@ -244,7 +244,7 @@ export default function Home() {
                   Ver catálogo →
                 </button>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
+              <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
                 {[
                   { num: '1', title: 'Explorá el catálogo', desc: 'Filtrá por marca, modelo, precio, año y ubicación para encontrar el vehículo ideal.' },
                   { num: '2', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de la agencia, su reputación y el stock disponible.' },
@@ -261,7 +261,7 @@ export default function Home() {
           )}
 
           {tabGuia === 'vender' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
+            <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
               <div style={{ background: 'var(--gray1)', padding: '2.5rem' }}>
                 <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
                   Descubrí cuánto vale tu vehículo y elegí el mejor momento para vender
@@ -271,7 +271,7 @@ export default function Home() {
                   Publicar mi vehículo →
                 </button>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
+              <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
                 {[
                   { num: '1', title: 'Ingresá los datos', desc: 'Proporcioná los detalles de tu vehículo y recibí una cotización al instante.' },
                   { num: '2', title: 'Elegí una oferta', desc: 'Conocé nuestras opciones y elegí la que mejor se adapte a vos.' },
@@ -290,7 +290,7 @@ export default function Home() {
       </div>
 
       {/* DEALERS */}
-      <div className="animate-fade-in" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
+      <div className="animate-fade-in home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Red de concesionarias</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>QUIÉNES<br />PUBLICAN</h2>
         {concesionarias.length === 0
@@ -314,7 +314,7 @@ export default function Home() {
       </div>
 
       {/* EXPLORAR POR TIPO */}
-      <div className="animate-fade-in" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+      <div className="animate-fade-in home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Catálogo</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '2.5rem' }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
         {/* Autos */}

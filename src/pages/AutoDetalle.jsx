@@ -210,13 +210,13 @@ export default function AutoDetalle() {
         </div>
       )}
 
-      <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="responsive-section" style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <button onClick={() => navigate('/catalogo')} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px' }}>
           ← Volver al catálogo
         </button>
       </div>
 
-      <div className="autodetalle-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 380px' }}>
+      <div className="autodetalle-layout">
         {/* COLUMNA IZQUIERDA */}
         <div className="autodetalle-photos" style={{ padding: '3rem 4rem', borderRight: '1px solid var(--gray2)' }}>
 

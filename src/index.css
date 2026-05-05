@@ -217,13 +217,20 @@ input, select, textarea { font-family: var(--font-body); }
   .panel-content { padding: 1.5rem !important; }
 }
 
+/* AutoDetalle desktop grid */
+.autodetalle-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+}
+
 /* AutoDetalle — stacks on mobile */
 @media (max-width: 900px) {
   .autodetalle-layout {
-    flex-direction: column !important;
+    display: block !important;
   }
   .autodetalle-sidebar {
     position: static !important;
+    height: auto !important;
     width: 100% !important;
     border-left: none !important;
     border-top: 1px solid var(--gray2);
@@ -232,18 +239,49 @@ input, select, textarea { font-family: var(--font-body); }
   .autodetalle-photos { padding: 1rem !important; }
 }
 
+/* Catálogo desktop */
+.catalogo-layout { display: flex; }
+.catalogo-filters { width: 280px; flex-shrink: 0; border-right: 1px solid var(--gray2); padding: 2rem; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; }
+.catalogo-results { flex: 1; padding: 2rem; }
+
 /* Catálogo — filtros arriba en mobile */
 @media (max-width: 768px) {
-  .catalogo-layout {
-    flex-direction: column !important;
-  }
-  .catalogo-filters {
-    width: 100% !important;
-    border-right: none !important;
-    border-bottom: 1px solid var(--gray2);
-    padding: 1rem !important;
-  }
+  .catalogo-layout { flex-direction: column !important; }
+  .catalogo-filters { width: 100% !important; position: static !important; height: auto !important; border-right: none !important; border-bottom: 1px solid var(--gray2); padding: 1rem !important; }
   .catalogo-results { padding: 1rem !important; }
+  .catalogo-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── RESPONSIVE SECTION UTILITY ─────────────────────────────── */
+@media (max-width: 640px) {
+  .responsive-section {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  .responsive-section-v {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+}
+@media (max-width: 768px) and (min-width: 641px) {
+  .responsive-section {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* MiCuenta */
+@media (max-width: 640px) {
+  .mi-cuenta-planes-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Home guide grid override */
+@media (max-width: 768px) {
+  .home-guide-inner { grid-template-columns: 1fr !important; }
+  .home-guide-steps { grid-template-columns: 1fr !important; }
+  .home-stats { gap: 1.5rem !important; }
+  .home-fijado-card { flex-direction: column !important; }
+  .home-fijado-img { width: 100% !important; height: 180px !important; }
 }
 
 /* ── PREMIUM INTERACTIVITY ────────────────────────────────── */

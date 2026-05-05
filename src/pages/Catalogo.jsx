@@ -120,15 +120,15 @@ export default function Catalogo() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="responsive-section" style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.5rem' }}>CATÁLOGO</div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
           {loading ? 'Cargando...' : `${autos.length} resultado${autos.length !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
         </div>
       </div>
-      <div style={{ display: 'flex' }}>
+      <div className="catalogo-layout">
         {/* SIDEBAR */}
-        <div style={{ width: '280px', flexShrink: 0, borderRight: '1px solid var(--gray2)', padding: '2rem', position: 'sticky', top: '58px', height: 'calc(100vh - 58px)', overflowY: 'auto' }}>
+        <div className="catalogo-filters">
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Búsqueda</div>
             <input style={inputStyle} placeholder="Marca, modelo..." value={filtros.busqueda} onChange={e => setF('busqueda', e.target.value)} />
@@ -268,7 +268,7 @@ export default function Catalogo() {
           </div>
         </div>
         {/* RESULTS */}
-        <div style={{ flex: 1, padding: '2rem' }}>
+        <div className="catalogo-results">
           {!loading && autos.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>{autos.length} resultado{autos.length !== 1 ? 's' : ''}</div>
@@ -287,7 +287,7 @@ export default function Catalogo() {
             : autos.length === 0
               ? <p style={{ color: 'var(--gray4)', fontSize: '15px', padding: '2rem 0' }}>No se encontraron autos con esos filtros.</p>
               : <>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
+                  <div className="catalogo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
                     {autosPagina.map(a => <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={esParticular ? toggleFavorito : undefined} />)}
                   </div>
 

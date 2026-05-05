@@ -107,7 +107,7 @@ export default function MiCuenta() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="responsive-section" style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.5rem' }}>Mi cuenta</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', lineHeight: 1 }}>{nombre.toUpperCase()}</div>
@@ -145,7 +145,7 @@ export default function MiCuenta() {
       )}
 
       {/* HALLAZGO 4 FIX: Acceso directo al Botón de Arrepentimiento — Res. 424/2020 */}
-      <div style={{ padding: '10px 4rem', background: 'rgba(230,51,41,.05)', borderBottom: '1px solid rgba(230,51,41,.12)', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+      <div className="responsive-section" style={{ padding: '10px 4rem', background: 'rgba(230,51,41,.05)', borderBottom: '1px solid rgba(230,51,41,.12)', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
         <span style={{ fontSize: '13px', color: 'var(--gray4)' }}>¿Querés cancelar una compra o reserva?</span>
         <Link
           to="/arrepentimiento"
@@ -155,7 +155,7 @@ export default function MiCuenta() {
         </Link>
       </div>
 
-      <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+      <div className="responsive-section" style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button style={tabStyle(tab === 'publicaciones')} onClick={() => { setTab('publicaciones'); setShowForm(false) }}>Mis publicaciones ({misAutos.length})</button>
         <button style={tabStyle(tab === 'consultas-recibidas')} onClick={() => setTab('consultas-recibidas')}>
           Consultas recibidas {consultasRecibidas.filter(c => !c.leido).length > 0 && <span style={{ marginLeft: '6px', background: tab === 'consultas-recibidas' ? 'rgba(255,255,255,.3)' : 'var(--accent)', color: 'var(--white)', padding: '1px 7px', borderRadius: '100px', fontSize: '10px' }}>{consultasRecibidas.filter(c => !c.leido).length}</span>}
@@ -170,7 +170,7 @@ export default function MiCuenta() {
       </div>
 
       {tab === 'favoritos' && (
-        <div style={{ padding: '2rem 4rem' }}>
+        <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
           {favoritos.length === 0 ? (
             <div style={{ padding: '5rem', textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1rem' }}>NINGÚN FAVORITO AÚN</div>
@@ -192,7 +192,7 @@ export default function MiCuenta() {
       )}
 
       {tab === 'consultas-recibidas' && (
-        <div style={{ padding: '2rem 4rem' }}>
+        <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>CONSULTAS RECIBIDAS</div>
           <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '2rem' }}>Mensajes de interesados en tus publicaciones.</div>
           {consultasRecibidas.length === 0 ? (
@@ -207,7 +207,7 @@ export default function MiCuenta() {
       )}
 
       {tab === 'consultas' && (
-        <div style={{ padding: '2rem 4rem' }}>
+        <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
           {consultas.length === 0 ? (
             <div style={{ padding: '5rem', textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '1rem' }}>SIN CONSULTAS AÚN</div>
@@ -235,7 +235,7 @@ export default function MiCuenta() {
       )}
 
       {tab === 'publicaciones' && (
-        <div style={{ padding: '2rem 4rem' }}>
+        <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
           {showForm ? (
             <PublicarForm user={user} onSuccess={() => { setShowForm(false); fetchData() }} onCancel={() => setShowForm(false)} />
           ) : (
@@ -326,8 +326,8 @@ export default function MiCuenta() {
       )}
 
       {tab === 'planes' && (
-        <div style={{ padding: '2rem 4rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px', marginBottom: '3rem' }}>
+        <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
+          <div className="mi-cuenta-planes-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '900px', marginBottom: '3rem' }}>
             <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Base</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: '#4ade80', lineHeight: 1, marginBottom: '2rem' }}>GRATIS</div>

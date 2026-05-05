@@ -17,9 +17,10 @@ const CATEGORIAS = [
 
 async function pagarConMP(tipo, { profesional_id, user_id, user_email } = {}, onError) {
   try {
+    const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
       body: JSON.stringify({ tipo, profesional_id, user_id, user_email, origen: 'panel-profesional' }),
     })
     const data = await res.json()

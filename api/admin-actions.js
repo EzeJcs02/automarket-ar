@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'fioramarket99@gmail.com'
 const ALLOWED_ORIGIN = 'https://fioramarket.store'
 
 export default async function handler(req, res) {
@@ -15,10 +14,15 @@ export default async function handler(req, res) {
 
   const token = authHeader.replace('Bearer ', '')
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY  // clave pública, sólo identifica el proyecto
+  const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  // Verificar token usando anonKey (funciona igual para auth, no da privilegios extra)
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL
+  if (!ADMIN_EMAIL) {
+    console.error('FATAL: ADMIN_EMAIL env var not set')
+    return res.status(500).json({ error: 'Server misconfiguration' })
+  }
+
   const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
     headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
   })
@@ -26,15 +30,14 @@ export default async function handler(req, res) {
   if (!userRes.ok) {
     const body = await userRes.text().catch(() => '(no body)')
     console.error('Auth error: status', userRes.status, '| body:', body)
-    return res.status(401).json({ error: 'Invalid token', detail: body })
+    return res.status(401).json({ error: 'Invalid token' })
   }
 
   const { email } = await userRes.json()
   if (email !== ADMIN_EMAIL) {
-    return res.status(403).json({ error: 'Forbidden', email })
+    return res.status(403).json({ error: 'Forbidden' })
   }
 
-  // Cliente con service role key para bypasear RLS en todas las operaciones
   const supabase = createClient(supabaseUrl, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
@@ -87,15 +90,20 @@ export default async function handler(req, res) {
         await supabase.from('autos').update({ urgente: params.value, destacado: false }).eq('id', params.id)
         break
 
-      case 'agregarAd':
+      case 'agregarAd': {
+        const imgUrl = params.imagen_url?.trim() || ''
+        if (!imgUrl.startsWith('https://')) {
+          return res.status(400).json({ error: 'imagen_url debe usar HTTPS' })
+        }
         await supabase.from('publicidades').insert({
           nombre: params.nombre,
-          imagen_url: params.imagen_url,
+          imagen_url: imgUrl,
           link_url: params.link_url || null,
           fondo: params.fondo || 'oscuro',
           activo: true,
         })
         break
+      }
 
       case 'toggleAd':
         await supabase.from('publicidades').update({ activo: params.value }).eq('id', params.id)
@@ -103,6 +111,27 @@ export default async function handler(req, res) {
 
       case 'eliminarAd':
         await supabase.from('publicidades').delete().eq('id', params.id)
+        break
+
+      // Operaciones de profesionales
+      case 'aprobarProfesional':
+        await supabase.from('profesionales').update({ aprobado: true, activo: true }).eq('id', params.id)
+        break
+
+      case 'rechazarProfesional':
+        await supabase.from('profesionales').delete().eq('id', params.id)
+        break
+
+      case 'suspenderProfesional':
+        await supabase.from('profesionales').update({ aprobado: false, activo: false }).eq('id', params.id)
+        break
+
+      case 'toggleVerificadoProfesional':
+        await supabase.from('profesionales').update({ verificado: params.value }).eq('id', params.id)
+        break
+
+      case 'toggleDestacadoProfesional':
+        await supabase.from('profesionales').update({ destacado: params.value }).eq('id', params.id)
         break
 
       default:

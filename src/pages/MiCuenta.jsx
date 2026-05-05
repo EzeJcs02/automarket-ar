@@ -266,7 +266,8 @@ export default function MiCuenta() {
                   <button
                     onClick={async () => {
                       try {
-                        const res = await fetch('/api/mp-create-preference', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo: 'publicacion_adicional', user_id: user.id, user_email: user.email, origen: 'mi-cuenta' }) })
+                        const { data: { session: _sess } } = await supabase.auth.getSession()
+                        const res = await fetch('/api/mp-create-preference', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_sess?.access_token}` }, body: JSON.stringify({ tipo: 'publicacion_adicional', user_id: user.id, user_email: user.email, origen: 'mi-cuenta' }) })
                         const data = await res.json()
                         if (data.init_point) window.location.href = data.init_point
                         else toast('Error al iniciar el pago.', 'error')
@@ -607,9 +608,10 @@ function ExtrasConMP({ user, autoId }) {
     if (!autoId && tipo !== 'publicacion_adicional') { toast('Necesitás tener una publicación activa para usar este boost.', 'warning'); return }
     setPaying(tipo)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch('/api/mp-create-preference', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
         body: JSON.stringify({ tipo, user_id: user.id, user_email: user.email, auto_id: autoId, origen: 'mi-cuenta' }),
       })
       const data = await res.json()

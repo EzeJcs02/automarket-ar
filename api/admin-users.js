@@ -1,4 +1,3 @@
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'fioramarket99@gmail.com'
 const ALLOWED_ORIGIN = 'https://fioramarket.store'
 
 export default async function handler(req, res) {
@@ -11,13 +10,20 @@ export default async function handler(req, res) {
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' })
 
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL
+  if (!ADMIN_EMAIL) {
+    console.error('FATAL: ADMIN_EMAIL env var not set')
+    return res.status(500).json({ error: 'Server misconfiguration' })
+  }
+
   const token = authHeader.replace('Bearer ', '')
   const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  // Verificar que el token pertenece al usuario admin
+  // Verificar que el token pertenece al usuario admin usando anon key (igual que admin-actions)
   const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
-    headers: { apikey: supabaseKey, Authorization: `Bearer ${token}` },
+    headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
   })
 
   if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' })
@@ -25,8 +31,9 @@ export default async function handler(req, res) {
   const { email } = await userRes.json()
   if (email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' })
 
+  // Listar usuarios usando service role key (privilegio elevado solo para esta operación)
   const usersRes = await fetch(`${supabaseUrl}/auth/v1/admin/users?per_page=500`, {
-    headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
   })
 
   if (!usersRes.ok) return res.status(500).json({ error: 'Failed to fetch users' })

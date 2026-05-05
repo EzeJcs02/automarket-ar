@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { setPageMeta } from '../lib/seo'
@@ -128,9 +129,10 @@ function XIcon() {
 
 async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, profesional_id = null, user_id = null, user_email = null, origen = 'planes' } = {}, onError = (m) => alert(m)) {
   try {
+    const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
       body: JSON.stringify({ tipo, auto_id, concesionaria_id, profesional_id, user_id, user_email, origen }),
     })
     const data = await res.json()

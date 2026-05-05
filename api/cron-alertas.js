@@ -12,6 +12,10 @@
 const BATCH_SIZE = 10   // alertas procesadas en paralelo por vez
 const BATCH_DELAY_MS = 200 // pausa entre batches (~5 req/s hacia Resend)
 
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -112,17 +116,17 @@ export default async function handler(req, res) {
       // ── 3c. Construir email ───────────────────────────────────────────────
       const listHtml = coincidentes.map(a => `
         <div style="border:1px solid #222;border-radius:8px;padding:16px;margin-bottom:12px">
-          <div style="font-size:16px;font-weight:700;color:#f5f3ee">${a.marca} ${a.modelo} ${a.anio}</div>
-          <div style="font-size:13px;color:#888;margin-top:4px">${a.tipo === 'nuevo' ? 'Nuevo' : 'Usado'} · ${Number(a.kilometraje).toLocaleString('es-AR')} km · ${a.combustible || ''}</div>
+          <div style="font-size:16px;font-weight:700;color:#f5f3ee">${esc(a.marca)} ${esc(a.modelo)} ${esc(a.anio)}</div>
+          <div style="font-size:13px;color:#888;margin-top:4px">${a.tipo === 'nuevo' ? 'Nuevo' : 'Usado'} · ${Number(a.kilometraje).toLocaleString('es-AR')} km · ${esc(a.combustible)}</div>
           ${Number(a.precio_ars) > 0 ? `<div style="font-size:18px;font-weight:700;color:#e63329;margin-top:8px">$${Number(a.precio_ars).toLocaleString('es-AR')}</div>` : ''}
-          ${a.concesionarias ? `<div style="font-size:12px;color:#666;margin-top:4px">${a.concesionarias.nombre} · ${a.concesionarias.ciudad || ''}</div>` : ''}
-          <a href="https://fioramarket.store/auto/${a.id}" style="display:inline-block;margin-top:12px;background:#e63329;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:bold">Ver vehículo →</a>
+          ${a.concesionarias ? `<div style="font-size:12px;color:#666;margin-top:4px">${esc(a.concesionarias.nombre)} · ${esc(a.concesionarias.ciudad)}</div>` : ''}
+          <a href="https://fioramarket.store/auto/${encodeURIComponent(a.id)}" style="display:inline-block;margin-top:12px;background:#e63329;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:bold">Ver vehículo →</a>
         </div>`).join('')
 
       const labelMap = { tipo: 'Condición', marca: 'Marca', categoria: 'Categoría', combustible: 'Combustible', precioMin: 'Precio mín', precioMax: 'Precio máx', anioDesde: 'Año desde', anioHasta: 'Año hasta', busqueda: 'Búsqueda' }
       const resumen = Object.entries(f)
         .filter(([, v]) => v)
-        .map(([k, v]) => labelMap[k] ? `${labelMap[k]}: ${v}` : null)
+        .map(([k, v]) => labelMap[k] ? `${esc(labelMap[k])}: ${esc(v)}` : null)
         .filter(Boolean).join(' · ')
 
       // ── 3d. Enviar email con verificación de respuesta ────────────────────

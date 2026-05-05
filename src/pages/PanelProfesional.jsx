@@ -5,14 +5,14 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 const CATEGORIAS = [
-  { id: 'gestores', label: 'Gestores automotores', icon: '📋' },
-  { id: 'escribanos', label: 'Escribanos', icon: '✍️' },
-  { id: 'mecanicos', label: 'Mecánicos', icon: '🔧' },
-  { id: 'repuesteros', label: 'Repuesteros', icon: '🏪' },
-  { id: 'seguros', label: 'Seguros', icon: '🛡️' },
-  { id: 'estetica', label: 'Estética vehicular', icon: '✨' },
-  { id: 'verificacion', label: 'Verificación / inspección', icon: '🔍' },
-  { id: 'transporte', label: 'Transporte / flete', icon: '🚛' },
+  { id: 'gestores',     label: 'Gestores automotores' },
+  { id: 'escribanos',   label: 'Escribanos' },
+  { id: 'mecanicos',    label: 'Mecánicos' },
+  { id: 'repuesteros',  label: 'Repuesteros' },
+  { id: 'seguros',      label: 'Seguros' },
+  { id: 'estetica',     label: 'Estética vehicular' },
+  { id: 'verificacion', label: 'Verificación / inspección' },
+  { id: 'transporte',   label: 'Transporte / flete' },
 ]
 
 async function pagarConMP(tipo, { profesional_id, user_id, user_email } = {}, onError) {
@@ -113,8 +113,8 @@ export default function PanelProfesional() {
           {perfil?.nombre}
         </div>
         {categoria && (
-          <div style={{ fontSize: '14px', color: 'var(--gray4)', marginTop: '.5rem' }}>
-            {categoria.icon} {categoria.label}
+          <div style={{ fontSize: '13px', color: 'var(--gray4)', marginTop: '.5rem', letterSpacing: '.02em' }}>
+            {categoria.label}
           </div>
         )}
       </div>
@@ -122,7 +122,9 @@ export default function PanelProfesional() {
       {/* Estado pendiente */}
       {pendiente && (
         <div style={{ background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: '24px' }}>⏳</span>
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid rgba(201,168,76,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#c9a84c' }} />
+          </div>
           <div>
             <div style={{ fontSize: '16px', fontWeight: 600, color: '#c9a84c', marginBottom: '.5rem' }}>Solicitud en revisión</div>
             <p style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.6, margin: 0 }}>

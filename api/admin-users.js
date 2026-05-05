@@ -1,4 +1,4 @@
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'rlautomotores24@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'fioramarket99@gmail.com'
 const ALLOWED_ORIGIN = 'https://fioramarket.store'
 
 export default async function handler(req, res) {

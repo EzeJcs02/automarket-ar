@@ -63,70 +63,70 @@ export default function Admin() {
     setDataLoading(false)
   }
 
+  async function adminAction(action, params = {}) {
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/admin-actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ action, ...params }),
+    })
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({}))
+      toast(`Error: ${error || res.statusText}`, 'error')
+      return false
+    }
+    return true
+  }
+
   async function aprobar(id) {
-    await supabase.from('concesionarias').update({ aprobada: true }).eq('id', id)
-    loadData()
+    if (await adminAction('aprobar', { id })) loadData()
   }
 
   async function rechazar(id) {
     if (!confirm('¿Seguro que querés rechazar y eliminar permanentemente esta solicitud?')) return
-    await supabase.from('concesionarias').delete().eq('id', id)
-    loadData()
+    if (await adminAction('rechazar', { id })) loadData()
   }
 
   async function suspender(id) {
     if (!confirm('¿Suspender esta concesionaria? Sus publicaciones dejarán de ser visibles.')) return
-    await supabase.from('concesionarias').update({ aprobada: false }).eq('id', id)
-    loadData()
+    if (await adminAction('suspender', { id })) loadData()
   }
 
   async function toggleDestacada(c) {
-    await supabase.from('concesionarias').update({ destacada: !c.destacada }).eq('id', c.id)
-    loadData()
+    if (await adminAction('toggleDestacada', { id: c.id, value: !c.destacada })) loadData()
   }
 
   async function toggleBanner(c) {
-    await supabase.from('concesionarias').update({ banner_activo: !c.banner_activo }).eq('id', c.id)
-    loadData()
+    if (await adminAction('toggleBanner', { id: c.id, value: !c.banner_activo })) loadData()
   }
 
   async function toggleFijado(auto) {
-    await supabase.from('autos').update({ fijado_home: !auto.fijado_home }).eq('id', auto.id)
-    loadData()
+    if (await adminAction('toggleFijado', { id: auto.id, value: !auto.fijado_home })) loadData()
   }
 
   async function cambiarPlan(c, nuevoPlan) {
-    await supabase.from('concesionarias').update({ plan: nuevoPlan }).eq('id', c.id)
-    await supabase.from('pagos').insert({
-      concesionaria_id: c.id,
-      tipo: `plan_${nuevoPlan}`,
-      estado: 'approved',
-      monto: 0,
-      mp_payment_id: `admin_manual_${Date.now()}`,
-    })
-    loadData()
+    if (await adminAction('cambiarPlan', { id: c.id, plan: nuevoPlan })) loadData()
   }
 
   async function toggleDestacadoAuto(auto) {
-    await supabase.from('autos').update({ destacado: !auto.destacado, urgente: false }).eq('id', auto.id)
-    loadData()
+    if (await adminAction('toggleDestacadoAuto', { id: auto.id, value: !auto.destacado })) loadData()
   }
 
   async function toggleUrgenteAuto(auto) {
-    await supabase.from('autos').update({ urgente: !auto.urgente, destacado: false }).eq('id', auto.id)
-    loadData()
+    if (await adminAction('toggleUrgenteAuto', { id: auto.id, value: !auto.urgente })) loadData()
   }
 
   async function agregarAd() {
     const imagen_url = nuevaAd.imagen_url.trim()
     if (!nuevaAd.nombre.trim() || !imagen_url) return
     setAdLoading(true)
-    const { error: insErr } = await supabase.from('publicidades').insert({ nombre: nuevaAd.nombre.trim(), imagen_url, link_url: nuevaAd.link_url.trim() || null, fondo: nuevaAd.fondo, activo: true })
-    if (insErr) {
-      toast(`Error al guardar: ${insErr.message}`, 'error')
-      setAdLoading(false)
-      return
-    }
+    const ok = await adminAction('agregarAd', {
+      nombre: nuevaAd.nombre.trim(),
+      imagen_url,
+      link_url: nuevaAd.link_url.trim() || null,
+      fondo: nuevaAd.fondo,
+    })
+    if (!ok) { setAdLoading(false); return }
     setNuevaAd({ nombre: '', imagen_url: '', link_url: '', fondo: 'oscuro' })
     const { data } = await supabase.from('publicidades').select('*').order('created_at', { ascending: false })
     setPublicidades(data || [])
@@ -134,8 +134,8 @@ export default function Admin() {
   }
 
   async function toggleAd(ad) {
-    await supabase.from('publicidades').update({ activo: !ad.activo }).eq('id', ad.id)
-    setPublicidades(prev => prev.map(a => a.id === ad.id ? { ...a, activo: !a.activo } : a))
+    if (await adminAction('toggleAd', { id: ad.id, value: !ad.activo }))
+      setPublicidades(prev => prev.map(a => a.id === ad.id ? { ...a, activo: !a.activo } : a))
   }
 
   async function aprobarProfesional(id) {
@@ -167,8 +167,8 @@ export default function Admin() {
 
   async function eliminarAd(id) {
     if (!confirm('¿Eliminar esta publicidad?')) return
-    await supabase.from('publicidades').delete().eq('id', id)
-    setPublicidades(prev => prev.filter(a => a.id !== id))
+    if (await adminAction('eliminarAd', { id }))
+      setPublicidades(prev => prev.filter(a => a.id !== id))
   }
 
   const navItems = [

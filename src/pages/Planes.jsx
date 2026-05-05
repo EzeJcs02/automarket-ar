@@ -126,12 +126,12 @@ function XIcon() {
   )
 }
 
-async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
+async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, profesional_id = null, user_id = null, user_email = null, origen = 'planes' } = {}, onError = (m) => alert(m)) {
   try {
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, auto_id, concesionaria_id, user_id, user_email, origen: 'planes' }),
+      body: JSON.stringify({ tipo, auto_id, concesionaria_id, profesional_id, user_id, user_email, origen }),
     })
     const data = await res.json()
     if (data.init_point) window.location.href = data.init_point
@@ -143,7 +143,7 @@ async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_
 
 export default function Planes() {
   const navigate = useNavigate()
-  const { user, concesionaria } = useAuth()
+  const { user, concesionaria, profesional } = useAuth()
   const { toast } = useToast()
   const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
 
@@ -187,6 +187,19 @@ export default function Planes() {
   function handleExtrasIndividual() {
     if (user) navigate('/mi-cuenta')
     else navigate('/login')
+  }
+
+  function handlePlanProfesional(tipo) {
+    if (profesional) {
+      pay(tipo, {
+        profesional_id: profesional.id,
+        user_id: user?.id,
+        user_email: user?.email,
+        origen: 'planes',
+      })
+    } else {
+      navigate('/registro')
+    }
   }
 
   return (
@@ -357,6 +370,87 @@ export default function Planes() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
               {user ? 'Ir a Mi Cuenta →' : 'Iniciar sesión para comprar →'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* PLANES PROFESIONALES */}
+      <div style={{ padding: '5rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para gestores, mecánicos, escribanos y más</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES PROFESIONALES</h2>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7, maxWidth: '520px' }}>
+          Publicá tu perfil en el directorio de profesionales y conectá con compradores y vendedores de toda Argentina.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '700px' }}>
+
+          {/* Plan Base */}
+          <div style={{ background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', marginBottom: '.75rem' }}>BASE</div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)', lineHeight: 1 }}>$10.000</span>
+              <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', paddingBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', marginBottom: '2rem' }}>
+              Perfil activo en el directorio
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+              {[
+                'Perfil visible en /profesionales',
+                'Posición estándar en tu categoría',
+                'WhatsApp, teléfono y email visible',
+                'Descripción y horarios',
+              ].map(b => (
+                <li key={b} style={{ fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <CheckIcon color="var(--gray4)" /> {b}
+                </li>
+              ))}
+              {['Badge Recomendado', 'Prioridad en resultados'].map(b => (
+                <li key={b} style={{ fontSize: '13px', color: 'var(--gray3)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <XIcon /> {b}
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={() => handlePlanProfesional('plan_profesional_base')}
+              style={{ width: '100%', padding: '14px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', background: 'var(--gray2)', color: 'var(--white)', border: 'none', transition: 'opacity .2s' }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '.8'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+              {profesional ? 'Contratar con MercadoPago →' : 'Registrarme como profesional →'}
+            </button>
+          </div>
+
+          {/* Plan Destacado */}
+          <div style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.45)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', boxShadow: '0 0 40px rgba(201,168,76,.08)' }}>
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top center, rgba(201,168,76,.07) 0%, transparent 60%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>MÁS VISIBLE</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#c9a84c', marginBottom: '.75rem' }}>DESTACADO</div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)', lineHeight: 1 }}>$30.000</span>
+              <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
+            </div>
+            <div style={{ fontSize: '13px', color: '#c9a84c', fontFamily: 'var(--font-mono)', paddingBottom: '1.5rem', borderBottom: '1px solid rgba(201,168,76,.2)', marginBottom: '2rem' }}>
+              Primero en tu categoría
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+              {[
+                'Todo lo del plan Base',
+                'Aparecés primero en tu categoría',
+                'Badge "Recomendado" visible',
+                'Borde dorado diferenciado en tu card',
+                '30 días de vigencia',
+              ].map(b => (
+                <li key={b} style={{ fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <CheckIcon color="#c9a84c" /> {b}
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={() => handlePlanProfesional('plan_profesional_destacado')}
+              style={{ width: '100%', padding: '14px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, #b8860b, #c9a84c)', color: '#000', transition: 'opacity .2s' }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+              {profesional ? 'Contratar con MercadoPago →' : 'Registrarme como profesional →'}
             </button>
           </div>
         </div>

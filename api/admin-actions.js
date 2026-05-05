@@ -15,23 +15,23 @@ export default async function handler(req, res) {
 
   const token = authHeader.replace('Bearer ', '')
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY  // clave pública, sólo identifica el proyecto
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  // Verificar token con el mismo patrón que admin-users.js (probado que funciona)
+  // Verificar token usando anonKey (funciona igual para auth, no da privilegios extra)
   const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
-    headers: { apikey: serviceKey, Authorization: `Bearer ${token}` },
+    headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
   })
 
   if (!userRes.ok) {
     const body = await userRes.text().catch(() => '(no body)')
-    console.error('Auth error: status', userRes.status, '| url:', supabaseUrl, '| body:', body, '| token starts with:', token?.slice(0, 20))
-    return res.status(401).json({ error: 'Invalid token', status: userRes.status, detail: body })
+    console.error('Auth error: status', userRes.status, '| body:', body)
+    return res.status(401).json({ error: 'Invalid token', detail: body })
   }
 
-  const userData = await userRes.json()
-  const email = userData.email
+  const { email } = await userRes.json()
   if (email !== ADMIN_EMAIL) {
-    return res.status(403).json({ error: 'Forbidden', email, expected: ADMIN_EMAIL })
+    return res.status(403).json({ error: 'Forbidden', email })
   }
 
   // Cliente con service role key para bypasear RLS en todas las operaciones

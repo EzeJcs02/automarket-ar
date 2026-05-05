@@ -211,6 +211,10 @@ export default function Planes() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" style={{ flexShrink: 0 }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               Agencias — desde <strong style={{ color: 'var(--white)' }}>$30.000/mes</strong>
             </div>
+            <div style={{ background: 'rgba(99,102,241,.07)', border: '1px solid rgba(99,102,241,.25)', borderRadius: 'var(--radius-lg)', padding: '.75rem 1.25rem', fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profesionales — desde <strong style={{ color: 'var(--white)' }}>$10.000/mes</strong>
+            </div>
           </div>
         </div>
       </div>

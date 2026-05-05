@@ -238,7 +238,7 @@ export default function Planes() {
           {PLANES.map(p => {
             const isPro = p.id === 'pro'
             return (
-              <div key={p.id} style={{
+              <div key={p.id} className={`plan-card plan-card-${p.id}`} style={{
                 background: isPro ? 'rgba(224,160,32,.05)' : 'var(--gray1)',
                 border: `1px solid ${p.border}`,
                 borderRadius: 'var(--radius-lg)',
@@ -332,7 +332,7 @@ export default function Planes() {
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para compradores / particulares</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '3rem' }}>PLAN INDIVIDUAL</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '860px' }}>
-          <div style={{ background: 'var(--gray1)', border: '1px solid rgba(74,222,128,.25)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+          <div className="plan-card plan-card-individual-free" style={{ background: 'var(--gray1)', border: '1px solid rgba(74,222,128,.25)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#4ade80', marginBottom: '.75rem' }}>BASE</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: '#4ade80', lineHeight: 1, marginBottom: '1.5rem' }}>GRATIS</div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -345,7 +345,7 @@ export default function Planes() {
             <button className="btn-secondary" style={{ width: '100%' }} onClick={() => navigate('/registro')}>Registrarse gratis</button>
           </div>
 
-          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+          <div className="plan-card plan-card-individual-extra" style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--white)', marginBottom: '1.5rem' }}>EXTRAS PAGOS</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '2rem' }}>
               {[
@@ -385,7 +385,7 @@ export default function Planes() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '700px' }}>
 
           {/* Plan Base */}
-          <div style={{ background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column' }}>
+          <div className="plan-card plan-card-prof-base" style={{ background: 'var(--black)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', marginBottom: '.75rem' }}>BASE</div>
             <div style={{ marginBottom: '1.5rem' }}>
               <span style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--white)', lineHeight: 1 }}>$10.000</span>
@@ -421,7 +421,7 @@ export default function Planes() {
           </div>
 
           {/* Plan Destacado */}
-          <div style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.45)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', boxShadow: '0 0 40px rgba(201,168,76,.08)' }}>
+          <div className="plan-card plan-card-prof-dest" style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.45)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', boxShadow: '0 0 40px rgba(201,168,76,.08)' }}>
             <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top center, rgba(201,168,76,.07) 0%, transparent 60%)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>MÁS VISIBLE</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#c9a84c', marginBottom: '.75rem' }}>DESTACADO</div>
@@ -463,7 +463,7 @@ export default function Planes() {
         <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Aumentá la visibilidad de tus publicaciones más allá de tu plan.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
           {BOOSTS.map(b => (
-            <div key={b.nombre} style={{ background: 'var(--black)', padding: '2.5rem' }}>
+            <div key={b.nombre} className="boost-card" style={{ background: 'var(--black)', padding: '2.5rem' }}>
               <div style={{ color: 'var(--accent)', marginBottom: '1.25rem' }}>{b.icon}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--white)', marginBottom: '6px' }}>{b.nombre}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>${b.precio}</div>
@@ -487,7 +487,7 @@ export default function Planes() {
         <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3.5rem', lineHeight: 1.7 }}>Espacios exclusivos dentro de FIORA MARKET para máxima exposición.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {PUBLICIDAD.map(p => (
-            <div key={p.nombre} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
+            <div key={p.nombre} className="plan-card pub-card" style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
               <div style={{ color: 'var(--accent)', marginBottom: '1.25rem' }}>{p.icon}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', marginBottom: '8px' }}>{p.nombre}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>
@@ -558,6 +558,54 @@ export default function Planes() {
         </div>
       </div>
 
+      <style>{`
+        .plan-card {
+          transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+        }
+        .plan-card:hover {
+          transform: translateY(-8px);
+        }
+        .plan-card-pro:hover {
+          transform: scale(1.03) translateY(-8px);
+          box-shadow: 0 24px 64px rgba(224,160,32,.28) !important;
+          border-color: rgba(224,160,32,.9) !important;
+        }
+        .plan-card-basico:hover {
+          box-shadow: 0 16px 48px rgba(0,0,0,.5);
+          border-color: var(--gray4) !important;
+        }
+        .plan-card-premium:hover {
+          box-shadow: 0 24px 64px rgba(230,51,41,.28) !important;
+          border-color: rgba(230,51,41,.8) !important;
+        }
+        .plan-card-individual-free:hover {
+          box-shadow: 0 16px 48px rgba(74,222,128,.15);
+          border-color: rgba(74,222,128,.6) !important;
+        }
+        .plan-card-individual-extra:hover {
+          box-shadow: 0 16px 48px rgba(0,0,0,.4);
+          border-color: var(--gray3) !important;
+        }
+        .plan-card-prof-base:hover {
+          box-shadow: 0 16px 48px rgba(0,0,0,.5);
+          border-color: var(--gray3) !important;
+        }
+        .plan-card-prof-dest:hover {
+          box-shadow: 0 24px 64px rgba(201,168,76,.28) !important;
+          border-color: rgba(201,168,76,.9) !important;
+        }
+        .boost-card {
+          transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .boost-card:hover {
+          background: #111 !important;
+          transform: translateY(-4px);
+        }
+        .pub-card:hover {
+          box-shadow: 0 16px 48px rgba(230,51,41,.18) !important;
+          border-color: rgba(230,51,41,.4) !important;
+        }
+      `}</style>
     </div>
   )
 }

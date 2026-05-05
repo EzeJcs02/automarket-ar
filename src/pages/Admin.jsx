@@ -350,6 +350,57 @@ export default function Admin() {
               <div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>HISTORIAL DE PAGOS</div>
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todos los pagos procesados vía MercadoPago.</div>
+
+                {/* RESUMEN DE INGRESOS */}
+                {pagos.length > 0 && (() => {
+                  const aprobados = pagos.filter(p => p.estado === 'approved')
+                  const total = aprobados.reduce((s, p) => s + (Number(p.monto) || 0), 0)
+                  const porTipo = aprobados.reduce((acc, p) => {
+                    const k = p.tipo || 'otro'
+                    acc[k] = (acc[k] || 0) + (Number(p.monto) || 0)
+                    return acc
+                  }, {})
+                  const top = Object.entries(porTipo).sort((a, b) => b[1] - a[1]).slice(0, 6)
+                  const hoy = new Date()
+                  const mesActual = aprobados.filter(p => {
+                    const d = new Date(p.created_at)
+                    return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear()
+                  }).reduce((s, p) => s + (Number(p.monto) || 0), 0)
+                  return (
+                    <div style={{ marginBottom: '3rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                        {[
+                          { label: 'Total recaudado', value: '$' + total.toLocaleString('es-AR'), sub: `${aprobados.length} pagos aprobados` },
+                          { label: 'Este mes', value: '$' + mesActual.toLocaleString('es-AR'), sub: new Date().toLocaleString('es-AR', { month: 'long', year: 'numeric' }) },
+                          { label: 'Ticket promedio', value: aprobados.length ? '$' + Math.round(total / aprobados.length).toLocaleString('es-AR') : '—', sub: 'por pago aprobado' },
+                        ].map(({ label, value, sub }) => (
+                          <div key={label} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--gray5)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--font-mono)', marginBottom: '8px' }}>{label}</div>
+                            <div style={{ fontSize: '28px', fontFamily: 'var(--font-display)', color: 'var(--white)', marginBottom: '4px' }}>{value}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{sub}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {top.length > 0 && (
+                        <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--gray5)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>Ingresos por tipo de servicio</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {top.map(([tipo, monto]) => (
+                              <div key={tipo} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '180px', fontSize: '12px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', flexShrink: 0 }}>{tipo.replace(/_/g, ' ')}</div>
+                                <div style={{ flex: 1, background: 'var(--gray2)', borderRadius: '100px', height: '6px', overflow: 'hidden' }}>
+                                  <div style={{ height: '100%', background: 'var(--accent)', borderRadius: '100px', width: `${Math.round((monto / top[0][1]) * 100)}%`, transition: 'width .4s' }} />
+                                </div>
+                                <div style={{ width: '120px', textAlign: 'right', fontSize: '13px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--white)', flexShrink: 0 }}>${monto.toLocaleString('es-AR')}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
                 {pagos.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay pagos registrados aún.</p></div>
                   : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>

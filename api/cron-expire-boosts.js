@@ -19,8 +19,10 @@ export default async function handler(req, res) {
     Prefer: 'return=minimal',
   }
 
-  const now = new Date().toISOString()
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  // Buffer de 5 minutos para evitar expirar publicaciones por clock skew entre el cron y Supabase
+  const BUFFER_MS = 5 * 60 * 1000
+  const now = new Date(Date.now() + BUFFER_MS).toISOString()
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000 - BUFFER_MS).toISOString()
 
   let r1, r2, r3
   try {

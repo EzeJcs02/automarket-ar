@@ -39,6 +39,11 @@ export default async function handler(req, res) {
   const { auto_id, nombre, email, mensaje, telefono } = req.body
   if (!auto_id || !nombre || !email || !mensaje) return res.status(400).json({ error: 'Faltan datos' })
 
+  // Validar formato UUID para auto_id (evita inyección en URL de la API REST)
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auto_id)) {
+    return res.status(400).json({ error: 'ID de publicación inválido' })
+  }
+
   // Validar email básico
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Email inválido' })
   if (nombre.length > 200 || mensaje.length > 5000) return res.status(400).json({ error: 'Datos demasiado largos' })

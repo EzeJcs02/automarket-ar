@@ -9,9 +9,10 @@ const LIMITES_PLAN = { free: 1, basico: 8, pro: 20, premium: 50 }
 
 async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
   try {
+    const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/mp-create-preference', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
       body: JSON.stringify({ tipo, auto_id, concesionaria_id, user_id, user_email, origen: 'panel' }),
     })
     const data = await res.json()

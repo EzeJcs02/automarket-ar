@@ -80,7 +80,7 @@ export function AuthProvider({ children }) {
         email,
         telefono: datos.telefono,
         ciudad: datos.ciudad,
-        aprobada: true,
+        aprobada: false,
       })
       fetch('/api/notify-admin', {
         method: 'POST',
@@ -135,7 +135,7 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut()
   }
 
-  const isAdmin = user?.email === 'fioramarket99@gmail.com'
+  const isAdmin = !!(user?.email && user.email === import.meta.env.VITE_ADMIN_EMAIL)
 
   return (
     <AuthContext.Provider value={{ user, concesionaria, profesional, loading, signIn, signUp, signUpUsuario, signUpProfesional, signOut, isAdmin, fetchConcesionaria }}>

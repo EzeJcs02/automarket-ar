@@ -6,15 +6,18 @@ import { setPageMeta, resetMeta } from '../lib/seo'
 
 const COLORS = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
-function LogoConcesionaria({ c, i, size = 52, fontSize = 26, mb = '1rem' }) {
+const PLAN_BADGE = {
+  premium: { label: 'PREMIUM', bg: 'rgba(230,51,41,.15)', color: 'var(--accent)', border: 'rgba(230,51,41,.3)' },
+  pro:     { label: 'PRO',     bg: 'rgba(201,168,76,.12)', color: '#c9a84c',        border: 'rgba(201,168,76,.3)' },
+  basico:  { label: 'BÁSICO',  bg: 'rgba(74,222,128,.1)',  color: '#4ade80',        border: 'rgba(74,222,128,.25)' },
+}
+
+function LogoConc({ c, i, size = 64 }) {
   if (c.logo_url) {
-    return (
-      <img src={c.logo_url} alt={c.nombre}
-        style={{ width: size, height: size, borderRadius: 'var(--radius)', objectFit: 'cover', marginBottom: mb, flexShrink: 0 }} />
-    )
+    return <img src={c.logo_url} alt={c.nombre} style={{ width: size, height: size, borderRadius: 'var(--radius)', objectFit: 'cover', flexShrink: 0 }} />
   }
   return (
-    <div style={{ width: size, height: size, borderRadius: 'var(--radius)', background: COLORS[i % COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize, marginBottom: mb, flexShrink: 0 }}>
+    <div style={{ width: size, height: size, borderRadius: 'var(--radius)', background: COLORS[i % COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: size * 0.44, flexShrink: 0, color: '#fff' }}>
       {c.nombre?.[0]?.toUpperCase()}
     </div>
   )
@@ -28,10 +31,13 @@ export function Concesionarias() {
 
   useEffect(() => {
     setPageMeta({ title: 'Concesionarias', description: 'Encontrá la concesionaria ideal. Red de agencias verificadas en toda Argentina con catálogo online, reseñas y contacto directo.', path: '/concesionarias' })
-    supabase.from('concesionarias').select('*').eq('aprobada', true).order('nombre').then(({ data }) => {
-      setLista(data || [])
-      setLoading(false)
-    })
+    supabase
+      .from('concesionarias')
+      .select('*, autos(count)')
+      .eq('aprobada', true)
+      .order('destacada', { ascending: false })
+      .order('nombre')
+      .then(({ data }) => { setLista(data || []); setLoading(false) })
   }, [])
 
   const filtradas = busqueda.trim()
@@ -41,41 +47,163 @@ export function Concesionarias() {
       )
     : lista
 
+  const destacadas = filtradas.filter(c => c.destacada)
+  const resto = filtradas.filter(c => !c.destacada)
+
   return (
     <div className="page-wrapper">
-      <div className="responsive-section" style={{ padding: '4rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.5rem' }}>CONCESIONARIAS</div>
+
+      {/* HERO HEADER */}
+      <div className="responsive-section" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', background: 'linear-gradient(180deg, rgba(230,51,41,.04) 0%, transparent 100%)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>
+          Red oficial de agencias
+        </div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,6vw,64px)', lineHeight: .95, marginBottom: '1.25rem' }}>
+          CONCESIONARIAS
+        </div>
+        <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2rem' }}>
+          Agencias verificadas con catálogo online, reseñas reales y contacto directo.
+        </p>
+
+        {/* BARRA BÚSQUEDA + STAT */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
-            {loading ? 'Cargando...' : `${filtradas.length} de ${lista.length} concesionarias`}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px', maxWidth: '320px', flex: 1 }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 20px', width: '320px' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
-            {busqueda && <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>}
+              style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '14px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
+            {busqueda && <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>}
           </div>
+          {!loading && (
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
+              {busqueda.trim() ? `${filtradas.length} resultado${filtradas.length !== 1 ? 's' : ''}` : `${lista.length} agencia${lista.length !== 1 ? 's' : ''} activa${lista.length !== 1 ? 's' : ''}`}
+            </div>
+          )}
         </div>
       </div>
-      <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
-        {loading
-          ? <div className="spinner" />
-          : filtradas.length === 0
-            ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>{lista.length === 0 ? 'Todavía no hay concesionarias registradas.' : 'No hay concesionarias que coincidan con la búsqueda.'}</p>
-            : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: '1px', background: 'var(--gray2)' }}>
-                {filtradas.map((c, i) => (
-                  <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
-                    style={{ background: 'var(--gray1)', padding: '1.5rem', cursor: 'pointer', transition: 'background .2s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#222'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'var(--gray1)'}>
-                    <LogoConcesionaria c={c} i={i} />
-                    <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '4px' }}>{c.nombre}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '.5rem' }}>{c.ciudad}</div>
-                    {c.telefono && <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{c.telefono}</div>}
-                  </div>
-                ))}
+
+      <div className="responsive-section" style={{ padding: '3rem 4rem' }}>
+        {loading ? (
+          <div className="spinner" />
+        ) : filtradas.length === 0 ? (
+          <div style={{ padding: '5rem 0', textAlign: 'center' }}>
+            <div style={{ fontSize: '40px', marginBottom: '1rem', opacity: .3 }}>🏢</div>
+            <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>
+              {lista.length === 0 ? 'Todavía no hay concesionarias registradas.' : 'No hay resultados para esa búsqueda.'}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* SECCIÓN DESTACADAS */}
+            {destacadas.length > 0 && (
+              <div style={{ marginBottom: '3rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase' }}>Agencias destacadas</div>
+                  <div style={{ flex: 1, height: '1px', background: 'var(--gray2)' }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: '1rem' }}>
+                  {destacadas.map((c, i) => <ConcCard key={c.id} c={c} i={i} navigate={navigate} featured />)}
+                </div>
               </div>
-        }
+            )}
+
+            {/* SECCIÓN RESTO */}
+            {resto.length > 0 && (
+              <div>
+                {destacadas.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', letterSpacing: '.15em', textTransform: 'uppercase' }}>Todas las agencias</div>
+                    <div style={{ flex: 1, height: '1px', background: 'var(--gray2)' }} />
+                  </div>
+                )}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1rem' }}>
+                  {resto.map((c, i) => <ConcCard key={c.id} c={c} i={i + destacadas.length} navigate={navigate} />)}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ConcCard({ c, i, navigate, featured = false }) {
+  const badge = PLAN_BADGE[c.plan]
+  const autoCount = c.autos?.[0]?.count ?? 0
+
+  return (
+    <div
+      onClick={() => navigate(`/concesionaria/${c.id}`)}
+      style={{
+        background: featured ? 'rgba(230,51,41,.04)' : 'var(--gray1)',
+        border: `1px solid ${featured ? 'rgba(230,51,41,.2)' : 'var(--gray2)'}`,
+        borderRadius: 'var(--radius-lg)',
+        padding: '1.5rem',
+        cursor: 'pointer',
+        transition: 'border-color .2s, background .2s, transform .15s',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = featured ? 'rgba(230,51,41,.5)' : 'var(--gray3)'
+        e.currentTarget.style.background = featured ? 'rgba(230,51,41,.07)' : '#1e1e1e'
+        e.currentTarget.style.transform = 'translateY(-2px)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = featured ? 'rgba(230,51,41,.2)' : 'var(--gray2)'
+        e.currentTarget.style.background = featured ? 'rgba(230,51,41,.04)' : 'var(--gray1)'
+        e.currentTarget.style.transform = 'translateY(0)'
+      }}
+    >
+      {/* FILA SUPERIOR: logo + nombre + badges */}
+      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+        <LogoConc c={c} i={i} size={56} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {c.nombre}
+            </div>
+            {badge && (
+              <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 7px', borderRadius: '100px', background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, letterSpacing: '.1em', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>
+                {badge.label}
+              </span>
+            )}
+          </div>
+          {c.ciudad && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--gray4)' }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {c.ciudad}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* DESCRIPCION (si tiene) */}
+      {c.descripcion && (
+        <p style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {c.descripcion}
+        </p>
+      )}
+
+      {/* FILA INFERIOR: stats + CTA */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '.75rem', borderTop: '1px solid var(--gray2)', marginTop: 'auto' }}>
+        <div style={{ display: 'flex', gap: '1.25rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '17px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--white)' }}>{autoCount}</div>
+            <div style={{ fontSize: '10px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.08em' }}>Autos</div>
+          </div>
+          {c.whatsapp && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#25D366' }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
+              WhatsApp
+            </div>
+          )}
+        </div>
+        <div style={{ fontSize: '12px', color: featured ? 'var(--accent)' : 'var(--gray4)', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          Ver stock
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
       </div>
     </div>
   )

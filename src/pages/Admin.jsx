@@ -39,28 +39,34 @@ export default function Admin() {
   }, [user, isAdmin, authLoading])
 
   async function loadData() {
-    const { data: { session } } = await supabase.auth.getSession()
-    const [p, a, pub, pag, usersRes, ads, cons, profPend, profActivos] = await Promise.all([
-      supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
-      supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
-      supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
-      supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200),
-      fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()).catch(() => ({ users: [] })),
-      supabase.from('publicidades').select('*').order('created_at', { ascending: false }),
-      supabase.from('consultas').select('*, autos(marca, modelo), concesionarias(nombre)').order('created_at', { ascending: false }).limit(300),
-      supabase.from('profesionales').select('*').eq('aprobado', false).order('created_at'),
-      supabase.from('profesionales').select('*').eq('aprobado', true).order('nombre'),
-    ])
-    setPendientes(p.data || [])
-    setAprobadas(a.data || [])
-    setPublicaciones(pub.data || [])
-    setPagos(pag.data || [])
-    setUsuarios(usersRes.users || [])
-    setPublicidades(ads.data || [])
-    setConsultasAdmin(cons.data || [])
-    setProfesionalesPendientes(profPend.data || [])
-    setProfesionalesActivos(profActivos.data || [])
-    setDataLoading(false)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const [p, a, pub, pag, usersRes, ads, cons, profPend, profActivos] = await Promise.all([
+        supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
+        supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
+        supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
+        supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200),
+        fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()).catch(() => ({ users: [] })),
+        supabase.from('publicidades').select('*').order('created_at', { ascending: false }),
+        supabase.from('consultas').select('*, autos(marca, modelo), concesionarias(nombre)').order('created_at', { ascending: false }).limit(300),
+        supabase.from('profesionales').select('*').eq('aprobado', false).order('created_at'),
+        supabase.from('profesionales').select('*').eq('aprobado', true).order('nombre'),
+      ])
+      setPendientes(p.data || [])
+      setAprobadas(a.data || [])
+      setPublicaciones(pub.data || [])
+      setPagos(pag.data || [])
+      setUsuarios(usersRes.users || [])
+      setPublicidades(ads.data || [])
+      setConsultasAdmin(cons.data || [])
+      setProfesionalesPendientes(profPend.data || [])
+      setProfesionalesActivos(profActivos.data || [])
+    } catch (err) {
+      console.error('Admin loadData failed:', err)
+      toast('Error al cargar los datos del panel', 'error')
+    } finally {
+      setDataLoading(false)
+    }
   }
 
   async function adminAction(action, params = {}) {
@@ -139,30 +145,25 @@ export default function Admin() {
   }
 
   async function aprobarProfesional(id) {
-    await supabase.from('profesionales').update({ aprobado: true, activo: true }).eq('id', id)
-    loadData()
+    if (await adminAction('aprobarProfesional', { id })) loadData()
   }
 
   async function rechazarProfesional(id) {
     if (!confirm('¿Seguro que querés rechazar y eliminar este perfil profesional?')) return
-    await supabase.from('profesionales').delete().eq('id', id)
-    loadData()
+    if (await adminAction('rechazarProfesional', { id })) loadData()
   }
 
   async function suspenderProfesional(id) {
     if (!confirm('¿Suspender este profesional? Dejará de verse en el directorio.')) return
-    await supabase.from('profesionales').update({ aprobado: false, activo: false }).eq('id', id)
-    loadData()
+    if (await adminAction('suspenderProfesional', { id })) loadData()
   }
 
   async function toggleVerificadoProfesional(p) {
-    await supabase.from('profesionales').update({ verificado: !p.verificado }).eq('id', p.id)
-    loadData()
+    if (await adminAction('toggleVerificadoProfesional', { id: p.id, value: !p.verificado })) loadData()
   }
 
   async function toggleDestacadoProfesional(p) {
-    await supabase.from('profesionales').update({ destacado: !p.destacado }).eq('id', p.id)
-    loadData()
+    if (await adminAction('toggleDestacadoProfesional', { id: p.id, value: !p.destacado })) loadData()
   }
 
   async function eliminarAd(id) {

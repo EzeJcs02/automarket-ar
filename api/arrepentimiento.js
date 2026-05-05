@@ -72,7 +72,11 @@ export default async function handler(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const RESEND_KEY = process.env.RESEND_API_KEY
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'rlautomotores24@gmail.com'
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL
+  if (!ADMIN_EMAIL) {
+    console.error('[arrepentimiento] CRITICAL: ADMIN_EMAIL env var not set')
+    return res.status(500).json({ error: 'Server misconfiguration' })
+  }
 
   const sbHeaders = {
     apikey: supabaseKey,

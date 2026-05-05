@@ -1,3 +1,5 @@
+import { createClient } from '@supabase/supabase-js'
+
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'fioramarket99@gmail.com'
 const ALLOWED_ORIGIN = 'https://fioramarket.store'
 
@@ -15,43 +17,44 @@ export default async function handler(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  // Verificar que el token pertenece al admin
-  const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
-    headers: { apikey: serviceKey, Authorization: `Bearer ${token}` },
+  // Cliente con service role key (bypasea RLS)
+  const supabase = createClient(supabaseUrl, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
   })
-  if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' })
-  const { email } = await userRes.json()
-  if (email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' })
 
-  const sbHeaders = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' }
+  // Verificar que el token pertenece al admin
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+  if (authError || !user) return res.status(401).json({ error: 'Invalid token' })
+  if (user.email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' })
+
   const { action, ...params } = req.body
 
   try {
     switch (action) {
 
       case 'aprobar':
-        await sbFetch(supabaseUrl, `/rest/v1/concesionarias?id=eq.${params.id}`, 'PATCH', sbHeaders, { aprobada: true })
+        await supabase.from('concesionarias').update({ aprobada: true }).eq('id', params.id)
         break
 
       case 'rechazar':
-        await sbFetch(supabaseUrl, `/rest/v1/concesionarias?id=eq.${params.id}`, 'DELETE', sbHeaders)
+        await supabase.from('concesionarias').delete().eq('id', params.id)
         break
 
       case 'suspender':
-        await sbFetch(supabaseUrl, `/rest/v1/concesionarias?id=eq.${params.id}`, 'PATCH', sbHeaders, { aprobada: false })
+        await supabase.from('concesionarias').update({ aprobada: false }).eq('id', params.id)
         break
 
       case 'toggleDestacada':
-        await sbFetch(supabaseUrl, `/rest/v1/concesionarias?id=eq.${params.id}`, 'PATCH', sbHeaders, { destacada: params.value })
+        await supabase.from('concesionarias').update({ destacada: params.value }).eq('id', params.id)
         break
 
       case 'toggleBanner':
-        await sbFetch(supabaseUrl, `/rest/v1/concesionarias?id=eq.${params.id}`, 'PATCH', sbHeaders, { banner_activo: params.value })
+        await supabase.from('concesionarias').update({ banner_activo: params.value }).eq('id', params.id)
         break
 
       case 'cambiarPlan':
-        await sbFetch(supabaseUrl, `/rest/v1/concesionarias?id=eq.${params.id}`, 'PATCH', sbHeaders, { plan: params.plan })
-        await sbFetch(supabaseUrl, `/rest/v1/pagos`, 'POST', { ...sbHeaders, Prefer: 'return=minimal' }, {
+        await supabase.from('concesionarias').update({ plan: params.plan }).eq('id', params.id)
+        await supabase.from('pagos').insert({
           concesionaria_id: params.id,
           tipo: `plan_${params.plan}`,
           estado: 'approved',
@@ -61,19 +64,19 @@ export default async function handler(req, res) {
         break
 
       case 'toggleFijado':
-        await sbFetch(supabaseUrl, `/rest/v1/autos?id=eq.${params.id}`, 'PATCH', sbHeaders, { fijado_home: params.value })
+        await supabase.from('autos').update({ fijado_home: params.value }).eq('id', params.id)
         break
 
       case 'toggleDestacadoAuto':
-        await sbFetch(supabaseUrl, `/rest/v1/autos?id=eq.${params.id}`, 'PATCH', sbHeaders, { destacado: params.value, urgente: false })
+        await supabase.from('autos').update({ destacado: params.value, urgente: false }).eq('id', params.id)
         break
 
       case 'toggleUrgenteAuto':
-        await sbFetch(supabaseUrl, `/rest/v1/autos?id=eq.${params.id}`, 'PATCH', sbHeaders, { urgente: params.value, destacado: false })
+        await supabase.from('autos').update({ urgente: params.value, destacado: false }).eq('id', params.id)
         break
 
       case 'agregarAd':
-        await sbFetch(supabaseUrl, `/rest/v1/publicidades`, 'POST', { ...sbHeaders, Prefer: 'return=minimal' }, {
+        await supabase.from('publicidades').insert({
           nombre: params.nombre,
           imagen_url: params.imagen_url,
           link_url: params.link_url || null,
@@ -83,11 +86,11 @@ export default async function handler(req, res) {
         break
 
       case 'toggleAd':
-        await sbFetch(supabaseUrl, `/rest/v1/publicidades?id=eq.${params.id}`, 'PATCH', sbHeaders, { activo: params.value })
+        await supabase.from('publicidades').update({ activo: params.value }).eq('id', params.id)
         break
 
       case 'eliminarAd':
-        await sbFetch(supabaseUrl, `/rest/v1/publicidades?id=eq.${params.id}`, 'DELETE', sbHeaders)
+        await supabase.from('publicidades').delete().eq('id', params.id)
         break
 
       default:
@@ -98,17 +101,5 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('admin-actions error:', err)
     res.status(500).json({ error: err.message })
-  }
-}
-
-async function sbFetch(url, path, method, headers, body) {
-  const r = await fetch(`${url}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  })
-  if (!r.ok) {
-    const text = await r.text()
-    throw new Error(`Supabase error ${r.status}: ${text}`)
   }
 }

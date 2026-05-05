@@ -40,14 +40,14 @@ export default function Favoritos() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="responsive-section" style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.5rem' }}>MIS FAVORITOS</div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
           {autos.length === 0 ? 'No guardaste ningún vehículo todavía.' : `${autos.length} vehículo${autos.length !== 1 ? 's' : ''} guardado${autos.length !== 1 ? 's' : ''}`}
         </div>
       </div>
 
-      <div style={{ padding: '2rem 4rem' }}>
+      <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
         {autos.length === 0 ? (
           <div style={{ padding: '5rem', textAlign: 'center' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--gray1)', border: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>

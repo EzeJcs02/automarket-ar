@@ -207,7 +207,7 @@ export default function Profesionales() {
   return (
     <div className="page-wrapper">
       {/* Header */}
-      <div style={{ padding: '4rem 4rem 2.5rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="responsive-section" style={{ padding: '4rem 4rem 2.5rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: '1rem' }}>
           Ecosistema automotor
         </div>
@@ -234,7 +234,7 @@ export default function Profesionales() {
       </div>
 
       {/* Filtros */}
-      <div style={{ padding: '1rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="responsive-section" style={{ padding: '1rem 4rem', borderBottom: '1px solid var(--gray2)', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
         <button
           onClick={() => setCategoriaActiva(null)}
           style={{
@@ -267,7 +267,7 @@ export default function Profesionales() {
       </div>
 
       {/* Contenido */}
-      <div style={{ padding: '2.5rem 4rem' }}>
+      <div className="responsive-section" style={{ padding: '2.5rem 4rem' }}>
         {loading ? (
           <div className="spinner" />
         ) : filtrados.length === 0 ? (
@@ -309,7 +309,7 @@ export default function Profesionales() {
       </div>
 
       {lista.length > 0 && (
-        <div style={{ margin: '0 4rem 4rem', borderTop: '1px solid var(--gray2)', paddingTop: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2rem', flexWrap: 'wrap' }}>
+        <div className="responsive-section" style={{ margin: '0 4rem 4rem', borderTop: '1px solid var(--gray2)', paddingTop: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2rem', flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', marginBottom: '.5rem' }}>
               SOS UN PROFESIONAL?
@@ -324,11 +324,6 @@ export default function Profesionales() {
         </div>
       )}
 
-      <style>{`
-        @media (max-width: 768px) {
-          .page-wrapper > div { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
-        }
-      `}</style>
     </div>
   )
 }

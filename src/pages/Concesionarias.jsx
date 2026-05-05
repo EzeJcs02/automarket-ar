@@ -43,7 +43,7 @@ export function Concesionarias() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ padding: '4rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="responsive-section" style={{ padding: '4rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.5rem' }}>CONCESIONARIAS</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
@@ -57,7 +57,7 @@ export function Concesionarias() {
           </div>
         </div>
       </div>
-      <div style={{ padding: '2rem 4rem' }}>
+      <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
         {loading
           ? <div className="spinner" />
           : filtradas.length === 0
@@ -144,7 +144,7 @@ export function ConcesionariaDetalle() {
   return (
     <div className="page-wrapper">
       {/* VOLVER */}
-      <div style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="responsive-section" style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <span onClick={() => navigate('/concesionarias')} style={{ fontSize: '13px', color: 'var(--gray4)', cursor: 'pointer', fontFamily: 'var(--font-mono)', letterSpacing: '.05em' }}
           onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'}
           onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>
@@ -165,7 +165,7 @@ export function ConcesionariaDetalle() {
       </div>
 
       {/* HEADER CON LOGO SOBRE EL BANNER */}
-      <div style={{ padding: '0 4rem 2rem', borderBottom: '1px solid var(--gray2)', position: 'relative' }}>
+      <div className="responsive-section" style={{ padding: '0 4rem 2rem', borderBottom: '1px solid var(--gray2)', position: 'relative' }}>
         {/* LOGO - mitad dentro del banner, mitad afuera */}
         <div style={{ marginTop: '-50px', marginBottom: '1.5rem', display: 'inline-block' }}>
           {c.logo_url
@@ -207,7 +207,7 @@ export function ConcesionariaDetalle() {
       </div>
 
       {/* STATS */}
-      <div style={{ display: 'flex', gap: '3rem', padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)', flexWrap: 'wrap' }}>
+      <div className="responsive-section" style={{ display: 'flex', gap: '3rem', padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)', flexWrap: 'wrap' }}>
         <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Autos publicados</div></div>
         <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.filter(a => a.tipo === 'nuevo').length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Nuevos</div></div>
         <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.filter(a => a.tipo === 'usado').length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Usados</div></div>
@@ -222,7 +222,7 @@ export function ConcesionariaDetalle() {
       </div>
 
       {/* STOCK */}
-      <div style={{ padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+      <div className="responsive-section" style={{ padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Stock disponible</div>
         {autos.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Esta concesionaria no tiene autos publicados todavía.</p>
@@ -247,7 +247,7 @@ export function ConcesionariaDetalle() {
       </div>
 
       {/* RESEÑAS */}
-      <div style={{ padding: '3rem 4rem' }}>
+      <div className="responsive-section" style={{ padding: '3rem 4rem' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '2rem' }}>
           Reseñas{resenas.length > 0 ? ` · ${resenas.length}` : ''}
         </div>

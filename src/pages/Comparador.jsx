@@ -30,7 +30,7 @@ export default function Comparador() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="responsive-section" style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.25rem' }}>COMPARADOR</div>
           <div style={{ fontSize: '14px', color: 'var(--gray4)' }}>{lista.length} vehículo{lista.length !== 1 ? 's' : ''} seleccionado{lista.length !== 1 ? 's' : ''}</div>
@@ -41,7 +41,7 @@ export default function Comparador() {
         </div>
       </div>
 
-      <div style={{ overflowX: 'auto', padding: '2rem 4rem' }}>
+      <div className="responsive-section" style={{ overflowX: 'auto', padding: '2rem 4rem' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
           <thead>
             <tr>

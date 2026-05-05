@@ -134,7 +134,7 @@ export default function PanelProfesional() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="panel-profesional-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
         {/* Panel izquierdo: perfil */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
@@ -337,11 +337,6 @@ export default function PanelProfesional() {
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          div[style*="grid-template-columns: 1fr 320px"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   )
 }

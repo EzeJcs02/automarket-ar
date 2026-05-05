@@ -39,7 +39,7 @@ export default function PublicitateAqui() {
   return (
     <div className="page-wrapper">
       {/* HERO */}
-      <div style={{ padding: '5rem 4rem 4rem', borderBottom: '1px solid var(--gray2)', maxWidth: '900px' }}>
+      <div className="responsive-section" style={{ padding: '5rem 4rem 4rem', borderBottom: '1px solid var(--gray2)', maxWidth: '900px' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
           PUBLICIDAD · FIORA MARKET
         </div>
@@ -60,7 +60,7 @@ export default function PublicitateAqui() {
       </div>
 
       {/* PLANES */}
-      <div style={{ padding: '4rem' }}>
+      <div className="responsive-section" style={{ padding: '4rem' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>
           OPCIONES DE PUBLICIDAD
         </div>

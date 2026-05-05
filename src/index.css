@@ -270,6 +270,11 @@ input, select, textarea { font-family: var(--font-body); }
   }
 }
 
+/* PanelProfesional layout */
+@media (max-width: 768px) {
+  .panel-profesional-layout { grid-template-columns: 1fr !important; }
+}
+
 /* MiCuenta */
 @media (max-width: 640px) {
   .mi-cuenta-planes-grid { grid-template-columns: 1fr !important; }

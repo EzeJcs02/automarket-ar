@@ -46,7 +46,7 @@ export default async function handler(req, res) {
   if (!process.env.RESEND_API_KEY) return res.status(200).json({ sent: false, reason: 'no-resend-key' })
 
   const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const sbHeaders = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
 
   // Sanitizar inputs antes de incluirlos en HTML

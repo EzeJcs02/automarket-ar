@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   const token = authHeader.replace('Bearer ', '')
   const supabaseUrl = process.env.SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   // Verificar que el token pertenece al admin
   const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {

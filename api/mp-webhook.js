@@ -123,7 +123,7 @@ export default async function handler(req, res) {
     }
 
     const supabaseUrl = process.env.SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     const headers = {
       apikey: supabaseKey,

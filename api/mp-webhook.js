@@ -64,6 +64,8 @@ const PRECIOS_ESPERADOS = {
   pack_destacados_10: 95000,
   banner_home: 120000,
   fijado_home: 80000,
+  plan_profesional_base: 10000,
+  plan_profesional_destacado: 30000,
 }
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
@@ -107,6 +109,7 @@ export default async function handler(req, res) {
       tipo,
       auto_id,
       concesionaria_id,
+      profesional_id,
       user_id,
       user_email,
     } = payment.metadata || {}
@@ -230,6 +233,23 @@ export default async function handler(req, res) {
       })
     }
 
+    // 🔧 PLANES PROFESIONALES
+    if (['plan_profesional_base', 'plan_profesional_destacado'].includes(tipo) && profesional_id) {
+      const esDestacado = tipo === 'plan_profesional_destacado'
+      await safeFetch(
+        `${supabaseUrl}/rest/v1/profesionales?id=eq.${encodeURIComponent(profesional_id)}`,
+        {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({
+            plan: esDestacado ? 'destacado' : 'base',
+            destacado: esDestacado,
+            plan_vence_at: esDestacado ? in30days : null,
+          }),
+        }
+      )
+    }
+
     // 💾 REGISTRO DE PAGO
     await safeFetch(`${supabaseUrl}/rest/v1/pagos`, {
       method: 'POST',
@@ -239,6 +259,7 @@ export default async function handler(req, res) {
         tipo,
         auto_id: auto_id || null,
         concesionaria_id: concesionaria_id || null,
+        profesional_id: profesional_id || null,
         user_id: user_id || null,
         monto: payment.transaction_amount,
         estado: payment.status,

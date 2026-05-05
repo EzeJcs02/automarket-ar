@@ -36,8 +36,13 @@ export function Login() {
       if (user?.email === 'rlautomotores24@gmail.com') {
         navigate('/admin')
       } else {
-        const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).single()
-        navigate(conc ? '/panel' : '/mi-cuenta')
+        const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).maybeSingle()
+        if (conc) {
+          navigate('/panel')
+        } else {
+          const { data: prof } = await supabase.from('profesionales').select('id').eq('user_id', user.id).maybeSingle()
+          navigate(prof ? '/panel-profesional' : '/mi-cuenta')
+        }
       }
     }
   }
@@ -135,9 +140,20 @@ export function Login() {
     </div>
   )
 }
+const CATEGORIAS_PROF = [
+  { id: 'gestores', label: 'Gestores automotores' },
+  { id: 'escribanos', label: 'Escribanos' },
+  { id: 'mecanicos', label: 'Mecánicos' },
+  { id: 'repuesteros', label: 'Repuesteros' },
+  { id: 'seguros', label: 'Seguros' },
+  { id: 'estetica', label: 'Estética vehicular' },
+  { id: 'verificacion', label: 'Verificación / inspección' },
+  { id: 'transporte', label: 'Transporte / flete' },
+]
+
 export function Registro() {
-  const { signUp, signUpUsuario } = useAuth()
-  const [tipo, setTipo] = useState('') // '' | 'concesionaria' | 'particular'
+  const { signUp, signUpUsuario, signUpProfesional } = useAuth()
+  const [tipo, setTipo] = useState('') // '' | 'concesionaria' | 'particular' | 'profesional'
   const [paso, setPaso] = useState(1)
   const [form, setForm] = useState({ nombre: '', responsable: '', telefono: '', ciudad: '', email: '', pass: '' })
   const [loading, setLoading] = useState(false)
@@ -152,6 +168,17 @@ export function Registro() {
     setLoading(true)
     setError('')
     const { error } = await signUp(form.email, form.pass, form)
+    if (error) { setError(error.message); setLoading(false) }
+    else setOk(true)
+  }
+
+  async function handleRegisterProfesional(e) {
+    e.preventDefault()
+    if (!form.nombre || !form.categoria || !form.email || !form.pass) { setError('Completá todos los campos obligatorios.'); return }
+    if (!aceptaTerminos) { setError('Debés aceptar los Términos y Condiciones.'); return }
+    setLoading(true)
+    setError('')
+    const { error } = await signUpProfesional(form.email, form.pass, form)
     if (error) { setError(error.message); setLoading(false) }
     else setOk(true)
   }
@@ -191,6 +218,77 @@ export function Registro() {
         <Link to="/login"><button className="btn-primary" style={{ marginRight: '1rem' }}>Iniciar sesión</button></Link>
         <Link to="/"><button className="btn-secondary">Volver al inicio</button></Link>
       </div>
+    </div>
+  )
+
+  /* — REGISTRO PROFESIONAL — */
+  if (tipo === 'profesional') return (
+    <div style={{ minHeight: '100vh', display: 'flex' }}>
+      {ladoIzquierdo}
+      <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
+        <div style={{ width: '100%', maxWidth: '420px' }}>
+          <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
+            FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
+          </Link>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '.5rem' }}>TU PERFIL</div>
+          <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '2.5rem' }}>Registrate como profesional del ecosistema automotor</div>
+          <form onSubmit={handleRegisterProfesional}>
+            <div className="form-field">
+              <label>Nombre / Empresa *</label>
+              <input type="text" placeholder="Ej: Gestoría López" value={form.nombre} onChange={e => setF('nombre', e.target.value)} required />
+            </div>
+            <div className="form-field">
+              <label>Categoría *</label>
+              <select value={form.categoria || ''} onChange={e => setF('categoria', e.target.value)} required
+                style={{ width: '100%', padding: '10px 14px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', color: form.categoria ? 'var(--white)' : 'var(--gray4)', fontSize: '14px', outline: 'none' }}>
+                <option value="" disabled>Seleccioná tu categoría</option>
+                {CATEGORIAS_PROF.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select>
+            </div>
+            <div className="form-field">
+              <label>Ciudad / Zona *</label>
+              <input type="text" placeholder="Salta Capital" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} required />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="form-field">
+                <label>WhatsApp</label>
+                <input type="text" placeholder="+54 9 387..." value={form.whatsapp || ''} onChange={e => setF('whatsapp', e.target.value)} />
+              </div>
+              <div className="form-field">
+                <label>Teléfono</label>
+                <input type="text" placeholder="(387) 421..." value={form.telefono} onChange={e => setF('telefono', e.target.value)} />
+              </div>
+            </div>
+            <div className="form-field">
+              <label>Email *</label>
+              <input type="email" placeholder="tu@email.com" value={form.email} onChange={e => setF('email', e.target.value)} required />
+            </div>
+            <div className="form-field">
+              <label>Contraseña *</label>
+              <input type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} required />
+            </div>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginTop: '0.5rem' }}>
+              <input type="checkbox" checked={aceptaTerminos} onChange={e => setAceptaTerminos(e.target.checked)} style={{ marginTop: '3px', accentColor: 'var(--accent)', width: '15px', height: '15px', flexShrink: 0 }} />
+              <span style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6 }}>
+                Acepto los{' '}
+                <Link to="/legales" target="_blank" style={{ color: 'var(--accent)' }}>Términos y Condiciones</Link>
+                {' '}y la{' '}
+                <Link to="/legales" target="_blank" style={{ color: 'var(--accent)' }}>Política de Privacidad</Link>
+              </span>
+            </label>
+            {error && <p className="error-msg">{error}</p>}
+            <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
+              {loading ? 'Enviando solicitud...' : 'Enviar solicitud'}
+            </button>
+          </form>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <button onClick={() => setTipo('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', fontSize: '12px', cursor: 'pointer' }}>← Volver</button>
+            <span style={{ color: 'var(--gray3)', fontSize: '12px' }}>·</span>
+            <Link to="/login" style={{ color: 'var(--accent)', fontSize: '12px' }}>Ya tenés cuenta</Link>
+          </div>
+        </div>
+      </div>
+      <style>{`@media (min-width: 768px) { .login-left { display: block !important; } }`}</style>
     </div>
   )
 
@@ -238,6 +336,14 @@ export function Registro() {
                 <span><span style={{ color: 'var(--white)', fontWeight: 600 }}>Comprá:</span> Explorá el catálogo, guardá favoritos y contactá agencias directamente.</span>
                 <span><span style={{ color: 'var(--white)', fontWeight: 600 }}>Vendé:</span> Publicá tu vehículo particular con plan gratuito.</span>
               </div>
+          </button>
+          <button onClick={() => setTipo('profesional')} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem', textAlign: 'left', cursor: 'pointer', transition: 'border .2s' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray2)'}>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--white)', marginBottom: '6px' }}>Soy gestor/a, mecánico/a, escribano/a...</div>
+            <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>
+              Publicá tu perfil profesional y conectá con compradores y vendedores de toda Argentina.
+            </div>
           </button>
         </div>
         <p style={{ fontSize: '12px', color: 'var(--gray4)', textAlign: 'center', marginTop: '2rem' }}>

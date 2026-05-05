@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { tipo, auto_id, concesionaria_id, user_id, user_email, origen } = req.body
+  const { tipo, auto_id, concesionaria_id, profesional_id, user_id, user_email, origen } = req.body
 
   const PRECIOS = {
     destacado:            { monto: 15000,  titulo: 'Boost Destacado – FIORA MARKET' },
@@ -24,14 +24,18 @@ export default async function handler(req, res) {
     destacado_individual: { monto: 15000,  titulo: 'Destacado Individual – FIORA MARKET' },
     urgente_individual:   { monto: 20000,  titulo: 'Urgente Individual – FIORA MARKET' },
     renovar:              { monto: 10000,  titulo: 'Renovar publicación – FIORA MARKET' },
-    publicidad_lateral:   { monto: 15000,  titulo: 'Espacio Publicitario Lateral – FIORA MARKET' },
+    publicidad_lateral:         { monto: 15000,  titulo: 'Espacio Publicitario Lateral – FIORA MARKET' },
+    plan_profesional_base:      { monto: 10000,  titulo: 'Plan Profesional Base – FIORA MARKET' },
+    plan_profesional_destacado: { monto: 30000,  titulo: 'Plan Profesional Destacado – FIORA MARKET' },
   }
 
   const precio = PRECIOS[tipo]
   if (!precio) return res.status(400).json({ error: 'Tipo de pago inválido' })
 
   const APP_URL = process.env.APP_URL || 'https://automarket-ar.vercel.app'
-  const back_url = origen === 'mi-cuenta' ? `${APP_URL}/mi-cuenta` : `${APP_URL}/panel`
+  const back_url = origen === 'mi-cuenta' ? `${APP_URL}/mi-cuenta`
+    : origen === 'panel-profesional' ? `${APP_URL}/panel-profesional`
+    : `${APP_URL}/panel`
 
   const body = {
     items: [{
@@ -44,6 +48,7 @@ export default async function handler(req, res) {
       tipo,
       auto_id: auto_id || null,
       concesionaria_id: concesionaria_id || null,
+      profesional_id: profesional_id || null,
       user_id: user_id || null,
       user_email: user_email || null,
     },

@@ -15,6 +15,8 @@ export default function Admin() {
   const [usuarios, setUsuarios] = useState([])
   const [publicidades, setPublicidades] = useState([])
   const [consultasAdmin, setConsultasAdmin] = useState([])
+  const [profesionalesPendientes, setProfesionalesPendientes] = useState([])
+  const [profesionalesActivos, setProfesionalesActivos] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
   const [tab, setTab] = useState('pendientes')
   const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '', fondo: 'oscuro' })
@@ -38,7 +40,7 @@ export default function Admin() {
 
   async function loadData() {
     const { data: { session } } = await supabase.auth.getSession()
-    const [p, a, pub, pag, usersRes, ads, cons] = await Promise.all([
+    const [p, a, pub, pag, usersRes, ads, cons, profPend, profActivos] = await Promise.all([
       supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
       supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
       supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
@@ -46,6 +48,8 @@ export default function Admin() {
       fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()).catch(() => ({ users: [] })),
       supabase.from('publicidades').select('*').order('created_at', { ascending: false }),
       supabase.from('consultas').select('*, autos(marca, modelo), concesionarias(nombre)').order('created_at', { ascending: false }).limit(300),
+      supabase.from('profesionales').select('*').eq('aprobado', false).order('created_at'),
+      supabase.from('profesionales').select('*').eq('aprobado', true).order('nombre'),
     ])
     setPendientes(p.data || [])
     setAprobadas(a.data || [])
@@ -54,6 +58,8 @@ export default function Admin() {
     setUsuarios(usersRes.users || [])
     setPublicidades(ads.data || [])
     setConsultasAdmin(cons.data || [])
+    setProfesionalesPendientes(profPend.data || [])
+    setProfesionalesActivos(profActivos.data || [])
     setDataLoading(false)
   }
 
@@ -132,6 +138,33 @@ export default function Admin() {
     setPublicidades(prev => prev.map(a => a.id === ad.id ? { ...a, activo: !a.activo } : a))
   }
 
+  async function aprobarProfesional(id) {
+    await supabase.from('profesionales').update({ aprobado: true, activo: true }).eq('id', id)
+    loadData()
+  }
+
+  async function rechazarProfesional(id) {
+    if (!confirm('¿Seguro que querés rechazar y eliminar este perfil profesional?')) return
+    await supabase.from('profesionales').delete().eq('id', id)
+    loadData()
+  }
+
+  async function suspenderProfesional(id) {
+    if (!confirm('¿Suspender este profesional? Dejará de verse en el directorio.')) return
+    await supabase.from('profesionales').update({ aprobado: false, activo: false }).eq('id', id)
+    loadData()
+  }
+
+  async function toggleVerificadoProfesional(p) {
+    await supabase.from('profesionales').update({ verificado: !p.verificado }).eq('id', p.id)
+    loadData()
+  }
+
+  async function toggleDestacadoProfesional(p) {
+    await supabase.from('profesionales').update({ destacado: !p.destacado }).eq('id', p.id)
+    loadData()
+  }
+
   async function eliminarAd(id) {
     if (!confirm('¿Eliminar esta publicidad?')) return
     await supabase.from('publicidades').delete().eq('id', id)
@@ -146,6 +179,8 @@ export default function Admin() {
     { id: 'usuarios', label: 'Usuarios Registrados', count: usuarios.length },
     { id: 'publicidades', label: 'Publicidades Laterales', count: publicidades.filter(a => a.activo).length },
     { id: 'consultas-admin', label: 'Consultas Globales', count: consultasAdmin.filter(c => !c.leido).length },
+    { id: 'prof-pendientes', label: 'Profesionales Pendientes', count: profesionalesPendientes.length },
+    { id: 'profesionales', label: 'Profesionales Activos', count: profesionalesActivos.length },
   ]
 
   return (
@@ -509,6 +544,83 @@ export default function Admin() {
                             <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{u.email}</td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('es-AR') : '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                }
+              </div>
+            )}
+            {/* PROFESIONALES PENDIENTES */}
+            {tab === 'prof-pendientes' && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PROFESIONALES PENDIENTES</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Solicitudes de alta de profesionales automotores.</div>
+                {profesionalesPendientes.length === 0
+                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay solicitudes pendientes.</p></div>
+                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                      <thead><tr>{['Nombre','Categoría','Ciudad','Email','Fecha','Resolución'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <tbody>
+                        {profesionalesPendientes.map(p => (
+                          <tr key={p.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{p.nombre}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{p.categoria}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{p.ciudad || '—'}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{p.email}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{new Date(p.created_at).toLocaleDateString('es-AR')}</td>
+                            <td style={{ padding: '16px 20px', display: 'flex', gap: '8px' }}>
+                              <button className="btn-primary" onClick={() => aprobarProfesional(p.id)} style={{ padding: '6px 16px', fontSize: '12px', background: '#1a7a4a' }}>APROBAR</button>
+                              <button className="btn-secondary" onClick={() => rechazarProfesional(p.id)} style={{ padding: '6px 16px', fontSize: '12px', borderColor: 'rgba(230,51,41,0.5)', color: 'var(--accent)' }}>RECHAZAR</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                }
+              </div>
+            )}
+
+            {/* PROFESIONALES ACTIVOS */}
+            {tab === 'profesionales' && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PROFESIONALES ACTIVOS</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Gestión de profesionales del directorio.</div>
+                {profesionalesActivos.length === 0
+                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay profesionales activos aún.</p></div>
+                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                      <thead><tr>{['Nombre','Categoría','Ciudad','Plan','Verificado','Destacado','Acciones'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <tbody>
+                        {profesionalesActivos.map(p => (
+                          <tr key={p.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{p.nombre}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{p.categoria}</td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{p.ciudad || '—'}</td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <span style={{ padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700,
+                                background: p.plan === 'destacado' ? 'rgba(201,168,76,.2)' : 'rgba(255,255,255,.08)',
+                                color: p.plan === 'destacado' ? '#c9a84c' : 'var(--gray4)' }}>
+                                {(p.plan || 'base').toUpperCase()}
+                              </span>
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <button onClick={() => toggleVerificadoProfesional(p)}
+                                style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer',
+                                  background: p.verificado ? 'rgba(74,222,128,.2)' : 'rgba(255,255,255,.1)',
+                                  color: p.verificado ? '#4ade80' : 'var(--gray4)', transition: 'all .2s' }}>
+                                {p.verificado ? 'Verificado ✔' : 'No'}
+                              </button>
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <button onClick={() => toggleDestacadoProfesional(p)}
+                                style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer',
+                                  background: p.destacado ? 'rgba(201,168,76,.2)' : 'rgba(255,255,255,.1)',
+                                  color: p.destacado ? '#c9a84c' : 'var(--gray4)', transition: 'all .2s' }}>
+                                {p.destacado ? 'Destacado' : 'Normal'}
+                              </button>
+                            </td>
+                            <td style={{ padding: '16px 20px' }}>
+                              <button className="btn-secondary" onClick={() => suspenderProfesional(p.id)} style={{ padding: '6px 16px', fontSize: '12px' }}>Suspender</button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

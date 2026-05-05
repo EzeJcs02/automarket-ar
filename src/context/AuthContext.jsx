@@ -6,6 +6,7 @@ const AuthContext = createContext({})
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [concesionaria, setConcesionaria] = useState(null)
+  const [profesional, setProfesional] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -49,14 +50,15 @@ export function AuthProvider({ children }) {
 
   async function fetchConcesionaria(userId) {
     try {
-      const { data } = await supabase
-        .from('concesionarias')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
-      setConcesionaria(data ?? null)
+      const [{ data: concData }, { data: profData }] = await Promise.all([
+        supabase.from('concesionarias').select('*').eq('user_id', userId).maybeSingle(),
+        supabase.from('profesionales').select('*').eq('user_id', userId).maybeSingle(),
+      ])
+      setConcesionaria(concData ?? null)
+      setProfesional(profData ?? null)
     } catch {
       setConcesionaria(null)
+      setProfesional(null)
     } finally {
       setLoading(false)
     }
@@ -94,6 +96,30 @@ export function AuthProvider({ children }) {
     return { error: null }
   }
 
+  async function signUpProfesional(email, password, datos) {
+    const { data, error } = await supabase.auth.signUp({ email, password })
+    if (error) return { error }
+    if (data.user) {
+      await supabase.from('profesionales').insert({
+        user_id: data.user.id,
+        nombre: datos.nombre,
+        categoria: datos.categoria,
+        ciudad: datos.ciudad || null,
+        telefono: datos.telefono || null,
+        whatsapp: datos.whatsapp || null,
+        email,
+        aprobado: false,
+        activo: false,
+      })
+      fetch('/api/notify-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: datos.nombre, email, telefono: datos.telefono, ciudad: datos.ciudad, tipo: 'profesional' }),
+      }).catch(() => {})
+    }
+    return { error: null }
+  }
+
   async function signUpUsuario(email, password, nombre) {
     const { error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
     if (error) return { error }
@@ -112,7 +138,7 @@ export function AuthProvider({ children }) {
   const isAdmin = user?.email === 'rlautomotores24@gmail.com'
 
   return (
-    <AuthContext.Provider value={{ user, concesionaria, loading, signIn, signUp, signUpUsuario, signOut, isAdmin, fetchConcesionaria }}>
+    <AuthContext.Provider value={{ user, concesionaria, profesional, loading, signIn, signUp, signUpUsuario, signUpProfesional, signOut, isAdmin, fetchConcesionaria }}>
       {children}
     </AuthContext.Provider>
   )

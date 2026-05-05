@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 export default function Navbar() {
-  const { user, concesionaria, signOut, isAdmin } = useAuth()
+  const { user, concesionaria, profesional, signOut, isAdmin } = useAuth()
   const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -108,6 +108,7 @@ export default function Navbar() {
           </div>
           <Link to="/catalogo" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Catálogo</Link>
           <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Concesionarias</Link>
+          <Link to="/profesionales" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Profesionales</Link>
           <Link to="/planes" style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Planes</Link>
           {user ? (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -117,23 +118,25 @@ export default function Navbar() {
                   <Link to="/mi-cuenta"><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Mi cuenta</button></Link>
                 </>
               )}
-              {(isAdmin || concesionaria) && (
-  <>
-    <Link to="/dashboard-analitico">
-      <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Analytics</button>
-    </Link>
-    <Link to={isAdmin ? '/admin' : '/panel'}>
-      <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px', position: 'relative' }}>
-        {isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}
-        {noLeidas > 0 && (
-          <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '10px', fontWeight: 700, padding: '2px 6px', minWidth: '18px', textAlign: 'center', lineHeight: 1.4 }}>
-            {noLeidas > 99 ? '99+' : noLeidas}
-          </span>
-        )}
-      </button>
-    </Link>
-  </>
-)}
+              {(isAdmin || concesionaria || profesional) && (
+                <>
+                  {(isAdmin || concesionaria) && (
+                    <Link to="/dashboard-analitico">
+                      <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Analytics</button>
+                    </Link>
+                  )}
+                  <Link to={isAdmin ? '/admin' : concesionaria ? '/panel' : '/panel-profesional'}>
+                    <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px', position: 'relative' }}>
+                      {isAdmin ? 'Admin' : concesionaria ? (concesionaria?.nombre || 'Mi panel') : (profesional?.nombre || 'Mi panel')}
+                      {noLeidas > 0 && (
+                        <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '10px', fontWeight: 700, padding: '2px 6px', minWidth: '18px', textAlign: 'center', lineHeight: 1.4 }}>
+                          {noLeidas > 99 ? '99+' : noLeidas}
+                        </span>
+                      )}
+                    </button>
+                  </Link>
+                </>
+              )}
               <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }} onClick={handleSignOut}>Salir</button>
             </div>
           ) : (
@@ -161,6 +164,7 @@ export default function Navbar() {
           </form>
           <Link to="/catalogo" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Catálogo</Link>
           <Link to="/concesionarias" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Concesionarias</Link>
+          <Link to="/profesionales" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Profesionales</Link>
           <Link to="/planes" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Planes</Link>
           {user ? (
             <>
@@ -170,8 +174,8 @@ export default function Navbar() {
                   <Link to="/mi-cuenta" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Mi cuenta</Link>
                 </>
               )}
-              {(isAdmin || concesionaria) && (
-                <Link to={isAdmin ? '/admin' : '/panel'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {(isAdmin || concesionaria || profesional) && (
+                <Link to={isAdmin ? '/admin' : concesionaria ? '/panel' : '/panel-profesional'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   {isAdmin ? 'Panel Admin' : 'Mi Panel'}
                   {noLeidas > 0 && (
                     <span style={{ background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '12px', fontWeight: 700, padding: '2px 8px' }}>

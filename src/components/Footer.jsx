@@ -29,6 +29,9 @@ export default function Footer() {
               <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', transition: 'color .2s' }}
                 onMouseEnter={e => e.target.style.color = 'var(--white)'}
                 onMouseLeave={e => e.target.style.color = 'var(--gray4)'}>Red de concesionarias</Link>
+              <Link to="/profesionales" style={{ fontSize: '13px', color: 'var(--gray4)', transition: 'color .2s' }}
+                onMouseEnter={e => e.target.style.color = 'var(--white)'}
+                onMouseLeave={e => e.target.style.color = 'var(--gray4)'}>Profesionales</Link>
               <Link to="/planes" style={{ fontSize: '13px', color: 'var(--gray4)', transition: 'color .2s' }}
                 onMouseEnter={e => e.target.style.color = 'var(--white)'}
                 onMouseLeave={e => e.target.style.color = 'var(--gray4)'}>Planes y precios</Link>

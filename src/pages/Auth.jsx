@@ -201,6 +201,26 @@ export function Registro() {
     setPaso(p => p + 1)
   }
 
+  const ladoIzquierdo = (
+    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'none' }} className="login-left">
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a0000 0%, #2e0a0a 40%, #0a0a0a 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, opacity: .05, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
+      <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.25) 0%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', lineHeight: .95, marginBottom: '1.5rem' }}>
+          {tipo === 'concesionaria'
+            ? <><span>PUBLICÁ TU</span><br /><span>STOCK EN</span><br /><span style={{ color: 'var(--accent)' }}>MINUTOS</span></>
+            : <><span>ENCONTRÁ</span><br /><span>TU PRÓXIMO</span><br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span></>}
+        </div>
+        <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '340px', lineHeight: 1.7 }}>
+          {tipo === 'concesionaria'
+            ? 'Registrate gratis y empezá a recibir consultas de compradores de todo el país.'
+            : 'Miles de vehículos nuevos y usados de las mejores concesionarias de Argentina.'}
+        </p>
+      </div>
+    </div>
+  )
+
   if (ok) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ maxWidth: '480px', textAlign: 'center' }}>
@@ -289,26 +309,6 @@ export function Registro() {
         </div>
       </div>
       <style>{`@media (min-width: 768px) { .login-left { display: block !important; } }`}</style>
-    </div>
-  )
-
-  const ladoIzquierdo = (
-    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'none' }} className="login-left">
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a0000 0%, #2e0a0a 40%, #0a0a0a 100%)' }} />
-      <div style={{ position: 'absolute', inset: 0, opacity: .05, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
-      <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.25) 0%, transparent 70%)' }} />
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '4rem' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', lineHeight: .95, marginBottom: '1.5rem' }}>
-          {tipo === 'concesionaria'
-            ? <><span>PUBLICÁ TU</span><br /><span>STOCK EN</span><br /><span style={{ color: 'var(--accent)' }}>MINUTOS</span></>
-            : <><span>ENCONTRÁ</span><br /><span>TU PRÓXIMO</span><br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span></>}
-        </div>
-        <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '340px', lineHeight: 1.7 }}>
-          {tipo === 'concesionaria'
-            ? 'Registrate gratis y empezá a recibir consultas de compradores de todo el país.'
-            : 'Miles de vehículos nuevos y usados de las mejores concesionarias de Argentina.'}
-        </p>
-      </div>
     </div>
   )
 

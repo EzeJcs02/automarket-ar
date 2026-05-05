@@ -120,11 +120,6 @@ export default function Navbar() {
               )}
               {(isAdmin || concesionaria || profesional) && (
                 <>
-                  {(isAdmin || concesionaria) && (
-                    <Link to="/dashboard-analitico">
-                      <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Analytics</button>
-                    </Link>
-                  )}
                   <Link to={isAdmin ? '/admin' : concesionaria ? '/panel' : '/panel-profesional'}>
                     <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px', position: 'relative' }}>
                       {isAdmin ? 'Admin' : concesionaria ? (concesionaria?.nombre || 'Mi panel') : (profesional?.nombre || 'Mi panel')}

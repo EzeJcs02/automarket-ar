@@ -118,17 +118,22 @@ export default function Navbar() {
                 </>
               )}
               {(isAdmin || concesionaria) && (
-                <Link to={isAdmin ? '/admin' : '/panel'}>
-                  <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px', position: 'relative' }}>
-                    {isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}
-                    {noLeidas > 0 && (
-                      <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '10px', fontWeight: 700, padding: '2px 6px', minWidth: '18px', textAlign: 'center', lineHeight: 1.4 }}>
-                        {noLeidas > 99 ? '99+' : noLeidas}
-                      </span>
-                    )}
-                  </button>
-                </Link>
-              )}
+  <>
+    <Link to="/dashboard-analitico">
+      <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Analytics</button>
+    </Link>
+    <Link to={isAdmin ? '/admin' : '/panel'}>
+      <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px', position: 'relative' }}>
+        {isAdmin ? 'Admin' : (concesionaria?.nombre || 'Mi panel')}
+        {noLeidas > 0 && (
+          <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '10px', fontWeight: 700, padding: '2px 6px', minWidth: '18px', textAlign: 'center', lineHeight: 1.4 }}>
+            {noLeidas > 99 ? '99+' : noLeidas}
+          </span>
+        )}
+      </button>
+    </Link>
+  </>
+)}
               <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }} onClick={handleSignOut}>Salir</button>
             </div>
           ) : (

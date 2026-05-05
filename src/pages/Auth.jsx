@@ -33,7 +33,7 @@ export function Login() {
       setLoading(false)
     } else {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user?.email === 'rlautomotores24@gmail.com') {
+      if (user?.email === 'fioramarket99@gmail.com') {
         navigate('/admin')
       } else {
         const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).maybeSingle()

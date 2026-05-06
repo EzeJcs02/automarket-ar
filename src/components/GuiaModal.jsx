@@ -186,41 +186,41 @@ function IconClose() {
 
 function SeccionGuia({ s }) {
   return (
-    <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--gray2)' }}>
-      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', marginBottom: '0.75rem', letterSpacing: '0.5px' }}>
+    <div style={{ marginBottom: '2.25rem', paddingBottom: '2.25rem', borderBottom: '1px solid var(--gray2)' }}>
+      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '26px', color: 'var(--white)', marginBottom: '0.75rem', letterSpacing: '0.5px' }}>
         {s.titulo}
       </h3>
       {s.texto && (
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: s.lista ? '0.75rem' : 0 }}>
+        <p style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.75, marginBottom: s.lista ? '0.75rem' : 0 }}>
           {s.texto}
         </p>
       )}
       {s.lista && (
-        <ul style={{ margin: '0 0 0.75rem 0', padding: '0 0 0 1.25rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <ul style={{ margin: '0 0 0.75rem 0', padding: '0 0 0 1.4rem', display: 'flex', flexDirection: 'column', gap: '5px' }}>
           {s.lista.map((item, i) => (
-            <li key={i} style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.6 }}>{item}</li>
+            <li key={i} style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.65 }}>{item}</li>
           ))}
         </ul>
       )}
       {s.subtitulo && (
-        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gray5)', marginBottom: '0.5rem', marginTop: '1rem' }}>
+        <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray5)', marginBottom: '0.5rem', marginTop: '1rem' }}>
           {s.subtitulo}
         </p>
       )}
       {s.subtexto && (
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '0.5rem' }}>{s.subtexto}</p>
+        <p style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.75, marginBottom: '0.5rem' }}>{s.subtexto}</p>
       )}
       {s.pasos && (
-        <ol style={{ margin: '0 0 0.75rem 0', padding: '0 0 0 1.5rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <ol style={{ margin: '0 0 0.75rem 0', padding: '0 0 0 1.5rem', display: 'flex', flexDirection: 'column', gap: '5px' }}>
           {s.pasos.map((paso, i) => (
-            <li key={i} style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.6 }}>{paso}</li>
+            <li key={i} style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.65 }}>{paso}</li>
           ))}
         </ol>
       )}
       {s.recomendacion && (
-        <div style={{ background: 'rgba(230,51,41,0.08)', border: '1px solid rgba(230,51,41,0.2)', borderRadius: 'var(--radius)', padding: '10px 14px', marginTop: '0.75rem' }}>
+        <div style={{ background: 'rgba(230,51,41,0.08)', border: '1px solid rgba(230,51,41,0.2)', borderRadius: 'var(--radius)', padding: '12px 16px', marginTop: '1rem' }}>
           <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', letterSpacing: '.1em', textTransform: 'uppercase', marginRight: '6px' }}>Recomendación:</span>
-          <span style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.6 }}>{s.recomendacion}</span>
+          <span style={{ fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.65 }}>{s.recomendacion}</span>
         </div>
       )}
       {s.boton && (
@@ -284,30 +284,30 @@ export function GuiaBoton({ seccion, style = {} }) {
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '580px', position: 'relative', marginTop: '20px', marginBottom: '20px' }}
+            style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '780px', position: 'relative', marginTop: '20px', marginBottom: '20px' }}
           >
             {/* Header */}
-            <div style={{ padding: '1.5rem 1.75rem', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+            <div style={{ padding: '2rem 2.5rem', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
               <div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '4px' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Guía FIORA
                 </div>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '26px', lineHeight: 1, margin: 0 }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '34px', lineHeight: 1, margin: 0 }}>
                   {data?.titulo?.toUpperCase()}
                 </h2>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                style={{ background: 'transparent', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', color: 'var(--gray4)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                style={{ background: 'transparent', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', color: 'var(--gray4)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
               >
                 <IconClose />
               </button>
             </div>
 
             {/* Body */}
-            <div style={{ padding: '1.75rem' }}>
+            <div style={{ padding: '2.5rem' }}>
               {contenido.intro && (
-                <p style={{ fontSize: '14px', color: 'var(--gray5)', lineHeight: 1.7, marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--gray2)' }}>
+                <p style={{ fontSize: '15px', color: 'var(--gray5)', lineHeight: 1.75, marginBottom: '2.5rem', paddingBottom: '2.5rem', borderBottom: '1px solid var(--gray2)' }}>
                   {contenido.intro}
                 </p>
               )}

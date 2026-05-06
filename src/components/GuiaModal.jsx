@@ -280,11 +280,11 @@ export function GuiaBoton({ seccion, style = {} }) {
       {open && (
         <div
           onClick={() => setOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px 16px', overflowY: 'auto' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px 16px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '780px', position: 'relative', marginTop: '20px', marginBottom: '20px' }}
+            style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '780px', minHeight: '80vh', position: 'relative', marginTop: '20px', marginBottom: '20px' }}
           >
             {/* Header */}
             <div style={{ padding: '2rem 2.5rem', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>

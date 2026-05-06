@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import { setPageMeta } from '../lib/seo'
+import { GuiaBoton } from '../components/GuiaModal'
 
 const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot', 'Fiat', 'Honda', 'Nissan', 'Jeep', 'Citroën']
 const PAGE_SIZE = 24
@@ -121,7 +122,10 @@ export default function Catalogo() {
   return (
     <div className="page-wrapper">
       <div className="responsive-section" style={{ padding: '3rem 4rem 2rem', borderBottom: '1px solid var(--gray2)' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', marginBottom: '.5rem' }}>CATÁLOGO</div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '.5rem' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', lineHeight: 1 }}>CATÁLOGO</div>
+          <GuiaBoton seccion="compradores" style={{ marginBottom: '6px' }} />
+        </div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--gray4)' }}>
           {loading ? 'Cargando...' : `${autos.length} resultado${autos.length !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
         </div>

@@ -22,12 +22,6 @@ export default function Admin() {
   const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '', fondo: 'oscuro' })
   const [adLoading, setAdLoading] = useState(false)
   const [consultaDetalle, setConsultaDetalle] = useState(null)
-  const [guiasData, setGuiasData] = useState({})
-  const [guiaSeccion, setGuiaSeccion] = useState('compradores')
-  const [guiaJson, setGuiaJson] = useState('')
-  const [guiaTitulo, setGuiaTitulo] = useState('')
-  const [guiaBotonLabel, setGuiaBotonLabel] = useState('')
-  const [guiaSaving, setGuiaSaving] = useState(false)
 
   async function verConsulta(c) {
     setConsultaDetalle(c)
@@ -67,51 +61,12 @@ export default function Admin() {
       setConsultasAdmin(cons.data || [])
       setProfesionalesPendientes(profPend.data || [])
       setProfesionalesActivos(profActivos.data || [])
-      await loadGuias()
     } catch (err) {
       console.error('Admin loadData failed:', err)
       toast('Error al cargar los datos del panel', 'error')
     } finally {
       setDataLoading(false)
     }
-  }
-
-  async function loadGuias() {
-    const { data } = await supabase.from('guias').select('*')
-    if (data) {
-      const map = {}
-      data.forEach(g => { map[g.id] = g })
-      setGuiasData(map)
-    }
-  }
-
-  function selectGuiaSeccion(sec) {
-    setGuiaSeccion(sec)
-    const g = guiasData[sec]
-    setGuiaTitulo(g?.titulo ?? '')
-    setGuiaBotonLabel(g?.boton_label ?? '')
-    setGuiaJson(g?.contenido ? JSON.stringify(g.contenido, null, 2) : '')
-  }
-
-  async function saveGuia() {
-    let contenido
-    try {
-      contenido = JSON.parse(guiaJson)
-    } catch {
-      toast('El JSON no es válido. Revisá el formato.', 'error')
-      return
-    }
-    setGuiaSaving(true)
-    const { error } = await supabase.from('guias').upsert({
-      id: guiaSeccion,
-      titulo: guiaTitulo,
-      boton_label: guiaBotonLabel,
-      contenido,
-    }, { onConflict: 'id' })
-    setGuiaSaving(false)
-    if (error) { toast('Error al guardar: ' + error.message, 'error'); return }
-    toast('Guía guardada correctamente', 'success')
-    await loadGuias()
   }
 
   async function adminAction(action, params = {}) {
@@ -227,7 +182,6 @@ export default function Admin() {
     { id: 'consultas-admin', label: 'Consultas Globales', count: consultasAdmin.filter(c => !c.leido).length },
     { id: 'prof-pendientes', label: 'Profesionales Pendientes', count: profesionalesPendientes.length },
     { id: 'profesionales', label: 'Profesionales Activos', count: profesionalesActivos.length },
-    { id: 'guias', label: 'Guías / Ayuda', count: 0 },
   ]
 
   return (
@@ -724,77 +678,6 @@ export default function Admin() {
                       </tbody>
                     </table>
                 }
-              </div>
-            )}
-            {/* GUÍAS */}
-            {tab === 'guias' && (
-              <div>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '0.5rem' }}>GUÍAS / AYUDA</h2>
-                <p style={{ color: 'var(--gray4)', fontSize: '13px', marginBottom: '2rem' }}>
-                  Editá el contenido de cada guía. Requiere la tabla <code style={{ background: 'var(--gray1)', padding: '1px 5px', borderRadius: '3px' }}>guias</code> en Supabase.
-                </p>
-
-                {/* Selector de sección */}
-                <div style={{ display: 'flex', gap: '6px', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                  {['compradores', 'vendedores', 'agencias', 'profesionales'].map(sec => (
-                    <button key={sec} onClick={() => selectGuiaSeccion(sec)}
-                      style={{
-                        padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', textTransform: 'capitalize',
-                        background: guiaSeccion === sec ? 'var(--accent)' : 'var(--gray1)',
-                        color: guiaSeccion === sec ? '#fff' : 'var(--gray4)',
-                        border: `1px solid ${guiaSeccion === sec ? 'var(--accent)' : 'var(--gray2)'}`,
-                      }}>
-                      {sec}
-                    </button>
-                  ))}
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '6px' }}>Título del modal</label>
-                    <input
-                      value={guiaTitulo}
-                      onChange={e => setGuiaTitulo(e.target.value)}
-                      placeholder={`Ej: Guía para ${guiaSeccion}`}
-                      style={{ width: '100%', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', color: 'var(--white)', padding: '10px 14px', fontSize: '14px', fontFamily: 'var(--font-body)', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '6px' }}>Label del botón</label>
-                    <input
-                      value={guiaBotonLabel}
-                      onChange={e => setGuiaBotonLabel(e.target.value)}
-                      placeholder={`Ej: Guía para ${guiaSeccion}`}
-                      style={{ width: '100%', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', color: 'var(--white)', padding: '10px 14px', fontSize: '14px', fontFamily: 'var(--font-body)', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '6px' }}>
-                    Contenido (JSON) — campos: intro, secciones[]. Cada sección: titulo, texto, lista[], pasos[], subtitulo, subtexto, recomendacion, boton&#123;label,url&#125;
-                  </label>
-                  <textarea
-                    value={guiaJson}
-                    onChange={e => setGuiaJson(e.target.value)}
-                    rows={22}
-                    spellCheck={false}
-                    style={{ width: '100%', background: '#0a0a0a', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', color: '#4ade80', padding: '14px', fontSize: '12px', fontFamily: 'var(--font-mono)', lineHeight: 1.6, resize: 'vertical', boxSizing: 'border-box' }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                  <button
-                    onClick={saveGuia}
-                    disabled={guiaSaving}
-                    className="btn-primary"
-                    style={{ fontSize: '14px', padding: '10px 28px', opacity: guiaSaving ? .6 : 1 }}>
-                    {guiaSaving ? 'Guardando...' : 'Guardar guía'}
-                  </button>
-                  <span style={{ fontSize: '12px', color: 'var(--gray4)' }}>
-                    Los cambios se reflejan en tiempo real para todos los usuarios.
-                  </span>
-                </div>
               </div>
             )}
           </>

@@ -109,12 +109,12 @@ input, select, textarea { font-family: var(--font-body); }
 .car-img-real { width: 100%; height: 260px; object-fit: cover; display: block; }
 
 .car-badge {
-  position: absolute; top: 12px; left: 12px;
-  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
-  padding: 4px 10px; border-radius: 2px; letter-spacing: .08em; text-transform: uppercase;
+  position: absolute; top: 0; right: 0;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 800;
+  padding: 5px 13px; letter-spacing: .14em; text-transform: uppercase; z-index: 10;
 }
-.badge-new { background: var(--accent); color: var(--white); }
-.badge-used { background: var(--gray2); color: var(--gray5); border: 1px solid var(--gray3); }
+.badge-new { background: #fff; color: #000; }
+.badge-used { background: rgba(0,0,0,.65); color: var(--gray5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .car-body { padding: 1.25rem; }
 .car-brand { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
 .car-name { font-size: 17px; font-weight: 600; color: var(--white); margin-bottom: 6px; }

@@ -179,7 +179,10 @@ export default function Home() {
       {/* VEHÍCULO FIJADO */}
       {autoFijado && (
         <div className="home-section responsive-section" style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'rgba(230,51,41,0.03)' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>⭐ Vehículo destacado del día</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#c9a84c', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+            <span style={{ display: 'inline-block', width: '24px', height: '1px', background: '#c9a84c', flexShrink: 0 }} />
+            Vehículo destacado del día
+          </div>
           <div className="home-fijado-card" style={{ display: 'flex', gap: '2rem', alignItems: 'center', background: 'var(--gray1)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', cursor: 'pointer', maxWidth: '700px' }}
             onClick={() => navigate(`/auto/${autoFijado.id}`)}>
             {autoFijado.fotos?.[0] && (

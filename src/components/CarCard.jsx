@@ -16,17 +16,16 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
 
   return (
     <div className="car-card" onClick={() => navigate(`/auto/${auto.id}`)} style={{ position: 'relative' }}>
-      {/* BADGES DE BOOST */}
-      {auto.urgente && (
-        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, background: 'var(--accent)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>
+      {/* BADGE BOOST — arriba izquierda, flush con el borde */}
+      {auto.urgente ? (
+        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, background: 'var(--accent)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '5px 13px', fontFamily: 'var(--font-mono)', letterSpacing: '.14em', textTransform: 'uppercase' }}>
           URGENTE
         </div>
-      )}
-      {!auto.urgente && auto.destacado && (
-        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>
+      ) : auto.destacado ? (
+        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '5px 13px', fontFamily: 'var(--font-mono)', letterSpacing: '.14em', textTransform: 'uppercase' }}>
           DESTACADO
         </div>
-      )}
+      ) : null}
 
       {/* BOTÓN FAVORITO */}
       {onToggleFavorito && (
@@ -53,7 +52,7 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
       }
 
       <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`}>
-        {auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}
+        {auto.tipo === 'nuevo' ? 'NUEVO' : 'USADO'}
       </span>
 
       <div className="car-body">

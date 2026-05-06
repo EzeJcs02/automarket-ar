@@ -16,7 +16,7 @@ const DEFAULT_GUIAS = {
           subtexto: 'El informe se puede solicitar online desde la DNRPA / Argentina.gob.ar. Pasos básicos:',
           pasos: ['Ingresar al sitio oficial', 'Buscar "Informe de dominio automotor"', 'Ingresar patente/datos solicitados', 'Pagar el trámite', 'Recibir el informe por mail'],
           recomendacion: 'Solicitarlo antes de señar o comprar cualquier vehículo.',
-          boton: { label: 'Ir a DNRPA', url: 'https://www.argentina.gob.ar/dnrpa' },
+          boton: { label: 'Ir a DNRPA', url: 'https://www.dnrpa.gov.ar' },
         },
         {
           titulo: 'Verificación mecánica',

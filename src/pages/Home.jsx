@@ -301,26 +301,57 @@ export default function Home() {
 
       {/* DEALERS */}
       <div className="animate-fade-in home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Red de concesionarias</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>QUIÉNES<br />PUBLICAN</h2>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Red de concesionarias</div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, margin: 0 }}>QUIÉNES<br />PUBLICAN</h2>
+          </div>
+          <button className="btn-secondary" onClick={() => navigate('/concesionarias')} style={{ flexShrink: 0 }}>Ver todas →</button>
+        </div>
         {concesionarias.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay concesionarias registradas.</p>
-          : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: '1px', background: 'var(--gray2)' }}>
-              {concesionarias.map((c, i) => (
-                <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
-                  className="dealer-card"
-                  style={{ background: 'var(--gray1)', padding: '1.5rem', cursor: 'pointer' }}>
-                  <LogoConcesionaria c={c} i={i} />
-                  <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '4px' }}>{c.nombre}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '.75rem' }}>{c.ciudad}</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)' }}>Ver stock →</div>
-                </div>
-              ))}
+          : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1rem' }}>
+              {concesionarias.map((c, i) => {
+                const isPremium = c.plan === 'premium'
+                const isPro = c.plan === 'pro'
+                return (
+                  <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
+                    className="dealer-card"
+                    style={{ background: 'var(--gray1)', border: `1px solid ${isPremium ? 'rgba(230,51,41,.25)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color .2s, transform .2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.5)' : 'var(--gray3)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.25)' : 'var(--gray2)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                  >
+                    {/* Banner superior */}
+                    <div style={{ height: '80px', background: `linear-gradient(135deg, ${colors[i % colors.length]}18 0%, #0a0a0a 100%)`, borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', padding: '0 1.5rem', gap: '1rem', position: 'relative' }}>
+                      <div style={{ width: '4px', position: 'absolute', left: 0, top: 0, bottom: 0, background: colors[i % colors.length], borderRadius: '0 2px 2px 0' }} />
+                      <LogoConcesionaria c={c} i={i} size={46} fontSize={22} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.nombre}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--gray4)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          {c.ciudad}
+                        </div>
+                      </div>
+                      {(isPremium || isPro) && (
+                        <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '.12em', padding: '3px 8px', borderRadius: '2px', flexShrink: 0, background: isPremium ? 'rgba(230,51,41,.15)' : 'rgba(201,168,76,.15)', color: isPremium ? 'var(--accent)' : '#c9a84c', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'rgba(201,168,76,.3)'}` }}>
+                          {isPremium ? 'PREMIUM' : 'PRO'}
+                        </div>
+                      )}
+                    </div>
+                    {/* Footer */}
+                    <div style={{ padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>
+                        {c.destacada ? <span style={{ color: '#c9a84c', fontSize: '11px', fontFamily: 'var(--font-mono)', letterSpacing: '.08em' }}>✓ VERIFICADA</span> : <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.05em' }}>AGENCIA</span>}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        Ver stock <span style={{ fontSize: '14px' }}>→</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
         }
-        <div style={{ marginTop: '2rem' }}>
-          <button className="btn-secondary" onClick={() => navigate('/concesionarias')}>Ver todas las concesionarias →</button>
-        </div>
       </div>
 
       {/* EXPLORAR POR TIPO */}

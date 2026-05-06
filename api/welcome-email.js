@@ -1,8 +1,24 @@
-﻿export default async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
-  const { nombre, email, tipo } = req.body || {}
+  const { nombre, email, tipo, user_id } = req.body || {}
   const RESEND_API_KEY = process.env.RESEND_API_KEY
-  if (!RESEND_API_KEY || !email) return res.status(200).json({ sent: false })
+  if (!RESEND_API_KEY || !email || !user_id) return res.status(200).json({ sent: false })
+
+  // Verify the user_id matches the email in Supabase before sending
+  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const r = await fetch(`${supabaseUrl}/auth/v1/admin/users/${user_id}`, {
+        headers: { Authorization: `Bearer ${supabaseKey}`, apikey: supabaseKey },
+      })
+      if (!r.ok) return res.status(200).json({ sent: false, reason: 'invalid-user' })
+      const u = await r.json()
+      if (u.email !== email) return res.status(200).json({ sent: false, reason: 'email-mismatch' })
+    } catch {
+      return res.status(200).json({ sent: false, reason: 'verify-error' })
+    }
+  }
 
   const esConcesionaria = tipo === 'concesionaria'
 

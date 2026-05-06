@@ -1,10 +1,27 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { email, nombre, auto, concesionaria } = req.body
-  if (!email || !nombre || !auto) return res.status(400).json({ error: 'Faltan datos' })
+  const { email, nombre, auto, concesionaria, auto_id } = req.body
+  if (!email || !nombre || !auto || !auto_id) return res.status(400).json({ error: 'Faltan datos' })
 
   if (!process.env.RESEND_API_KEY) return res.status(200).json({ sent: false, reason: 'no-resend-key' })
+
+  // Verify the auto exists before sending confirmation
+  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const r = await fetch(`${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}&select=id&limit=1`, {
+        headers: { Authorization: `Bearer ${supabaseKey}`, apikey: supabaseKey },
+      })
+      const rows = await r.json()
+      if (!Array.isArray(rows) || rows.length === 0) {
+        return res.status(200).json({ sent: false, reason: 'invalid-auto' })
+      }
+    } catch {
+      return res.status(200).json({ sent: false, reason: 'verify-error' })
+    }
+  }
 
   const sNombre = String(nombre).slice(0, 200)
   const sAuto = String(auto).slice(0, 200)

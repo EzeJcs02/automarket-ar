@@ -90,7 +90,7 @@ export function AuthProvider({ children }) {
       fetch('/api/welcome-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: datos.nombre, email, tipo: 'concesionaria' }),
+        body: JSON.stringify({ nombre: datos.nombre, email, tipo: 'concesionaria', user_id: data.user.id }),
       }).catch(() => {})
     }
     return { error: null }
@@ -121,13 +121,15 @@ export function AuthProvider({ children }) {
   }
 
   async function signUpUsuario(email, password, nombre) {
-    const { error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
     if (error) return { error }
-    fetch('/api/welcome-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, email, tipo: 'particular' }),
-    }).catch(() => {})
+    if (data.user) {
+      fetch('/api/welcome-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, email, tipo: 'particular', user_id: data.user.id }),
+      }).catch(() => {})
+    }
     return { error: null }
   }
 

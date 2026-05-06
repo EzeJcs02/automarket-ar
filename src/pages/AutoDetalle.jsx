@@ -170,6 +170,7 @@ export default function AutoDetalle() {
         nombre: consulta.nombre,
         auto: `${auto.marca} ${auto.modelo} ${auto.anio}`,
         concesionaria: auto.concesionarias?.nombre || 'el vendedor',
+        auto_id: auto.id,
       }),
     }).catch(() => {})
     setEnviando(false)

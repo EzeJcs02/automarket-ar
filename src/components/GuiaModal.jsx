@@ -280,14 +280,14 @@ export function GuiaBoton({ seccion, style = {} }) {
       {open && (
         <div
           onClick={() => setOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px 16px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 16px' }}
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '780px', minHeight: '80vh', position: 'relative', marginTop: '20px', marginBottom: '20px' }}
+            style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '780px', height: '88vh', display: 'flex', flexDirection: 'column', position: 'relative' }}
           >
             {/* Header */}
-            <div style={{ padding: '2rem 2.5rem', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+            <div style={{ padding: '2rem 2.5rem', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexShrink: 0 }}>
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Guía FIORA
@@ -305,7 +305,7 @@ export function GuiaBoton({ seccion, style = {} }) {
             </div>
 
             {/* Body */}
-            <div style={{ padding: '2.5rem' }}>
+            <div style={{ padding: '2.5rem', overflowY: 'auto', flex: 1 }}>
               {contenido.intro && (
                 <p style={{ fontSize: '15px', color: 'var(--gray5)', lineHeight: 1.75, marginBottom: '2.5rem', paddingBottom: '2.5rem', borderBottom: '1px solid var(--gray2)' }}>
                   {contenido.intro}

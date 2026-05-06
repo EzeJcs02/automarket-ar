@@ -221,81 +221,88 @@ export default function Home() {
 
       {/* INSTRUCCIONES COMPRAR Y VENDER */}
       <div className="animate-fade-in home-section responsive-section" style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--black)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Guía práctica</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,52px)', lineHeight: 1, marginBottom: '2.5rem' }}>INSTRUCCIONES COMPRAR Y VENDER</h2>
 
-        {/* TABS */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '3rem', background: 'var(--gray1)', padding: '4px', borderRadius: 'var(--radius)', width: 'fit-content', border: '1px solid var(--gray2)' }}>
-          {['comprar', 'vender'].map(t => (
-            <button key={t} onClick={() => setTabGuia(t)}
-              style={{ padding: '8px 24px', borderRadius: 'var(--radius)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', border: 'none', textTransform: 'capitalize',
-                background: tabGuia === t ? 'var(--accent)' : 'transparent',
-                color: tabGuia === t ? 'var(--white)' : 'var(--gray4)',
-                transition: 'all .3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
-              {t === 'comprar' ? 'Comprar' : 'Vender'}
-            </button>
-          ))}
+        {/* Header + tabs en misma fila */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '3rem' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Guía práctica</div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,52px)', lineHeight: 1, margin: 0 }}>CÓMO FUNCIONA</h2>
+          </div>
+          {/* TABS underline */}
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--gray2)' }}>
+            {['comprar', 'vender'].map(t => (
+              <button key={t} onClick={() => setTabGuia(t)}
+                style={{ padding: '10px 28px', background: 'transparent', border: 'none', cursor: 'pointer',
+                  fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+                  color: tabGuia === t ? 'var(--white)' : 'var(--gray4)',
+                  borderBottom: `2px solid ${tabGuia === t ? 'var(--accent)' : 'transparent'}`,
+                  marginBottom: '-1px', transition: 'all .2s' }}>
+                {t === 'comprar' ? 'Comprar' : 'Vender'}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div key={tabGuia} className="animate-fade-in">
-          {tabGuia === 'comprar' && (
-            <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
-              <div style={{ background: 'var(--gray1)', padding: '2.5rem' }}>
-                <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
-                  Encontrá el vehículo ideal al mejor precio del mercado
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }} onClick={() => navigate('/catalogo')}>
-                    Ver catálogo →
-                  </button>
-                  <GuiaBoton seccion="compradores" />
-                </div>
-              </div>
-              <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
-                {[
-                  { num: '1', title: 'Explorá el catálogo', desc: 'Filtrá por marca, modelo, precio, año y ubicación para encontrar el vehículo ideal.' },
-                  { num: '2', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de la agencia, su reputación y el stock disponible.' },
-                  { num: '3', title: 'Contactá y coordiná', desc: 'Escribí por WhatsApp o enviá una consulta directa. Sin intermediarios ni comisiones.' },
-                ].map(p => (
-                  <div key={p.num} className="step-card" style={{ background: 'var(--gray1)', padding: '2rem' }}>
-                    <div className="step-num" style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--accent)', opacity: .35, lineHeight: 1, marginBottom: '1.5rem', transition: 'all 0.3s ease' }}>{p.num}</div>
-                    <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--white)', marginBottom: '.75rem' }}>{p.title}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7 }}>{p.desc}</div>
+          {(() => {
+            const isComprar = tabGuia === 'comprar'
+            const steps = isComprar
+              ? [
+                  { num: '01', title: 'Explorá el catálogo', desc: 'Filtrá por marca, modelo, precio, año y ubicación para encontrar el vehículo ideal.' },
+                  { num: '02', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de la agencia, su reputación y el stock disponible.' },
+                  { num: '03', title: 'Contactá y coordiná', desc: 'Escribí por WhatsApp o enviá una consulta directa. Sin intermediarios ni comisiones.' },
+                ]
+              : [
+                  { num: '01', title: 'Ingresá los datos', desc: 'Completá los detalles de tu vehículo: marca, modelo, año, km y estado.' },
+                  { num: '02', title: 'Publicá tu vehículo', desc: 'Sumá fotos y precio. Tu publicación llega a miles de compradores en minutos.' },
+                  { num: '03', title: 'Coordiná la venta', desc: 'Respondé consultas y cerrá el trato directamente con el interesado.' },
+                ]
+            return (
+              <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
+                {/* Panel izquierdo */}
+                <div style={{ background: 'var(--gray1)', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '2rem', borderLeft: '3px solid var(--accent)' }}>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>
+                      {isComprar ? 'Para compradores' : 'Para vendedores'}
+                    </div>
+                    <div style={{ fontSize: '21px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.35 }}>
+                      {isComprar
+                        ? 'Encontrá el vehículo ideal al mejor precio del mercado'
+                        : 'Publicá tu vehículo y llegá a miles de compradores'}
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }}
+                      onClick={() => isComprar ? navigate('/catalogo') : (concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro'))}>
+                      {isComprar ? 'Ver catálogo →' : 'Publicar vehículo →'}
+                    </button>
+                    <GuiaBoton seccion={isComprar ? 'compradores' : 'vendedores'} />
+                  </div>
+                </div>
 
-          {tabGuia === 'vender' && (
-            <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
-              <div style={{ background: 'var(--gray1)', padding: '2.5rem' }}>
-                <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
-                  Descubrí cuánto vale tu vehículo y elegí el mejor momento para vender
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }}
-                    onClick={() => concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro')}>
-                    Publicar mi vehículo →
-                  </button>
-                  <GuiaBoton seccion="vendedores" />
+                {/* Steps */}
+                <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
+                  {steps.map((p, idx) => (
+                    <div key={p.num} className="step-card" style={{ background: 'var(--gray1)', padding: '2.5rem 2rem', position: 'relative' }}>
+                      {/* Conector horizontal entre steps */}
+                      {idx < 2 && (
+                        <div style={{ position: 'absolute', top: '2.5rem', right: 0, width: '1px', height: '28px', background: 'var(--gray2)' }} />
+                      )}
+                      {/* Número */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.75rem' }}>
+                        <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '1px solid rgba(230,51,41,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 800, color: 'var(--accent)', flexShrink: 0 }}>
+                          {p.num}
+                        </div>
+                        {idx < 2 && <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right, rgba(230,51,41,.3), transparent)' }} />}
+                      </div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', marginBottom: '.75rem', lineHeight: 1.3 }}>{p.title}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.75 }}>{p.desc}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
-                {[
-                  { num: '1', title: 'Ingresá los datos', desc: 'Proporcioná los detalles de tu vehículo y recibí una cotización al instante.' },
-                  { num: '2', title: 'Elegí una oferta', desc: 'Conocé nuestras opciones y elegí la que mejor se adapte a vos.' },
-                  { num: '3', title: 'Agendá la inspección', desc: 'Programá la hora y el lugar que más te convenga para recibir tu pago.' },
-                ].map(p => (
-                  <div key={p.num} className="step-card" style={{ background: 'var(--gray1)', padding: '2rem' }}>
-                    <div className="step-num" style={{ fontFamily: 'var(--font-display)', fontSize: '52px', color: 'var(--accent)', opacity: .35, lineHeight: 1, marginBottom: '1.5rem', transition: 'all 0.3s ease' }}>{p.num}</div>
-                    <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--white)', marginBottom: '.75rem' }}>{p.title}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7 }}>{p.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            )
+          })()}
         </div>
       </div>
 

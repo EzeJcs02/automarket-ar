@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { setPageMeta, resetMeta } from '../lib/seo'
+import { GuiaBoton } from '../components/GuiaModal'
 
 const COLORS = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
@@ -66,7 +67,7 @@ export function Concesionarias() {
         </p>
 
         {/* BARRA BÚSQUEDA + STAT */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 20px', width: '320px' }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
@@ -79,6 +80,7 @@ export function Concesionarias() {
             </div>
           )}
         </div>
+        <GuiaBoton seccion="agencias" style={{ marginTop: '0.25rem' }} />
       </div>
 
       <div className="responsive-section" style={{ padding: '3rem 4rem' }}>

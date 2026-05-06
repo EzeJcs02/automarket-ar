@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { setPageMeta } from '../lib/seo'
+import { GuiaBoton } from '../components/GuiaModal'
 
 const CATEGORIAS = [
   { id: 'gestores',     label: 'Gestores automotores',     color: '#e63329' },
@@ -218,18 +219,21 @@ export default function Profesionales() {
           Gestores, escribanos, mecánicos, seguros y más. Todo lo que necesitás para comprar, vender o mantener tu vehículo.
         </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '8px 18px', maxWidth: '360px' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input
-            type="text"
-            placeholder="Buscar por nombre o ciudad..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }}
-          />
-          {busqueda && (
-            <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>
-          )}
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '8px 18px', maxWidth: '360px' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input
+              type="text"
+              placeholder="Buscar por nombre o ciudad..."
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }}
+            />
+            {busqueda && (
+              <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>
+            )}
+          </div>
+          <GuiaBoton seccion="profesionales" />
         </div>
       </div>
 

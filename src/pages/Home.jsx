@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
+import { GuiaBoton } from '../components/GuiaModal'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -240,9 +241,12 @@ export default function Home() {
                 <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
                   Encontrá el vehículo ideal al mejor precio del mercado
                 </div>
-                <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }} onClick={() => navigate('/catalogo')}>
-                  Ver catálogo →
-                </button>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }} onClick={() => navigate('/catalogo')}>
+                    Ver catálogo →
+                  </button>
+                  <GuiaBoton seccion="compradores" />
+                </div>
               </div>
               <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
                 {[
@@ -266,10 +270,13 @@ export default function Home() {
                 <div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.3, marginBottom: '1.5rem' }}>
                   Descubrí cuánto vale tu vehículo y elegí el mejor momento para vender
                 </div>
-                <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }}
-                  onClick={() => concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro')}>
-                  Publicar mi vehículo →
-                </button>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }}
+                    onClick={() => concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro')}>
+                    Publicar mi vehículo →
+                  </button>
+                  <GuiaBoton seccion="vendedores" />
+                </div>
               </div>
               <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
                 {[

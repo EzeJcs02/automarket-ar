@@ -32,9 +32,11 @@ export function AuthProvider({ children }) {
       const { data } = supabase.auth.onAuthStateChange((_event, session) => {
         setUser(session?.user ?? null)
         if (session?.user) {
+          setLoading(true)  // indica que se está re-fetcheando la concesionaria
           fetchConcesionaria(session.user.id)
         } else {
           setConcesionaria(null)
+          setProfesional(null)
           setLoading(false)
         }
       })

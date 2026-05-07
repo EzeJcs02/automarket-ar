@@ -49,9 +49,12 @@ export default function Panel() {
     if (authLoading) return
     if (!user) { navigate('/login'); return }
     if (isAdmin) { navigate('/admin'); return }
-    if (concesionaria) loadData()
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    else setLoading(false)
+    if (concesionaria) {
+      loadData()
+    } else {
+      setLoading(false)
+      navigate('/favoritos')
+    }
   }, [user, concesionaria, authLoading])
 
   async function loadData() {
@@ -66,10 +69,11 @@ export default function Panel() {
     setLoading(false)
   }
 
-  if (!concesionaria && !loading) {
-    navigate('/favoritos')
-    return null
+  if (authLoading || loading) {
+    return <div className="page-wrapper"><div className="spinner" /></div>
   }
+
+  if (!concesionaria) return null
 
   const plan = concesionaria?.plan || 'free'
   const esPremium = plan === 'premium'

@@ -221,6 +221,8 @@ input, select, textarea { font-family: var(--font-body); }
   .panel-sidebar {
     width: 100% !important;
     min-height: unset !important;
+    height: auto !important;
+    position: static !important;
     border-right: none !important;
     border-bottom: 1px solid var(--gray2);
     flex-direction: row !important;

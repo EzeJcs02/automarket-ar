@@ -92,10 +92,10 @@ export default function DashboardAnalitico() {
   ]
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--black)' }}>
+    <div className="panel-layout" style={{ minHeight: '100vh', background: 'var(--black)' }}>
 
       {/* SIDEBAR */}
-      <aside style={{ width: '240px', flexShrink: 0, position: 'sticky', top: 0, height: '100vh', borderRight: '1px solid var(--gray2)', background: '#080808', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+      <aside className="panel-sidebar" style={{ position: 'sticky', top: 0, height: '100vh', borderRight: '1px solid var(--gray2)', background: '#080808', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         <div style={{ padding: '1.5rem 1.25rem', borderBottom: '1px solid var(--gray2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -142,7 +142,7 @@ export default function DashboardAnalitico() {
 
         <main style={{ flex: 1, overflowY: 'auto', padding: '2rem 2.5rem' }}>
           {/* KPI CARDS */}
-          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
+          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
             {kpiCards.map((card, i) => (
               <div key={i} style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
                 <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: '8px' }}>{card.label}</div>

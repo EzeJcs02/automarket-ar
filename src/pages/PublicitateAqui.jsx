@@ -66,7 +66,7 @@ export default function PublicitateAqui() {
         </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '3rem' }}>ELEGÍ TU ESPACIO</div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
           {PLANES_PUB.map(p => (
             <div key={p.id} style={{
               background: 'var(--gray1)', border: `1px solid ${p.destacado ? p.color : 'var(--gray2)'}`,

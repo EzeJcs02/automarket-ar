@@ -38,7 +38,7 @@ export default function Arrepentimiento() {
   const labelStyle = { fontSize: '13px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.05em', display: 'block', marginBottom: '8px' }
 
   return (
-    <div style={{ background: 'var(--black)', minHeight: '100vh', padding: '8rem 4rem 4rem', color: 'var(--white)' }}>
+    <div className="responsive-section" style={{ background: 'var(--black)', minHeight: '100vh', padding: '8rem 4rem 4rem', color: 'var(--white)' }}>
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Legal</div>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '1rem' }}>BOTÓN DE ARREPENTIMIENTO</h1>
@@ -62,7 +62,7 @@ export default function Arrepentimiento() {
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--gray1)', padding: '3rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--gray1)', padding: 'clamp(1.25rem, 5vw, 3rem)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
 
             <div>
               <label style={labelStyle}>Nombre completo *</label>

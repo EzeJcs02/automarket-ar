@@ -68,7 +68,7 @@ export function Concesionarias() {
 
         {/* BARRA BÚSQUEDA + STAT */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 20px', width: '320px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 20px', width: '100%', maxWidth: '320px' }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
               style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '14px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
@@ -102,7 +102,7 @@ export function Concesionarias() {
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase' }}>Agencias destacadas</div>
                   <div style={{ flex: 1, height: '1px', background: 'var(--gray2)' }} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(340px,100%),1fr))', gap: '1rem' }}>
                   {destacadas.map((c, i) => <ConcCard key={c.id} c={c} i={i} navigate={navigate} featured />)}
                 </div>
               </div>
@@ -117,7 +117,7 @@ export function Concesionarias() {
                     <div style={{ flex: 1, height: '1px', background: 'var(--gray2)' }} />
                   </div>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(300px,100%),1fr))', gap: '1rem' }}>
                   {resto.map((c, i) => <ConcCard key={c.id} c={c} i={i + destacadas.length} navigate={navigate} />)}
                 </div>
               </div>
@@ -356,7 +356,7 @@ export function ConcesionariaDetalle() {
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Stock disponible</div>
         {autos.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Esta concesionaria no tiene autos publicados todavía.</p>
-          : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1.5rem' }}>
+          : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(300px,100%),1fr))', gap: '1.5rem' }}>
               {autos.map(a => (
                 <div key={a.id} className="car-card" onClick={() => navigate(`/auto/${a.id}`)}>
                   {a.fotos?.[0]

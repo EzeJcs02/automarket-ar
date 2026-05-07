@@ -178,7 +178,7 @@ export default function MiCuenta() {
               <button className="btn-primary" onClick={() => navigate('/catalogo')}>Ver catálogo →</button>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px,100%), 1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
               {favoritos.map(a => (
                 <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={toggleFavorito} />
               ))}
@@ -438,7 +438,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
 
         <div style={{ background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
           <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '8px' }}>DATOS DEL VEHÍCULO</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px,100%), 1fr))', gap: '1rem' }}>
             <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: Honda" value={form.marca} onChange={e => setF('marca', e.target.value)} required /></div>
             <div className="form-field"><label>Modelo *</label><input type="text" placeholder="Ej: Civic" value={form.modelo} onChange={e => setF('modelo', e.target.value)} required /></div>
             <div className="form-field"><label>Año *</label><input type="number" placeholder="2022" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
@@ -499,7 +499,7 @@ function EditarAutoModal({ auto, onClose, onSave }) {
         </div>
         {error && <div style={{ background: 'rgba(230,51,41,.1)', border: '1px solid rgba(230,51,41,.3)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--accent)', fontSize: '13px', marginBottom: '1rem' }}>{error}</div>}
         <form onSubmit={handleSave}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px,100%), 1fr))', gap: '1rem' }}>
             <div className="form-field"><label>Marca *</label><input type="text" required value={form.marca} onChange={e => setF('marca', e.target.value)} /></div>
             <div className="form-field"><label>Modelo *</label><input type="text" required value={form.modelo} onChange={e => setF('modelo', e.target.value)} /></div>
             <div className="form-field"><label>Año *</label><input type="number" required value={form.anio} onChange={e => setF('anio', e.target.value)} /></div>

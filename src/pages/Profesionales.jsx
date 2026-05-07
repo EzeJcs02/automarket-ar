@@ -301,7 +301,7 @@ export default function Profesionales() {
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', marginBottom: '1.5rem', letterSpacing: '.05em' }}>
               {filtrados.length} {filtrados.length === 1 ? 'profesional' : 'profesionales'}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(290px, 100%), 1fr))', gap: '1px', background: 'var(--gray2)' }}>
               {filtrados.map((p, i) => (
                 <div key={p.id} style={{ background: 'var(--black)' }}>
                   <ProfesionalCard p={p} i={i} />

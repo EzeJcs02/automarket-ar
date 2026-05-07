@@ -58,7 +58,7 @@ export default function Favoritos() {
             <button className="btn-primary" onClick={() => navigate('/catalogo')}>Ver catálogo →</button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px,100%), 1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
             {autos.map(a => (
               <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={toggleFavorito} />
             ))}

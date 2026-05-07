@@ -106,18 +106,37 @@ export default function PanelProfesional() {
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '3rem 2rem 5rem' }}>
       {/* Header */}
-      <div style={{ marginBottom: '2.5rem' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.5rem' }}>
-          Panel profesional
+      <div style={{ marginBottom: '2.5rem', paddingBottom: '2.5rem', borderBottom: '1px solid var(--gray2)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.75rem' }}>
+          {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', lineHeight: 1 }}>
-          {perfil?.nombre}
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', lineHeight: 1, marginBottom: '1rem' }}>
+          {perfil?.nombre?.toUpperCase()}
         </div>
-        {categoria && (
-          <div style={{ fontSize: '13px', color: 'var(--gray4)', marginTop: '.5rem', letterSpacing: '.02em' }}>
-            {categoria.label}
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {categoria && (
+            <span style={{ fontSize: '13px', color: 'var(--gray4)' }}>{categoria.label}</span>
+          )}
+          {categoria && <span style={{ color: 'var(--gray2)' }}>·</span>}
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, letterSpacing: '.08em',
+            padding: '3px 10px', borderRadius: '100px',
+            background: planActivo === 'destacado' ? 'rgba(201,168,76,.15)' : 'rgba(255,255,255,.05)',
+            color: planActivo === 'destacado' ? '#c9a84c' : 'var(--gray4)',
+            border: `1px solid ${planActivo === 'destacado' ? 'rgba(201,168,76,.35)' : 'var(--gray2)'}`,
+          }}>
+            {planActivo === 'destacado' ? '★ DESTACADO' : 'PLAN BASE'}
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, letterSpacing: '.08em',
+            padding: '3px 10px', borderRadius: '100px',
+            background: perfil?.aprobado ? 'rgba(74,222,128,.1)' : 'rgba(201,168,76,.1)',
+            color: perfil?.aprobado ? '#4ade80' : '#c9a84c',
+            border: `1px solid ${perfil?.aprobado ? 'rgba(74,222,128,.25)' : 'rgba(201,168,76,.25)'}`,
+          }}>
+            {perfil?.aprobado ? '✓ APROBADO' : 'EN REVISIÓN'}
+          </span>
+        </div>
       </div>
 
       {/* Estado pendiente */}

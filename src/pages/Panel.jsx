@@ -242,8 +242,15 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
         </div>
       )}
 
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>RESUMEN DE ACTIVIDAD</div>
-      <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '2rem' }}>Métricas en tiempo real de tu concesionaria.</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.5rem' }}>
+            {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          </div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', lineHeight: 1, marginBottom: '.5rem' }}>RESUMEN DE ACTIVIDAD</div>
+          <div style={{ fontSize: '14px', color: 'var(--gray5)' }}>Métricas en tiempo real de {concesionaria?.nombre || 'tu concesionaria'}.</div>
+        </div>
+      </div>
 
       {/* BANNER PLAN */}
       <div style={{ borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem', marginBottom: '2rem', border: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
@@ -307,11 +314,18 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        {[['Stock Activo', autos.filter(a => a.activo).length], ['Stock Pausado', autos.filter(a => !a.activo).length], ['Vistas Totales', autos.reduce((s, a) => s + (a.vistas || 0), 0)], ['Total Consultas', consultas.length], ['Consultas (7 días)', consultas.filter(c => new Date(c.created_at) > sevenDaysAgo).length]].map(([label, val]) => (
-          <div key={label} style={{ background: 'var(--gray1)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '8px', fontFamily: 'var(--font-mono)', letterSpacing: '.05em', textTransform: 'uppercase' }}>{label}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>{val}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
+        {[
+          { label: 'Stock Activo',     val: autos.filter(a => a.activo).length,                                       icon: '🚗', color: 'var(--green)' },
+          { label: 'Stock Pausado',    val: autos.filter(a => !a.activo).length,                                      icon: '⏸',  color: 'var(--gray3)' },
+          { label: 'Vistas Totales',   val: autos.reduce((s, a) => s + (a.vistas || 0), 0),                          icon: '👁',  color: '#3b82f6' },
+          { label: 'Consultas Total',  val: consultas.length,                                                         icon: '💬', color: 'var(--accent)' },
+          { label: 'Últimos 7 días',   val: consultas.filter(c => new Date(c.created_at) > sevenDaysAgo).length,     icon: '📅', color: 'var(--gold)' },
+        ].map(({ label, val, icon, color }) => (
+          <div key={label} style={{ background: 'var(--gray1)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', borderTop: `2px solid ${color}` }}>
+            <div style={{ fontSize: '20px', marginBottom: '10px' }}>{icon}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1, marginBottom: '6px' }}>{val}</div>
+            <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.05em', textTransform: 'uppercase' }}>{label}</div>
           </div>
         ))}
       </div>
@@ -366,7 +380,14 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
         </div>
       )}
 
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>Bandeja de Entrada</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase' }}>Bandeja de entrada</div>
+        {consultas.filter(c => !c.leido).length > 0 && (
+          <span style={{ background: 'rgba(230,51,41,.12)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,.3)', borderRadius: '100px', fontSize: '11px', fontWeight: 700, padding: '2px 10px', fontFamily: 'var(--font-mono)' }}>
+            {consultas.filter(c => !c.leido).length} sin leer
+          </span>
+        )}
+      </div>
       {consultas.length === 0
         ? <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', color: 'var(--gray4)' }}>No hay consultas pendientes.</div>
         : <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -374,7 +395,12 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
             <tbody>
               {consultas.map(c => (
                 <tr key={c.id} style={{ transition: 'background .2s', cursor: 'pointer' }} onClick={() => setConsultaDetalle(c)} onMouseEnter={e => e.currentTarget.style.background = 'var(--gray1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--white)', fontSize: '14px', fontWeight: '500' }}>{c.autos?.marca} {c.autos?.modelo}</td>
+                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', fontSize: '14px', fontWeight: '500' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {!c.leido && <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, display: 'inline-block' }} />}
+                      <span style={{ color: 'var(--white)' }}>{c.autos?.marca} {c.autos?.modelo}</span>
+                    </div>
+                  </td>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '14px' }}>{c.nombre_comprador}</td>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '13px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray5)', fontSize: '12px' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>

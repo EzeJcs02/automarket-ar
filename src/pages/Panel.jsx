@@ -89,9 +89,9 @@ export default function Panel() {
   ]
 
   return (
-    <div className="page-wrapper" style={{ display: 'flex', minHeight: 'calc(100vh - 58px)' }}>
+    <div className="page-wrapper panel-layout" style={{ display: 'flex', minHeight: 'calc(100vh - 58px)' }}>
       {/* SIDEBAR */}
-      <div style={{ width: '250px', flexShrink: 0, borderRight: '1px solid var(--gray2)', padding: '2rem 0', background: '#080808' }}>
+      <div className="panel-sidebar" style={{ width: '250px', flexShrink: 0, borderRight: '1px solid var(--gray2)', padding: '2rem 0', background: '#080808' }}>
         <div style={{ padding: '0 1.5rem 2rem', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
           {concesionaria?.logo_url ? (
             <img src={concesionaria.logo_url} alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--gray3)' }} />
@@ -107,19 +107,21 @@ export default function Panel() {
             </div>
           </div>
         </div>
-        {navItems.map(item => (
-          <div key={item.id} onClick={() => setTab(item.id)}
-            style={{ padding: '14px 1.5rem', fontSize: '13px', fontWeight: tab === item.id ? '600' : '400', color: tab === item.id ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', transition: 'all .2s', borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, background: tab === item.id ? 'var(--gray1)' : 'transparent', textTransform: 'uppercase', letterSpacing: '.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {item.label}
-            {item.count > 0 && (
-              <span style={{ background: 'var(--accent)', color: 'var(--white)', padding: '2px 7px', borderRadius: '100px', fontSize: '10px', fontWeight: 'bold' }}>{item.count}</span>
-            )}
-          </div>
-        ))}
+        <div className="sidebar-nav">
+          {navItems.map(item => (
+            <div key={item.id} onClick={() => setTab(item.id)}
+              style={{ padding: '14px 1.5rem', fontSize: '13px', fontWeight: tab === item.id ? '600' : '400', color: tab === item.id ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', transition: 'all .2s', borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, background: tab === item.id ? 'var(--gray1)' : 'transparent', textTransform: 'uppercase', letterSpacing: '.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {item.label}
+              {item.count > 0 && (
+                <span style={{ background: 'var(--accent)', color: 'var(--white)', padding: '2px 7px', borderRadius: '100px', fontSize: '10px', fontWeight: 'bold' }}>{item.count}</span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* CONTENIDO */}
-      <div style={{ flex: 1, padding: '3rem 4rem', overflowY: 'auto' }}>
+      <div className="panel-content" style={{ flex: 1, padding: '3rem 4rem', overflowY: 'auto' }}>
         {loading ? <div className="spinner" /> : (
           <>
             {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}

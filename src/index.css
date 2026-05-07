@@ -201,6 +201,13 @@ input, select, textarea { font-family: var(--font-body); }
 /* Panel sidebar nav */
 .sidebar-nav { display: flex; flex-direction: column; }
 
+/* Panel dashboard — mobile */
+@media (max-width: 768px) {
+  .dashboard-charts { grid-template-columns: 1fr !important; }
+  .col-hide-mobile { display: none !important; }
+  .dashboard-table td, .dashboard-table th { padding: 10px 8px !important; font-size: 12px !important; }
+}
+
 /* Panel responsive — sidebar collapsa arriba en mobile */
 @media (max-width: 900px) {
   .panel-layout {

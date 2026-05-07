@@ -334,7 +334,7 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
 
       {/* ESTADÍSTICAS DETALLADAS */}
       {autos.length > 0 && (
-        <div style={{ marginBottom: '3rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="dashboard-charts" style={{ marginBottom: '3rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           {/* Top autos por vistas — gráfico de barras */}
           <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.25rem' }}>Vistas por vehículo</div>
@@ -392,8 +392,14 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
       </div>
       {consultas.length === 0
         ? <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', color: 'var(--gray4)' }}>No hay consultas pendientes.</div>
-        : <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr>{['Vehículo','Interesado','Mensaje','Fecha',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '12px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+        : <table className="dashboard-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {[['Vehículo',''],['Interesado',''],['Mensaje','col-hide-mobile'],['Fecha','col-hide-mobile'],['','']].map(([h, cls]) => (
+                  <th key={h} className={cls} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '12px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
             <tbody>
               {consultas.map(c => (
                 <tr key={c.id} style={{ transition: 'background .2s', cursor: 'pointer' }} onClick={() => setConsultaDetalle(c)} onMouseEnter={e => e.currentTarget.style.background = 'var(--gray1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -404,8 +410,8 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
                     </div>
                   </td>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '14px' }}>{c.nombre_comprador}</td>
-                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '13px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
-                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray5)', fontSize: '12px' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
+                  <td className="col-hide-mobile" style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '13px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
+                  <td className="col-hide-mobile" style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray5)', fontSize: '12px' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
                   <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)' }}><span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>Ver →</span></td>
                 </tr>
               ))}

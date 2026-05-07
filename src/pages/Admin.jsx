@@ -185,28 +185,30 @@ export default function Admin() {
   ]
 
   return (
-    <div className="page-wrapper" style={{ display: 'flex', minHeight: 'calc(100vh - 58px)' }}>
+    <div className="page-wrapper panel-layout">
 
       {/* SIDEBAR */}
-      <div style={{ width: '250px', flexShrink: 0, borderRight: '1px solid var(--gray2)', padding: '2rem 0', background: '#080808' }}>
+      <div className="panel-sidebar" style={{ borderRight: '1px solid var(--gray2)', padding: '2rem 0', background: '#080808' }}>
         <div style={{ padding: '0 1.5rem 1.5rem', fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--accent)', letterSpacing: '.15em', borderBottom: '1px solid var(--gray2)', marginBottom: '1.5rem', fontWeight: 'bold' }}>
           MODO SUPERADMIN
         </div>
-        {navItems.map(item => (
-          <div key={item.id} onClick={() => setTab(item.id)}
-            style={{ padding: '14px 1.5rem', fontSize: '13px', fontWeight: tab === item.id ? '600' : '400', color: tab === item.id ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', transition: 'all .2s', borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, background: tab === item.id ? 'var(--gray1)' : 'transparent', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'uppercase', letterSpacing: '.05em' }}>
-            {item.label}
-            {item.count > 0 && (
-              <span style={{ background: tab === item.id ? 'var(--accent)' : 'var(--gray2)', color: 'var(--white)', padding: '2px 8px', borderRadius: '100px', fontSize: '11px', fontWeight: 'bold' }}>
-                {item.count}
-              </span>
-            )}
-          </div>
-        ))}
+        <div className="sidebar-nav">
+          {navItems.map(item => (
+            <div key={item.id} onClick={() => setTab(item.id)}
+              style={{ padding: '14px 1.5rem', fontSize: '13px', fontWeight: tab === item.id ? '600' : '400', color: tab === item.id ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', transition: 'all .2s', borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, background: tab === item.id ? 'var(--gray1)' : 'transparent', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'uppercase', letterSpacing: '.05em' }}>
+              {item.label}
+              {item.count > 0 && (
+                <span style={{ background: tab === item.id ? 'var(--accent)' : 'var(--gray2)', color: 'var(--white)', padding: '2px 8px', borderRadius: '100px', fontSize: '11px', fontWeight: 'bold' }}>
+                  {item.count}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* CONTENIDO */}
-      <div style={{ flex: 1, padding: '3rem 4rem', overflowY: 'auto' }}>
+      <div className="panel-content" style={{ flex: 1, overflowY: 'auto' }}>
         {dataLoading ? <div className="spinner" /> : (
           <>
             {/* PENDIENTES */}
@@ -216,7 +218,7 @@ export default function Admin() {
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Aprobá o rechazá las nuevas solicitudes de concesionarias.</div>
                 {pendientes.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay solicitudes de alta pendientes.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                  : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '600px' }}>
                       <thead><tr>{['Concesionaria','Ubicación','Contacto','Fecha','Resolución'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {pendientes.map(c => (
@@ -235,7 +237,7 @@ export default function Admin() {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </table></div>
                 }
               </div>
             )}
@@ -247,7 +249,7 @@ export default function Admin() {
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Marcá autos como Destacados o Urgentes con un click.</div>
                 {publicaciones.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay publicaciones activas.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                  : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '650px' }}>
                       <thead>
                         <tr>
                           {['Vehículo', 'Agencia', 'Precio', 'Destacado', 'Urgente', 'Fijado Home'].map(h => (
@@ -295,7 +297,7 @@ export default function Admin() {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </table></div>
                 }
               </div>
             )}
@@ -307,7 +309,7 @@ export default function Admin() {
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Gestión de concesionarias, planes y publicidad.</div>
                 {aprobadas.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay agencias activas actualmente.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                  : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '600px' }}>
                       <thead><tr>{['Concesionaria','Ciudad','Plan','Destacada','Banner Home','Acciones'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {aprobadas.map(c => (
@@ -341,7 +343,7 @@ export default function Admin() {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </table></div>
                 }
               </div>
             )}
@@ -369,7 +371,7 @@ export default function Admin() {
                   }).reduce((s, p) => s + (Number(p.monto) || 0), 0)
                   return (
                     <div style={{ marginBottom: '3rem' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                      <div className="dashboard-charts" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                         {[
                           { label: 'Total recaudado', value: '$' + total.toLocaleString('es-AR'), sub: `${aprobados.length} pagos aprobados` },
                           { label: 'Este mes', value: '$' + mesActual.toLocaleString('es-AR'), sub: new Date().toLocaleString('es-AR', { month: 'long', year: 'numeric' }) },
@@ -404,7 +406,7 @@ export default function Admin() {
 
                 {pagos.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay pagos registrados aún.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                  : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '620px' }}>
                       <thead><tr>{['Fecha','Tipo','Vehículo / Agencia','Monto','Estado','MP ID'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {pagos.map(p => (
@@ -432,7 +434,7 @@ export default function Admin() {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </table></div>
                 }
               </div>
             )}

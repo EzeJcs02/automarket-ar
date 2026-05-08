@@ -83,49 +83,81 @@ export default function Panel() {
 
   const noLeidas = consultas.filter(c => !c.leido).length
 
+  const NAV_ICONS = {
+    'dashboard': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="sidebar-icon"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
+    'mis-autos': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="sidebar-icon"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v7a2 2 0 01-2 2h-2M7 17a2 2 0 100 4 2 2 0 000-4zM17 17a2 2 0 100 4 2 2 0 000-4z"/></svg>,
+    'nuevo-auto': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="sidebar-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>,
+    'consultas': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="sidebar-icon"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+    'pagos': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="sidebar-icon"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+    'perfil': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="sidebar-icon"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  }
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
-    { id: 'mis-autos', label: 'Inventario de Autos' },
+    { id: 'mis-autos', label: 'Inventario' },
     { id: 'nuevo-auto', label: 'Nueva Publicación' },
     { id: 'consultas', label: 'Consultas', count: noLeidas },
-    { id: 'pagos', label: 'Mis Pagos', count: 0 },
+    { id: 'pagos', label: 'Mis Pagos' },
     { id: 'perfil', label: 'Perfil de Agencia' },
   ]
 
+  const planColor = plan === 'premium' ? 'var(--accent)' : plan === 'pro' ? '#e0a020' : plan === 'basico' ? '#4ade80' : 'var(--gray5)'
+  const planLabel = plan === 'premium' ? '★ PREMIUM' : plan === 'pro' ? '◆ PRO' : plan === 'basico' ? '● BÁSICO' : 'FREE'
+
   return (
-    <div className="page-wrapper panel-layout" style={{ display: 'flex', minHeight: 'calc(100vh - 58px)' }}>
+    <div className="page-wrapper panel-layout">
       {/* SIDEBAR */}
-      <div className="panel-sidebar" style={{ width: '250px', flexShrink: 0, borderRight: '1px solid var(--gray2)', padding: '2rem 0', background: '#080808' }}>
-        <div style={{ padding: '0 1.5rem 2rem', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
-          {concesionaria?.logo_url ? (
-            <img src={concesionaria.logo_url} alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--gray3)' }} />
-          ) : (
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gray2)', color: 'var(--white)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-              {concesionaria?.nombre?.[0]?.toUpperCase()}
+      <div className="panel-sidebar">
+        {/* Profile card */}
+        <div style={{ padding: '1.5rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            {concesionaria?.logo_url ? (
+              <img src={concesionaria.logo_url} alt="Logo" style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
+            ) : (
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(230,51,41,0.15)', border: '1px solid rgba(230,51,41,0.3)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '18px', fontFamily: 'var(--font-display)' }}>
+                {concesionaria?.nombre?.[0]?.toUpperCase()}
+              </div>
+            )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{concesionaria?.nombre || 'Mi Agencia'}</div>
+              <div style={{ fontSize: '10px', color: planColor, marginTop: '3px', fontFamily: 'var(--font-mono)', fontWeight: '700', letterSpacing: '0.08em' }}>{planLabel}</div>
             </div>
-          )}
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--white)' }}>{concesionaria?.nombre || 'Cargando...'}</div>
-            <div style={{ fontSize: '11px', color: plan === 'premium' ? 'var(--accent)' : plan === 'pro' ? '#e0a020' : plan === 'basico' ? '#4ade80' : 'var(--gray5)', marginTop: '2px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-              {plan === 'premium' ? '★ PREMIUM' : plan === 'pro' ? '◆ PRO' : plan === 'basico' ? '● BÁSICO' : `FREE · ${autosActivos}/${limitePlan} autos`}
+          </div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '8px 10px', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', lineHeight: 1 }}>{autosActivos}</div>
+              <div style={{ fontSize: '9px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Activos</div>
+            </div>
+            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '8px 10px', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', lineHeight: 1 }}>{limitePlan}</div>
+              <div style={{ fontSize: '9px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Límite</div>
+            </div>
+            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '8px 10px', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: noLeidas > 0 ? 'var(--accent)' : 'var(--white)', lineHeight: 1 }}>{noLeidas}</div>
+              <div style={{ fontSize: '9px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sin leer</div>
             </div>
           </div>
         </div>
+
+        {/* Nav */}
         <div className="sidebar-nav">
           {navItems.map(item => (
-            <div key={item.id} onClick={() => setTab(item.id)}
-              style={{ padding: '14px 1.5rem', fontSize: '13px', fontWeight: tab === item.id ? '600' : '400', color: tab === item.id ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', transition: 'all .2s', borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, background: tab === item.id ? 'var(--gray1)' : 'transparent', textTransform: 'uppercase', letterSpacing: '.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              {item.label}
-              {item.count > 0 && (
-                <span style={{ background: 'var(--accent)', color: 'var(--white)', padding: '2px 7px', borderRadius: '100px', fontSize: '10px', fontWeight: 'bold' }}>{item.count}</span>
-              )}
+            <div key={item.id} className={`sidebar-nav-item${tab === item.id ? ' active' : ''}`} onClick={() => setTab(item.id)}>
+              {NAV_ICONS[item.id]}
+              <span style={{ flex: 1 }}>{item.label}</span>
+              {item.count > 0 && <span className="sidebar-badge">{item.count}</span>}
             </div>
           ))}
+        </div>
+
+        {/* Footer sidebar */}
+        <div style={{ marginTop: 'auto', padding: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ fontSize: '10px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textAlign: 'center', letterSpacing: '0.06em' }}>FIORA MARKET · PANEL</div>
         </div>
       </div>
 
       {/* CONTENIDO */}
-      <div className="panel-content" style={{ flex: 1, padding: '3rem 4rem', overflowY: 'auto' }}>
+      <div className="panel-content">
         {loading ? <div className="spinner" /> : (
           <>
             {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}
@@ -248,13 +280,14 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.5rem' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)', animation: 'pulse 2s infinite' }} />
             {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', lineHeight: 1, marginBottom: '.5rem' }}>RESUMEN DE ACTIVIDAD</div>
-          <div style={{ fontSize: '14px', color: 'var(--gray5)' }}>Métricas en tiempo real de {concesionaria?.nombre || 'tu concesionaria'}.</div>
+          <div className="panel-page-title">Resumen de Actividad</div>
+          <div className="panel-page-sub">Métricas en tiempo real de <strong style={{ color: 'var(--white)' }}>{concesionaria?.nombre}</strong></div>
         </div>
       </div>
 
@@ -320,18 +353,18 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
         {[
-          { label: 'Stock Activo',     val: autos.filter(a => a.activo).length,                                       icon: '🚗', color: 'var(--green)' },
-          { label: 'Stock Pausado',    val: autos.filter(a => !a.activo).length,                                      icon: '⏸',  color: 'var(--gray3)' },
-          { label: 'Vistas Totales',   val: autos.reduce((s, a) => s + (a.vistas || 0), 0),                          icon: '👁',  color: '#3b82f6' },
-          { label: 'Consultas Total',  val: consultas.length,                                                         icon: '💬', color: 'var(--accent)' },
-          { label: 'Últimos 7 días',   val: consultas.filter(c => new Date(c.created_at) > sevenDaysAgo).length,     icon: '📅', color: 'var(--gold)' },
+          { label: 'Stock Activo',    val: autos.filter(a => a.activo).length,                                   icon: '🚗', color: '#4ade80' },
+          { label: 'Stock Pausado',   val: autos.filter(a => !a.activo).length,                                  icon: '⏸',  color: '#64748b' },
+          { label: 'Vistas Totales',  val: autos.reduce((s, a) => s + (a.vistas || 0), 0),                      icon: '👁',  color: '#3b82f6' },
+          { label: 'Consultas',       val: consultas.length,                                                     icon: '💬', color: 'var(--accent)' },
+          { label: 'Últimos 7 días',  val: consultas.filter(c => new Date(c.created_at) > sevenDaysAgo).length, icon: '📅', color: 'var(--gold)' },
         ].map(({ label, val, icon, color }) => (
-          <div key={label} style={{ background: 'var(--gray1)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', borderTop: `2px solid ${color}` }}>
-            <div style={{ fontSize: '20px', marginBottom: '10px' }}>{icon}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1, marginBottom: '6px' }}>{val}</div>
-            <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.05em', textTransform: 'uppercase' }}>{label}</div>
+          <div key={label} className="stat-card" style={{ '--stat-color': color }}>
+            <div className="stat-icon">{icon}</div>
+            <div className="stat-value">{val}</div>
+            <div className="stat-label">{label}</div>
           </div>
         ))}
       </div>
@@ -339,22 +372,22 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
       {/* ESTADÍSTICAS DETALLADAS */}
       {autos.length > 0 && (
         <div className="dashboard-charts" style={{ marginBottom: '3rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-          {/* Top autos por vistas — gráfico de barras */}
-          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.25rem' }}>Vistas por vehículo</div>
+          {/* Top autos por vistas */}
+          <div className="chart-card">
+            <div className="chart-title">Vistas por vehículo</div>
             {(() => {
               const top = [...autos].sort((a, b) => (b.vistas || 0) - (a.vistas || 0)).slice(0, 5)
               const maxV = Math.max(1, top[0]?.vistas || 0)
               return top.map((a, i) => (
-                <div key={a.id} style={{ marginBottom: i < top.length - 1 ? '14px' : 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
+                <div key={a.id} style={{ marginBottom: i < top.length - 1 ? '16px' : 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
                     <span style={{ fontSize: '12px', color: 'var(--white)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
-                      {a.marca} {a.modelo} <span style={{ color: 'var(--gray5)', fontWeight: 'normal' }}>{a.anio}</span>
+                      {a.marca} {a.modelo} <span style={{ color: 'var(--gray4)', fontWeight: 'normal' }}>{a.anio}</span>
                     </span>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: i === 0 ? 'var(--accent)' : 'var(--white)', flexShrink: 0, marginLeft: '8px' }}>{a.vistas || 0}</span>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: i === 0 ? 'var(--accent)' : 'var(--white)', flexShrink: 0, marginLeft: '8px' }}>{a.vistas || 0}</span>
                   </div>
-                  <div style={{ background: 'var(--gray2)', borderRadius: '100px', height: '6px', overflow: 'hidden' }}>
-                    <div style={{ width: `${Math.max(4, ((a.vistas || 0) / maxV) * 100)}%`, height: '100%', background: i === 0 ? 'var(--accent)' : `rgba(230,51,41,${0.6 - i * 0.1})`, borderRadius: '100px', transition: 'width .5s ease' }} />
+                  <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '100px', height: '5px', overflow: 'hidden' }}>
+                    <div style={{ width: `${Math.max(4, ((a.vistas || 0) / maxV) * 100)}%`, height: '100%', background: i === 0 ? 'var(--accent)' : `rgba(230,51,41,${0.5 - i * 0.08})`, borderRadius: '100px', transition: 'width .6s ease' }} />
                   </div>
                 </div>
               ))
@@ -362,8 +395,8 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
           </div>
 
           {/* Consultas últimos 7 días */}
-          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Consultas últimos 7 días</div>
+          <div className="chart-card">
+            <div className="chart-title">Consultas últimos 7 días</div>
             {Array.from({ length: 7 }, (_, i) => {
               const d = new Date(); d.setDate(d.getDate() - (6 - i))
               const label = d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' })
@@ -373,12 +406,12 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
                 return consultas.filter(c => new Date(c.created_at).toDateString() === dd.toDateString()).length
               }))
               return (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--gray4)', width: '60px', textTransform: 'capitalize' }}>{label}</span>
-                  <div style={{ flex: 1, background: 'var(--gray2)', borderRadius: '100px', height: '8px', overflow: 'hidden' }}>
-                    <div style={{ width: `${count > 0 ? Math.max(8, (count / max) * 100) : 0}%`, height: '100%', background: 'var(--accent)', borderRadius: '100px', transition: 'width .4s' }} />
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--gray4)', width: '58px', textTransform: 'capitalize' }}>{label}</span>
+                  <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', borderRadius: '100px', height: '7px', overflow: 'hidden' }}>
+                    <div style={{ width: `${count > 0 ? Math.max(8, (count / max) * 100) : 0}%`, height: '100%', background: 'var(--accent)', borderRadius: '100px', transition: 'width .5s' }} />
                   </div>
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '16px', color: count > 0 ? 'var(--white)' : 'var(--gray4)', width: '20px', textAlign: 'right' }}>{count}</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: count > 0 ? 'var(--white)' : 'var(--gray4)', width: '22px', textAlign: 'right' }}>{count}</span>
                 </div>
               )
             })}
@@ -386,37 +419,37 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.1em', color: 'var(--gray4)', textTransform: 'uppercase' }}>Bandeja de entrada</div>
+      <div className="panel-section-header" style={{ marginBottom: '1rem' }}>
+        <div className="panel-section-title">Bandeja de entrada</div>
         {consultas.filter(c => !c.leido).length > 0 && (
-          <span style={{ background: 'rgba(230,51,41,.12)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,.3)', borderRadius: '100px', fontSize: '11px', fontWeight: 700, padding: '2px 10px', fontFamily: 'var(--font-mono)' }}>
+          <span style={{ background: 'rgba(230,51,41,.1)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,.25)', borderRadius: '100px', fontSize: '11px', fontWeight: 700, padding: '3px 12px', fontFamily: 'var(--font-mono)' }}>
             {consultas.filter(c => !c.leido).length} sin leer
           </span>
         )}
       </div>
       {consultas.length === 0
-        ? <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', color: 'var(--gray4)' }}>No hay consultas pendientes.</div>
-        : <table className="dashboard-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        ? <div style={{ padding: '3rem', textAlign: 'center', background: 'linear-gradient(135deg,#141414,#0f0f0f)', borderRadius: '12px', color: 'var(--gray4)', border: '1px solid rgba(255,255,255,0.06)' }}>No hay consultas pendientes.</div>
+        : <table className="panel-table dashboard-table">
             <thead>
               <tr>
                 {[['Vehículo',''],['Interesado',''],['Mensaje','col-hide-mobile'],['Fecha','col-hide-mobile'],['','']].map(([h, cls]) => (
-                  <th key={h} className={cls} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '12px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>
+                  <th key={h} className={cls}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {consultas.map(c => (
-                <tr key={c.id} style={{ transition: 'background .2s', cursor: 'pointer' }} onClick={() => setConsultaDetalle(c)} onMouseEnter={e => e.currentTarget.style.background = 'var(--gray1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', fontSize: '14px', fontWeight: '500' }}>
+                <tr key={c.id} onClick={() => setConsultaDetalle(c)}>
+                  <td style={{ padding: '16px 20px', fontSize: '14px', fontWeight: '500' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {!c.leido && <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, display: 'inline-block' }} />}
+                      {!c.leido && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, display: 'inline-block', boxShadow: '0 0 6px var(--accent)' }} />}
                       <span style={{ color: 'var(--white)' }}>{c.autos?.marca} {c.autos?.modelo}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '14px' }}>{c.nombre_comprador}</td>
-                  <td className="col-hide-mobile" style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray4)', fontSize: '13px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
-                  <td className="col-hide-mobile" style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)', color: 'var(--gray5)', fontSize: '12px' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
-                  <td style={{ padding: '16px 12px', borderBottom: '1px solid var(--gray2)' }}><span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>Ver →</span></td>
+                  <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '14px' }}>{c.nombre_comprador}</td>
+                  <td className="col-hide-mobile" style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
+                  <td className="col-hide-mobile" style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
+                  <td style={{ padding: '16px 20px' }}><span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>Ver →</span></td>
                 </tr>
               ))}
             </tbody>
@@ -529,31 +562,38 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>INVENTARIO</div>
-          <div style={{ fontSize: '14px', color: 'var(--gray5)' }}>Administrá los vehículos de tu catálogo.</div>
+          <div className="panel-page-title">Inventario</div>
+          <div className="panel-page-sub">Administrá los vehículos de tu catálogo.</div>
         </div>
         <button className="btn-primary" onClick={() => setTab('nuevo-auto')}>NUEVA PUBLICACIÓN</button>
       </div>
 
-      {/* PLAN INFO BAR */}
       {limiteDestacados > 0 && (
-        <div style={{ marginBottom: '1.5rem', padding: '12px 20px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', display: 'flex', gap: '2rem', fontSize: '12px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>
+        <div style={{ marginBottom: '1.5rem', padding: '12px 20px', background: 'linear-gradient(135deg, #141414 0%, #0f0f0f 100%)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', display: 'flex', gap: '2rem', fontSize: '12px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>
           <span>★ Destacados: <strong style={{ color: destacadosActivos > 0 ? '#c9a84c' : 'var(--white)' }}>{destacadosActivos}</strong> / {limiteDestacados === Infinity ? '∞' : limiteDestacados}</span>
           <span>⚡ Urgentes: <strong style={{ color: urgentesActivos > 0 ? 'var(--accent)' : 'var(--white)' }}>{urgentesActivos}</strong> / {limiteDestacados === Infinity ? '∞' : limiteDestacados}</span>
         </div>
       )}
 
       {autos.length === 0
-        ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Inventario vacío.</p></div>
-        : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-            <thead><tr>{['Vehículo','Precio (ARS)','Vistas','Boosts','Estado','Administrar'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+        ? <div style={{ padding: '4rem', textAlign: 'center', background: 'linear-gradient(135deg,#141414,#0f0f0f)', borderRadius: '12px', color: 'var(--gray4)', border: '1px solid rgba(255,255,255,0.06)' }}><p style={{ fontSize: '15px' }}>Inventario vacío.</p></div>
+        : <table className="panel-table">
+            <thead>
+              <tr>
+                {['Vehículo','Precio (ARS)','Vistas','Boosts','Estado','Administrar'].map(h => <th key={h}>{h}</th>)}
+              </tr>
+            </thead>
             <tbody>
               {autos.map(a => (
-                <tr key={a.id} style={{ borderBottom: '1px solid var(--gray2)' }}>
-                  <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontWeight: 600 }}>{a.marca} {a.modelo} <span style={{ color: 'var(--gray5)', fontWeight: 'normal', marginLeft: '6px' }}>{a.anio}</span></td>
-                  <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>${Number(a.precio_ars || 0).toLocaleString('es-AR')}</td>
+                <tr key={a.id}>
+                  <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontWeight: 600 }}>
+                    {a.marca} {a.modelo} <span style={{ color: 'var(--gray4)', fontWeight: 'normal', marginLeft: '6px' }}>{a.anio}</span>
+                  </td>
+                  <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>
+                    ${Number(a.precio_ars || 0).toLocaleString('es-AR')}
+                  </td>
                   <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
                     {a.vistas || 0}
                   </td>
@@ -561,36 +601,36 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                     <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                       <button onClick={() => toggleDestacado(a)}
                         title={a.destacado ? 'Quitar destacado' : 'Destacar vehículo (incluido en plan o pago)'}
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: `1px solid ${a.destacado ? 'rgba(201,168,76,.5)' : 'var(--gray2)'}`, cursor: 'pointer', transition: 'all .15s', letterSpacing: '.03em',
-                          background: a.destacado ? 'rgba(201,168,76,.15)' : 'transparent',
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: `1px solid ${a.destacado ? 'rgba(201,168,76,.5)' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', transition: 'all .15s', letterSpacing: '.03em',
+                          background: a.destacado ? 'rgba(201,168,76,.15)' : 'rgba(255,255,255,0.02)',
                           color: a.destacado ? '#c9a84c' : 'var(--gray4)' }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill={a.destacado ? '#c9a84c' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         Destacar
                       </button>
                       <button onClick={() => toggleUrgente(a)}
                         title={a.urgente ? 'Quitar urgente' : 'Marcar como urgente'}
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: `1px solid ${a.urgente ? 'rgba(230,51,41,.5)' : 'var(--gray2)'}`, cursor: 'pointer', transition: 'all .15s', letterSpacing: '.03em',
-                          background: a.urgente ? 'rgba(230,51,41,.15)' : 'transparent',
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: `1px solid ${a.urgente ? 'rgba(230,51,41,.5)' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', transition: 'all .15s', letterSpacing: '.03em',
+                          background: a.urgente ? 'rgba(230,51,41,.15)' : 'rgba(255,255,255,0.02)',
                           color: a.urgente ? 'var(--accent)' : 'var(--gray4)' }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill={a.urgente ? 'var(--accent)' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                         Urgente
                       </button>
                       <button onClick={() => { if (confirm(`¿Subir "${a.marca} ${a.modelo}" al tope por $10.000?`)) pay('subir_tope', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
                         title="Subir al tope del catálogo — $10.000"
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all .15s', background: 'rgba(255,255,255,0.02)', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                         Tope
                       </button>
                       <button onClick={() => { if (confirm(`¿Renovar "${a.marca} ${a.modelo}" por 30 días más por $10.000?`)) pay('renovar', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
                         title="Renovar publicación 30 días — $10.000"
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all .15s', background: 'rgba(255,255,255,0.02)', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
                         Renovar
                       </button>
                       {!a.fijado_home ? (
                         <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $80.000/mes?`)) pay('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
                           title="Fijar en página de inicio — $80.000/mes"
-                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid var(--gray2)', cursor: 'pointer', transition: 'all .15s', background: 'transparent', color: 'var(--gray4)', letterSpacing: '.03em' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all .15s', background: 'rgba(255,255,255,0.02)', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                           Fijar
                         </button>
@@ -603,7 +643,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                     </div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
-                    <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: a.activo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.1)', color: a.activo ? '#4ade80' : 'var(--gray4)' }}>
+                    <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: a.activo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.05)', color: a.activo ? '#4ade80' : 'var(--gray4)' }}>
                       {a.activo ? 'ACTIVO' : 'PAUSADO'}
                     </span>
                   </td>
@@ -677,23 +717,23 @@ function NuevoAuto({ concesionaria, limiteAlcanzado, onSuccess }) {
 
   return (
     <div style={{ maxWidth: '800px' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>ALTA DE STOCK</div>
-      <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: limiteAlcanzado ? '1rem' : '3rem' }}>Ingresá las especificaciones del nuevo vehículo.</div>
+      <div className="panel-page-title">Alta de Stock</div>
+      <div className="panel-page-sub">Ingresá las especificaciones del nuevo vehículo.</div>
 
       {limiteAlcanzado && (
-        <div style={{ background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="plan-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1.5rem' }}>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gold)' }}>Límite del plan gratuito alcanzado</div>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '2px' }}>Tu plan actual tiene un límite de publicaciones. Upgradéalo para publicar más.</div>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gold)' }}>Límite del plan alcanzado</div>
+            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>Tu plan actual tiene un límite de publicaciones. Upgradéalo para publicar más.</div>
           </div>
-          <button onClick={() => setShowUpgrade(true)} style={{ background: 'rgba(201,168,76,.2)', border: '1px solid rgba(201,168,76,.4)', color: 'var(--gold)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-            Ver Premium →
+          <button onClick={() => setShowUpgrade(true)} className="btn-primary" style={{ background: 'var(--gold)', color: '#000', boxShadow: 'none' }}>
+            Mejorar plan →
           </button>
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
-        <div style={{ background: 'var(--gray1)', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
+        <div style={{ background: 'linear-gradient(135deg, #141414 0%, #0f0f0f 100%)', padding: '2.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>
             <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)' }}>GALERÍA DE IMÁGENES</div>
             <div style={{ fontSize: '12px', color: fotos.length >= 5 ? '#4ade80' : 'var(--gray4)' }}>
@@ -816,10 +856,10 @@ function Consultas({ consultas, reload }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>CONSULTAS</div>
-          <div style={{ fontSize: '14px', color: 'var(--gray5)' }}>
+          <div className="panel-page-title">Consultas</div>
+          <div className="panel-page-sub">
             {noLeidas > 0
               ? <span style={{ color: 'var(--accent)' }}>{noLeidas} sin leer</span>
               : 'Todas leídas'}
@@ -851,29 +891,27 @@ function Consultas({ consultas, reload }) {
       </div>
 
       {consultas.length === 0
-        ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}>
-            <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no recibiste consultas.</p>
+        ? <div style={{ padding: '4rem', textAlign: 'center', background: 'linear-gradient(135deg,#141414,#0f0f0f)', borderRadius: '12px', color: 'var(--gray4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <p style={{ fontSize: '15px' }}>Todavía no recibiste consultas.</p>
           </div>
-        : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+        : <table className="panel-table">
             <thead>
               <tr>{['', 'Vehículo', 'Interesado', 'Mensaje', 'Fecha', ''].map((h, i) => (
-                <th key={i} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>
+                <th key={i}>{h}</th>
               ))}</tr>
             </thead>
             <tbody>
               {consultas.map(c => (
                 <tr key={c.id} onClick={() => verDetalle(c)}
-                  style={{ borderBottom: '1px solid var(--gray2)', cursor: 'pointer', transition: 'background .2s', background: c.leido ? 'transparent' : 'rgba(230,51,41,0.04)' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'}
-                  onMouseLeave={e => e.currentTarget.style.background = c.leido ? 'transparent' : 'rgba(230,51,41,0.04)'}>
+                  style={{ background: c.leido ? 'transparent' : 'rgba(230,51,41,0.02)' }}>
                   <td style={{ padding: '16px 20px', width: '8px' }}>
-                    {!c.leido && <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent)' }} />}
+                    {!c.leido && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 6px var(--accent)' }} />}
                   </td>
                   <td style={{ padding: '16px 20px', color: 'var(--white)', fontSize: '14px', fontWeight: c.leido ? 400 : 600 }}>{c.autos?.marca} {c.autos?.modelo}</td>
                   <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{c.nombre_comprador}</td>
                   <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '13px', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
                   <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>
-                  <td style={{ padding: '16px 20px' }}><span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>Ver →</span></td>
+                  <td style={{ padding: '16px 20px' }}><span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>Ver →</span></td>
                 </tr>
               ))}
             </tbody>
@@ -914,14 +952,14 @@ function Perfil({ concesionaria, onSave }) {
   return (
     <div style={{ maxWidth: '800px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.5rem' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>PERFIL COMERCIAL</div>
+        <div className="panel-page-title">Perfil Comercial</div>
         <a href={`/concesionaria/${concesionaria.id}`} target="_blank" rel="noopener noreferrer">
           <button className="btn-secondary" style={{ padding: '8px 18px', fontSize: '13px' }}>Ver perfil público →</button>
         </a>
       </div>
-      <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Configuración pública de la identidad de la concesionaria.</div>
+      <div className="panel-page-sub">Configuración pública de la identidad de la concesionaria.</div>
 
-      <form onSubmit={handleSave} style={{ background: 'var(--gray1)', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)' }}>
+      <form onSubmit={handleSave} style={{ background: 'linear-gradient(135deg, #141414 0%, #0f0f0f 100%)', padding: '2.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)', marginTop: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--gray2)', marginBottom: '2rem' }}>
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '2px solid var(--gray3)' }}>
             {form.logo_url ? <img src={form.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--gray4)', fontFamily: 'var(--font-display)' }}>{form.nombre?.[0]?.toUpperCase() || '?'}</span>}
@@ -985,9 +1023,9 @@ function MisPagos({ pagos }) {
   if (pagos.length === 0) {
     return (
       <div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '2rem' }}>MIS PAGOS</div>
-        <div style={{ padding: '5rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}>
-          <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay pagos registrados aún.</p>
+        <div className="panel-page-title">Mis Pagos</div>
+        <div style={{ padding: '5rem', textAlign: 'center', background: 'linear-gradient(135deg,#141414,#0f0f0f)', borderRadius: '12px', color: 'var(--gray4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <p style={{ fontSize: '15px' }}>No hay pagos registrados aún.</p>
         </div>
       </div>
     )
@@ -995,42 +1033,41 @@ function MisPagos({ pagos }) {
 
   return (
     <div>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', marginBottom: '.5rem' }}>MIS PAGOS</div>
-      <div style={{ fontSize: '13px', color: 'var(--gray5)', marginBottom: '2rem' }}>Historial de pagos procesados vía MercadoPago.</div>
-      <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--gray2)' }}>
-              {['Fecha', 'Servicio', 'Vehículo', 'Monto', 'Estado'].map(h => (
-                <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '14px 20px', fontWeight: 400 }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {pagos.map((p, i) => (
-              <tr key={p.id || i} style={{ borderBottom: i < pagos.length - 1 ? '1px solid var(--gray2)' : 'none' }}>
-                <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--gray4)', whiteSpace: 'nowrap' }}>
-                  {new Date(p.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </td>
-                <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--white)', fontWeight: 600 }}>
-                  {LABELS[p.tipo] || p.tipo}
-                </td>
-                <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--gray4)' }}>
-                  {p.autos ? `${p.autos.marca} ${p.autos.modelo}` : '—'}
-                </td>
-                <td style={{ padding: '14px 20px', fontSize: '14px', fontFamily: 'var(--font-display)', color: 'var(--accent)' }}>
-                  ${Number(p.monto).toLocaleString('es-AR')}
-                </td>
-                <td style={{ padding: '14px 20px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)', letterSpacing: '.05em' }}>
-                    {p.estado === 'approved' ? 'APROBADO' : p.estado?.toUpperCase()}
-                  </span>
-                </td>
-              </tr>
+      <div className="panel-page-title">Mis Pagos</div>
+      <div className="panel-page-sub">Historial de pagos procesados vía MercadoPago.</div>
+      
+      <table className="panel-table">
+        <thead>
+          <tr>
+            {['Fecha', 'Servicio', 'Vehículo', 'Monto', 'Estado'].map(h => (
+              <th key={h}>{h}</th>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </tr>
+        </thead>
+        <tbody>
+          {pagos.map((p, i) => (
+            <tr key={p.id || i}>
+              <td style={{ padding: '16px 20px', fontSize: '13px', color: 'var(--gray4)', whiteSpace: 'nowrap' }}>
+                {new Date(p.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </td>
+              <td style={{ padding: '16px 20px', fontSize: '13px', color: 'var(--white)', fontWeight: 600 }}>
+                {LABELS[p.tipo] || p.tipo}
+              </td>
+              <td style={{ padding: '16px 20px', fontSize: '13px', color: 'var(--gray4)' }}>
+                {p.autos ? `${p.autos.marca} ${p.autos.modelo}` : '—'}
+              </td>
+              <td style={{ padding: '16px 20px', fontSize: '14px', fontFamily: 'var(--font-display)', color: 'var(--accent)' }}>
+                ${Number(p.monto).toLocaleString('es-AR')}
+              </td>
+              <td style={{ padding: '16px 20px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)', letterSpacing: '.05em' }}>
+                  {p.estado === 'approved' ? 'APROBADO' : p.estado?.toUpperCase()}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

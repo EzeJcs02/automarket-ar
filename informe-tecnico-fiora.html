@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informe Técnico — FIORA MARKET</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    :root {
+      --accent: #e63329;
+      --gold: #c9a84c;
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #222;
+      --border: #2e2e2e;
+      --text: #f0ede6;
+      --muted: #888;
+      --subtle: #555;
+      --green: #22c55e;
+      --blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(230,51,41,.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201,168,76,.08) 0%, transparent 60%),
+                  var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,.02) 39px, rgba(255,255,255,.02) 40px),
+                        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,.02) 39px, rgba(255,255,255,.02) 40px);
+      pointer-events: none;
+    }
+    .cover-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(230,51,41,.35);
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 2.5rem;
+      background: rgba(230,51,41,.08);
+    }
+    .cover-logo {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(52px, 10vw, 96px);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .cover-logo span { color: var(--accent); }
+    .cover-sub {
+      font-size: 18px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-bottom: 3.5rem;
+      max-width: 500px;
+    }
+    .cover-meta {
+      display: flex;
+      gap: 2.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .cover-meta-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .cover-meta-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--subtle);
+    }
+    .cover-meta-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .cover-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+      align-self: center;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      margin-bottom: 2.5rem;
+    }
+    .section-title span { color: var(--accent); }
+    .section-intro {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 620px;
+      margin-bottom: 3rem;
+      line-height: 1.75;
+    }
+
+    /* ── TECH STACK GRID ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .stack-item {
+      background: var(--surface);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: background .2s;
+    }
+    .stack-item:hover { background: var(--surface2); }
+    .stack-item-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    .stack-item-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .stack-item-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .stack-item-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: .05em;
+      margin-top: auto;
+      padding-top: 8px;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(230,51,41,.4);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 1rem;
+    }
+    .feature-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: .5rem;
+    }
+    .feature-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── PAGES TABLE ── */
+    .pages-grid {
+      display: grid;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .page-row {
+      display: grid;
+      grid-template-columns: 180px 1fr auto;
+      gap: 1.5rem;
+      align-items: center;
+      background: var(--surface);
+      padding: 1.1rem 1.5rem;
+      transition: background .2s;
+    }
+    .page-row:hover { background: var(--surface2); }
+    .page-row.header {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .page-row.header .page-route,
+    .page-row.header .page-desc,
+    .page-row.header .page-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      font-weight: 400;
+    }
+    .page-route {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
+    .page-desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .page-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .tag-public { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+    .tag-auth { background: rgba(59,130,246,.1); color: var(--blue); border: 1px solid rgba(59,130,246,.2); }
+    .tag-panel { background: rgba(201,168,76,.1); color: var(--gold); border: 1px solid rgba(201,168,76,.2); }
+    .tag-admin { background: rgba(230,51,41,.1); color: var(--accent); border: 1px solid rgba(230,51,41,.2); }
+
+    /* ── DATABASE ── */
+    .db-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .db-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+    }
+    .db-card-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: .75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .db-card-name::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+    .db-card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── API ENDPOINTS ── */
+    .api-group { margin-bottom: 2rem; }
+    .api-group-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: .75rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .api-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .api-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .9rem 1.25rem;
+      transition: border-color .2s;
+    }
+    .api-item:hover { border-color: var(--border); }
+    .api-method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      min-width: 44px;
+      text-align: center;
+    }
+    .method-post { background: rgba(230,51,41,.15); color: var(--accent); }
+    .method-get { background: rgba(34,197,94,.12); color: var(--green); }
+    .api-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      flex: 1;
+    }
+    .api-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── SECURITY ── */
+    .security-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .security-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+    .security-card-icon { font-size: 22px; margin-bottom: .75rem; }
+    .security-card-title { font-weight: 700; font-size: 14px; margin-bottom: .5rem; }
+    .security-card-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .security-card-list li {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      padding-left: 14px;
+      position: relative;
+    }
+    .security-card-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--subtle);
+      font-size: 10px;
+    }
+
+    /* ── STATS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+    }
+    .stat-item {
+      background: var(--surface);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: .4rem;
+    }
+    .stat-num span { color: var(--accent); }
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── PAYMENTS ── */
+    .payments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .payment-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .payment-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .payment-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .payment-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── INTEGRATIONS ── */
+    .integrations-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .integration-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      transition: border-color .2s;
+    }
+    .integration-badge:hover { border-color: rgba(230,51,41,.3); }
+    .integration-icon { font-size: 20px; }
+    .integration-info {}
+    .integration-name { font-weight: 700; font-size: 14px; }
+    .integration-role { font-size: 12px; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    .doc-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .doc-footer-logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin-bottom: .5rem;
+    }
+    .doc-footer-logo span { color: var(--accent); }
+    .doc-footer-text {
+      font-size: 13px;
+      color: var(--subtle);
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2.5rem 0;
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      background: rgba(230,51,41,.06);
+      border: 1px solid rgba(230,51,41,.2);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 2rem;
+    }
+    .callout-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .callout-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .cover { min-height: auto; padding: 4rem 2rem 3rem; page-break-after: always; }
+      .section { page-break-inside: avoid; }
+    }
+
+    @media (max-width: 600px) {
+      .page-row { grid-template-columns: 1fr; gap: .5rem; }
+      .page-row.header { display: none; }
+      .api-item { flex-direction: column; align-items: flex-start; gap: .5rem; }
+      .cover-meta { gap: 1.5rem; }
+      .cover-divider { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ COVER ═══════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Informe Técnico · Versión 1.0</div>
+  <div class="cover-logo">FIORA<span>.</span></div>
+  <p class="cover-sub">Plataforma de compraventa de vehículos para el mercado argentino</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Dominio</span>
+      <span class="cover-meta-value">fioramarket.store</span>
+    </div>
+    <div class="cover-divider"></div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Deploy</span>
+      <span class="cover-meta-value">Vercel</span>
+    </div>
+    <div class="cover-divider"></div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Base de datos</span>
+      <span class="cover-meta-value">Supabase</span>
+    </div>
+    <div class="cover-divider"></div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Fecha</span>
+      <span class="cover-meta-value">Mayo 2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STATS ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Resumen ejecutivo</div>
+    <h2 class="section-title">El proyecto en <span>números</span></h2>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-num">18</div>
+        <div class="stat-label">Páginas / rutas</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">12</div>
+        <div class="stat-label">Endpoints API</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">11</div>
+        <div class="stat-label">Tablas en BD</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Componentes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><span>2</span></div>
+        <div class="stat-label">Cron jobs diarios</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">7</div>
+        <div class="stat-label">Integraciones</div>
+      </div>
+    </div>
+
+    <p class="section-intro">
+      FIORA MARKET es una plataforma de marketplace automotor <strong>production-ready</strong>, con sistema de pagos reales, emails transaccionales, alertas automáticas, panel de administración completo y cumplimiento legal argentino (Res. 424/2020).
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STACK ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Stack tecnológico</div>
+    <h2 class="section-title">Lenguajes y <span>tecnologías</span></h2>
+    <p class="section-intro">El proyecto usa tecnologías modernas y de alta demanda laboral, con cero dependencias de frameworks de UI externos — todo construido a medida.</p>
+
+    <div class="stack-grid">
+      <div class="stack-item">
+        <div class="stack-item-icon">⚛️</div>
+        <div class="stack-item-name">React 19</div>
+        <div class="stack-item-desc">Framework de interfaz de usuario. Última versión estable.</div>
+        <div class="stack-item-tag">Frontend</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">⚡</div>
+        <div class="stack-item-name">Vite 8</div>
+        <div class="stack-item-desc">Build tool ultrarrápido para desarrollo y producción.</div>
+        <div class="stack-item-tag">Build Tool</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">🟡</div>
+        <div class="stack-item-name">JavaScript (JSX)</div>
+        <div class="stack-item-desc">Lenguaje principal del proyecto, frontend y backend.</div>
+        <div class="stack-item-tag">Lenguaje</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">🔗</div>
+        <div class="stack-item-name">React Router v7</div>
+        <div class="stack-item-desc">Enrutamiento SPA con rutas dinámicas y protegidas.</div>
+        <div class="stack-item-tag">Routing</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">🟢</div>
+        <div class="stack-item-name">Node.js</div>
+        <div class="stack-item-desc">Runtime del backend — funciones serverless en Vercel.</div>
+        <div class="stack-item-tag">Backend</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">🗄️</div>
+        <div class="stack-item-name">Supabase</div>
+        <div class="stack-item-desc">PostgreSQL cloud — base de datos, auth y tiempo real.</div>
+        <div class="stack-item-tag">Base de datos</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">▲</div>
+        <div class="stack-item-name">Vercel</div>
+        <div class="stack-item-desc">Hosting, serverless functions y cron jobs automáticos.</div>
+        <div class="stack-item-tag">Deploy</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">🎨</div>
+        <div class="stack-item-name">CSS Variables</div>
+        <div class="stack-item-desc">Sistema de diseño propio con tokens, sin frameworks externos.</div>
+        <div class="stack-item-tag">Estilos</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-item-icon">🔀</div>
+        <div class="stack-item-name">Git + GitHub</div>
+        <div class="stack-item-desc">Control de versiones con deploy automático desde main.</div>
+        <div class="stack-item-tag">Versionado</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ INTEGRATIONS ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Servicios externos</div>
+    <h2 class="section-title">Integraciones y <span>APIs</span></h2>
+    <p class="section-intro">Cada integración resuelve una necesidad real de la plataforma: pagos, emails, autenticación y analytics.</p>
+
+    <div class="integrations-row">
+      <div class="integration-badge">
+        <div class="integration-icon">💳</div>
+        <div class="integration-info">
+          <div class="integration-name">MercadoPago</div>
+          <div class="integration-role">Pagos de planes, boosts y publicaciones</div>
+        </div>
+      </div>
+      <div class="integration-badge">
+        <div class="integration-icon">📧</div>
+        <div class="integration-info">
+          <div class="integration-name">Resend</div>
+          <div class="integration-role">Emails transaccionales y alertas</div>
+        </div>
+      </div>
+      <div class="integration-badge">
+        <div class="integration-icon">🔐</div>
+        <div class="integration-info">
+          <div class="integration-name">Supabase Auth</div>
+          <div class="integration-role">Autenticación de usuarios</div>
+        </div>
+      </div>
+      <div class="integration-badge">
+        <div class="integration-icon">💵</div>
+        <div class="integration-info">
+          <div class="integration-name">Dólar Blue API</div>
+          <div class="integration-role">Tipo de cambio ARS/USD en tiempo real</div>
+        </div>
+      </div>
+      <div class="integration-badge">
+        <div class="integration-icon">📊</div>
+        <div class="integration-info">
+          <div class="integration-name">Vercel Analytics</div>
+          <div class="integration-role">Métricas de tráfico y performance</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ FEATURES ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Funcionalidad</div>
+    <h2 class="section-title">Features <span>implementados</span></h2>
+    <p class="section-intro">Cada feature está en producción y funcionando, no son prototipos.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">Buscador avanzado</div>
+        <div class="feature-desc">8 filtros simultáneos (marca, tipo, precio, año, km, transmisión, combustible, ciudad), ordenamiento y paginación de 24 resultados.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Alertas de búsqueda</div>
+        <div class="feature-desc">El usuario guarda sus filtros y recibe un email automático cada día cuando aparecen vehículos nuevos que coinciden.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚖️</div>
+        <div class="feature-title">Comparador de autos</div>
+        <div class="feature-desc">Hasta 3 vehículos lado a lado con tabla de specs, diferencias de precio resaltadas y barra flotante en mobile.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">❤️</div>
+        <div class="feature-title">Sistema de favoritos</div>
+        <div class="feature-desc">Usuarios guardan autos y los ven en una galería dedicada. Persistido en Supabase por usuario autenticado.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <div class="feature-title">Sistema de consultas</div>
+        <div class="feature-desc">El comprador completa un formulario, el vendedor recibe el lead por email y la concesionaria lo ve en su panel con badge de no leídos.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💳</div>
+        <div class="feature-title">Pagos con MercadoPago</div>
+        <div class="feature-desc">Checkout real con verificación HMAC del webhook, validación de propiedad y protección anti-replay de 5 minutos.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <div class="feature-title">Panel de concesionaria</div>
+        <div class="feature-desc">Gestión de inventario, consultas entrantes, historial de pagos, edición de perfil y upgrade de plan.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👨‍🔧</div>
+        <div class="feature-title">Red de profesionales</div>
+        <div class="feature-desc">Mecánicos, gestores, escribanos, seguros, detailing y transporte con panel propio y perfil público.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Panel de administración</div>
+        <div class="feature-desc">Aprobación de agencias/profesionales, gestión de publicidades, vehículos destacados en Home, historial de pagos y lista de usuarios.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💵</div>
+        <div class="feature-title">Dólar Blue</div>
+        <div class="feature-desc">Tipo de cambio informal actualizado automáticamente con dual fallback (2 APIs), caché de 10 min y recuperación de caché vieja si ambas fallan.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Derecho de arrepentimiento</div>
+        <div class="feature-desc">Formulario legal conforme Res. 424/2020 que calcula 10 días hábiles automáticamente y notifica a admin y usuario.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <div class="feature-title">Guías interactivas</div>
+        <div class="feature-desc">Modales con guías para compradores, vendedores, agencias y profesionales. Contenido editable desde Supabase.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <div class="feature-title">Sitemap dinámico</div>
+        <div class="feature-desc">Genera XML actualizado con todos los autos y concesionarias activas. Optimizado para Google.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Diseño responsive</div>
+        <div class="feature-desc">Adaptado a mobile, tablet y desktop con menú hamburguesa, grillas fluidas y tipografías escalables.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏱️</div>
+        <div class="feature-title">Cron jobs automáticos</div>
+        <div class="feature-desc">A las 3 AM vencen boosts expirados. A las 9 AM se envían alertas de búsqueda a usuarios interesados.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PAGES ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Navegación</div>
+    <h2 class="section-title">Páginas y <span>rutas</span></h2>
+
+    <div class="pages-grid">
+      <div class="page-row header">
+        <div class="page-route">Ruta</div>
+        <div class="page-desc">Descripción</div>
+        <div class="page-tag">Acceso</div>
+      </div>
+
+      <div class="page-row">
+        <div class="page-route">/</div>
+        <div class="page-desc">Landing principal — autos destacados, agencias, últimos vehículos, publicidades</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/catalogo</div>
+        <div class="page-desc">Búsqueda y filtrado — 24 resultados por página, guardar alerta</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/auto/:id</div>
+        <div class="page-desc">Detalle del vehículo — fotos, specs, calculadora de financiación, autos similares</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/comparador</div>
+        <div class="page-desc">Comparador lado a lado — hasta 3 vehículos con tabla de especificaciones</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/concesionarias</div>
+        <div class="page-desc">Directorio de agencias aprobadas — buscable, badges verificada</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/profesionales</div>
+        <div class="page-desc">Red de profesionales automotores — mecánicos, gestores, seguros y más</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/planes</div>
+        <div class="page-desc">Precios y planes para concesionarias — Básico, Pro, Premium</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/legales</div>
+        <div class="page-desc">Términos y condiciones, política de privacidad</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/arrepentimiento</div>
+        <div class="page-desc">Formulario de baja/devolución — Res. 424/2020</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/login</div>
+        <div class="page-desc">Inicio de sesión y recuperación de contraseña</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/registro</div>
+        <div class="page-desc">Registro de 3 tipos: concesionaria, profesional, particular</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/mi-cuenta</div>
+        <div class="page-desc">Gestión de cuenta — favoritos, alertas guardadas</div>
+        <span class="page-tag tag-auth">Autenticado</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/favoritos</div>
+        <div class="page-desc">Galería de vehículos guardados por el usuario</div>
+        <span class="page-tag tag-auth">Autenticado</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/panel</div>
+        <div class="page-desc">Panel de concesionaria — inventario, consultas, pagos, perfil</div>
+        <span class="page-tag tag-panel">Agencia</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/panel-profesional</div>
+        <div class="page-desc">Panel de profesionales — perfil, plan, visibilidad</div>
+        <span class="page-tag tag-panel">Profesional</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/publicitate</div>
+        <div class="page-desc">Información sobre publicidad en la plataforma</div>
+        <span class="page-tag tag-public">Público</span>
+      </div>
+      <div class="page-row">
+        <div class="page-route">/admin</div>
+        <div class="page-desc">Panel de administración total de la plataforma</div>
+        <span class="page-tag tag-admin">Admin</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DATABASE ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Base de datos</div>
+    <h2 class="section-title">Estructura de <span>datos</span></h2>
+    <p class="section-intro">11 tablas en Supabase (PostgreSQL) con Row Level Security activo. Cada tabla tiene su propósito específico.</p>
+
+    <div class="db-grid">
+      <div class="db-card">
+        <div class="db-card-name">autos</div>
+        <div class="db-card-desc">Publicaciones de vehículos. Marca, modelo, año, precio, fotos, kilometraje, estado (activo/pausado), flags de boost (urgente, destacado, fijado_home) y fechas de vencimiento.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">concesionarias</div>
+        <div class="db-card-desc">Agencias registradas. Nombre, responsable, ciudad, logo, portada, plan (free/básico/pro/premium), estado de aprobación y banner activo.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">profesionales</div>
+        <div class="db-card-desc">Red de profesionales automotores. Categoría, datos de contacto, estado de aprobación, plan y visibilidad en la plataforma.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">consultas</div>
+        <div class="db-card-desc">Leads entrantes de compradores. Auto, concesionaria, nombre, email, teléfono, mensaje, estado de lectura y fecha.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">favoritos</div>
+        <div class="db-card-desc">Autos guardados por cada usuario particular. Relación user_id / auto_id con fecha de creación.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">pagos</div>
+        <div class="db-card-desc">Historial de transacciones. ID de MercadoPago, tipo de pago, monto, estado, recurso afectado y fecha.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">alertas_busqueda</div>
+        <div class="db-card-desc">Filtros guardados por usuarios. Email, filtros en JSON (marca, precio, año, km, etc.) y estado activo.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">alertas_enviadas</div>
+        <div class="db-card-desc">Registro de qué autos ya fueron notificados por alerta. Evita emails duplicados en el cron diario.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">publicidades</div>
+        <div class="db-card-desc">Banners de publicidad en Home. Imagen, link, fondo, estado activo — gestionados desde el panel admin.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">guias</div>
+        <div class="db-card-desc">Contenido de las guías interactivas (compradores, vendedores, agencias, profesionales). Título y contenido en JSON.</div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-name">arrepentimientos</div>
+        <div class="db-card-desc">Solicitudes de baja legal. Nombre, email, operación, monto, motivo, IP del solicitante y fecha límite de resolución (10 días hábiles).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ API ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Backend</div>
+    <h2 class="section-title">Endpoints <span>API</span></h2>
+    <p class="section-intro">12 funciones serverless en Vercel, organizadas por responsabilidad.</p>
+
+    <div class="api-group">
+      <div class="api-group-title">Pagos</div>
+      <div class="api-list">
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/mp-create-preference</span>
+          <span class="api-desc">Crea checkout de MercadoPago (planes, boosts, publicaciones)</span>
+        </div>
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/mp-webhook</span>
+          <span class="api-desc">Webhook de MercadoPago — verificación HMAC + actualización de BD</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-title">Emails y notificaciones</div>
+      <div class="api-list">
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/send-consulta</span>
+          <span class="api-desc">Envía consulta del comprador al vendedor (rate limit: 5/min)</span>
+        </div>
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/send-confirma</span>
+          <span class="api-desc">Email de confirmación al comprador (valida auto_id en BD)</span>
+        </div>
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/welcome-email</span>
+          <span class="api-desc">Email de bienvenida a nuevos usuarios (valida user_id en Supabase)</span>
+        </div>
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/notify-admin</span>
+          <span class="api-desc">Notifica al admin cuando se registra una nueva agencia o profesional</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-title">Administración</div>
+      <div class="api-list">
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/admin-actions</span>
+          <span class="api-desc">Acciones de admin (aprobar, suspender, destacar) — requiere token + email admin</span>
+        </div>
+        <div class="api-item">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/admin-users</span>
+          <span class="api-desc">Lista todos los usuarios de Supabase Auth — solo admin</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-title">Automatización (Cron jobs)</div>
+      <div class="api-list">
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/cron-alertas</span>
+          <span class="api-desc">9 AM diario — envía alertas de búsqueda a usuarios registrados</span>
+        </div>
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/cron-expire-boosts</span>
+          <span class="api-desc">3 AM diario — vence boosts y publicaciones personales expiradas</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="api-group">
+      <div class="api-group-title">Utilidades</div>
+      <div class="api-list">
+        <div class="api-item">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/sitemap</span>
+          <span class="api-desc">Genera XML sitemap dinámico para SEO con todos los autos y agencias</span>
+        </div>
+        <div class="api-item">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/arrepentimiento</span>
+          <span class="api-desc">Registra solicitud de baja legal — Res. 424/2020</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PAYMENTS ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Monetización</div>
+    <h2 class="section-title">Planes y <span>precios</span></h2>
+    <p class="section-intro">Sistema de planes y boosts con pagos reales vía MercadoPago. Los precios se validan server-side para evitar manipulaciones.</p>
+
+    <div class="payments-grid">
+      <div class="payment-card">
+        <div class="payment-name">Plan Básico</div>
+        <div class="payment-price">$30.000 ARS</div>
+        <div class="payment-desc">8 publicaciones activas por 30 días</div>
+      </div>
+      <div class="payment-card">
+        <div class="payment-name">Plan Pro</div>
+        <div class="payment-price">$70.000 ARS</div>
+        <div class="payment-desc">20 publicaciones + 5 destacados/mes</div>
+      </div>
+      <div class="payment-card">
+        <div class="payment-name">Plan Premium</div>
+        <div class="payment-price">$150.000 ARS</div>
+        <div class="payment-desc">50 publicaciones + 15 destacados + badge verificada</div>
+      </div>
+      <div class="payment-card">
+        <div class="payment-name">Boost Destacado</div>
+        <div class="payment-price">$15.000 ARS</div>
+        <div class="payment-desc">Aparece primero en búsquedas — 30 días</div>
+      </div>
+      <div class="payment-card">
+        <div class="payment-name">Boost Urgente</div>
+        <div class="payment-price">$20.000 ARS</div>
+        <div class="payment-desc">Badge urgente + prioridad máxima — 30 días</div>
+      </div>
+      <div class="payment-card">
+        <div class="payment-name">Fijado en Home</div>
+        <div class="payment-price">$50.000 ARS</div>
+        <div class="payment-desc">Vehículo destacado en la página principal</div>
+      </div>
+      <div class="payment-card">
+        <div class="payment-name">Banner Home</div>
+        <div class="payment-price">$80.000 ARS</div>
+        <div class="payment-desc">Banner publicitario en la página principal</div>
+      </div>
+      <div class="payment-card">
+        <div class="payment-name">Plan Profesional</div>
+        <div class="payment-price">$10.000 ARS</div>
+        <div class="payment-desc">Perfil activo en la red de profesionales</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SECURITY ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Seguridad</div>
+    <h2 class="section-title">Medidas de <span>seguridad</span></h2>
+    <p class="section-intro">La plataforma implementa múltiples capas de seguridad tanto en el frontend como en el backend.</p>
+
+    <div class="security-grid">
+      <div class="security-card">
+        <div class="security-card-icon">🔐</div>
+        <div class="security-card-title">Autenticación API</div>
+        <ul class="security-card-list">
+          <li>Verificación de Bearer token en Supabase Auth</li>
+          <li>Whitelist de email para acceso admin</li>
+          <li>CRON_SECRET para proteger jobs automáticos</li>
+        </ul>
+      </div>
+      <div class="security-card">
+        <div class="security-card-icon">💳</div>
+        <div class="security-card-title">Pagos seguros</div>
+        <ul class="security-card-list">
+          <li>Firma HMAC SHA256 en webhooks de MercadoPago</li>
+          <li>Protección anti-replay (ventana de 5 minutos)</li>
+          <li>Validación de montos server-side</li>
+          <li>Idempotencia por payment_id</li>
+        </ul>
+      </div>
+      <div class="security-card">
+        <div class="security-card-icon">🛡️</div>
+        <div class="security-card-title">Validación de inputs</div>
+        <ul class="security-card-list">
+          <li>Regex de UUID para IDs (evita SQL injection)</li>
+          <li>Sanitización HTML (XSS prevention)</li>
+          <li>Límite de longitud en strings</li>
+          <li>Validación de email con regex</li>
+        </ul>
+      </div>
+      <div class="security-card">
+        <div class="security-card-icon">⚡</div>
+        <div class="security-card-title">Rate limiting</div>
+        <ul class="security-card-list">
+          <li>5 requests/min por IP en endpoints de email</li>
+          <li>3 requests/min en arrepentimiento</li>
+          <li>Mapas en memoria por IP + timestamp</li>
+        </ul>
+      </div>
+      <div class="security-card">
+        <div class="security-card-icon">🌐</div>
+        <div class="security-card-title">Headers HTTP</div>
+        <ul class="security-card-list">
+          <li>Content Security Policy (CSP)</li>
+          <li>CORS restringido a fioramarket.store</li>
+          <li>X-Content-Type-Options, HSTS</li>
+        </ul>
+      </div>
+      <div class="security-card">
+        <div class="security-card-icon">✅</div>
+        <div class="security-card-title">Validación de propiedad</div>
+        <ul class="security-card-list">
+          <li>Verifica que el user_id existe antes de enviar emails</li>
+          <li>Verifica que auto_id existe antes de confirmaciones</li>
+          <li>Ownership check en pagos (user = dueño del recurso)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ INFRA ═══════════════════════════ -->
+<div class="section">
+  <div class="container">
+    <div class="section-label">Infraestructura</div>
+    <h2 class="section-title">Deploy y <span>variables</span></h2>
+    <p class="section-intro">Deploy automático desde GitHub. Cada push a <code style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--gold)">main</code> activa un nuevo deploy en Vercel en ~30 segundos.</p>
+
+    <div class="callout">
+      <div class="callout-label">Variables de entorno configuradas</div>
+      <div class="callout-text" style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;color:var(--muted)">
+        VITE_SUPABASE_URL &nbsp;·&nbsp; VITE_SUPABASE_ANON_KEY &nbsp;·&nbsp; VITE_ADMIN_EMAIL<br>
+        SUPABASE_URL &nbsp;·&nbsp; SUPABASE_SERVICE_ROLE_KEY &nbsp;·&nbsp; SUPABASE_ANON_KEY<br>
+        MP_ACCESS_TOKEN &nbsp;·&nbsp; MP_WEBHOOK_SECRET<br>
+        RESEND_API_KEY &nbsp;·&nbsp; ADMIN_EMAIL &nbsp;·&nbsp; CRON_SECRET &nbsp;·&nbsp; APP_URL
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<div class="doc-footer">
+  <div class="doc-footer-logo">FIORA<span>.</span>MARKET</div>
+  <p class="doc-footer-text">Informe técnico confidencial · Mayo 2026 · fioramarket.store</p>
+</div>
+
+</body>
+</html>

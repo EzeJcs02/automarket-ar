@@ -355,8 +355,18 @@ export default function Admin() {
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todos los pagos procesados vía MercadoPago.</div>
 
                 {/* RESUMEN DE INGRESOS */}
-                {pagos.length > 0 && (() => {
-                  const aprobados = pagos.filter(p => p.estado === 'approved')
+                {(() => {
+                  const pagosSimulados = [
+                    { id: 'f1', created_at: '2026-01-15', tipo: 'plan_pro', monto: 15000, estado: 'approved', mp_payment_id: '12345', concesionarias: { nombre: 'Agencia Test 1' } },
+                    { id: 'f2', created_at: '2026-02-20', tipo: 'plan_premium', monto: 25000, estado: 'approved', mp_payment_id: '12346', concesionarias: { nombre: 'Agencia Test 2' } },
+                    { id: 'f3', created_at: '2026-03-05', tipo: 'destacado', monto: 5000, estado: 'approved', mp_payment_id: '12347', autos: { marca: 'Fiat', modelo: 'Cronos' } },
+                    { id: 'f4', created_at: '2026-04-10', tipo: 'urgente', monto: 8000, estado: 'approved', mp_payment_id: '12348', autos: { marca: 'VW', modelo: 'Gol' } },
+                    { id: 'f5', created_at: '2026-05-02', tipo: 'plan_pro', monto: 15000, estado: 'approved', mp_payment_id: '12349', concesionarias: { nombre: 'Agencia Test 1' } },
+                    { id: 'f6', created_at: '2026-05-05', tipo: 'destacado', monto: 5000, estado: 'approved', mp_payment_id: '12350', autos: { marca: 'Ford', modelo: 'Focus' } },
+                  ]
+                  const esSimulado = pagos.length === 0
+                  const listaPagos = esSimulado ? pagosSimulados : pagos
+                  const aprobados = listaPagos.filter(p => p.estado === 'approved')
                   const total = aprobados.reduce((s, p) => s + (Number(p.monto) || 0), 0)
                   const porTipo = aprobados.reduce((acc, p) => {
                     const k = p.tipo || 'otro'
@@ -382,6 +392,12 @@ export default function Admin() {
 
                   return (
                     <div style={{ marginBottom: '3rem' }}>
+                      {esSimulado && (
+                        <div style={{ background: 'rgba(201,168,76,.15)', color: '#c9a84c', padding: '10px 15px', borderRadius: '8px', marginBottom: '2rem', fontSize: '13px', fontWeight: 600, textAlign: 'center' }}>
+                          ⚠️ Mostrando datos de prueba (la base de datos está vacía). Se ocultarán cuando ingresen pagos reales.
+                        </div>
+                      )}
+
                       <div className="dashboard-charts" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                         {[
                           { label: 'Total recaudado', value: '$' + total.toLocaleString('es-AR'), sub: `${aprobados.length} pagos aprobados` },
@@ -396,7 +412,7 @@ export default function Admin() {
                         ))}
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '3rem' }}>
                         {/* Gráfico por tipo */}
                         {top.length > 0 && (
                           <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem' }}>
@@ -440,42 +456,39 @@ export default function Admin() {
                           )}
                         </div>
                       </div>
+
+                      <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '620px' }}>
+                        <thead><tr>{['Fecha','Tipo','Vehículo / Agencia','Monto','Estado','MP ID'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                        <tbody>
+                          {listaPagos.map(p => (
+                            <tr key={p.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                              <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{new Date(p.created_at).toLocaleString('es-AR')}</td>
+                              <td style={{ padding: '16px 20px' }}>
+                                <span style={{ background: 'rgba(201,168,76,.15)', color: '#c9a84c', padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>{p.tipo?.replace(/_/g, ' ')}</span>
+                              </td>
+                              <td style={{ padding: '16px 20px' }}>
+                                {p.autos ? <div style={{ color: 'var(--white)', fontSize: '13px', fontWeight: 600 }}>{p.autos.marca} {p.autos.modelo}</div> : null}
+                                {p.concesionarias ? <div style={{ color: 'var(--gray4)', fontSize: '12px', marginTop: '2px' }}>{p.concesionarias.nombre}</div> : null}
+                                {!p.autos && !p.concesionarias ? <span style={{ color: 'var(--gray5)', fontSize: '12px' }}>—</span> : null}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: 'var(--white)', fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700 }}>
+                                {p.monto ? '$' + Number(p.monto).toLocaleString('es-AR') : '—'}
+                              </td>
+                              <td style={{ padding: '16px 20px' }}>
+                                <span style={{ padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700,
+                                  background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)',
+                                  color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)' }}>
+                                  {p.estado}
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{p.mp_payment_id || '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table></div>
                     </div>
                   )
                 })()}
-
-                {pagos.length === 0
-                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay pagos registrados aún.</p></div>
-                  : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '620px' }}>
-                      <thead><tr>{['Fecha','Tipo','Vehículo / Agencia','Monto','Estado','MP ID'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
-                      <tbody>
-                        {pagos.map(p => (
-                          <tr key={p.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{new Date(p.created_at).toLocaleString('es-AR')}</td>
-                            <td style={{ padding: '16px 20px' }}>
-                              <span style={{ background: 'rgba(201,168,76,.15)', color: '#c9a84c', padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>{p.tipo?.replace(/_/g, ' ')}</span>
-                            </td>
-                            <td style={{ padding: '16px 20px' }}>
-                              {p.autos ? <div style={{ color: 'var(--white)', fontSize: '13px', fontWeight: 600 }}>{p.autos.marca} {p.autos.modelo}</div> : null}
-                              {p.concesionarias ? <div style={{ color: 'var(--gray4)', fontSize: '12px', marginTop: '2px' }}>{p.concesionarias.nombre}</div> : null}
-                              {!p.autos && !p.concesionarias ? <span style={{ color: 'var(--gray5)', fontSize: '12px' }}>—</span> : null}
-                            </td>
-                            <td style={{ padding: '16px 20px', color: 'var(--white)', fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700 }}>
-                              {p.monto ? '$' + Number(p.monto).toLocaleString('es-AR') : '—'}
-                            </td>
-                            <td style={{ padding: '16px 20px' }}>
-                              <span style={{ padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700,
-                                background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)',
-                                color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)' }}>
-                                {p.estado}
-                              </span>
-                            </td>
-                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{p.mp_payment_id || '—'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table></div>
-                }
               </div>
             )}
 

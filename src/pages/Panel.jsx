@@ -355,11 +355,11 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
         {[
-          { label: 'Stock Activo',    val: autos.filter(a => a.activo).length,                                   icon: '🚗', color: '#4ade80' },
-          { label: 'Stock Pausado',   val: autos.filter(a => !a.activo).length,                                  icon: '⏸',  color: '#64748b' },
-          { label: 'Vistas Totales',  val: autos.reduce((s, a) => s + (a.vistas || 0), 0),                      icon: '👁',  color: '#3b82f6' },
-          { label: 'Consultas',       val: consultas.length,                                                     icon: '💬', color: 'var(--accent)' },
-          { label: 'Últimos 7 días',  val: consultas.filter(c => new Date(c.created_at) > sevenDaysAgo).length, icon: '📅', color: 'var(--gold)' },
+          { label: 'Stock Activo',    val: autos.filter(a => a.activo).length,                                   icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9l-2.3-2.3c-.3-.3-.7-.5-1.2-.5H6c-.5 0-.9.2-1.2.5L2.5 11.1C1.7 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 12h14"/><path d="m7 7 2-4h6l2 4"/></svg>, color: '#4ade80' },
+          { label: 'Stock Pausado',   val: autos.filter(a => !a.activo).length,                                  icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>,  color: '#64748b' },
+          { label: 'Vistas Totales',  val: autos.reduce((s, a) => s + (a.vistas || 0), 0),                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,  color: '#3b82f6' },
+          { label: 'Consultas',       val: consultas.length,                                                     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, color: 'var(--accent)' },
+          { label: 'Últimos 7 días',  val: consultas.filter(c => new Date(c.created_at) > sevenDaysAgo).length, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, color: 'var(--gold)' },
         ].map(({ label, val, icon, color }) => (
           <div key={label} className="stat-card" style={{ '--stat-color': color }}>
             <div className="stat-icon">{icon}</div>

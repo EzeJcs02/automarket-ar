@@ -369,6 +369,17 @@ export default function Admin() {
                     const d = new Date(p.created_at)
                     return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear()
                   }).reduce((s, p) => s + (Number(p.monto) || 0), 0)
+
+                  // Evolución mensual
+                  const porMes = aprobados.reduce((acc, p) => {
+                    const d = new Date(p.created_at)
+                    const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+                    acc[k] = (acc[k] || 0) + (Number(p.monto) || 0)
+                    return acc
+                  }, {})
+                  const meses = Object.entries(porMes).sort((a, b) => a[0].localeCompare(b[0])).slice(-6)
+                  const maxMes = Math.max(...meses.map(m => m[1]), 1)
+
                   return (
                     <div style={{ marginBottom: '3rem' }}>
                       <div className="dashboard-charts" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -384,22 +395,51 @@ export default function Admin() {
                           </div>
                         ))}
                       </div>
-                      {top.length > 0 && (
-                        <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem' }}>
-                          <div style={{ fontSize: '11px', color: 'var(--gray5)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>Ingresos por tipo de servicio</div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            {top.map(([tipo, monto]) => (
-                              <div key={tipo} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ width: '180px', fontSize: '12px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', flexShrink: 0 }}>{tipo.replace(/_/g, ' ')}</div>
-                                <div style={{ flex: 1, background: 'var(--gray2)', borderRadius: '100px', height: '6px', overflow: 'hidden' }}>
-                                  <div style={{ height: '100%', background: 'var(--accent)', borderRadius: '100px', width: `${Math.round((monto / top[0][1]) * 100)}%`, transition: 'width .4s' }} />
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        {/* Gráfico por tipo */}
+                        {top.length > 0 && (
+                          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--gray5)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>Ingresos por tipo de servicio</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                              {top.map(([tipo, monto]) => (
+                                <div key={tipo} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <div style={{ width: '120px', fontSize: '12px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tipo.replace(/_/g, ' ')}</div>
+                                  <div style={{ flex: 1, background: 'var(--gray2)', borderRadius: '100px', height: '6px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', background: 'var(--accent)', borderRadius: '100px', width: `${Math.round((monto / top[0][1]) * 100)}%`, transition: 'width .4s' }} />
+                                  </div>
+                                  <div style={{ width: '90px', textAlign: 'right', fontSize: '13px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--white)', flexShrink: 0 }}>${monto.toLocaleString('es-AR')}</div>
                                 </div>
-                                <div style={{ width: '120px', textAlign: 'right', fontSize: '13px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--white)', flexShrink: 0 }}>${monto.toLocaleString('es-AR')}</div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
+                        )}
+
+                        {/* Gráfico evolución mensual */}
+                        <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--gray5)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>Evolución mensual</div>
+                          {meses.length === 0 ? (
+                            <div style={{ height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gray4)', fontSize: '13px' }}>Sin datos históricos</div>
+                          ) : (
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '15px', height: '150px', paddingTop: '20px' }}>
+                              {meses.map(([mes, monto]) => (
+                                <div key={mes} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', height: '100%' }}>
+                                  <div style={{ flex: 1, width: '100%', background: 'var(--gray2)', borderRadius: '4px', position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
+                                    <div style={{ width: '100%', background: 'linear-gradient(to top, var(--accent), #f05040)', borderRadius: '4px', height: `${Math.round((monto / maxMes) * 100)}%`, transition: 'height .4s' }}>
+                                      {monto > 0 && (
+                                        <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--white)', fontWeight: 700 }}>
+                                          ${Math.round(monto/1000)}k
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div style={{ fontSize: '10px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>{mes}</div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   )
                 })()}

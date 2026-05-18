@@ -348,7 +348,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   const plan = concesionaria?.plan || 'free'
   const destacadosActivos = autos.filter(a => a.destacado).length
   const urgentesActivos = autos.filter(a => a.urgente).length
-  const limiteDestacados = plan === 'premium' ? Infinity : plan === 'pro' ? 3 : 0
+  const limiteDestacados = 0
 
   async function toggleDestacado(auto) {
     if (!auto.destacado) {
@@ -506,8 +506,8 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                         Renovar
                       </button>
                       {!a.fijado_home ? (
-                        <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $80.000/mes?`)) pay('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
-                          title="Fijar en página de inicio — $80.000/mes"
+                        <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $25.000?`)) pay('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                          title="Fijar en página de inicio — $25.000"
                           style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all .15s', background: 'rgba(255,255,255,0.02)', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                           Fijar
@@ -877,9 +877,9 @@ function MisPagos({ pagos }) {
     fijado_home: 'Vehículo fijado en Home',
     banner_home: 'Banner en Home',
     renovar: 'Renovar publicación',
-    plan_basico: 'Plan Básico',
-    plan_pro: 'Plan Pro',
-    plan_premium: 'Plan Premium',
+    pack_destacados_10: 'Pack 10 destacados',
+    plan_profesional_base: 'Plan Profesional Base',
+    plan_profesional_destacado: 'Plan Profesional Destacado',
   }
 
   if (pagos.length === 0) {

@@ -8,14 +8,14 @@ import { setPageMeta } from '../lib/seo'
 const BOOSTS = [
   {
     nombre: 'Destacado individual',
-    precio: '12.000',
+    precio: '15.000',
     desc: 'Destacá un vehículo en particular por 30 días con fondo diferenciado.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
   },
   {
     nombre: 'Pack 10 destacados',
     precio: '95.000',
-    desc: 'Destacá hasta 10 vehículos. Ahorrás $25.000 vs precio unitario.',
+    desc: 'Destacá hasta 10 vehículos. Ahorrás $55.000 vs precio unitario.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>,
   },
   {

@@ -121,6 +121,11 @@ export default async function handler(req, res) {
         await supabase.from('profesionales').update({ aprobado: true, activo: true }).eq('id', params.id)
         break
 
+      case 'eliminarUsuario':
+        await supabase.from('autos').delete().eq('user_id', params.id)
+        await supabase.auth.admin.deleteUser(params.id)
+        break
+
       case 'rechazarProfesional':
         await supabase.from('profesionales').delete().eq('id', params.id)
         break

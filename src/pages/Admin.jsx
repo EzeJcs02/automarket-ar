@@ -148,6 +148,11 @@ export default function Admin() {
     if (await adminAction('aprobarProfesional', { id })) loadData()
   }
 
+  async function eliminarUsuario(id, email) {
+    if (!confirm(`¿Eliminar permanentemente al usuario "${email}"?\nSe borrarán también todas sus publicaciones.`)) return
+    if (await adminAction('eliminarUsuario', { id })) setUsuarios(prev => prev.filter(u => u.id !== id))
+  }
+
   async function rechazarProfesional(id) {
     if (!confirm('¿Seguro que querés rechazar y eliminar este perfil profesional?')) return
     if (await adminAction('rechazarProfesional', { id })) loadData()
@@ -630,7 +635,7 @@ export default function Admin() {
                 {usuarios.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay usuarios registrados aún.</p></div>
                   : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-                      <thead><tr>{['Nombre','Email','Registro','Último acceso'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <thead><tr>{['Nombre','Email','Registro','Último acceso',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {usuarios.map(u => (
                           <tr key={u.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -638,6 +643,11 @@ export default function Admin() {
                             <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{u.email}</td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('es-AR') : '—'}</td>
+                            <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                              <button onClick={() => eliminarUsuario(u.id, u.email)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(230,51,41,0.3)', cursor: 'pointer', background: 'transparent', color: 'var(--accent)', transition: 'all .2s' }}>
+                                Eliminar
+                              </button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

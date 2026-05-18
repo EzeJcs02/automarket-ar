@@ -64,7 +64,6 @@ const COMPARACION = [
   { label: 'Posicionamiento', basico: 'Estándar', pro: 'Prioritario', premium: 'Máximo' },
   { label: 'Badge verificada', basico: false, pro: false, premium: true },
   { label: 'Perfil en directorio', basico: true, pro: true, premium: true },
-  { label: 'Vehículos extra (c/u)', basico: '$10.000/mes', pro: '$10.000/mes', premium: '$10.000/mes' },
 ]
 
 const BOOSTS = [
@@ -98,14 +97,14 @@ const PUBLICIDAD = [
   {
     nombre: 'Banner en Home',
     tipo: 'banner_home',
-    precio: '120.000',
+    precio: '50.000',
     desc: 'Tu banner publicitario visible en la página de inicio por 30 días.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
   },
   {
     nombre: 'Vehículo fijado en Home',
     tipo: 'fijado_home',
-    precio: '80.000',
+    precio: '25.000',
     desc: 'Tu vehículo aparece fijo en la sección destacada del inicio por 30 días.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   },
@@ -225,7 +224,7 @@ export default function Planes() {
       <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Para agencias y concesionarias</div>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,56px)', lineHeight: 1, marginBottom: '.75rem' }}>PLANES DE AGENCIA</h2>
-        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem' }}>Vehículo extra por encima del límite del plan: <strong style={{ color: 'var(--white)' }}>$10.000/mes c/u</strong></p>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem' }}>Sin contratos. Sin permanencia mínima.</p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: '1.5rem', alignItems: 'start' }}>
           {PLANES.map(p => {
@@ -341,7 +340,6 @@ export default function Planes() {
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--white)', marginBottom: '1.5rem' }}>EXTRAS PAGOS</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '2rem' }}>
               {[
-                { nombre: 'Publicación adicional', precio: '15.000', desc: 'A partir de la 1ra (gratis). Por 30 días.' },
                 { nombre: 'Subir al tope', precio: '10.000', desc: 'Tu publicación vuelve al primer lugar.' },
                 { nombre: 'Destacado', precio: '15.000', desc: 'Fondo diferenciado y badge en el catálogo.' },
                 { nombre: 'Urgente', precio: '20.000', desc: 'Badge rojo "URGENTE" máxima visibilidad.' },
@@ -418,7 +416,7 @@ export default function Planes() {
             <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '.1em' }}>MÁS VISIBLE</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#c9a84c', marginBottom: '.75rem' }}>DESTACADO</div>
             <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>$30.000</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: 'var(--white)', lineHeight: 1 }}>$20.000</span>
               <span style={{ fontSize: '13px', color: 'var(--gray4)', marginLeft: '6px' }}>ARS/mes</span>
             </div>
             <div style={{ fontSize: '13px', color: '#c9a84c', fontFamily: 'var(--font-mono)', paddingBottom: '1.5rem', borderBottom: '1px solid rgba(201,168,76,.2)', marginBottom: '2rem' }}>
@@ -496,28 +494,6 @@ export default function Planes() {
                   ? p.tipo === 'banner_home' ? 'Contratar con MercadoPago →' : 'Seleccionar vehículo en Panel →'
                   : 'Iniciar sesión para contratar →'}
               </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ALGORITMO */}
-      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Algoritmo de visibilidad</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,48px)', lineHeight: 1, marginBottom: '2.5rem' }}>ORDEN EN EL CATÁLOGO</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1px', background: 'var(--gray2)', maxWidth: '960px' }}>
-          {[
-            { pos: '1°', label: 'Agencias Premium', color: 'var(--accent)', desc: 'Siempre arriba. Urgentes y destacados primero.' },
-            { pos: '2°', label: 'Agencias Pro', color: '#e0a020', desc: 'Debajo de Premium. Destacados primero, luego fecha.' },
-            { pos: '3°', label: 'Publicaciones Urgentes', color: '#e0a020', desc: 'Cualquier plan con boost urgente activo.' },
-            { pos: '4°', label: 'Publicaciones Destacadas', color: 'var(--gray4)', desc: 'Individuales o básicos con boost activo.' },
-            { pos: '5°', label: 'Agencias Básicas', color: 'var(--gray4)', desc: 'Posición estándar. Orden por fecha.' },
-            { pos: '6°', label: 'Individuales gratis', color: 'var(--gray5)', desc: 'Últimos en aparecer. Orden por fecha.' },
-          ].map(r => (
-            <div key={r.pos} style={{ background: 'var(--black)', padding: '1.5rem' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', color: r.color, opacity: .3, lineHeight: 1, marginBottom: '.75rem' }}>{r.pos}</div>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: r.color, marginBottom: '8px' }}>{r.label}</div>
-              <div style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6 }}>{r.desc}</div>
             </div>
           ))}
         </div>

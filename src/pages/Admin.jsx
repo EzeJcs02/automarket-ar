@@ -315,23 +315,13 @@ export default function Admin() {
                 {aprobadas.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay agencias activas actualmente.</p></div>
                   : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '600px' }}>
-                      <thead><tr>{['Concesionaria','Ciudad','Plan','Destacada','Banner Home','Acciones'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                      <thead><tr>{['Concesionaria','Ciudad','Vehículos','Destacada','Banner Home','Acciones'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {aprobadas.map(c => (
                           <tr key={c.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                             <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{c.nombre}</td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{c.ciudad}</td>
-                            <td style={{ padding: '16px 20px' }}>
-                              <select
-                                value={c.plan || 'free'}
-                                onChange={e => cambiarPlan(c, e.target.value)}
-                                style={{ background: 'var(--gray2)', border: '1px solid var(--gray3)', color: c.plan === 'premium' ? 'var(--accent)' : c.plan === 'pro' ? '#e0a020' : c.plan === 'basico' ? '#4ade80' : 'var(--gray4)', borderRadius: 'var(--radius)', padding: '4px 8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', outline: 'none' }}>
-                                <option value="free">FREE</option>
-                                <option value="basico">BÁSICO</option>
-                                <option value="pro">PRO</option>
-                                <option value="premium">PREMIUM</option>
-                              </select>
-                            </td>
+                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>{c.autos?.[0]?.count ?? 0}</td>
                             <td style={{ padding: '16px 20px' }}>
                               <button onClick={() => toggleDestacada(c)} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', background: c.destacada ? 'rgba(230,51,41,.2)' : 'rgba(255,255,255,.1)', color: c.destacada ? 'var(--accent)' : 'var(--gray4)', transition: 'all .2s' }}>
                                 {c.destacada ? 'DESTACADA' : 'Normal'}

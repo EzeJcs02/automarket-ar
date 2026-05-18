@@ -95,8 +95,8 @@ export default function Panel() {
     { id: 'perfil', label: 'Perfil de Agencia' },
   ]
 
-  const planColor = plan === 'premium' ? 'var(--accent)' : plan === 'pro' ? '#e0a020' : plan === 'basico' ? '#4ade80' : 'var(--gray5)'
-  const planLabel = plan === 'premium' ? '★ PREMIUM' : plan === 'pro' ? '◆ PRO' : plan === 'basico' ? '● BÁSICO' : 'FREE'
+  const planColor = 'var(--gray5)'
+  const planLabel = 'AGENCIA'
 
   return (
     <div className="page-wrapper panel-layout">

@@ -1,52 +1,53 @@
 const CACHE_KEY = 'fiora_dolar_blue'
-const TTL_MS = 30 * 60 * 1000 // 30 minutos
+const TTL_MS = 30 * 60 * 1000
+
+async function tryFetch(url) {
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(4000) })
+    if (r.ok) return await r.json()
+  } catch { /* ignorar */ }
+  return null
+}
 
 export async function getDolarBlue() {
   try {
-    const cached = localStorage.getItem(CACHE_KEY)
-    if (cached) {
-      const { venta, ts } = JSON.parse(cached)
-      if (Date.now() - ts < TTL_MS) return venta
-    }
+    const raw = localStorage.getItem(CACHE_KEY)
+    const cached = raw ? JSON.parse(raw) : null
+    if (cached && Date.now() - cached.ts < TTL_MS) return cached.venta
 
     let venta = null
 
-    try {
-      const r = await fetch('https://dolarapi.com/v1/dolares/blue', { signal: AbortSignal.timeout(4000) })
-      if (r.ok) {
-        const d = await r.json()
-        venta = Number(d?.venta)
-      }
-    } catch {
-      // primera API falló, sigue con fallback
+    // API 1: dolarapi.com
+    const d1 = await tryFetch('https://dolarapi.com/v1/dolares/blue')
+    if (d1?.venta > 0) venta = Number(d1.venta)
+
+    // API 2: bluelytics
+    if (!venta) {
+      const d2 = await tryFetch('https://api.bluelytics.com.ar/v2/latest')
+      if (d2?.blue?.value_sell > 0) venta = Number(d2.blue.value_sell)
     }
 
-    if (!venta || !isFinite(venta) || venta <= 0) {
-      try {
-        const r2 = await fetch('https://api.bluelytics.com.ar/v2/latest', { signal: AbortSignal.timeout(4000) })
-        if (r2.ok) {
-          const d2 = await r2.json()
-          venta = Number(d2?.blue?.value_sell)
-        }
-      } catch {
-        // segunda API falló también
-      }
+    // API 3: argentinadatos
+    if (!venta) {
+      const d3 = await tryFetch('https://api.argentinadatos.com/v1/cotizaciones/dolares/blue')
+      if (d3?.venta > 0) venta = Number(d3.venta)
     }
 
-    if (venta && isFinite(venta) && venta > 0) {
+    if (venta && isFinite(venta)) {
       localStorage.setItem(CACHE_KEY, JSON.stringify({ venta, ts: Date.now() }))
       return venta
     }
 
-    // Stale cache recovery
-    if (cached) return JSON.parse(cached).venta
+    // Stale cache (cualquier valor guardado, aunque vencido)
+    if (cached?.venta) return cached.venta
 
-    return null
+    // Fallback estático — se actualiza en cuanto una API responda
+    return 1300
   } catch {
     try {
-      const cached = localStorage.getItem(CACHE_KEY)
-      if (cached) return JSON.parse(cached).venta
+      const raw = localStorage.getItem(CACHE_KEY)
+      if (raw) return JSON.parse(raw).venta
     } catch { /* nada */ }
-    return null
+    return 1300
   }
 }

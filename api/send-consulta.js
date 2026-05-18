@@ -73,8 +73,12 @@ export default async function handler(req, res) {
       sellerEmail = auto.concesionarias.email
     } else if (auto.user_id) {
       const userRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${auto.user_id}`, { headers: sbHeaders })
-      const userData = await userRes.json()
-      sellerEmail = userData.email
+      if (!userRes.ok) {
+        console.error(`send-consulta: failed to fetch user ${auto.user_id}: ${userRes.status}`)
+      } else {
+        const userData = await userRes.json()
+        sellerEmail = userData.email
+      }
     }
 
     if (!sellerEmail) return res.status(200).json({ sent: false, reason: 'no-seller-email' })

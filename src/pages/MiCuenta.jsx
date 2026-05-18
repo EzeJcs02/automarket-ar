@@ -330,7 +330,7 @@ export default function MiCuenta() {
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Historial de pagos</div>
               <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
                 {pagos.map((p, i) => {
-                  const LABELS = { subir_tope: 'Subir al tope', destacado_individual: 'Destacado', urgente_individual: 'Urgente', renovar: 'Renovar 30 días', destacado: 'Destacado', urgente: 'Urgente', fijado_home: 'Fijado en Home' }
+                  const LABELS = { subir_tope: 'Subir al tope', destacado_individual: 'Destacado individual', urgente_individual: 'Urgente individual', renovar: 'Renovar 30 días', destacado: 'Destacado', urgente: 'Urgente', fijado_home: 'Fijado en Home', banner_home: 'Banner en Home', pack_destacados_10: 'Pack 10 destacados', publicidad_lateral: 'Publicidad lateral', plan_profesional_base: 'Plan Profesional Base', plan_profesional_destacado: 'Plan Profesional Destacado' }
                   return (
                     <div key={p.id || i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: i < pagos.length - 1 ? '1px solid var(--gray2)' : 'none', flexWrap: 'wrap', gap: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

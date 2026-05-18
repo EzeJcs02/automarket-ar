@@ -55,8 +55,8 @@ const PRECIOS_ESPERADOS = {
   destacado: 15000,
   urgente: 20000,
   renovar: 10000,
-  destacado_individual: 12000,
-  urgente_individual: 12000,
+  destacado_individual: 15000,
+  urgente_individual: 20000,
   pack_destacados_10: 95000,
   banner_home: 50000,
   fijado_home: 25000,
@@ -111,10 +111,13 @@ export default async function handler(req, res) {
     } = payment.metadata || {}
 
     // 🚨 VALIDACIÓN CRÍTICA CONTRA MANIPULACIÓN DE PRECIOS
-    // Compara el monto pagado con el precio esperado en tu sistema.
-    const precioEsperado = PRECIOS_ESPERADOS[tipo] || 0
-    if (precioEsperado > 0 && payment.transaction_amount < precioEsperado) {
-      console.error(`🚨 ALERTA FRAUDE: Monto insuficiente. Pagó ${payment.transaction_amount} por ${tipo}`);
+    const precioEsperado = PRECIOS_ESPERADOS[tipo]
+    if (precioEsperado === undefined) {
+      console.error(`🚨 ALERTA: Tipo de pago desconocido "${tipo}"`)
+      return res.status(200).json({ error: 'Tipo de pago no reconocido' })
+    }
+    if (payment.transaction_amount < precioEsperado) {
+      console.error(`🚨 ALERTA FRAUDE: Monto insuficiente. Pagó ${payment.transaction_amount} por ${tipo}`)
       return res.status(200).json({ error: 'Monto insuficiente para el servicio' })
     }
 

@@ -34,6 +34,7 @@ export default async function handler(req, res) {
     destacado_individual: { monto: 15000,  titulo: 'Destacado Individual – FIORA MARKET' },
     urgente_individual:   { monto: 20000,  titulo: 'Urgente Individual – FIORA MARKET' },
     renovar:              { monto: 10000,  titulo: 'Renovar publicación – FIORA MARKET' },
+    pack_destacados_10:         { monto: 95000,  titulo: 'Pack 10 Destacados – FIORA MARKET' },
     publicidad_lateral:         { monto: 15000,  titulo: 'Espacio Publicitario Lateral – FIORA MARKET' },
     plan_profesional_base:      { monto: 10000,  titulo: 'Plan Profesional Base – FIORA MARKET' },
     plan_profesional_destacado: { monto: 20000,  titulo: 'Plan Profesional Destacado – FIORA MARKET' },

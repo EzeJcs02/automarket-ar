@@ -174,9 +174,7 @@ export default async function handler(req, res) {
       fijado_home: { fijado_home: true },
       destacado_individual: { destacado: true, urgente: false, destacado_expira_at: in30days },
       urgente_individual: { urgente: true, destacado: false, urgente_expira_at: in30days },
-      urgente_agencia: { urgente: true, destacado: false, urgente_expira_at: in30days },
       subir_tope: { created_at: new Date().toISOString() },
-      subir_tope_agencia: { created_at: new Date().toISOString() },
       renovar: { created_at: new Date().toISOString() },
     }
 
@@ -205,14 +203,6 @@ export default async function handler(req, res) {
         method: 'POST',
         headers,
         body: JSON.stringify({ p_concesionaria_id: concesionaria_id, cantidad: 10 }),
-      })
-    }
-
-    if (tipo === 'vehiculo_extra' && concesionaria_id) {
-      await safeFetch(`${supabaseUrl}/rest/v1/rpc/incrementar_limite_vehiculos`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ p_concesionaria_id: concesionaria_id, cantidad: 1 }),
       })
     }
 

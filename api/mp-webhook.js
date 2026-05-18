@@ -51,10 +51,6 @@ async function safeFetch(url, options) {
 
 // 🔒 DICCIONARIO DE PRECIOS MÍNIMOS ESPERADOS (Ejemplo)
 const PRECIOS_ESPERADOS = {
-  plan_basico: 30000,
-  plan_pro: 70000,
-  plan_premium: 150000,
-  publicacion_adicional: 15000,
   subir_tope: 10000,
   destacado: 15000,
   urgente: 20000,
@@ -62,10 +58,10 @@ const PRECIOS_ESPERADOS = {
   destacado_individual: 12000,
   urgente_individual: 12000,
   pack_destacados_10: 95000,
-  banner_home: 120000,
-  fijado_home: 80000,
+  banner_home: 50000,
+  fijado_home: 25000,
   plan_profesional_base: 10000,
-  plan_profesional_destacado: 30000,
+  plan_profesional_destacado: 20000,
 }
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
@@ -179,7 +175,6 @@ export default async function handler(req, res) {
       subir_tope: { created_at: new Date().toISOString() },
       subir_tope_agencia: { created_at: new Date().toISOString() },
       renovar: { created_at: new Date().toISOString() },
-      publicacion_adicional: { activo: true }, // Activa un auto pendiente de pago
     }
 
     if (patchMap[tipo] && auto_id) {
@@ -197,21 +192,6 @@ export default async function handler(req, res) {
           method: 'PATCH',
           headers,
           body: JSON.stringify({ banner_activo: true }),
-        }
-      )
-    }
-
-    if (
-      ['plan_basico', 'plan_pro', 'plan_premium'].includes(tipo) &&
-      concesionaria_id
-    ) {
-      const plan = tipo.replace('plan_', '')
-      await safeFetch(
-        `${supabaseUrl}/rest/v1/concesionarias?id=eq.${encodeURIComponent(concesionaria_id)}`,
-        {
-          method: 'PATCH',
-          headers,
-          body: JSON.stringify({ plan }),
         }
       )
     }

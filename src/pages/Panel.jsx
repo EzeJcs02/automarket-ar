@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
-const LIMITES_PLAN = { free: 1, basico: 8, pro: 20, premium: 50 }
+const LIMITES_PLAN = { free: Infinity, basico: Infinity, pro: Infinity, premium: Infinity }
 
 async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
   try {
@@ -129,10 +129,6 @@ export default function Panel() {
               <div style={{ fontSize: '9px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Activos</div>
             </div>
             <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '8px 10px', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)', lineHeight: 1 }}>{limitePlan}</div>
-              <div style={{ fontSize: '9px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Límite</div>
-            </div>
-            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '8px 10px', textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: noLeidas > 0 ? 'var(--accent)' : 'var(--white)', lineHeight: 1 }}>{noLeidas}</div>
               <div style={{ fontSize: '9px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sin leer</div>
             </div>
@@ -173,77 +169,14 @@ export default function Panel() {
   )
 }
 
-function UpgradeModal({ onClose }) {
-  const { user, concesionaria } = useAuth()
-  const [paying, setPaying] = useState(null)
-  const { toast } = useToast()
-  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
-
-  const planes = [
-    { id: 'basico', nombre: 'BÁSICO', precio: '30.000', limite: '8 publicaciones', color: '#4ade80' },
-    { id: 'pro', nombre: 'PRO', precio: '70.000', limite: '20 publicaciones + 3 destacados', color: '#e0a020' },
-    { id: 'premium', nombre: 'PREMIUM', precio: '150.000', limite: '50 autos + Badge verificada', color: 'var(--accent)' },
-  ]
-
-  async function contratar(plan_id) {
-    setPaying(plan_id)
-    await pay(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
-    setPaying(null)
-  }
-
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
-      <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '680px', border: '1px solid var(--gray2)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>LÍMITE ALCANZADO</div>
-            <div style={{ fontSize: '14px', color: 'var(--gray4)' }}>Elegí un plan para seguir publicando.</div>
-          </div>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '22px', cursor: 'pointer' }}>✕</button>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-          {planes.map(p => (
-            <div key={p.id} style={{ background: 'var(--black)', border: `1px solid ${p.id === 'premium' ? 'rgba(230,51,41,.4)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: p.color }}>{p.nombre}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: 'var(--white)' }}>${p.precio}<span style={{ fontSize: '12px', color: 'var(--gray4)', marginLeft: '4px' }}>/mes</span></div>
-              <div style={{ fontSize: '12px', color: 'var(--gray4)', flex: 1 }}>{p.limite}</div>
-              <button onClick={() => contratar(p.id)} disabled={!!paying}
-                style={{ padding: '9px', borderRadius: 'var(--radius)', border: 'none', background: p.color, color: p.id === 'basico' ? '#000' : '#fff', fontSize: '12px', fontWeight: 700, cursor: paying ? 'wait' : 'pointer', opacity: paying ? .7 : 1 }}>
-                {paying === p.id ? 'Procesando...' : 'Contratar con MP →'}
-              </button>
-            </div>
-          ))}
-        </div>
-        <button className="btn-secondary" style={{ width: '100%' }} onClick={onClose}>Cerrar</button>
-      </div>
-    </div>
-  )
-}
 
 function Dashboard({ autos, consultas, pagos, concesionaria }) {
-  const { user } = useAuth()
   const [consultaDetalle, setConsultaDetalle] = useState(null)
-  const [showUpgrade, setShowUpgrade] = useState(false)
-  const [paying, setPaying] = useState(null)
-  const { toast } = useToast()
-  const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
-
-  const ultimoPagoPlan = pagos?.filter(p => p.tipo?.startsWith('plan_') && p.estado === 'approved')
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
-  const planExpira = ultimoPagoPlan ? new Date(new Date(ultimoPagoPlan.created_at).getTime() + 30 * 86400000) : null
-  const diasRestantes = planExpira ? Math.ceil((planExpira - new Date()) / 86400000) : null
   // eslint-disable-next-line react-hooks/purity
   const sevenDaysAgo = useMemo(() => new Date(Date.now() - 7 * 86400000), [])
 
-  async function contratarPlan(plan_id) {
-    setPaying(plan_id)
-    await pay(`plan_${plan_id}`, { concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
-    setPaying(null)
-  }
-
   return (
     <div>
-      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {consultaDetalle && (
         <div onClick={() => setConsultaDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
@@ -291,66 +224,17 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
         </div>
       </div>
 
-      {/* BANNER PLAN */}
-      <div style={{ borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem', marginBottom: '2rem', border: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-          <div>
-            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '4px' }}>Tu plan actual</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: concesionaria?.plan === 'premium' ? 'var(--accent)' : concesionaria?.plan === 'pro' ? '#e0a020' : concesionaria?.plan === 'basico' ? '#4ade80' : 'var(--gray4)' }}>
-              {(concesionaria?.plan || 'free').toUpperCase()}
-              {concesionaria?.plan === 'premium' && <span style={{ fontSize: '14px', marginLeft: '8px' }}>★</span>}
-            </div>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>
-              {autos.filter(a => a.activo).length} autos activos
-              {LIMITES_PLAN[concesionaria?.plan || 'free'] !== Infinity && ` / ${LIMITES_PLAN[concesionaria?.plan || 'free']} permitidos`}
-              {LIMITES_PLAN[concesionaria?.plan || 'free'] === Infinity && ' · Sin límite'}
-            </div>
-            {planExpira && (
-              <div style={{ fontSize: '12px', marginTop: '6px', color: diasRestantes !== null && diasRestantes <= 7 ? '#e0a020' : 'var(--gray4)' }}>
-                {diasRestantes !== null && diasRestantes > 0
-                  ? `Vence en ${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} · ${planExpira.toLocaleDateString('es-AR')}`
-                  : <span style={{ color: 'var(--accent)', fontWeight: 700 }}>Plan vencido · Renovar para mantener beneficios</span>
-                }
-              </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {planExpira && diasRestantes !== null && diasRestantes <= 7 && (
-              <button onClick={() => contratarPlan(concesionaria?.plan)} disabled={!!paying}
-                style={{ background: diasRestantes <= 0 ? 'var(--accent)' : 'rgba(224,160,32,.2)', border: `1px solid ${diasRestantes <= 0 ? 'var(--accent)' : '#e0a020'}`, color: diasRestantes <= 0 ? 'var(--white)' : '#e0a020', padding: '10px 18px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: paying ? 'wait' : 'pointer', opacity: paying ? .7 : 1 }}>
-                {paying === concesionaria?.plan ? 'Procesando...' : 'Renovar plan →'}
-              </button>
-            )}
-            {concesionaria?.plan !== 'premium' && (
-              <button onClick={() => setShowUpgrade(true)} style={{ background: 'var(--accent)', border: 'none', color: 'var(--white)', padding: '10px 20px', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
-                Mejorar plan →
-              </button>
-            )}
-          </div>
+      {/* BANNER INFO */}
+      <div style={{ borderRadius: 'var(--radius-lg)', padding: '1.25rem 2rem', marginBottom: '2rem', border: '1px solid var(--gray2)', background: 'var(--gray1)', display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '4px' }}>Agencia</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)' }}>{concesionaria?.nombre}</div>
         </div>
-        {/* PLANES DISPONIBLES */}
-        {concesionaria?.plan !== 'premium' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', paddingTop: '1.25rem', borderTop: '1px solid var(--gray2)' }}>
-            {[
-              { id: 'basico', nombre: 'BÁSICO', precio: '$30.000', limite: '8 publicaciones', color: '#4ade80', colorDim: 'rgba(74,222,128,.15)' },
-              { id: 'pro', nombre: 'PRO', precio: '$70.000', limite: '20 autos + 3 destacados/mes', color: '#e0a020', colorDim: 'rgba(224,160,32,.15)' },
-              { id: 'premium', nombre: 'PREMIUM', precio: '$150.000', limite: '50 autos + Verificada', color: '#e63329', colorDim: 'rgba(230,51,41,.15)' },
-            ].filter(p => {
-              const orden = { free: 0, basico: 1, pro: 2, premium: 3 }
-              return orden[p.id] > orden[concesionaria?.plan || 'free']
-            }).map(p => (
-              <button key={p.id} onClick={() => contratarPlan(p.id)} disabled={!!paying}
-                style={{ background: 'var(--black)', border: `1px solid ${p.colorDim}`, borderRadius: 'var(--radius)', padding: '12px', textAlign: 'left', cursor: paying ? 'wait' : 'pointer', transition: 'border-color .2s, background .2s', opacity: paying ? .7 : 1 }}
-                onMouseEnter={e => { if (!paying) { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.background = p.colorDim } }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = p.colorDim; e.currentTarget.style.background = 'var(--black)' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: p.color, marginBottom: '4px' }}>{p.nombre}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--white)', marginBottom: '2px' }}>{p.precio}<span style={{ fontSize: '10px', color: 'var(--gray4)', marginLeft: '3px' }}>/mes</span></div>
-                <div style={{ fontSize: '11px', color: 'var(--gray4)' }}>{paying === p.id ? 'Procesando...' : p.limite}</div>
-                <div style={{ fontSize: '10px', color: p.color, marginTop: '6px', fontWeight: 700, letterSpacing: '.05em' }}>Contratar con MP →</div>
-              </button>
-            ))}
-          </div>
-        )}
+        <div style={{ height: '40px', width: '1px', background: 'var(--gray2)' }} />
+        <div>
+          <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '4px' }}>Publicaciones activas</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: 'var(--white)' }}>{autos.filter(a => a.activo).length}</div>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
@@ -661,12 +545,11 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   )
 }
 
-function NuevoAuto({ concesionaria, limiteAlcanzado, onSuccess }) {
+function NuevoAuto({ concesionaria, onSuccess }) {
   const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [showUpgrade, setShowUpgrade] = useState(false)
 
   function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
 
@@ -686,7 +569,6 @@ function NuevoAuto({ concesionaria, limiteAlcanzado, onSuccess }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (limiteAlcanzado) { setShowUpgrade(true); return }
     if (fotos.length < 5) { setError('Debés subir mínimo 5 fotos.'); return }
     setLoading(true)
     setError('')
@@ -713,24 +595,10 @@ function NuevoAuto({ concesionaria, limiteAlcanzado, onSuccess }) {
     else onSuccess()
   }
 
-  if (showUpgrade) return <UpgradeModal onClose={() => setShowUpgrade(false)} />
-
   return (
     <div style={{ maxWidth: '800px' }}>
       <div className="panel-page-title">Alta de Stock</div>
       <div className="panel-page-sub">Ingresá las especificaciones del nuevo vehículo.</div>
-
-      {limiteAlcanzado && (
-        <div className="plan-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1.5rem' }}>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gold)' }}>Límite del plan alcanzado</div>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>Tu plan actual tiene un límite de publicaciones. Upgradéalo para publicar más.</div>
-          </div>
-          <button onClick={() => setShowUpgrade(true)} className="btn-primary" style={{ background: 'var(--gold)', color: '#000', boxShadow: 'none' }}>
-            Mejorar plan →
-          </button>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
         <div style={{ background: 'linear-gradient(135deg, #141414 0%, #0f0f0f 100%)', padding: '2.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -797,7 +665,7 @@ function NuevoAuto({ concesionaria, limiteAlcanzado, onSuccess }) {
           {error && <div style={{ padding: '1rem', background: 'rgba(230,51,41,0.1)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius)', marginTop: '1rem' }}>{error}</div>}
 
           <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="submit" className="btn-primary" disabled={loading || limiteAlcanzado}>{loading ? 'PROCESANDO...' : 'PUBLICAR EN CATÁLOGO'}</button>
+            <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'PROCESANDO...' : 'PUBLICAR EN CATÁLOGO'}</button>
           </div>
         </div>
       </form>

@@ -241,8 +241,7 @@ export default function MiCuenta() {
           ) : (
             <>
               {(() => {
-                const adicionales = pagos.filter(p => p.tipo === 'publicacion_adicional' && p.estado === 'approved').length
-                const limite = 1 + adicionales
+                const limite = 4
                 const puedePublicar = misAutos.length < limite
                 return (
                   <>
@@ -250,7 +249,7 @@ export default function MiCuenta() {
                       <div>
                         <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginBottom: '4px' }}>MIS PUBLICACIONES</div>
                         <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>
-                          {limite === 1 ? 'Plan gratuito: 1 publicación activa por 30 días.' : `Tenés ${limite} publicaciones disponibles (${adicionales} adicional${adicionales > 1 ? 'es' : ''} paga${adicionales > 1 ? 's' : ''}).`}
+                          Plan gratuito: hasta 4 publicaciones activas por 30 días.
                         </div>
                       </div>
                       {puedePublicar && (
@@ -258,26 +257,11 @@ export default function MiCuenta() {
                       )}
                     </div>
                     {!puedePublicar && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(224,160,32,.08)', border: '1px solid rgba(224,160,32,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                        <div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#e0a020', marginBottom: '2px' }}>Límite del plan gratuito alcanzado</div>
-                          <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>Para publicar otro vehículo pagás $15.000 por 30 días.</div>
-                        </div>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const { data: { session: _sess } } = await supabase.auth.getSession()
-                        const res = await fetch('/api/mp-create-preference', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_sess?.access_token}` }, body: JSON.stringify({ tipo: 'publicacion_adicional', user_id: user.id, user_email: user.email, origen: 'mi-cuenta' }) })
-                        const data = await res.json()
-                        if (data.init_point) window.location.href = data.init_point
-                        else toast('Error al iniciar el pago.', 'error')
-                      } catch { toast('Error de conexión.', 'error') }
-                    }}
-                    style={{ padding: '9px 20px', borderRadius: 'var(--radius)', border: '1px solid #e0a020', background: 'transparent', color: '#e0a020', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    Agregar publicación — $15.000 →
-                  </button>
-                </div>
-              )}
+                      <div style={{ background: 'rgba(224,160,32,.08)', border: '1px solid rgba(224,160,32,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#e0a020', marginBottom: '2px' }}>Límite alcanzado</div>
+                        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>El plan gratuito permite hasta 4 publicaciones activas. Eliminá una para poder publicar otra.</div>
+                      </div>
+                    )}
                   </>
                 )
               })()}
@@ -622,7 +606,6 @@ function ExtrasConMP({ user, autoId }) {
   }
 
   const extras = [
-    { id: 'publicacion_adicional', nombre: 'Publicación adicional', precio: '$15.000', desc: 'A partir de la 1ra (gratis). Por 30 días.' },
     { id: 'subir_tope', nombre: 'Subir al tope', precio: '$10.000', desc: 'Tu publicación vuelve al primer lugar.' },
     { id: 'destacado_individual', nombre: 'Destacado', precio: '$15.000', desc: 'Fondo diferenciado y badge en el catálogo.' },
     { id: 'urgente_individual', nombre: 'Urgente', precio: '$20.000', desc: 'Badge rojo "URGENTE", máxima visibilidad.' },

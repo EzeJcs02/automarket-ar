@@ -49,13 +49,16 @@ export default async function handler(req, res) {
 
       case 'aprobar':
         await supabase.from('concesionarias').update({ aprobada: true }).eq('id', params.id)
+        await supabase.from('autos').update({ activo: true }).eq('concesionaria_id', params.id)
         break
 
       case 'rechazar':
+        await supabase.from('autos').delete().eq('concesionaria_id', params.id)
         await supabase.from('concesionarias').delete().eq('id', params.id)
         break
 
       case 'suspender':
+        await supabase.from('autos').update({ activo: false }).eq('concesionaria_id', params.id)
         await supabase.from('concesionarias').update({ aprobada: false }).eq('id', params.id)
         break
 

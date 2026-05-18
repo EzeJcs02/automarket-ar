@@ -5,8 +5,6 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
-const LIMITES_PLAN = { free: Infinity, basico: Infinity, pro: Infinity, premium: Infinity }
-
 async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
   try {
     const { data: { session } } = await supabase.auth.getSession()
@@ -76,11 +74,7 @@ export default function Panel() {
   if (!concesionaria) return null
 
   const plan = concesionaria?.plan || 'free'
-  const esPremium = plan === 'premium'
-  const limitePlan = LIMITES_PLAN[plan] ?? 1
   const autosActivos = autos.filter(a => a.activo).length
-  const limiteAlcanzado = autosActivos >= limitePlan
-
   const noLeidas = consultas.filter(c => !c.leido).length
 
   const NAV_ICONS = {
@@ -156,9 +150,9 @@ export default function Panel() {
       <div className="panel-content">
         {loading ? <div className="spinner" /> : (
           <>
-            {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} setTab={setTab} />}
+            {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} setTab={setTab} />}
             {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} concesionaria={concesionaria} />}
-            {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} esPremium={esPremium} limiteAlcanzado={limiteAlcanzado} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
+            {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
             {tab === 'consultas' && <Consultas consultas={consultas} reload={loadData} />}
             {tab === 'pagos' && <MisPagos pagos={pagos} />}
             {tab === 'perfil' && <Perfil concesionaria={concesionaria} onSave={() => fetchConcesionaria(user.id)} />}

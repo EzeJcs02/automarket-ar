@@ -589,7 +589,7 @@ function ExtrasConMP({ user, autoId }) {
   const { toast } = useToast()
 
   async function pagar(tipo) {
-    if (!autoId && tipo !== 'publicacion_adicional') { toast('Necesitás tener una publicación activa para usar este boost.', 'warning'); return }
+    if (!autoId) { toast('Necesitás tener una publicación activa para usar este boost.', 'warning'); return }
     setPaying(tipo)
     try {
       const { data: { session } } = await supabase.auth.getSession()

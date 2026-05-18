@@ -62,6 +62,7 @@ const PRECIOS_ESPERADOS = {
   fijado_home: 25000,
   plan_profesional_base: 10000,
   plan_profesional_destacado: 20000,
+  publicidad_lateral: 15000,
 }
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()

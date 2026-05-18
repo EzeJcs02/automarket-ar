@@ -5,6 +5,33 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { setPageMeta } from '../lib/seo'
 
+const BOOSTS = [
+  {
+    nombre: 'Destacado individual',
+    precio: '12.000',
+    desc: 'Destacá un vehículo en particular por 30 días con fondo diferenciado.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  },
+  {
+    nombre: 'Pack 10 destacados',
+    precio: '95.000',
+    desc: 'Destacá hasta 10 vehículos. Ahorrás $25.000 vs precio unitario.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>,
+  },
+  {
+    nombre: 'Urgente',
+    precio: '20.000',
+    desc: 'Máxima visibilidad. Badge rojo "URGENTE" en tu publicación.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  },
+  {
+    nombre: 'Subir al tope',
+    precio: '10.000',
+    desc: 'Tu publicación vuelve al primer lugar dentro de su categoría.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>,
+  },
+]
+
 const PUBLICIDAD = [
   {
     nombre: 'Banner en Home',
@@ -75,6 +102,11 @@ export default function Planes() {
     else navigate('/login')
   }
 
+  function handleBoost() {
+    if (user) navigate('/mi-cuenta')
+    else navigate('/login')
+  }
+
   function handleExtrasIndividual() {
     if (user) navigate('/mi-cuenta')
     else navigate('/login')
@@ -123,7 +155,7 @@ export default function Planes() {
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: '#4ade80', marginBottom: '.75rem' }}>BASE</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '48px', color: '#4ade80', lineHeight: 1, marginBottom: '1.5rem' }}>GRATIS</div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {['1 publicación activa por 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias', 'Guardado de favoritos'].map(b => (
+              {['Hasta 4 publicaciones activas por 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias', 'Guardado de favoritos'].map(b => (
                 <li key={b} style={{ fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <CheckIcon /> {b}
                 </li>
@@ -242,6 +274,30 @@ export default function Planes() {
         </div>
       </div>
 
+      {/* BOOSTS */}
+      <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Complementos</div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,4vw,48px)', lineHeight: 1, marginBottom: '.75rem' }}>DESTACADOS Y BOOSTS</h2>
+        <p style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '3rem', lineHeight: 1.7 }}>Aumentá la visibilidad de tus publicaciones más allá de tu plan.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
+          {BOOSTS.map(b => (
+            <div key={b.nombre} className="boost-card" style={{ background: 'var(--black)', padding: '2rem' }}>
+              <div style={{ color: 'var(--accent)', marginBottom: '1.25rem' }}>{b.icon}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--white)', marginBottom: '6px' }}>{b.nombre}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '30px', color: 'var(--accent)', marginBottom: '1rem', lineHeight: 1 }}>${b.precio}</div>
+              <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '1.5rem' }}>{b.desc}</div>
+              <button
+                onClick={handleBoost}
+                style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--gray4)', padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: '12px', cursor: 'pointer', transition: 'all .2s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}>
+                {user ? 'Ir a Mi Cuenta →' : 'Iniciar sesión →'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* PUBLICIDAD */}
       <div className="planes-section" style={{ borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Publicidad</div>
@@ -325,6 +381,13 @@ export default function Planes() {
           .plan-card-prof-dest:hover {
             box-shadow: 0 24px 64px rgba(201,168,76,.28) !important;
             border-color: rgba(201,168,76,.9) !important;
+          }
+          .boost-card {
+            transition: background 0.2s ease, transform 0.2s ease;
+          }
+          .boost-card:hover {
+            background: #111 !important;
+            transform: translateY(-4px);
           }
           .pub-card:hover {
             box-shadow: 0 16px 48px rgba(230,51,41,.18) !important;

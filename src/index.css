@@ -398,7 +398,10 @@ input, select, textarea { font-family: var(--font-body); }
 .autodetalle-layout {
   display: grid;
   grid-template-columns: 1fr 420px;
+  min-width: 0;
 }
+.autodetalle-photos { min-width: 0; }
+.autodetalle-sidebar { min-width: 0; }
 
 /* AutoDetalle — stacks on mobile */
 @media (max-width: 900px) {

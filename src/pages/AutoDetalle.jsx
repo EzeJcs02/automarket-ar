@@ -237,7 +237,7 @@ export default function AutoDetalle() {
 
           {/* MINIATURAS */}
           {fotos.length > 1 && (
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
               {fotos.map((f, i) => (
                 <div key={i} onClick={() => setFotoIdx(i)}
                   style={{ width: '90px', height: '65px', borderRadius: 'var(--radius)', overflow: 'hidden', border: `2px solid ${i === fotoIdx ? 'var(--accent)' : 'transparent'}`, cursor: 'pointer', opacity: i === fotoIdx ? 1 : 0.6, transition: 'all .2s' }}

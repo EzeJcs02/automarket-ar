@@ -306,7 +306,7 @@ export default function AutoDetalle() {
               </button>
             )}
           </div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 4vw, 52px)', lineHeight: 1.1, marginBottom: '1.5rem', wordBreak: 'break-word' }}>{auto.modelo.toUpperCase()}</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 42px)', lineHeight: 1.1, marginBottom: '1.5rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{auto.modelo.toUpperCase()}</div>
 
           {/* PUBLICADO POR */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '12px 14px', marginBottom: '1.5rem' }}>

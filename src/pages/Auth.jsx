@@ -3,35 +3,58 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
-function GoogleBtn({ onClick, label = 'Continuar con Google' }) {
+function SocialButtons({ onGoogle, onFacebook, onApple }) {
+  const btnStyle = {
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+    background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)',
+    padding: '11px 0', fontSize: '13px', color: 'var(--white)', cursor: 'pointer',
+    fontFamily: 'var(--font-body)', transition: 'border-color .2s, background .2s',
+  }
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '1.25rem 0' }}>
         <div style={{ flex: 1, height: '1px', background: 'var(--gray2)' }} />
-        <span style={{ fontSize: '12px', color: 'var(--gray4)', whiteSpace: 'nowrap' }}>o</span>
+        <span style={{ fontSize: '12px', color: 'var(--gray4)', whiteSpace: 'nowrap' }}>o continuá con</span>
         <div style={{ flex: 1, height: '1px', background: 'var(--gray2)' }} />
       </div>
-      <button
-        type="button"
-        onClick={onClick}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', padding: '11px 20px', fontSize: '14px', color: 'var(--white)', cursor: 'pointer', fontFamily: 'var(--font-body)', transition: 'border-color .2s' }}
-        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gray3)'}
-        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray2)'}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        {label}
-      </button>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        {/* Google */}
+        <button type="button" onClick={onGoogle} style={btnStyle}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.background = '#111' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--gray1)' }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Google
+        </button>
+        {/* Facebook */}
+        <button type="button" onClick={onFacebook} style={btnStyle}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#1877f2'; e.currentTarget.style.background = '#111' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--gray1)' }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+          </svg>
+          Facebook
+        </button>
+        {/* Apple */}
+        <button type="button" onClick={onApple} style={btnStyle}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.background = '#111' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--gray1)' }}>
+          <svg width="16" height="16" viewBox="0 0 814 1000" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46.7 790 0 686.5 0 587.7 0 400.2 119.7 301.7 236.8 301.7c61.6 0 113 39.5 152 39.5 37.5 0 96.5-41.8 165.5-41.8 26.8 0 108.2 2.6 174.3 78.9zm-180.7-122.6c27.4-33.1 47.1-78.9 47.1-124.7 0-6.4-.6-12.8-1.9-18.5-44.5 1.9-97.6 29.4-128.8 66.9-22.4 26.2-45.9 71.3-45.9 118.5 0 7.1 1.3 14.2 1.9 16.4 2.6.6 6.4 1.3 10.3 1.3 40.2 0 90.3-26.2 117.3-59.9z"/>
+          </svg>
+          Apple
+        </button>
+      </div>
     </>
   )
 }
 
 export function Login() {
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn, signInWithOAuth } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [pass, setPass] = useState('')
@@ -113,7 +136,11 @@ export function Login() {
               {loading ? 'Ingresando...' : 'Ingresar al panel'}
             </button>
           </form>
-          <GoogleBtn onClick={() => signInWithGoogle()} label="Ingresar con Google" />
+          <SocialButtons
+            onGoogle={() => signInWithOAuth('google')}
+            onFacebook={() => signInWithOAuth('facebook')}
+            onApple={() => signInWithOAuth('apple')}
+          />
 
           <p style={{ fontSize: '13px', color: 'var(--gray4)', textAlign: 'center', marginTop: '1.25rem', marginBottom: '8px' }}>
             ¿No tenés cuenta?{' '}
@@ -181,7 +208,7 @@ const CATEGORIAS_PROF = [
 ]
 
 export function Registro() {
-  const { signUp, signUpUsuario, signUpProfesional, signInWithGoogle } = useAuth()
+  const { signUp, signUpUsuario, signUpProfesional, signInWithOAuth } = useAuth()
   const [tipo, setTipo] = useState('') // '' | 'concesionaria' | 'particular' | 'profesional'
   const [paso, setPaso] = useState(1)
   const [form, setForm] = useState({ nombre: '', responsable: '', telefono: '', ciudad: '', email: '', pass: '' })
@@ -420,7 +447,11 @@ export function Registro() {
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
           </form>
-          <GoogleBtn onClick={() => signInWithGoogle()} label="Registrarse con Google" />
+          <SocialButtons
+            onGoogle={() => signInWithOAuth('google')}
+            onFacebook={() => signInWithOAuth('facebook')}
+            onApple={() => signInWithOAuth('apple')}
+          />
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '1.25rem' }}>
             <button onClick={() => setTipo('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', fontSize: '12px', cursor: 'pointer' }}>← Volver</button>
             <span style={{ color: 'var(--gray3)', fontSize: '12px' }}>·</span>

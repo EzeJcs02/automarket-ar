@@ -306,7 +306,36 @@ export default function AutoDetalle() {
               </button>
             )}
           </div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', lineHeight: 1, marginBottom: '1rem' }}>{auto.modelo.toUpperCase()}</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '52px', lineHeight: 1, marginBottom: '1.5rem' }}>{auto.modelo.toUpperCase()}</div>
+
+          {/* PUBLICADO POR */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '12px 14px', marginBottom: '1.5rem' }}>
+            {c ? (
+              <>
+                {c.logo
+                  ? <img src={c.logo} alt={c.nombre} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid var(--gray3)' }} />
+                  : <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gray2)', border: '1px solid var(--gray3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--accent)' }}>
+                      {c.nombre?.[0]?.toUpperCase() || 'C'}
+                    </div>
+                }
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '2px' }}>Publicado por</div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--white)' }}>{c.nombre}</div>
+                  {c.ciudad && <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{c.ciudad}</div>}
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gray2)', border: '1px solid var(--gray3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '2px' }}>Publicado por</div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--white)' }}>Particular</div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* COMPARTIR */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>

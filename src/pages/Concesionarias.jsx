@@ -132,68 +132,85 @@ export function Concesionarias() {
 function ConcCard({ c, i, navigate, featured = false }) {
   const badge = PLAN_BADGE[c.plan]
   const autoCount = c.autos?.[0]?.count ?? 0
+  const accentColor = COLORS[i % COLORS.length]
 
   return (
     <div
       onClick={() => navigate(`/concesionaria/${c.id}`)}
       style={{
-        background: featured ? 'rgba(230,51,41,.04)' : 'var(--gray1)',
-        border: `1px solid ${featured ? 'rgba(230,51,41,.2)' : 'var(--gray2)'}`,
+        background: 'var(--gray1)',
+        border: `1px solid ${featured ? 'rgba(230,51,41,.3)' : 'var(--gray2)'}`,
         borderRadius: 'var(--radius-lg)',
-        padding: '1.5rem',
         cursor: 'pointer',
-        transition: 'border-color .2s, background .2s, transform .15s',
+        transition: 'border-color .2s, transform .15s, box-shadow .2s',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem',
+        overflow: 'hidden',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.borderColor = featured ? 'rgba(230,51,41,.5)' : 'var(--gray3)'
-        e.currentTarget.style.background = featured ? 'rgba(230,51,41,.07)' : '#1e1e1e'
-        e.currentTarget.style.transform = 'translateY(-2px)'
+        e.currentTarget.style.borderColor = featured ? 'rgba(230,51,41,.6)' : 'var(--gray3)'
+        e.currentTarget.style.transform = 'translateY(-3px)'
+        e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,.5)'
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.borderColor = featured ? 'rgba(230,51,41,.2)' : 'var(--gray2)'
-        e.currentTarget.style.background = featured ? 'rgba(230,51,41,.04)' : 'var(--gray1)'
+        e.currentTarget.style.borderColor = featured ? 'rgba(230,51,41,.3)' : 'var(--gray2)'
         e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
       }}
     >
-      {/* FILA SUPERIOR: logo + nombre + badges */}
-      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-        <LogoConc c={c} i={i} size={56} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
-            <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {c.nombre}
-            </div>
-            {badge && (
-              <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 7px', borderRadius: '100px', background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, letterSpacing: '.1em', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>
-                {badge.label}
-              </span>
-            )}
+      {/* BANNER */}
+      <div style={{
+        height: '72px',
+        background: c.portada_url
+          ? `url(${c.portada_url}) center/cover`
+          : `linear-gradient(135deg, ${featured ? 'rgba(230,51,41,.25)' : accentColor + '22'} 0%, #0d0d0d 100%)`,
+        position: 'relative',
+        overflow: 'hidden',
+        flexShrink: 0,
+      }}>
+        <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: `radial-gradient(circle, ${featured ? 'rgba(230,51,41,.18)' : accentColor + '18'} 0%, transparent 70%)`, pointerEvents: 'none' }} />
+        {featured && (
+          <div style={{ position: 'absolute', top: '10px', right: '12px', fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '.12em', padding: '3px 9px', borderRadius: '2px', background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(4px)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,.45)' }}>
+            DESTACADA
           </div>
-          {c.ciudad && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--gray4)' }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              {c.ciudad}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* DESCRIPCION (si tiene) */}
-      {c.descripcion && (
-        <p style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-          {c.descripcion}
-        </p>
-      )}
+      {/* BODY */}
+      <div style={{ padding: '0 1.25rem 1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '-26px', marginBottom: '10px' }}>
+          <div style={{ padding: '3px', background: 'var(--gray1)', borderRadius: 'calc(var(--radius) + 4px)', border: '2px solid var(--gray1)', lineHeight: 0 }}>
+            <LogoConc c={c} i={i} size={50} />
+          </div>
+          {badge && (
+            <span style={{ fontSize: '9px', fontWeight: 800, padding: '3px 8px', borderRadius: '100px', background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, letterSpacing: '.1em', fontFamily: 'var(--font-mono)', marginBottom: '2px' }}>
+              {badge.label}
+            </span>
+          )}
+        </div>
 
-      {/* FILA INFERIOR: stats + CTA */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '.75rem', borderTop: '1px solid var(--gray2)', marginTop: 'auto' }}>
-        <div style={{ display: 'flex', gap: '1.25rem' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '17px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--white)' }}>{autoCount}</div>
-            <div style={{ fontSize: '10px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.08em' }}>Autos</div>
+        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {c.nombre}
+        </div>
+        {c.ciudad && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--gray4)' }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {c.ciudad}
+          </div>
+        )}
+        {c.descripcion && (
+          <p style={{ fontSize: '12px', color: 'var(--gray4)', lineHeight: 1.6, margin: '0.6rem 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {c.descripcion}
+          </p>
+        )}
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1.25rem', borderTop: '1px solid var(--gray2)' }}>
+        <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+          <div>
+            <span style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--white)' }}>{autoCount}</span>
+            <span style={{ fontSize: '11px', color: 'var(--gray4)', marginLeft: '5px', textTransform: 'uppercase', letterSpacing: '.06em' }}>autos</span>
           </div>
           {c.whatsapp && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#25D366' }}>

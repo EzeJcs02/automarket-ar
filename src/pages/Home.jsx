@@ -317,41 +317,50 @@ export default function Home() {
         </div>
         {concesionarias.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay concesionarias registradas.</p>
-          : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1rem' }}>
+          : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: '1rem' }}>
               {concesionarias.map((c, i) => {
                 const isPremium = c.plan === 'premium'
                 const isPro = c.plan === 'pro'
+                const cardColor = colors[i % colors.length]
                 return (
                   <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
                     className="dealer-card"
-                    style={{ background: 'var(--gray1)', border: `1px solid ${isPremium ? 'rgba(230,51,41,.25)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color .2s, transform .2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.5)' : 'var(--gray3)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.25)' : 'var(--gray2)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                    style={{ background: 'var(--gray1)', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color .2s, transform .15s, box-shadow .2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.6)' : 'var(--gray3)'; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,.5)' }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.3)' : 'var(--gray2)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
                   >
-                    {/* Banner superior */}
-                    <div style={{ height: '80px', background: `linear-gradient(135deg, ${colors[i % colors.length]}18 0%, #0a0a0a 100%)`, borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', padding: '0 1.5rem', gap: '1rem', position: 'relative' }}>
-                      <div style={{ width: '4px', position: 'absolute', left: 0, top: 0, bottom: 0, background: colors[i % colors.length], borderRadius: '0 2px 2px 0' }} />
-                      <LogoConcesionaria c={c} i={i} size={46} fontSize={22} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.nombre}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--gray4)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          {c.ciudad}
+                    {/* Banner */}
+                    <div style={{ height: '64px', background: c.portada_url ? `url(${c.portada_url}) center/cover` : `linear-gradient(135deg, ${isPremium ? 'rgba(230,51,41,.25)' : cardColor + '22'} 0%, #0d0d0d 100%)`, position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+                      <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '140px', height: '140px', borderRadius: '50%', background: `radial-gradient(circle, ${isPremium ? 'rgba(230,51,41,.18)' : cardColor + '18'} 0%, transparent 70%)`, pointerEvents: 'none' }} />
+                    </div>
+                    {/* Body */}
+                    <div style={{ padding: '0 1.25rem 1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '-22px', marginBottom: '8px' }}>
+                        <div style={{ padding: '2px', background: 'var(--gray1)', borderRadius: 'calc(var(--radius) + 3px)', border: '2px solid var(--gray1)', lineHeight: 0 }}>
+                          <LogoConcesionaria c={c} i={i} size={44} fontSize={20} />
                         </div>
+                        {(isPremium || isPro) && (
+                          <span style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '.12em', padding: '3px 8px', borderRadius: '100px', flexShrink: 0, marginBottom: '2px', background: isPremium ? 'rgba(230,51,41,.15)' : 'rgba(201,168,76,.15)', color: isPremium ? 'var(--accent)' : '#c9a84c', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'rgba(201,168,76,.3)'}` }}>
+                            {isPremium ? 'PREMIUM' : 'PRO'}
+                          </span>
+                        )}
                       </div>
-                      {(isPremium || isPro) && (
-                        <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '.12em', padding: '3px 8px', borderRadius: '2px', flexShrink: 0, background: isPremium ? 'rgba(230,51,41,.15)' : 'rgba(201,168,76,.15)', color: isPremium ? 'var(--accent)' : '#c9a84c', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'rgba(201,168,76,.3)'}` }}>
-                          {isPremium ? 'PREMIUM' : 'PRO'}
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '3px' }}>{c.nombre}</div>
+                      {c.ciudad && (
+                        <div style={{ fontSize: '11px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          {c.ciudad}
                         </div>
                       )}
                     </div>
                     {/* Footer */}
-                    <div style={{ padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>
-                        {c.destacada ? <span style={{ color: '#c9a84c', fontSize: '11px', fontFamily: 'var(--font-mono)', letterSpacing: '.08em' }}>✓ VERIFICADA</span> : <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.05em' }}>AGENCIA</span>}
+                    <div style={{ padding: '0.625rem 1.25rem', borderTop: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', letterSpacing: '.06em', color: c.destacada ? '#c9a84c' : 'var(--gray4)' }}>
+                        {c.destacada ? '✓ VERIFICADA' : 'AGENCIA'}
                       </div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        Ver stock <span style={{ fontSize: '14px' }}>→</span>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        Ver stock
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                       </div>
                     </div>
                   </div>

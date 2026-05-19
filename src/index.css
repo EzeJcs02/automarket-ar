@@ -398,6 +398,7 @@ input, select, textarea { font-family: var(--font-body); }
 .autodetalle-layout {
   display: grid;
   grid-template-columns: 1fr 380px;
+  overflow: hidden;
 }
 
 /* AutoDetalle — stacks on mobile */

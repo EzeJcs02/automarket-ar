@@ -621,7 +621,8 @@ function NuevoAuto({ concesionaria, onSuccess }) {
       kilometraje: parseInt(form.kilometraje) || 0,
       tipo: form.tipo, categoria: form.categoria || null, combustible: form.combustible, transmision: form.transmision,
       color: form.color, precio_ars: form.precio_ars || null, precio_usd: form.precio_usd || null,
-      descripcion: form.descripcion, fotos: fotoUrls, activo: true
+      descripcion: form.descripcion, fotos: fotoUrls, activo: true,
+      nombre_vendedor: concesionaria.nombre || null,
     })
     setLoading(false)
     if (insErr) setError(insErr.message)

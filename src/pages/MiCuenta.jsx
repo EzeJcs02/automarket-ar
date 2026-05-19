@@ -395,6 +395,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
       color: form.color, precio_ars: form.precio_ars || null,
       descripcion: form.descripcion, fotos: fotoUrls, activo: true,
       whatsapp: form.whatsapp || null,
+      nombre_vendedor: user.user_metadata?.nombre || null,
     })
     setLoading(false)
     if (insErr) setError(insErr.message)

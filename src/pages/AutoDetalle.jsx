@@ -331,7 +331,7 @@ export default function AutoDetalle() {
                 </div>
                 <div>
                   <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '2px' }}>Publicado por</div>
-                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--white)' }}>Particular</div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--white)' }}>{auto.nombre_vendedor || 'Particular'}</div>
                 </div>
               </>
             )}

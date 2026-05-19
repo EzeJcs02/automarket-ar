@@ -50,7 +50,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (rightAds.length <= 4) return
+    if (rightAds.length <= 1) return
     const t = setInterval(() => setRightIdx(i => (i + 1) % rightAds.length), 3500)
     return () => clearInterval(t)
   }, [rightAds.length])

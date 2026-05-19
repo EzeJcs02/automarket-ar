@@ -624,6 +624,8 @@ export default function Admin() {
               const profByUser = {}
               ;[...profesionalesPendientes, ...profesionalesActivos].forEach(p => { profByUser[p.user_id] = p })
               function getTipo(u) {
+                if (u.email === import.meta.env.VITE_ADMIN_EMAIL)
+                  return <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Admin</span>
                 const c = concByUser[u.id]
                 if (c) return c.aprobada
                   ? <span style={{ color: '#4ade80', fontWeight: 600 }}>Agencia</span>

@@ -53,6 +53,7 @@ export default async function handler(req, res) {
         break
 
       case 'rechazar':
+        await supabase.from('consultas').delete().eq('concesionaria_id', params.id)
         await supabase.from('autos').delete().eq('concesionaria_id', params.id)
         await supabase.from('concesionarias').delete().eq('id', params.id)
         break
@@ -121,12 +122,18 @@ export default async function handler(req, res) {
         await supabase.from('profesionales').update({ aprobado: true, activo: true }).eq('id', params.id)
         break
 
-      case 'eliminarUsuario':
-        await supabase.from('autos').delete().eq('user_id', params.id)
+      case 'eliminarUsuario': {
+        const { data: concs } = await supabase.from('concesionarias').select('id').eq('user_id', params.id)
+        for (const c of concs || []) {
+          await supabase.from('consultas').delete().eq('concesionaria_id', c.id)
+          await supabase.from('autos').delete().eq('concesionaria_id', c.id)
+        }
         await supabase.from('concesionarias').delete().eq('user_id', params.id)
         await supabase.from('profesionales').delete().eq('user_id', params.id)
+        await supabase.from('autos').delete().eq('user_id', params.id)
         await supabase.auth.admin.deleteUser(params.id)
         break
+      }
 
       case 'rechazarProfesional':
         await supabase.from('profesionales').delete().eq('id', params.id)

@@ -43,14 +43,14 @@ function CustomCursor() {
       const el = e.target.closest('a, button, [role="button"], input, textarea, select, label')
       const hovered = !!el
       if (dot.current) {
-        dot.current.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${hovered ? 1.8 : 1})`
+        dot.current.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${hovered ? 2.2 : 1})`
         dot.current.style.background = hovered ? 'var(--accent)' : 'var(--white)'
       }
     }
 
     function loop() {
-      rx += (mx - rx) * 0.12
-      ry += (my - ry) * 0.12
+      rx += (mx - rx) * 0.35
+      ry += (my - ry) * 0.35
       if (ring.current) {
         ring.current.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`
       }
@@ -70,8 +70,8 @@ function CustomCursor() {
 
   return (
     <>
-      <div ref={dot} style={{ position: 'fixed', top: 0, left: 0, width: '7px', height: '7px', borderRadius: '50%', background: 'var(--white)', pointerEvents: 'none', zIndex: 99999, willChange: 'transform', transition: 'background .15s, transform .12s' }} />
-      <div ref={ring} style={{ position: 'fixed', top: 0, left: 0, width: '30px', height: '30px', borderRadius: '50%', border: '1.5px solid rgba(255,255,255,.35)', pointerEvents: 'none', zIndex: 99998, willChange: 'transform' }} />
+      <div ref={dot} style={{ position: 'fixed', top: 0, left: 0, width: '4px', height: '4px', borderRadius: '50%', background: 'var(--white)', pointerEvents: 'none', zIndex: 99999, willChange: 'transform', transition: 'background .1s, transform .08s' }} />
+      <div ref={ring} style={{ position: 'fixed', top: 0, left: 0, width: '18px', height: '18px', borderRadius: '50%', border: '1px solid rgba(255,255,255,.4)', pointerEvents: 'none', zIndex: 99998, willChange: 'transform' }} />
     </>
   )
 }

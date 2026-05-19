@@ -645,7 +645,8 @@ export default function Admin() {
                         <tbody>
                           {usuarios.map(u => {
                             const c = concByUser[u.id]
-                            const displayName = u.nombre || c?.nombre || <span style={{ color: 'var(--gray4)', fontWeight: 400 }}>—</span>
+                            const p = profByUser[u.id]
+                            const displayName = u.nombre || c?.nombre || p?.nombre || <span style={{ color: 'var(--gray4)', fontWeight: 400 }}>—</span>
                             return (
                               <tr key={u.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                 <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{displayName}</td>

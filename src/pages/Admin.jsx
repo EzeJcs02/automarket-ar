@@ -618,33 +618,55 @@ export default function Admin() {
             )}
 
             {/* USUARIOS */}
-            {tab === 'usuarios' && (
-              <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>USUARIOS REGISTRADOS</div>
-                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todos los usuarios particulares registrados en la plataforma.</div>
-                {usuarios.length === 0
-                  ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay usuarios registrados aún.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-                      <thead><tr>{['Nombre','Email','Registro','Último acceso',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
-                      <tbody>
-                        {usuarios.map(u => (
-                          <tr key={u.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                            <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{u.nombre || <span style={{ color: 'var(--gray4)', fontWeight: 400 }}>—</span>}</td>
-                            <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{u.email}</td>
-                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
-                            <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('es-AR') : '—'}</td>
-                            <td style={{ padding: '16px 20px', textAlign: 'right' }}>
-                              <button onClick={() => eliminarUsuario(u.id, u.email)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(230,51,41,0.3)', cursor: 'pointer', background: 'transparent', color: 'var(--accent)', transition: 'all .2s' }}>
-                                Eliminar
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                }
-              </div>
-            )}
+            {tab === 'usuarios' && (() => {
+              const concByUser = {}
+              ;[...pendientes, ...aprobadas].forEach(c => { concByUser[c.user_id] = c })
+              const profByUser = {}
+              ;[...profesionalesPendientes, ...profesionalesActivos].forEach(p => { profByUser[p.user_id] = p })
+              function getTipo(u) {
+                const c = concByUser[u.id]
+                if (c) return c.aprobada
+                  ? <span style={{ color: '#4ade80', fontWeight: 600 }}>Agencia</span>
+                  : <span style={{ color: 'var(--gold)', fontWeight: 600 }}>Agencia <span style={{ fontWeight: 400, fontSize: '11px' }}>(pendiente)</span></span>
+                const p = profByUser[u.id]
+                if (p) return p.aprobado
+                  ? <span style={{ color: '#60a5fa', fontWeight: 600 }}>Profesional</span>
+                  : <span style={{ color: 'var(--gold)', fontWeight: 600 }}>Profesional <span style={{ fontWeight: 400, fontSize: '11px' }}>(pendiente)</span></span>
+                return <span style={{ color: 'var(--gray4)' }}>Particular</span>
+              }
+              return (
+                <div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>USUARIOS REGISTRADOS</div>
+                  <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todos los usuarios registrados en la plataforma.</div>
+                  {usuarios.length === 0
+                    ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay usuarios registrados aún.</p></div>
+                    : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                        <thead><tr>{['Nombre','Email','Tipo','Registro','Último acceso',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
+                        <tbody>
+                          {usuarios.map(u => {
+                            const c = concByUser[u.id]
+                            const displayName = u.nombre || c?.nombre || <span style={{ color: 'var(--gray4)', fontWeight: 400 }}>—</span>
+                            return (
+                              <tr key={u.id} style={{ borderBottom: '1px solid var(--gray2)', transition: 'background .2s' }} onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                <td style={{ padding: '16px 20px', color: 'var(--white)', fontWeight: 600, fontSize: '14px' }}>{displayName}</td>
+                                <td style={{ padding: '16px 20px', color: 'var(--gray4)', fontSize: '13px' }}>{u.email}</td>
+                                <td style={{ padding: '16px 20px', fontSize: '13px' }}>{getTipo(u)}</td>
+                                <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
+                                <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('es-AR') : '—'}</td>
+                                <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                                  <button onClick={() => eliminarUsuario(u.id, u.email)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(230,51,41,0.3)', cursor: 'pointer', background: 'transparent', color: 'var(--accent)', transition: 'all .2s' }}>
+                                    Eliminar
+                                  </button>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                  }
+                </div>
+              )
+            })()}
             {/* PROFESIONALES PENDIENTES */}
             {tab === 'prof-pendientes' && (
               <div>

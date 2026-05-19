@@ -135,6 +135,14 @@ export function AuthProvider({ children }) {
     return { error: null }
   }
 
+  async function signInWithGoogle(redirectTo = 'https://fioramarket.store/mi-cuenta') {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo },
+    })
+    return { error }
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
   }
@@ -142,7 +150,7 @@ export function AuthProvider({ children }) {
   const isAdmin = !!(user?.email && user.email === import.meta.env.VITE_ADMIN_EMAIL)
 
   return (
-    <AuthContext.Provider value={{ user, concesionaria, profesional, loading, signIn, signUp, signUpUsuario, signUpProfesional, signOut, isAdmin, fetchConcesionaria }}>
+    <AuthContext.Provider value={{ user, concesionaria, profesional, loading, signIn, signUp, signUpUsuario, signUpProfesional, signOut, signInWithGoogle, isAdmin, fetchConcesionaria }}>
       {children}
     </AuthContext.Provider>
   )

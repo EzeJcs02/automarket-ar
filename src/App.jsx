@@ -28,13 +28,11 @@ import PanelProfesional from './pages/PanelProfesional'
 const CAR_COLORS = ['#f5f3ee', '#e63329', '#185FA5', '#c9a84c', '#1a7a4a', '#7F77DD']
 
 function CustomCursor() {
-  const car = useRef(null)
-  const body1 = useRef(null)
-  const body2 = useRef(null)
+  const el = useRef(null)
   const [colorIdx, setColorIdx] = useState(0)
 
   useEffect(() => {
-    const t = setInterval(() => setColorIdx(i => (i + 1) % CAR_COLORS.length), 2200)
+    const t = setInterval(() => setColorIdx(i => (i + 1) % CAR_COLORS.length), 2800)
     return () => clearInterval(t)
   }, [])
 
@@ -42,99 +40,36 @@ function CustomCursor() {
     if (!window.matchMedia('(pointer: fine)').matches) return
     document.body.classList.add('custom-cursor-active')
 
-    let cx = -100, cy = -100, tx = -100, ty = -100, raf
-
     function onMove(e) {
-      tx = e.clientX; ty = e.clientY
-      const hovered = !!e.target.closest('a, button, [role="button"], input, textarea, select, label')
-      if (car.current) {
-        car.current.style.filter = hovered
-          ? `drop-shadow(0 0 5px ${CAR_COLORS[colorIdx]}) drop-shadow(0 0 2px #000)`
-          : 'drop-shadow(0 2px 4px rgba(0,0,0,.6))'
-        car.current.style.transform = `translate(${tx}px, ${ty}px) translate(-50%, -6px) scale(${hovered ? 1.15 : 1})`
+      if (el.current) {
+        el.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`
       }
     }
 
-    function loop() {
-      cx += (tx - cx) * 0.6; cy += (ty - cy) * 0.6
-      raf = requestAnimationFrame(loop)
-    }
-
-    document.addEventListener('mousemove', onMove)
-    raf = requestAnimationFrame(loop)
+    document.addEventListener('mousemove', onMove, { passive: true })
     return () => {
       document.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(raf)
       document.body.classList.remove('custom-cursor-active')
     }
-  }, [colorIdx])
+  }, [])
 
   if (typeof window !== 'undefined' && !window.matchMedia('(pointer: fine)').matches) return null
 
   const color = CAR_COLORS[colorIdx]
-  const isDark = color === '#1a7a4a' || color === '#185FA5' || color === '#7F77DD'
-  const glassColor = isDark ? 'rgba(200,230,255,0.55)' : 'rgba(30,30,50,0.65)'
-  const detailColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'
 
   return (
-    <div ref={car} style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 99999, willChange: 'transform', transition: 'transform .1s, filter .2s', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.6))' }}>
-      <svg width="22" height="38" viewBox="0 0 22 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Sombra base */}
-        <ellipse cx="11" cy="35.5" rx="7.5" ry="1.8" fill="rgba(0,0,0,0.25)"/>
-
-        {/* Ruedas traseras */}
-        <rect x="0.5" y="22" width="4" height="8" rx="2" fill="#222"/>
-        <rect x="1.5" y="23" width="2" height="6" rx="1" fill="#444"/>
-        <rect x="17.5" y="22" width="4" height="8" rx="2" fill="#222"/>
-        <rect x="18.5" y="23" width="2" height="6" rx="1" fill="#444"/>
-
-        {/* Ruedas delanteras */}
-        <rect x="0.5" y="8" width="4" height="8" rx="2" fill="#222"/>
-        <rect x="1.5" y="9" width="2" height="6" rx="1" fill="#444"/>
-        <rect x="17.5" y="8" width="4" height="8" rx="2" fill="#222"/>
-        <rect x="18.5" y="9" width="2" height="6" rx="1" fill="#444"/>
-
-        {/* Carrocería principal */}
-        <path d="M4 10 C4 6 6.5 3.5 11 3.5 C15.5 3.5 18 6 18 10 L18 30 C18 33 15.5 34.5 11 34.5 C6.5 34.5 4 33 4 30 Z" fill={color} style={{ transition: 'fill .6s ease' }}/>
-
-        {/* Detalle capó */}
-        <path d="M6 9.5 L16 9.5 L15 12 L7 12 Z" fill={detailColor}/>
-
-        {/* Espejo izquierdo */}
-        <path d="M3 12 L4.5 11.5 L4.5 15 L3 14.5 Z" fill={color} style={{ transition: 'fill .6s ease' }}/>
-        <path d="M3 12 L4.5 11.5 L4.5 15 L3 14.5 Z" fill="rgba(0,0,0,0.15)"/>
-        {/* Espejo derecho */}
-        <path d="M19 12 L17.5 11.5 L17.5 15 L19 14.5 Z" fill={color} style={{ transition: 'fill .6s ease' }}/>
-        <path d="M19 12 L17.5 11.5 L17.5 15 L19 14.5 Z" fill="rgba(0,0,0,0.15)"/>
-
-        {/* Parabrisas delantero */}
-        <path d="M6.5 10 L15.5 10 L14.5 16.5 L7.5 16.5 Z" fill={glassColor}/>
-        {/* Parabrisas trasero */}
-        <path d="M7.5 25.5 L14.5 25.5 L15.5 30.5 L6.5 30.5 Z" fill={glassColor} opacity="0.75"/>
-
-        {/* Techo */}
-        <rect x="7" y="16.5" width="8" height="9" rx="1" fill={detailColor}/>
-
-        {/* Línea puerta izq */}
-        <line x1="4.5" y1="17" x2="4.5" y2="30" stroke="rgba(0,0,0,0.12)" strokeWidth="0.75"/>
-        {/* Línea puerta der */}
-        <line x1="17.5" y1="17" x2="17.5" y2="30" stroke="rgba(0,0,0,0.12)" strokeWidth="0.75"/>
-        {/* Línea cintura */}
-        <line x1="4" y1="21" x2="18" y2="21" stroke="rgba(0,0,0,0.1)" strokeWidth="0.75"/>
-
-        {/* Luces delanteras */}
-        <path d="M6 3.5 L9.5 4.5 L9.5 6.5 L6 6 Z" fill="#fff9c4" opacity="0.95"/>
-        <path d="M16 3.5 L12.5 4.5 L12.5 6.5 L16 6 Z" fill="#fff9c4" opacity="0.95"/>
-        {/* Brillo luces delanteras */}
-        <path d="M6.5 4 L9 4.8 L9 5.8 L6.5 5.4 Z" fill="white" opacity="0.6"/>
-        <path d="M15.5 4 L13 4.8 L13 5.8 L15.5 5.4 Z" fill="white" opacity="0.6"/>
-
-        {/* Luces traseras */}
-        <path d="M6 32 L9.5 31.5 L9.5 33.5 L6 34 Z" fill="#e63329" opacity="0.95"/>
-        <path d="M16 32 L12.5 31.5 L12.5 33.5 L16 34 Z" fill="#e63329" opacity="0.95"/>
-        {/* Brillo luz trasera */}
-        <path d="M6.5 32.3 L9 31.9 L9 32.9 L6.5 33.3 Z" fill="#ff6b6b" opacity="0.5"/>
-        <path d="M15.5 32.3 L13 31.9 L13 32.9 L15.5 33.3 Z" fill="#ff6b6b" opacity="0.5"/>
+    <div ref={el} style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 99999, willChange: 'transform', marginLeft: '-30px', marginTop: '-5px', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,.8))' }}>
+      <svg width="32" height="12" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* perfil lateral minimalista — frente a la derecha */}
+        <path
+          d="M0 9 L4 9 L8 4 L22 4 L27 9 L32 9"
+          stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+          style={{ transition: 'stroke .7s ease' }}
+        />
+        {/* rueda trasera */}
+        <circle cx="6" cy="10.5" r="1.5" stroke={color} strokeWidth="1.5" style={{ transition: 'stroke .7s ease' }}/>
+        {/* rueda delantera */}
+        <circle cx="25" cy="10.5" r="1.5" stroke={color} strokeWidth="1.5" style={{ transition: 'stroke .7s ease' }}/>
       </svg>
     </div>
   )

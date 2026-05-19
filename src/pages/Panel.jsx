@@ -341,6 +341,8 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   const { user } = useAuth()
   const [editando, setEditando] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const [editFotos, setEditFotos] = useState([])
+  const [editFotosNuevas, setEditFotosNuevas] = useState([])
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
   const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
@@ -399,11 +401,23 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   }
   function abrirEdicion(auto) {
     setEditando(auto.id)
-    setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo })
+    setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo, categoria: auto.categoria || '' })
+    setEditFotos(auto.fotos || [])
+    setEditFotosNuevas([])
   }
   async function guardarEdicion() {
     setSaving(true)
-    await supabase.from('autos').update({ ...editForm, anio: parseInt(editForm.anio), kilometraje: parseInt(editForm.kilometraje) || 0 }).eq('id', editando)
+    let fotoUrls = [...editFotos]
+    for (const file of editFotosNuevas) {
+      const ext = file.name.split('.').pop()
+      const path = `${concesionaria.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+      const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
+      if (!upErr) {
+        const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
+        fotoUrls.push(data.publicUrl)
+      }
+    }
+    await supabase.from('autos').update({ ...editForm, anio: parseInt(editForm.anio), kilometraje: parseInt(editForm.kilometraje) || 0, fotos: fotoUrls }).eq('id', editando)
     setSaving(false)
     setEditando(null)
     reload()
@@ -416,7 +430,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
           <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--gray2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px' }}>EDITAR AUTO</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px' }}>EDITAR VEHÍCULO</div>
               <button onClick={() => setEditando(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -424,7 +438,8 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
               <div className="form-field"><label>Modelo *</label><input type="text" required value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
               <div className="form-field"><label>Año *</label><input type="number" required value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
               <div className="form-field"><label>Kilometraje *</label><input type="number" required min="0" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
-              <div className="form-field"><label>Tipo *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">Nuevo</option><option value="usado">Usado</option></select></div>
+              <div className="form-field"><label>Condición *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
+              <div className="form-field"><label>Categoría</label><select value={editForm.categoria} onChange={e => setEF('categoria', e.target.value)}><option value="">— Seleccionar —</option><optgroup label="Autos"><option value="SUV">SUV</option><option value="Hatchback">Hatchback</option><option value="Sedán">Sedán</option><option value="Pickup">Pickup</option><option value="Minivan">Minivan</option><option value="Coupé">Coupé</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Deportiva">Deportiva</option><option value="Touring">Touring</option><option value="Scooter">Scooter</option><option value="Enduro">Enduro</option><option value="Custom">Custom</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Velero">Velero</option><option value="Yate">Yate</option><option value="Moto de Agua">Moto de Agua</option><option value="Semi-rígido">Semi-rígido</option></optgroup></select></div>
               <div className="form-field"><label>Combustible *</label><select required value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
               <div className="form-field"><label>Transmisión *</label><select required value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option></select></div>
               <div className="form-field"><label>Color *</label><input type="text" required placeholder="Ej: Plata Metalizado" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
@@ -432,6 +447,30 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
               <div className="form-field"><label>Precio USD</label><input type="number" value={editForm.precio_usd} onChange={e => setEF('precio_usd', e.target.value)} /></div>
             </div>
             <div className="form-field" style={{ marginTop: '.5rem' }}><label>Descripción *</label><textarea style={{ height: '100px', resize: 'vertical' }} required value={editForm.descripcion} onChange={e => setEF('descripcion', e.target.value)} /></div>
+            <div style={{ marginTop: '1.5rem' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                <span>FOTOS</span>
+                <span style={{ color: editFotos.length + editFotosNuevas.length >= 5 ? '#4ade80' : 'var(--gray4)', fontWeight: 400 }}>{editFotos.length + editFotosNuevas.length} foto{editFotos.length + editFotosNuevas.length !== 1 ? 's' : ''}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px', marginBottom: '10px' }}>
+                {editFotos.map((url, i) => (
+                  <div key={url} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
+                    <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button type="button" onClick={() => setEditFotos(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                  </div>
+                ))}
+                {editFotosNuevas.map((f, i) => (
+                  <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(74,222,128,.3)' }}>
+                    <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button type="button" onClick={() => setEditFotosNuevas(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                  </div>
+                ))}
+              </div>
+              <label style={{ display: 'block', border: '2px dashed var(--gray3)', borderRadius: 'var(--radius)', padding: '10px', textAlign: 'center', cursor: 'pointer' }}>
+                <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => { setEditFotosNuevas(p => [...p, ...Array.from(e.target.files)]); e.target.value = '' }} />
+                <span style={{ fontSize: '13px', color: 'var(--gray4)' }}>+ Agregar fotos</span>
+              </label>
+            </div>
             <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
               <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditando(null)}>Cancelar</button>
               <button className="btn-primary" style={{ flex: 1 }} onClick={guardarEdicion} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>
@@ -638,7 +677,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
             <div className="form-field"><label>Año *</label><input type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
             <div className="form-field"><label>Kilometraje *</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
             <div className="form-field"><label>Condición *</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
-            <div className="form-field"><label>Categoría *</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)} required><optgroup label="Autos"><option value="Sedan">Sedán</option><option value="SUV">SUV</option><option value="Pickup">Pickup</option><option value="Hatchback">Hatchback</option><option value="Deportivo">Deportivo</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Cruiser">Cruiser</option><option value="Enduro">Enduro</option><option value="Scooter">Scooter</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Yate">Yate</option><option value="Jet Ski">Jet Ski</option></optgroup></select></div>
+            <div className="form-field"><label>Categoría *</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)} required><optgroup label="Autos"><option value="SUV">SUV</option><option value="Hatchback">Hatchback</option><option value="Sedán">Sedán</option><option value="Pickup">Pickup</option><option value="Minivan">Minivan</option><option value="Coupé">Coupé</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Deportiva">Deportiva</option><option value="Touring">Touring</option><option value="Scooter">Scooter</option><option value="Enduro">Enduro</option><option value="Custom">Custom</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Velero">Velero</option><option value="Yate">Yate</option><option value="Moto de Agua">Moto de Agua</option><option value="Semi-rígido">Semi-rígido</option></optgroup></select></div>
             <div className="form-field"><label>Combustible *</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
             <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
             <div className="form-field"><label>Color Exterior *</label><input type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>

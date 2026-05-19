@@ -225,7 +225,7 @@ export default function AutoDetalle() {
           <div onClick={() => fotos.length > 0 && setZoom(true)}
             style={{ width: '100%', height: 'clamp(200px, 45vw, 450px)', background: 'linear-gradient(135deg, var(--gray2), var(--gray1))', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '80px', marginBottom: '1rem', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', cursor: fotos.length > 0 ? 'zoom-in' : 'default', position: 'relative' }}>
             {fotos.length > 0
-              ? <img src={fotos[fotoIdx]} alt={auto.modelo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ? <img src={fotos[fotoIdx]} alt={auto.modelo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity=".2"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
             }
             {fotos.length > 0 && (

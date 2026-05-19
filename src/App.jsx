@@ -26,33 +26,31 @@ import Profesionales from './pages/Profesionales'
 import PanelProfesional from './pages/PanelProfesional'
 
 function CustomCursor() {
-  const dot = useRef(null)
-  const ring = useRef(null)
+  const car = useRef(null)
 
   useEffect(() => {
     if (!window.matchMedia('(pointer: fine)').matches) return
     document.body.classList.add('custom-cursor-active')
 
-    let mx = -100, my = -100
-    let rx = -100, ry = -100
+    let cx = -100, cy = -100
+    let tx = -100, ty = -100
     let raf
 
     function onMove(e) {
-      mx = e.clientX
-      my = e.clientY
-      const el = e.target.closest('a, button, [role="button"], input, textarea, select, label')
-      const hovered = !!el
-      if (dot.current) {
-        dot.current.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${hovered ? 2.2 : 1})`
-        dot.current.style.background = hovered ? 'var(--accent)' : 'var(--white)'
+      tx = e.clientX
+      ty = e.clientY
+      const hovered = !!e.target.closest('a, button, [role="button"], input, textarea, select, label')
+      if (car.current) {
+        car.current.style.opacity = hovered ? '0.75' : '1'
+        car.current.style.filter = hovered ? 'drop-shadow(0 0 4px #e63329)' : 'none'
       }
     }
 
     function loop() {
-      rx += (mx - rx) * 0.35
-      ry += (my - ry) * 0.35
-      if (ring.current) {
-        ring.current.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`
+      cx += (tx - cx) * 0.55
+      cy += (ty - cy) * 0.55
+      if (car.current) {
+        car.current.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -8px)`
       }
       raf = requestAnimationFrame(loop)
     }
@@ -69,10 +67,28 @@ function CustomCursor() {
   if (typeof window !== 'undefined' && !window.matchMedia('(pointer: fine)').matches) return null
 
   return (
-    <>
-      <div ref={dot} style={{ position: 'fixed', top: 0, left: 0, width: '4px', height: '4px', borderRadius: '50%', background: 'var(--white)', pointerEvents: 'none', zIndex: 99999, willChange: 'transform', transition: 'background .1s, transform .08s' }} />
-      <div ref={ring} style={{ position: 'fixed', top: 0, left: 0, width: '18px', height: '18px', borderRadius: '50%', border: '1px solid rgba(255,255,255,.4)', pointerEvents: 'none', zIndex: 99998, willChange: 'transform' }} />
-    </>
+    <div ref={car} style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 99999, willChange: 'transform', transition: 'opacity .15s, filter .15s' }}>
+      <svg width="18" height="30" viewBox="0 0 18 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Ruedas traseras */}
+        <rect x="0" y="18" width="3.5" height="6" rx="1.5" fill="#444"/>
+        <rect x="14.5" y="18" width="3.5" height="6" rx="1.5" fill="#444"/>
+        {/* Ruedas delanteras */}
+        <rect x="0" y="6" width="3.5" height="6" rx="1.5" fill="#444"/>
+        <rect x="14.5" y="6" width="3.5" height="6" rx="1.5" fill="#444"/>
+        {/* Carrocería */}
+        <rect x="2.5" y="3" width="13" height="24" rx="3.5" fill="#f5f3ee"/>
+        {/* Techo / habitáculo */}
+        <rect x="4" y="7" width="10" height="10" rx="2" fill="#1a1a1a" opacity="0.7"/>
+        {/* Luces delanteras */}
+        <rect x="3.5" y="2" width="4" height="2.5" rx="1" fill="#ffe57a"/>
+        <rect x="10.5" y="2" width="4" height="2.5" rx="1" fill="#ffe57a"/>
+        {/* Luces traseras */}
+        <rect x="3.5" y="25.5" width="4" height="2.5" rx="1" fill="#e63329"/>
+        <rect x="10.5" y="25.5" width="4" height="2.5" rx="1" fill="#e63329"/>
+        {/* Línea central */}
+        <line x1="9" y1="8" x2="9" y2="16" stroke="#333" strokeWidth="0.75" opacity="0.5"/>
+      </svg>
+    </div>
   )
 }
 

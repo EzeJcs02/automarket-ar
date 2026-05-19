@@ -26,21 +26,9 @@ input, select, textarea { font-family: var(--font-body); }
 
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { border-radius: 2px; animation: scrollbarRed 4s ease-in-out infinite; }
-::-webkit-scrollbar-thumb:hover { animation: scrollbarRedFast 1.5s ease-in-out infinite; }
-
-@keyframes scrollbarRed {
-  0%   { background: #e63329; }
-  25%  { background: #ff6b6b; }
-  50%  { background: #9b1b15; }
-  75%  { background: #ff3d33; }
-  100% { background: #e63329; }
-}
-@keyframes scrollbarRedFast {
-  0%   { background: #ff6b6b; }
-  50%  { background: #c0100a; }
-  100% { background: #ff6b6b; }
-}
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; transition: background .3s; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
 
 /* Custom cursor — solo en dispositivos con puntero fino (desktop) */
 @media (pointer: fine) {

@@ -30,10 +30,6 @@ input, select, textarea { font-family: var(--font-body); }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
 
-/* Oculta cursor del sistema sobre interactivos — el rojo lo maneja RedCursor */
-@media (pointer: fine) {
-  a, button, [role="button"], select, label { cursor: none; }
-}
 
 @keyframes progressFill {
   from { transform: scaleX(0); }

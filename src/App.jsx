@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import { AuthProvider } from './context/AuthContext'
 import { ComparadorProvider, useComparador } from './context/ComparadorContext'
 import { ToastProvider } from './context/ToastContext'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Catalogo from './pages/Catalogo'
@@ -25,35 +25,6 @@ import Comparador from './pages/Comparador'
 import Profesionales from './pages/Profesionales'
 import PanelProfesional from './pages/PanelProfesional'
 
-
-const INTERACTIVE = 'a, button, [role="button"], select, label'
-
-function RedCursor() {
-  const el = useRef(null)
-
-  useEffect(() => {
-    if (!window.matchMedia('(pointer: fine)').matches) return
-
-    function onMove(e) {
-      if (!el.current) return
-      el.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`
-      el.current.style.opacity = e.target.closest(INTERACTIVE) ? '1' : '0'
-    }
-
-    document.addEventListener('mousemove', onMove, { passive: true })
-    return () => document.removeEventListener('mousemove', onMove)
-  }, [])
-
-  if (typeof window !== 'undefined' && !window.matchMedia('(pointer: fine)').matches) return null
-
-  return (
-    <div ref={el} style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 99999, opacity: 0, willChange: 'transform, opacity', transition: 'opacity .1s' }}>
-      <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0 L0 13 L3 10.5 L5.5 16 L7.5 15 L5 9.5 L9 9.5 Z" fill="#e63329" stroke="white" strokeWidth="0.8" strokeLinejoin="round"/>
-      </svg>
-    </div>
-  )
-}
 
 function ScrollToTop() {
   const [visible, setVisible] = useState(false)
@@ -150,7 +121,6 @@ export default function App() {
               <ComparadorBar />
               <ScrollToTop />
               <CookieBanner />
-              <RedCursor />
               <Analytics />
             </>
           } />

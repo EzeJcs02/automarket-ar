@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import { AuthProvider } from './context/AuthContext'
 import { ComparadorProvider, useComparador } from './context/ComparadorContext'
 import { ToastProvider } from './context/ToastContext'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Catalogo from './pages/Catalogo'
@@ -25,84 +25,6 @@ import Comparador from './pages/Comparador'
 import Profesionales from './pages/Profesionales'
 import PanelProfesional from './pages/PanelProfesional'
 
-function CustomCursor() {
-  const dot = useRef(null)
-  const ring = useRef(null)
-
-  useEffect(() => {
-    if (!window.matchMedia('(pointer: fine)').matches) return
-    document.body.classList.add('custom-cursor-active')
-
-    let rx = -200, ry = -200, tx = -200, ty = -200, raf
-
-    function onMove(e) {
-      tx = e.clientX
-      ty = e.clientY
-      const interactive = !!e.target.closest('a, button, [role="button"], input, textarea, select, label')
-
-      if (dot.current) {
-        dot.current.style.transform = `translate(${tx}px, ${ty}px) translate(-50%, -50%)`
-        dot.current.style.opacity = interactive ? '0' : '1'
-      }
-      if (ring.current) {
-        if (interactive) {
-          ring.current.style.width = '44px'
-          ring.current.style.height = '44px'
-          ring.current.style.borderColor = 'rgba(230,51,41,0.75)'
-          ring.current.style.background = 'rgba(230,51,41,0.07)'
-        } else {
-          ring.current.style.width = '28px'
-          ring.current.style.height = '28px'
-          ring.current.style.borderColor = 'rgba(255,255,255,0.4)'
-          ring.current.style.background = 'transparent'
-        }
-      }
-    }
-
-    function loop() {
-      rx += (tx - rx) * 0.1
-      ry += (ty - ry) * 0.1
-      if (ring.current) {
-        ring.current.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`
-      }
-      raf = requestAnimationFrame(loop)
-    }
-
-    document.addEventListener('mousemove', onMove, { passive: true })
-    raf = requestAnimationFrame(loop)
-
-    return () => {
-      document.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(raf)
-      document.body.classList.remove('custom-cursor-active')
-    }
-  }, [])
-
-  if (typeof window !== 'undefined' && !window.matchMedia('(pointer: fine)').matches) return null
-
-  return (
-    <>
-      <div ref={dot} style={{
-        position: 'fixed', top: 0, left: 0,
-        width: '5px', height: '5px',
-        background: 'var(--white)',
-        borderRadius: '50%',
-        pointerEvents: 'none', zIndex: 99999,
-        willChange: 'transform',
-        transition: 'opacity .15s ease',
-      }} />
-      <div ref={ring} style={{
-        position: 'fixed', top: 0, left: 0,
-        width: '28px', height: '28px',
-        border: '1.5px solid rgba(255,255,255,0.4)',
-        borderRadius: '50%',
-        pointerEvents: 'none', zIndex: 99998,
-        willChange: 'transform',
-        transition: 'width .3s ease, height .3s ease, border-color .3s ease, background .3s ease',
-      }} />
-    </>
-  )
-}
 
 function ScrollToTop() {
   const [visible, setVisible] = useState(false)
@@ -199,7 +121,6 @@ export default function App() {
               <ComparadorBar />
               <ScrollToTop />
               <CookieBanner />
-              <CustomCursor />
               <Analytics />
             </>
           } />

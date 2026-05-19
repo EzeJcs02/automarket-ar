@@ -123,6 +123,8 @@ export default async function handler(req, res) {
 
       case 'eliminarUsuario':
         await supabase.from('autos').delete().eq('user_id', params.id)
+        await supabase.from('concesionarias').delete().eq('user_id', params.id)
+        await supabase.from('profesionales').delete().eq('user_id', params.id)
         await supabase.auth.admin.deleteUser(params.id)
         break
 

@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import { AuthProvider } from './context/AuthContext'
 import { ComparadorProvider, useComparador } from './context/ComparadorContext'
 import { ToastProvider } from './context/ToastContext'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Catalogo from './pages/Catalogo'
@@ -24,6 +24,57 @@ import MiCuenta from './pages/MiCuenta'
 import Comparador from './pages/Comparador'
 import Profesionales from './pages/Profesionales'
 import PanelProfesional from './pages/PanelProfesional'
+
+function CustomCursor() {
+  const dot = useRef(null)
+  const ring = useRef(null)
+
+  useEffect(() => {
+    if (!window.matchMedia('(pointer: fine)').matches) return
+    document.body.classList.add('custom-cursor-active')
+
+    let mx = -100, my = -100
+    let rx = -100, ry = -100
+    let raf
+
+    function onMove(e) {
+      mx = e.clientX
+      my = e.clientY
+      const el = e.target.closest('a, button, [role="button"], input, textarea, select, label')
+      const hovered = !!el
+      if (dot.current) {
+        dot.current.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%) scale(${hovered ? 1.8 : 1})`
+        dot.current.style.background = hovered ? 'var(--accent)' : 'var(--white)'
+      }
+    }
+
+    function loop() {
+      rx += (mx - rx) * 0.12
+      ry += (my - ry) * 0.12
+      if (ring.current) {
+        ring.current.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`
+      }
+      raf = requestAnimationFrame(loop)
+    }
+
+    document.addEventListener('mousemove', onMove)
+    raf = requestAnimationFrame(loop)
+    return () => {
+      document.removeEventListener('mousemove', onMove)
+      cancelAnimationFrame(raf)
+      document.body.classList.remove('custom-cursor-active')
+    }
+  }, [])
+
+  if (typeof window !== 'undefined' && !window.matchMedia('(pointer: fine)').matches) return null
+
+  return (
+    <>
+      <div ref={dot} style={{ position: 'fixed', top: 0, left: 0, width: '7px', height: '7px', borderRadius: '50%', background: 'var(--white)', pointerEvents: 'none', zIndex: 99999, willChange: 'transform', transition: 'background .15s, transform .12s' }} />
+      <div ref={ring} style={{ position: 'fixed', top: 0, left: 0, width: '30px', height: '30px', borderRadius: '50%', border: '1.5px solid rgba(255,255,255,.35)', pointerEvents: 'none', zIndex: 99998, willChange: 'transform' }} />
+    </>
+  )
+}
 
 function ScrollToTop() {
   const [visible, setVisible] = useState(false)
@@ -109,6 +160,7 @@ export default function App() {
               <ComparadorBar />
               <ScrollToTop />
               <CookieBanner />
+              <CustomCursor />
               <Analytics />
             </>
           } />

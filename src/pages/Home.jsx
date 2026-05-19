@@ -138,9 +138,17 @@ export default function Home() {
               </div>
             )}
             {rightAds.length > 1 && (
-              <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px' }}>
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', height: '3px' }}>
                 {rightAds.map((_, i) => (
-                  <div key={i} onClick={() => setRightIdx(i)} style={{ width: i === rightIdx ? '16px' : '5px', height: '5px', borderRadius: '100px', background: i === rightIdx ? 'var(--white)' : 'rgba(255,255,255,.25)', cursor: 'pointer', transition: 'all .3s' }} />
+                  <div key={i} onClick={() => setRightIdx(i)}
+                    style={{ flex: 1, height: '100%', background: 'rgba(255,255,255,.12)', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+                    {i === rightIdx && (
+                      <div key={`fill-${rightIdx}`} style={{ position: 'absolute', inset: 0, background: 'var(--accent)', transformOrigin: 'left', animation: 'progressFill 3.5s linear forwards' }} />
+                    )}
+                    {i < rightIdx && (
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.35)' }} />
+                    )}
+                  </div>
                 ))}
               </div>
             )}
@@ -165,11 +173,18 @@ export default function Home() {
               <div style={{ fontSize: '10px', color: 'var(--gray2)', fontFamily: 'var(--font-mono)' }}>Hasta 10 banners · cycling automático</div>
             </div>
           )}
-          {/* dots */}
           {banners.length > 1 && (
-            <div style={{ position: 'absolute', bottom: '6px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px' }}>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', height: '3px' }}>
               {banners.map((_, i) => (
-                <div key={i} onClick={() => setBottomIdx(i)} style={{ width: i === bottomIdx ? '18px' : '6px', height: '6px', borderRadius: '100px', background: i === bottomIdx ? 'var(--white)' : 'rgba(255,255,255,.3)', cursor: 'pointer', transition: 'all .3s' }} />
+                <div key={i} onClick={() => setBottomIdx(i)}
+                  style={{ flex: 1, height: '100%', background: 'rgba(255,255,255,.12)', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+                  {i === bottomIdx && (
+                    <div key={`fill-${bottomIdx}`} style={{ position: 'absolute', inset: 0, background: 'var(--white)', transformOrigin: 'left', animation: 'progressFill 4s linear forwards' }} />
+                  )}
+                  {i < bottomIdx && (
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.4)' }} />
+                  )}
+                </div>
               ))}
             </div>
           )}

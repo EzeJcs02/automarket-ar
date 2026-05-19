@@ -272,7 +272,7 @@ export default function AutoDetalle() {
           {auto.descripcion && (
             <div style={{ marginTop: '3rem' }}>
               <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Descripción</h3>
-              <p style={{ fontSize: '15px', color: 'var(--gray5)', lineHeight: 1.8, background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
+              <p style={{ fontSize: '15px', color: 'var(--gray5)', lineHeight: 1.8, background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)', whiteSpace: 'pre-wrap' }}>
                 {auto.descripcion}
               </p>
             </div>

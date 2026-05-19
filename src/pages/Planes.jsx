@@ -124,17 +124,17 @@ export default function Planes() {
     <div className="page-wrapper">
 
       {/* HERO */}
-      <div className="planes-section planes-hero" style={{ position: 'relative', borderBottom: '1px solid var(--gray2)', background: 'var(--black)', textAlign: 'center', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div className="planes-section planes-hero" style={{ position: 'relative', borderBottom: '1px solid var(--gray2)', background: 'linear-gradient(180deg, rgba(230,51,41,.04) 0%, transparent 100%)', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'relative' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Planes y precios</div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,7vw,96px)', lineHeight: 1, marginBottom: '1.5rem' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.18em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Planes y precios</div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,6vw,64px)', lineHeight: .95, marginBottom: '1.25rem' }}>
             VISIBILIDAD<br /><span style={{ color: 'var(--accent)' }}>QUE VENDE</span>
           </h1>
-          <p style={{ fontSize: '16px', color: 'var(--gray4)', maxWidth: '520px', margin: '0 auto 3rem', lineHeight: 1.7 }}>
+          <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '480px', marginBottom: '2rem', lineHeight: 1.7 }}>
             Publicaciones de <strong style={{ color: 'var(--white)' }}>30 días</strong> con renovación paga. Sin contratos. Sin permanencia.
           </p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <div style={{ background: 'rgba(74,222,128,.07)', border: '1px solid rgba(74,222,128,.2)', borderRadius: 'var(--radius-lg)', padding: '.75rem 1.25rem', fontSize: '13px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <CheckIcon /> Compradores particulares — <strong style={{ color: 'var(--white)' }}>GRATIS</strong>
             </div>

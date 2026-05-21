@@ -1,29 +1,40 @@
-import Arrepentimiento from './pages/Arrepentimiento'
-import Legales from './pages/Legales'
-import NotFound from './pages/NotFound'
 import Footer from './components/Footer'
 import CookieBanner from './components/CookieBanner'
-import PublicitateAqui from './pages/PublicitateAqui'
 import { Analytics } from '@vercel/analytics/react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ComparadorProvider, useComparador } from './context/ComparadorContext'
 import { ToastProvider } from './context/ToastContext'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
+
+// Home se carga eager (es la primera vista)
 import Home from './pages/Home'
-import Catalogo from './pages/Catalogo'
-import AutoDetalle from './pages/AutoDetalle'
-import { Concesionarias, ConcesionariaDetalle } from './pages/Concesionarias'
+
+// Login/Registro se cargan eager (suelen ser el segundo paso)
 import { Login, Registro } from './pages/Auth'
-import Panel from './pages/Panel'
-import Admin from './pages/Admin'
-import Planes from './pages/Planes'
-import Favoritos from './pages/Favoritos'
-import MiCuenta from './pages/MiCuenta'
-import Comparador from './pages/Comparador'
-import Profesionales from './pages/Profesionales'
-import PanelProfesional from './pages/PanelProfesional'
+
+// El resto se carga on-demand
+const Catalogo = lazy(() => import('./pages/Catalogo'))
+const AutoDetalle = lazy(() => import('./pages/AutoDetalle'))
+const Concesionarias = lazy(() => import('./pages/Concesionarias').then(m => ({ default: m.Concesionarias })))
+const ConcesionariaDetalle = lazy(() => import('./pages/Concesionarias').then(m => ({ default: m.ConcesionariaDetalle })))
+const Panel = lazy(() => import('./pages/Panel'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Planes = lazy(() => import('./pages/Planes'))
+const Favoritos = lazy(() => import('./pages/Favoritos'))
+const MiCuenta = lazy(() => import('./pages/MiCuenta'))
+const Comparador = lazy(() => import('./pages/Comparador'))
+const Profesionales = lazy(() => import('./pages/Profesionales'))
+const PanelProfesional = lazy(() => import('./pages/PanelProfesional'))
+const Arrepentimiento = lazy(() => import('./pages/Arrepentimiento'))
+const Legales = lazy(() => import('./pages/Legales'))
+const PublicitateAqui = lazy(() => import('./pages/PublicitateAqui'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+
+function PageLoader() {
+  return <div className="page-wrapper"><div className="spinner" /></div>
+}
 
 
 function ScrollToTop() {
@@ -96,6 +107,7 @@ export default function App() {
               <Navbar />
               <div style={{ minHeight: 'calc(100vh - 58px)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ flex: 1 }}>
+              <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/catalogo" element={<Catalogo />} />
@@ -115,6 +127,7 @@ export default function App() {
                 <Route path="/publicitate" element={<PublicitateAqui />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
               </div>
               <Footer />
               </div>

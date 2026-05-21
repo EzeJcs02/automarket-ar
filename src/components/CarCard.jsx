@@ -37,23 +37,25 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
         </button>
       )}
 
-      {/* BOTÓN COMPARADOR */}
-      <button
-        onClick={e => { e.stopPropagation(); enComparador ? quitar(auto.id) : agregar(auto) }}
-        disabled={!enComparador && lista.length >= 3}
-        title={enComparador ? 'Quitar del comparador' : lista.length >= 3 ? 'Comparador lleno (máx. 3)' : 'Agregar al comparador'}
-        style={{ position: 'absolute', bottom: '10px', right: '10px', zIndex: 10, background: enComparador ? 'var(--accent)' : 'rgba(0,0,0,.55)', border: 'none', borderRadius: '6px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', cursor: !enComparador && lista.length >= 3 ? 'not-allowed' : 'pointer', fontSize: '10px', color: '#fff', fontWeight: 700, letterSpacing: '.05em', backdropFilter: 'blur(4px)', opacity: !enComparador && lista.length >= 3 ? 0.4 : 1, transition: 'all .2s' }}>
-        ⇄ {enComparador ? 'EN COMP.' : 'COMPARAR'}
-      </button>
+      <div style={{ position: 'relative' }}>
+        {foto
+          ? <img className="car-img-real" src={foto} alt={`${auto.marca} ${auto.modelo} ${auto.anio}`} loading="lazy" decoding="async" style={{ outline: auto.urgente ? '2px solid var(--accent)' : auto.destacado ? '2px solid #c9a84c' : 'none' }} />
+          : <div className="car-img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity=".3"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
+        }
 
-      {foto
-        ? <img className="car-img-real" src={foto} alt={`${auto.marca} ${auto.modelo} ${auto.anio}`} loading="lazy" decoding="async" style={{ outline: auto.urgente ? '2px solid var(--accent)' : auto.destacado ? '2px solid #c9a84c' : 'none' }} />
-        : <div className="car-img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity=".3"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
-      }
+        <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`}>
+          {auto.tipo === 'nuevo' ? 'NUEVO' : 'USADO'}
+        </span>
 
-      <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`}>
-        {auto.tipo === 'nuevo' ? 'NUEVO' : 'USADO'}
-      </span>
+        {/* BOTÓN COMPARADOR — posicionado sobre la imagen */}
+        <button
+          onClick={e => { e.stopPropagation(); enComparador ? quitar(auto.id) : agregar(auto) }}
+          disabled={!enComparador && lista.length >= 3}
+          title={enComparador ? 'Quitar del comparador' : lista.length >= 3 ? 'Comparador lleno (máx. 3)' : 'Agregar al comparador'}
+          style={{ position: 'absolute', bottom: '10px', right: '10px', zIndex: 10, background: enComparador ? 'var(--accent)' : 'rgba(0,0,0,.55)', border: 'none', borderRadius: '6px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', cursor: !enComparador && lista.length >= 3 ? 'not-allowed' : 'pointer', fontSize: '10px', color: '#fff', fontWeight: 700, letterSpacing: '.05em', backdropFilter: 'blur(4px)', opacity: !enComparador && lista.length >= 3 ? 0.4 : 1, transition: 'all .2s' }}>
+          ⇄ {enComparador ? 'EN COMP.' : 'COMPARAR'}
+        </button>
+      </div>
 
       <div className="car-body">
         <div className="car-brand" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -69,6 +71,7 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
           {auto.combustible && <span>{auto.combustible}</span>}
         </div>
         <div className="car-price">{formatPrice(auto.precio_ars)}</div>
+        {auto.precio_usd && <div style={{ fontSize: '13px', color: 'var(--gray4)', marginTop: '2px' }}>USD {Number(auto.precio_usd).toLocaleString('es-AR')}</div>}
         {auto.concesionarias?.nombre && (
           <div className="car-dealer">{auto.concesionarias.nombre} · {auto.concesionarias.ciudad}</div>
         )}

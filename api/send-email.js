@@ -4,23 +4,9 @@
 //
 // Se invoca con body.action: 'consulta' (notifica al vendedor) | 'confirma' (notifica al comprador).
 
+import { rateLimit } from './_lib/ratelimit.js'
+
 const ALLOWED_ORIGIN = 'https://fioramarket.store'
-
-const rateLimit = new Map()
-const WINDOW_MS = 60 * 1000
-const MAX_REQUESTS = 5
-
-function checkRateLimit(ip) {
-  const now = Date.now()
-  const entry = rateLimit.get(ip)
-  if (!entry || now - entry.start > WINDOW_MS) {
-    rateLimit.set(ip, { count: 1, start: now })
-    return true
-  }
-  if (entry.count >= MAX_REQUESTS) return false
-  entry.count++
-  return true
-}
 
 function sanitizeHtml(str) {
   return String(str)
@@ -186,7 +172,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown'
-  if (!checkRateLimit(ip)) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
+  const allowed = await rateLimit('send-email', ip, { limit: 5, windowSec: 60 })
+  if (!allowed) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
 
   const action = req.body?.action
   if (action === 'consulta') return sendConsulta(req, res)

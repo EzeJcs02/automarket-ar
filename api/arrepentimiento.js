@@ -1,20 +1,6 @@
+import { rateLimit } from './_lib/ratelimit.js'
+
 const ALLOWED_ORIGIN = 'https://fioramarket.store'
-
-const rateLimit = new Map()
-const WINDOW_MS = 60 * 1000
-const MAX_REQUESTS = 3
-
-function checkRateLimit(ip) {
-  const now = Date.now()
-  const entry = rateLimit.get(ip)
-  if (!entry || now - entry.start > WINDOW_MS) {
-    rateLimit.set(ip, { count: 1, start: now })
-    return true
-  }
-  if (entry.count >= MAX_REQUESTS) return false
-  entry.count++
-  return true
-}
 
 function sanitize(str) {
   return String(str)
@@ -51,7 +37,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown'
-  if (!checkRateLimit(ip)) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
+  const allowed = await rateLimit('arrepentimiento', ip, { limit: 3, windowSec: 60 })
+  if (!allowed) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
 
   const { nombre, email, telefono, nro_operacion, motivo, fecha_operacion, monto_pagado, user_id } = req.body || {}
   if (!nombre || !email || !nro_operacion) return res.status(400).json({ error: 'Faltan datos' })

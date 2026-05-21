@@ -107,7 +107,16 @@ export default function AutoDetalle() {
     }
 
     loadAuto()
-    supabase.rpc('incrementar_vistas', { auto_id: id })
+    // Dedupe: 1 vista por auto por sesión del navegador
+    try {
+      const key = `viewed:${id}`
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1')
+        supabase.rpc('incrementar_vistas', { auto_id: id })
+      }
+    } catch {
+      supabase.rpc('incrementar_vistas', { auto_id: id })
+    }
     return () => {
       mounted = false
       resetMeta()

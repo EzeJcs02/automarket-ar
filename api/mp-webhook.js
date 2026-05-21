@@ -1,4 +1,5 @@
 ﻿import crypto from 'crypto'
+import { PRECIOS } from './_lib/precios.js'
 
 function verifyMpSignature(req) {
   const secret = process.env.MP_WEBHOOK_SECRET
@@ -49,21 +50,11 @@ async function safeFetch(url, options) {
   return res.json().catch(() => ({}))
 }
 
-// 🔒 DICCIONARIO DE PRECIOS MÍNIMOS ESPERADOS (Ejemplo)
-const PRECIOS_ESPERADOS = {
-  subir_tope: 10000,
-  destacado: 15000,
-  urgente: 20000,
-  renovar: 10000,
-  destacado_individual: 15000,
-  urgente_individual: 20000,
-  pack_destacados_10: 95000,
-  banner_home: 50000,
-  fijado_home: 25000,
-  plan_profesional_base: 10000,
-  plan_profesional_destacado: 20000,
-  publicidad_lateral: 15000,
-}
+// PRECIOS_ESPERADOS deriva del módulo compartido (single source of truth)
+const PRECIOS_ESPERADOS = Object.fromEntries(
+  Object.entries(PRECIOS).map(([k, v]) => [k, v.monto])
+)
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
@@ -111,17 +102,6 @@ export default async function handler(req, res) {
       user_email,
     } = payment.metadata || {}
 
-    // 🚨 VALIDACIÓN CRÍTICA CONTRA MANIPULACIÓN DE PRECIOS
-    const precioEsperado = PRECIOS_ESPERADOS[tipo]
-    if (precioEsperado === undefined) {
-      console.error(`🚨 ALERTA: Tipo de pago desconocido "${tipo}"`)
-      return res.status(200).json({ error: 'Tipo de pago no reconocido' })
-    }
-    if (payment.transaction_amount < precioEsperado) {
-      console.error(`🚨 ALERTA FRAUDE: Monto insuficiente. Pagó ${payment.transaction_amount} por ${tipo}`)
-      return res.status(200).json({ error: 'Monto insuficiente para el servicio' })
-    }
-
     const supabaseUrl = process.env.SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -130,6 +110,40 @@ export default async function handler(req, res) {
       Authorization: `Bearer ${supabaseKey}`,
       'Content-Type': 'application/json',
       Prefer: 'return=representation',
+    }
+
+    // Helper para registrar pagos cobrados pero NO aplicables (fraude, ownership, etc).
+    // Requiere tabla `pagos_rechazados` (ver docs SQL). Si no existe, sólo loguea.
+    async function registrarRechazado(motivo) {
+      try {
+        await fetch(`${supabaseUrl}/rest/v1/pagos_rechazados`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            mp_payment_id: String(id),
+            tipo: tipo || null,
+            motivo,
+            monto: payment.transaction_amount,
+            metadata: payment.metadata || {},
+            payer_email: payment.payer?.email || null,
+          }),
+        })
+      } catch (e) {
+        console.error('[mp-webhook] no se pudo registrar rechazado:', e.message)
+      }
+    }
+
+    // 🚨 VALIDACIÓN CRÍTICA CONTRA MANIPULACIÓN DE PRECIOS
+    const precioEsperado = PRECIOS_ESPERADOS[tipo]
+    if (precioEsperado === undefined) {
+      console.error(`🚨 ALERTA: Tipo de pago desconocido "${tipo}"`)
+      await registrarRechazado('tipo_desconocido')
+      return res.status(200).json({ error: 'Tipo de pago no reconocido' })
+    }
+    if (payment.transaction_amount < precioEsperado) {
+      console.error(`🚨 ALERTA FRAUDE: Monto insuficiente. Pagó ${payment.transaction_amount} por ${tipo}`)
+      await registrarRechazado('monto_insuficiente')
+      return res.status(200).json({ error: 'Monto insuficiente para el servicio' })
     }
 
     // 🔒 IDEMPOTENCIA MEJORADA
@@ -156,14 +170,17 @@ export default async function handler(req, res) {
 
       if (!autos.length) {
         console.warn(`Webhook ignorado: Auto ${auto_id} no existe`);
+        await registrarRechazado('auto_no_existe')
         return res.status(200).json({ error: 'Auto not found' })
       }
 
       const autoTarget = autos[0]
 
       if (concesionaria_id && autoTarget.concesionaria_id !== concesionaria_id) {
+        await registrarRechazado('ownership_mismatch_concesionaria')
         return res.status(200).json({ error: 'Ownership mismatch (Concesionaria)' })
       } else if (!concesionaria_id && user_id && autoTarget.user_id !== user_id) {
+        await registrarRechazado('ownership_mismatch_user')
         return res.status(200).json({ error: 'Ownership mismatch (Usuario particular)' })
       }
     }

@@ -10,11 +10,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let lastFetchedUserId = null
+
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         setUser(session?.user ?? null)
         if (session?.user) {
+          lastFetchedUserId = session.user.id
           await fetchConcesionaria(session.user.id)
         } else {
           setLoading(false)
@@ -30,11 +33,15 @@ export function AuthProvider({ children }) {
     let subscription = null
     try {
       const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        const newUserId = session?.user?.id ?? null
         setUser(session?.user ?? null)
         if (session?.user) {
-          setLoading(true)  // indica que se está re-fetcheando la concesionaria
+          if (lastFetchedUserId === newUserId) return // evita double-fetch en boot
+          lastFetchedUserId = newUserId
+          setLoading(true)
           fetchConcesionaria(session.user.id)
         } else {
+          lastFetchedUserId = null
           setConcesionaria(null)
           setProfesional(null)
           setLoading(false)
@@ -88,12 +95,12 @@ export function AuthProvider({ children }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: datos.nombre, email, telefono: datos.telefono, ciudad: datos.ciudad }),
-      }).catch(() => {})
+      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
       fetch('/api/welcome-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: datos.nombre, email, tipo: 'concesionaria', user_id: data.user.id }),
-      }).catch(() => {})
+      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
     }
     return { error: null }
   }
@@ -117,7 +124,7 @@ export function AuthProvider({ children }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: datos.nombre, email, telefono: datos.telefono, ciudad: datos.ciudad, tipo: 'profesional' }),
-      }).catch(() => {})
+      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
     }
     return { error: null }
   }
@@ -130,7 +137,7 @@ export function AuthProvider({ children }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, email, tipo: 'particular', user_id: data.user.id }),
-      }).catch(() => {})
+      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
     }
     return { error: null }
   }
@@ -144,7 +151,15 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('signOut failed:', error)
+      // Fallback: limpiar estado local aunque el server falle
+      setUser(null)
+      setConcesionaria(null)
+      setProfesional(null)
+    }
+    return { error }
   }
 
   const isAdmin = !!(user?.email && user.email === import.meta.env.VITE_ADMIN_EMAIL)

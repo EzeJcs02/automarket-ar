@@ -9,6 +9,8 @@
 // CREATE INDEX IF NOT EXISTS idx_alertas_enviadas_alerta ON alertas_enviadas(alerta_id);
 // CREATE INDEX IF NOT EXISTS idx_alertas_activo ON alertas_busqueda(activo) WHERE activo = true;
 
+import { buildUnsubscribeToken } from './_lib/unsubscribe-token.js'
+
 const BATCH_SIZE = 10   // alertas procesadas en paralelo por vez
 const BATCH_DELAY_MS = 200 // pausa entre batches (~5 req/s hacia Resend)
 
@@ -25,8 +27,10 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const sbHeaders = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
   const RESEND_KEY = process.env.RESEND_API_KEY
+  const UNSUB_SECRET = process.env.UNSUBSCRIBE_SECRET
 
   if (!RESEND_KEY) return res.status(200).json({ ok: false, reason: 'no-resend-key' })
+  if (!UNSUB_SECRET) console.warn('[cron-alertas] UNSUBSCRIBE_SECRET no configurada — emails irán sin link de baja')
 
   // ── 1. Autos publicados en las últimas 24h ────────────────────────────────
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
@@ -138,6 +142,10 @@ export default async function handler(req, res) {
             from: 'FIORA MARKET <noreply@fioramarket.store>',
             to: alerta.email,
             subject: `${coincidentes.length} vehículo${coincidentes.length > 1 ? 's' : ''} nuevo${coincidentes.length > 1 ? 's' : ''} que te puede${coincidentes.length > 1 ? 'n' : ''} interesar`,
+            headers: UNSUB_SECRET ? {
+              'List-Unsubscribe': `<https://fioramarket.store/api/unsubscribe-alerta?id=${encodeURIComponent(alerta.id)}&t=${buildUnsubscribeToken(alerta.id, UNSUB_SECRET)}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            } : undefined,
             html: `
               <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#0a0a0a;color:#f5f3ee;border-radius:12px;overflow:hidden">
                 <div style="background:#e63329;padding:20px 28px">
@@ -152,6 +160,10 @@ export default async function handler(req, res) {
                     <a href="https://fioramarket.store/catalogo" style="font-size:13px;color:#e63329;text-decoration:none">Ver catálogo completo →</a>
                     <a href="https://fioramarket.store/mi-cuenta" style="font-size:13px;color:#555;text-decoration:none">Administrar alertas</a>
                   </div>
+                  ${UNSUB_SECRET ? `<div style="margin-top:16px;font-size:11px;color:#555;text-align:center">
+                    ¿No querés más estos avisos?
+                    <a href="https://fioramarket.store/api/unsubscribe-alerta?id=${encodeURIComponent(alerta.id)}&t=${buildUnsubscribeToken(alerta.id, UNSUB_SECRET)}" style="color:#888;text-decoration:underline">Darme de baja</a>
+                  </div>` : ''}
                 </div>
               </div>`,
           }),

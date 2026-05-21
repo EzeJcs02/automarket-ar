@@ -123,15 +123,18 @@ export default async function handler(req, res) {
         break
 
       case 'eliminarUsuario': {
-        const { data: concs } = await supabase.from('concesionarias').select('id').eq('user_id', params.id)
-        for (const c of concs || []) {
-          await supabase.from('consultas').delete().eq('concesionaria_id', c.id)
-          await supabase.from('autos').delete().eq('concesionaria_id', c.id)
+        // 1. Borrado transaccional de filas relacionadas vía RPC (todo o nada).
+        const { error: rpcErr } = await supabase.rpc('admin_eliminar_usuario', { p_user_id: params.id })
+        if (rpcErr) {
+          console.error('[admin-actions] admin_eliminar_usuario RPC falló:', rpcErr)
+          return res.status(500).json({ error: 'No se pudieron borrar los datos del usuario', details: rpcErr.message })
         }
-        await supabase.from('concesionarias').delete().eq('user_id', params.id)
-        await supabase.from('profesionales').delete().eq('user_id', params.id)
-        await supabase.from('autos').delete().eq('user_id', params.id)
-        await supabase.auth.admin.deleteUser(params.id)
+        // 2. Borrar auth.users (no se puede dentro de la función SECURITY DEFINER de forma segura).
+        const { error: authErr } = await supabase.auth.admin.deleteUser(params.id)
+        if (authErr) {
+          console.error('[admin-actions] auth.deleteUser falló tras borrado de datos:', authErr)
+          return res.status(500).json({ error: 'Datos borrados pero auth.user persiste. Borrar manualmente.', details: authErr.message })
+        }
         break
       }
 

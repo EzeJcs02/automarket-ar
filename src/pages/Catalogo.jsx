@@ -41,6 +41,7 @@ export default function Catalogo() {
   const [alertaGuardando, setAlertaGuardando] = useState(false)
   const [ordenar, setOrdenar] = useState('relevancia')
   const [autosRaw, setAutosRaw] = useState([])
+  const [totalCount, setTotalCount] = useState(0)
   const autos = useMemo(() => applySort(autosRaw, ordenar), [autosRaw, ordenar])
 
   const esParticular = user && !concesionaria && !isAdmin
@@ -49,8 +50,11 @@ export default function Catalogo() {
 
   useEffect(() => {
     supabase.from('concesionarias').select('id, nombre').eq('aprobada', true).then(({ data }) => setConcesionarias(data || []))
-    fetchAutos()
+    fetchAutos(1)
   }, [])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchAutos(page) }, [page])
 
   useEffect(() => {
     if (!user || concesionaria || isAdmin) return
@@ -69,9 +73,15 @@ export default function Catalogo() {
     }
   }
 
-  async function fetchAutos() {
+  async function fetchAutos(targetPage = page) {
     setLoading(true)
-    let q = supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)').eq('activo', true)
+    const from = (targetPage - 1) * PAGE_SIZE
+    const to = from + PAGE_SIZE - 1
+    // Si hay filtro de ciudad, usamos !inner para que el JOIN sea obligatorio
+    const concSelect = filtros.ciudad ? 'concesionarias!inner(nombre, ciudad, plan)' : 'concesionarias(nombre, ciudad, plan)'
+    let q = supabase.from('autos')
+      .select(`*, ${concSelect}`, { count: 'exact' })
+      .eq('activo', true)
     if (filtros.tipo) q = q.eq('tipo', filtros.tipo)
     if (filtros.categoria) q = q.eq('categoria', filtros.categoria)
     if (filtros.marca) q = q.eq('marca', filtros.marca)
@@ -83,14 +93,23 @@ export default function Catalogo() {
     if (filtros.combustible) q = q.eq('combustible', filtros.combustible)
     if (filtros.transmision) q = q.eq('transmision', filtros.transmision)
     if (filtros.kmMax) q = q.lte('kilometraje', filtros.kmMax)
-    if (filtros.busqueda) q = q.or(`marca.ilike.%${filtros.busqueda}%,modelo.ilike.%${filtros.busqueda}%`)
-    const { data } = await q
-    const filtered = filtros.ciudad
-      ? (data || []).filter(a => a.concesionarias?.ciudad?.toLowerCase().includes(filtros.ciudad.toLowerCase()))
-      : (data || [])
-    setAutosRaw(filtered)
-    setPage(1)
+    if (filtros.busqueda) {
+      const safe = filtros.busqueda.replace(/[%_,()]/g, '\\$&')
+      q = q.or(`marca.ilike.%${safe}%,modelo.ilike.%${safe}%`)
+    }
+    if (filtros.ciudad) {
+      const safe = filtros.ciudad.replace(/[%_,()]/g, '\\$&')
+      q = q.ilike('concesionarias.ciudad', `%${safe}%`)
+    }
+    const { data, count } = await q.range(from, to)
+    setAutosRaw(data || [])
+    setTotalCount(count || 0)
     setLoading(false)
+  }
+
+  function aplicarFiltros() {
+    setPage(1)
+    fetchAutos(1)
   }
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
@@ -107,10 +126,11 @@ export default function Catalogo() {
     setTimeout(() => setAlertaOk(false), 4000)
   }
 
-  const totalPages = Math.ceil(autos.length / PAGE_SIZE)
-  const autosPagina = autos.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
+  const autosPagina = autos // ya viene paginado del server
 
   function irAPagina(p) {
+    if (p < 1 || p > totalPages) return
     setPage(p)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -133,7 +153,7 @@ export default function Catalogo() {
           Miles de autos, motos y náutica de concesionarias verificadas y particulares.
         </p>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
-          {loading ? 'Cargando...' : `${autos.length} resultado${autos.length !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
+          {loading ? 'Cargando...' : `${totalCount} resultado${totalCount !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
         </div>
       </div>
       <div className="catalogo-layout">
@@ -247,8 +267,8 @@ export default function Catalogo() {
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Ciudad / Localidad</div>
             <input style={inputStyle} placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
           </div>
-          <button className="btn-primary" style={{ width: '100%' }} onClick={fetchAutos}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }); setOrdenar('relevancia'); setPage(1); setTimeout(fetchAutos, 100) }}>Limpiar</button>
+          <button className="btn-primary" style={{ width: '100%' }} onClick={aplicarFiltros}>Aplicar filtros</button>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }); setOrdenar('relevancia'); setPage(1); setTimeout(() => fetchAutos(1), 100) }}>Limpiar</button>
 
           {/* ALERTA DE BÚSQUEDA */}
           <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray2)' }}>
@@ -279,9 +299,9 @@ export default function Catalogo() {
         </div>
         {/* RESULTS */}
         <div className="catalogo-results">
-          {!loading && autos.length > 0 && (
+          {!loading && totalCount > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>{autos.length} resultado{autos.length !== 1 ? 's' : ''}</div>
+              <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>{totalCount} resultado{totalCount !== 1 ? 's' : ''}</div>
               <select value={ordenar} onChange={e => { setOrdenar(e.target.value); setPage(1) }}
                 style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '7px 12px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none', cursor: 'pointer' }}>
                 <option value="relevancia">Relevancia</option>

@@ -165,16 +165,17 @@ export default function AutoDetalle() {
       return
     }
     // Notificar al vendedor por email
-    fetch('/api/send-consulta', {
+    fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ auto_id: auto.id, nombre: consulta.nombre, email: consulta.email, mensaje: consulta.mensaje, telefono: consulta.telefono || null }),
+      body: JSON.stringify({ action: 'consulta', auto_id: auto.id, nombre: consulta.nombre, email: consulta.email, mensaje: consulta.mensaje, telefono: consulta.telefono || null }),
     }).catch(() => {})
     // Confirmación al comprador
-    fetch('/api/send-confirma', {
+    fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        action: 'confirma',
         email: consulta.email,
         nombre: consulta.nombre,
         auto: `${auto.marca} ${auto.modelo} ${auto.anio}`,

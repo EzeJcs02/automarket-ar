@@ -27,23 +27,18 @@ export default function Home() {
     const fetchAll = async () => {
       try {
         const [rAutos, rConc, rBanners, rAds, rFijado] = await Promise.all([
-          supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).limit(50).order('created_at', { ascending: false }),
+          supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).or('urgente.eq.true,destacado.eq.true').limit(6).order('created_at', { ascending: false }),
           supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6),
           supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10),
           supabase.from('publicidades').select('id, nombre, imagen_url, link_url, fondo').eq('activo', true).order('created_at', { ascending: false }),
           supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).limit(1)
         ])
         
-        const planScore = { premium: 1000, pro: 100, basico: 10 }
         const sorted = (rAutos.data || []).sort((a, b) => {
           if (a.urgente !== b.urgente) return (b.urgente ? 1 : 0) - (a.urgente ? 1 : 0)
-          if (a.destacado !== b.destacado) return (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0)
-          const sa = planScore[a.concesionarias?.plan] || 0
-          const sb = planScore[b.concesionarias?.plan] || 0
-          if (sb !== sa) return sb - sa
           return new Date(b.created_at) - new Date(a.created_at)
         })
-        setAutos(sorted.slice(0, 6))
+        setAutos(sorted)
         setConcesionarias(rConc.data || [])
         setBanners(rBanners.data || [])
         setRightAds(rAds.data || [])

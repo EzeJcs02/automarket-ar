@@ -212,10 +212,12 @@ export default function Home() {
             <span style={{ display: 'inline-block', width: '24px', height: '1px', background: '#c9a84c', flexShrink: 0 }} />
             Vehículo destacado del día
           </div>
-          <div className="home-fijado-card" style={{ display: 'flex', gap: '2rem', alignItems: 'center', background: 'var(--gray1)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', cursor: 'pointer', maxWidth: '700px' }}
-            onClick={() => navigate(`/auto/${autoFijado.id}`)}>
+          <div className="home-fijado-card" style={{ display: 'flex', gap: '2rem', alignItems: 'center', background: 'var(--gray1)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', cursor: 'pointer', maxWidth: '700px', transition: 'border-color .25s, box-shadow .25s, transform .25s' }}
+            onClick={() => navigate(`/auto/${autoFijado.id}`)}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(230,51,41,0.8)'; e.currentTarget.style.boxShadow = '0 8px 40px rgba(230,51,41,0.18)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(230,51,41,0.3)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)' }}>
             {autoFijado.fotos?.[0] && (
-              <img src={autoFijado.fotos[0]} alt={autoFijado.modelo} className="home-fijado-img" style={{ width: '200px', height: '130px', objectFit: 'cover', borderRadius: 'var(--radius)', flexShrink: 0 }} />
+              <img src={autoFijado.fotos[0]} alt={autoFijado.modelo} className="home-fijado-img" style={{ width: '200px', height: '130px', objectFit: 'cover', borderRadius: 'var(--radius)', flexShrink: 0, transition: 'transform .25s' }} />
             )}
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)', marginBottom: '4px' }}>{autoFijado.marca}</div>
@@ -223,6 +225,7 @@ export default function Home() {
               <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '12px' }}>{autoFijado.anio} · {Number(autoFijado.kilometraje || 0).toLocaleString('es-AR')} km · {autoFijado.combustible}</div>
               {autoFijado.precio_ars && <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--white)' }}>${Number(autoFijado.precio_ars).toLocaleString('es-AR')}</div>}
               <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>{autoFijado.concesionarias?.nombre} · {autoFijado.concesionarias?.ciudad}</div>
+              <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--accent)', fontFamily: 'var(--font-mono)', letterSpacing: '.08em' }}>Ver detalle →</div>
             </div>
           </div>
         </div>

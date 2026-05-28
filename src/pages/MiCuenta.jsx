@@ -42,7 +42,6 @@ export default function MiCuenta() {
   }, [user, concesionaria, isAdmin, authLoading])
 
   async function fetchData() {
-    setLoading(true)
     const [{ data: favData }, { data: consData }, { data: autosData }, { data: pagosData }] = await Promise.all([
       supabase.from('favoritos').select('auto_id, autos(*, concesionarias(nombre, ciudad, plan))').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('consultas').select('*, autos(marca, modelo)').eq('email_comprador', user.email).order('created_at', { ascending: false }),

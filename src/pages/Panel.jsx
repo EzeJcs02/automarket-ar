@@ -67,7 +67,7 @@ export default function Panel() {
     setLoading(false)
   }
 
-  if (authLoading || loading) {
+  if (loading) {
     return <div className="page-wrapper"><div className="spinner" /></div>
   }
 

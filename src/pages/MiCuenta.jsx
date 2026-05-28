@@ -489,6 +489,7 @@ function EditarAutoModal({ auto, onClose, onSave }) {
   })
   const [fotos, setFotos] = useState(auto.fotos || [])
   const [fotosNuevas, setFotosNuevas] = useState([])
+  const [inputKey, setInputKey] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const setF = (k, v) => setForm(p => ({ ...p, [k]: v }))
@@ -563,7 +564,7 @@ function EditarAutoModal({ auto, onClose, onSave }) {
               ))}
             </div>
             <label style={{ display: 'block', border: '2px dashed var(--gray3)', borderRadius: 'var(--radius)', padding: '10px', textAlign: 'center', cursor: 'pointer' }}>
-              <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => { setFotosNuevas(p => [...p, ...Array.from(e.target.files)]); e.target.value = '' }} />
+              <input key={inputKey} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => { const nuevas = Array.from(e.target.files); setFotosNuevas(p => [...p, ...nuevas]); setInputKey(k => k + 1) }} />
               <span style={{ fontSize: '13px', color: 'var(--gray4)' }}>+ Agregar fotos</span>
             </label>
           </div>

@@ -12,8 +12,10 @@ const PAGE_SIZE = 24
 function sortByPriority(lista) {
   const planScore = { premium: 1000, pro: 100, basico: 10 }
   return [...lista].sort((a, b) => {
-    const sa = (planScore[a.concesionarias?.plan] || 0) + (a.urgente ? 5 : 0) + (a.destacado ? 3 : 0)
-    const sb = (planScore[b.concesionarias?.plan] || 0) + (b.urgente ? 5 : 0) + (b.destacado ? 3 : 0)
+    if (a.urgente !== b.urgente) return (b.urgente ? 1 : 0) - (a.urgente ? 1 : 0)
+    if (a.destacado !== b.destacado) return (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0)
+    const sa = planScore[a.concesionarias?.plan] || 0
+    const sb = planScore[b.concesionarias?.plan] || 0
     if (sb !== sa) return sb - sa
     return new Date(b.created_at) - new Date(a.created_at)
   })

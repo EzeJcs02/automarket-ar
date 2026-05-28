@@ -578,13 +578,25 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   )
 }
 
+const DRAFT_KEY = 'panel_nuevo_auto_draft'
+const FORM_DEFAULTS = { marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' }
+
 function NuevoAuto({ concesionaria, onSuccess }) {
-  const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' })
+  const [form, setForm] = useState(() => {
+    try { return { ...FORM_DEFAULTS, ...JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}') } }
+    catch { return FORM_DEFAULTS }
+  })
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
+  function setF(k, v) {
+    setForm(p => {
+      const next = { ...p, [k]: v }
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(next))
+      return next
+    })
+  }
 
   function handleFotos(e) {
     const nuevas = Array.from(e.target.files)
@@ -626,7 +638,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
     })
     setLoading(false)
     if (insErr) setError(insErr.message)
-    else onSuccess()
+    else { localStorage.removeItem(DRAFT_KEY); onSuccess() }
   }
 
   return (

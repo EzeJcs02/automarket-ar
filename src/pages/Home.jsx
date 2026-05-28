@@ -173,17 +173,12 @@ export default function Home() {
             <div key={b.id}
               onClick={() => navigate(`/concesionaria/${b.id}`)}
               style={{ position: 'absolute', inset: 0, opacity: i === bottomIdx ? 1 : 0, transition: 'opacity .8s ease-in-out', pointerEvents: i === bottomIdx ? 'auto' : 'none', cursor: 'pointer' }}>
-              {b.portada_url
-                ? <img src={b.portada_url} alt={b.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : (
-                  <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0f0f0f 0%, #1a0a0a 50%, #0f0f0f 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(230,51,41,.12) 0%, transparent 70%)' }} />
-                    <img src="/fiora_logo.png" alt="logo" style={{ height: '32px', opacity: 0.4, position: 'relative' }} />
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px,3vw,32px)', color: 'var(--white)', letterSpacing: '.05em', textAlign: 'center', padding: '0 2rem', position: 'relative' }}>{b.nombre}</div>
-                    <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.15em', textTransform: 'uppercase', position: 'relative' }}>Concesionaria verificada</div>
-                  </div>
-                )
-              }
+              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0f0f0f 0%, #1a0a0a 50%, #0f0f0f 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(230,51,41,.12) 0%, transparent 70%)' }} />
+                <img src="/fiora_logo.png" alt="logo" style={{ height: '32px', opacity: 0.4, position: 'relative' }} />
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px,3vw,32px)', color: 'var(--white)', letterSpacing: '.05em', textAlign: 'center', padding: '0 2rem', position: 'relative' }}>{b.nombre}</div>
+                <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.15em', textTransform: 'uppercase', position: 'relative' }}>Concesionaria verificada</div>
+              </div>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,.35) 0%, transparent 40%, transparent 60%, rgba(0,0,0,.35) 100%)' }} />
             </div>
           )) : (

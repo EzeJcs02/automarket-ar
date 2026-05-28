@@ -236,9 +236,10 @@ export default function MiCuenta() {
 
       {tab === 'publicaciones' && (
         <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
-          {showForm ? (
+          <div style={{ display: showForm ? 'block' : 'none' }}>
             <PublicarForm user={user} onSuccess={() => { setShowForm(false); fetchData() }} onCancel={() => setShowForm(false)} />
-          ) : (
+          </div>
+          {!showForm ? (
             <>
               {(() => {
                 const limite = 4
@@ -306,7 +307,7 @@ export default function MiCuenta() {
                 </div>
               )}
             </>
-          )}
+          ) : null}
         </div>
       )}
 

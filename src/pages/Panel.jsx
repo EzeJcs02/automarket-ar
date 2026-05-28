@@ -152,7 +152,9 @@ export default function Panel() {
           <>
             {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} setTab={setTab} />}
             {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} concesionaria={concesionaria} />}
-            {tab === 'nuevo-auto' && <NuevoAuto concesionaria={concesionaria} autos={autos} onSuccess={() => { loadData(); setTab('mis-autos') }} />}
+            <div style={{ display: tab === 'nuevo-auto' ? 'block' : 'none' }}>
+              <NuevoAuto concesionaria={concesionaria} autos={autos} onSuccess={() => { loadData(); setTab('mis-autos') }} />
+            </div>
             {tab === 'consultas' && <Consultas consultas={consultas} reload={loadData} />}
             {tab === 'pagos' && <MisPagos pagos={pagos} />}
             {tab === 'perfil' && <Perfil concesionaria={concesionaria} onSave={() => fetchConcesionaria(user.id)} />}

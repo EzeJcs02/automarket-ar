@@ -18,6 +18,7 @@ export default function MiCuenta() {
   const [tab, setTab] = useState('publicaciones')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [formKey, setFormKey] = useState(0)
   const [editandoAuto, setEditandoAuto] = useState(null)
   const [editandoPerfil, setEditandoPerfil] = useState(false)
   const [perfilForm, setPerfilForm] = useState({ nombre: '', telefono: '' })
@@ -236,7 +237,7 @@ export default function MiCuenta() {
       {tab === 'publicaciones' && (
         <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
           <div style={{ display: showForm ? 'block' : 'none' }}>
-            <PublicarForm user={user} onSuccess={() => { setShowForm(false); fetchData() }} onCancel={() => setShowForm(false)} />
+            <PublicarForm key={formKey} user={user} onSuccess={() => { setShowForm(false); setFormKey(k => k + 1); fetchData() }} onCancel={() => { setShowForm(false); setFormKey(k => k + 1) }} />
           </div>
           {!showForm ? (
             <>

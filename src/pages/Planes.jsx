@@ -103,13 +103,15 @@ export default function Planes() {
   }
 
   function handleBoost() {
-    if (user) navigate('/mi-cuenta')
-    else navigate('/login')
+    if (!user) { navigate('/login'); return }
+    if (concesionaria) navigate('/panel')
+    else navigate('/mi-cuenta')
   }
 
   function handleExtrasIndividual() {
-    if (user) navigate('/mi-cuenta')
-    else navigate('/login')
+    if (!user) { navigate('/login'); return }
+    if (concesionaria) navigate('/panel')
+    else navigate('/mi-cuenta')
   }
 
   function handlePlanProfesional(tipo) {

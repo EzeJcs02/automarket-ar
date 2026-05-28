@@ -361,18 +361,21 @@ export default function MiCuenta() {
 function PublicarForm({ user, onSuccess, onCancel }) {
   const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '', tipo: 'usado', categoria: '', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', descripcion: '', whatsapp: '' })
   const [fotos, setFotos] = useState([])
+  const [inputKey, setInputKey] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const setF = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
   function handleFotos(e) {
-    setFotos(prev => [...prev, ...Array.from(e.target.files)])
-    e.target.value = ''
+    const nuevas = Array.from(e.target.files)
+    setFotos(prev => [...prev, ...nuevas])
+    setInputKey(k => k + 1)
   }
 
   function eliminarFoto(idx) {
     setFotos(prev => prev.filter((_, i) => i !== idx))
+    setInputKey(k => k + 1)
   }
 
   async function handleSubmit(e) {
@@ -439,7 +442,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
             </div>
           )}
           <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--gray2)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: fotos.length > 0 ? '1rem' : '2rem', textAlign: 'center', cursor: 'pointer' }}>
-            <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
+            <input key={inputKey} type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
             <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray4)' }}>
               {fotos.length === 0 ? 'Click para subir fotos' : '+ Agregar más fotos'}
             </div>

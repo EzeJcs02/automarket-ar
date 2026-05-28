@@ -589,6 +589,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
     catch { return FORM_DEFAULTS }
   })
   const [fotos, setFotos] = useState([])
+  const [inputKey, setInputKey] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -607,11 +608,12 @@ function NuevoAuto({ concesionaria, onSuccess }) {
       if (combinadas.length >= 5) setError('')
       return combinadas
     })
-    e.target.value = ''
+    setInputKey(k => k + 1)
   }
 
   function eliminarFoto(idx) {
     setFotos(prev => prev.filter((_, i) => i !== idx))
+    setInputKey(k => k + 1)
   }
 
   async function handleSubmit(e) {
@@ -675,7 +677,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
           )}
 
           <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--gray2)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: fotos.length > 0 ? '1.2rem' : '3rem', textAlign: 'center', cursor: 'pointer', marginBottom: '2rem', transition: 'all .2s' }}>
-            <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
+            <input key={inputKey} type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
             <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray4)' }}>
               {fotos.length === 0 ? 'Click para subir fotografías' : '+ Agregar más fotos'}
             </div>

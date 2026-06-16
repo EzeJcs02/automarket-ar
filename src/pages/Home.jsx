@@ -101,7 +101,7 @@ export default function Home() {
           <div className="animate-fade-in" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
             Plataforma N°1 de vehículos en Argentina
           </div>
-          <h1 className="animate-fade-in delay-1" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(60px,8vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
+          <h1 className="animate-fade-in delay-1" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,8vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
             ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span>
           </h1>
           <p className="animate-fade-in delay-2" style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>

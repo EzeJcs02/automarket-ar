@@ -19,7 +19,8 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-body); background: var(--black); color: var(--white); min-height: 100vh; cursor: default; }
+html { overflow-x: clip; }
+body { font-family: var(--font-body); background: var(--black); color: var(--white); min-height: 100vh; cursor: default; overflow-x: clip; }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: var(--font-body); }
 input, select, textarea { font-family: var(--font-body); }
@@ -437,6 +438,14 @@ body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
   .catalogo-layout { flex-direction: column !important; }
   .catalogo-filters { width: 100% !important; position: static !important; height: auto !important; border-right: none !important; border-bottom: 1px solid var(--gray2); padding: 1rem !important; }
   .catalogo-results { padding: 1rem !important; }
+}
+
+/* Catálogo — toggle de filtros plegable (solo mobile/tablet) */
+.catalogo-filtros-toggle { display: none; }
+@media (max-width: 900px) {
+  .catalogo-filtros-toggle { display: block; padding: 1rem 1rem 0; }
+  .catalogo-filters { display: none; }
+  .catalogo-filters.is-open { display: block; }
 }
 @media (max-width: 640px) {
   .catalogo-grid { grid-template-columns: 1fr !important; }

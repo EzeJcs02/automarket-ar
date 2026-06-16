@@ -44,7 +44,9 @@ export default function Catalogo() {
   const [ordenar, setOrdenar] = useState('relevancia')
   const [autosRaw, setAutosRaw] = useState([])
   const [totalCount, setTotalCount] = useState(0)
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false)
   const autos = useMemo(() => applySort(autosRaw, ordenar), [autosRaw, ordenar])
+  const filtrosActivosCount = Object.values(filtros).filter(Boolean).length
 
   const esParticular = user && !concesionaria && !isAdmin
 
@@ -112,6 +114,10 @@ export default function Catalogo() {
   function aplicarFiltros() {
     setPage(1)
     fetchAutos(1)
+    if (window.innerWidth <= 900) {
+      setFiltrosAbiertos(false)
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50)
+    }
   }
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
@@ -158,9 +164,17 @@ export default function Catalogo() {
           {loading ? 'Cargando...' : `${totalCount} resultado${totalCount !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
         </div>
       </div>
+      {/* TOGGLE DE FILTROS — solo mobile */}
+      <div className="catalogo-filtros-toggle">
+        <button className="btn-secondary" onClick={() => setFiltrosAbiertos(o => !o)}
+          style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          {filtrosAbiertos ? 'Ocultar filtros' : 'Filtros'}{filtrosActivosCount > 0 ? ` · ${filtrosActivosCount}` : ''}
+        </button>
+      </div>
       <div className="catalogo-layout">
         {/* SIDEBAR */}
-        <div className="catalogo-filters">
+        <div className={`catalogo-filters${filtrosAbiertos ? ' is-open' : ''}`}>
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Búsqueda</div>
             <input style={inputStyle} placeholder="Marca, modelo..." value={filtros.busqueda} onChange={e => setF('busqueda', e.target.value)} />

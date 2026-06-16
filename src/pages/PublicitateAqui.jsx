@@ -43,7 +43,7 @@ export default function PublicitateAqui() {
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.2em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
           PUBLICIDAD · FIORA MARKET
         </div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '64px', lineHeight: 1, marginBottom: '1.5rem' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px, 9vw, 64px)', lineHeight: 1, marginBottom: '1.5rem' }}>
           LLEGÁ A MILES<br />DE COMPRADORES
         </div>
         <p style={{ fontSize: '18px', color: 'var(--gray4)', lineHeight: 1.7, maxWidth: '600px', marginBottom: '2.5rem' }}>

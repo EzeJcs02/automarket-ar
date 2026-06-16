@@ -16,8 +16,8 @@ export default async function handler(req, res) {
   if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' })
   const token = authHeader.replace('Bearer ', '')
 
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
-  const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.SUPABASE_URL
+  const anonKey = process.env.SUPABASE_ANON_KEY
 
   const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
     headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'No tenés permiso para usar este recurso' })
   }
 
-  const APP_URL = process.env.APP_URL || 'https://automarket-ar.vercel.app'
+  const APP_URL = process.env.APP_URL || 'https://fioramarket.store'
   const back_url = origen === 'mi-cuenta' ? `${APP_URL}/mi-cuenta`
     : origen === 'panel-profesional' ? `${APP_URL}/panel-profesional`
     : `${APP_URL}/panel`

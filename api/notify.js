@@ -137,7 +137,7 @@ async function sendWelcome(req, res) {
 
 export default async function handler(req, res) {
   const origin = req.headers.origin
-  if (origin && origin !== ALLOWED_ORIGIN) return res.status(403).json({ error: 'Forbidden' })
+  if (origin !== ALLOWED_ORIGIN) return res.status(403).json({ error: 'Forbidden' })
   if (origin === ALLOWED_ORIGIN) res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN)
   res.setHeader('Vary', 'Origin')
   if (req.method === 'OPTIONS') return res.status(200).end()

@@ -44,7 +44,7 @@ export default function Admin() {
       const [p, a, pub, pag, usersRes, ads, cons, profPend, profActivos] = await Promise.all([
         supabase.from('concesionarias').select('*').eq('aprobada', false).order('created_at'),
         supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('nombre'),
-        supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }),
+        supabase.from('autos').select('*, concesionarias(nombre)').eq('activo', true).order('created_at', { ascending: false }).limit(200),
         supabase.from('pagos').select('*, concesionarias(nombre), autos(marca, modelo)').order('created_at', { ascending: false }).limit(200),
         fetch('/api/admin-users', { headers: { Authorization: `Bearer ${session?.access_token}` } }).then(r => r.json()).catch(() => ({ users: [] })),
         supabase.from('publicidades').select('*').order('created_at', { ascending: false }),

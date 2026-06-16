@@ -102,6 +102,9 @@ async function sendConsulta(req, res) {
 async function sendConfirma(req, res) {
   const { email, nombre, auto, concesionaria, auto_id } = req.body
   if (!email || !nombre || !auto || !auto_id) return res.status(400).json({ error: 'Faltan datos' })
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auto_id)) {
+    return res.status(400).json({ error: 'ID de publicación inválido' })
+  }
 
   if (!process.env.RESEND_API_KEY) return res.status(200).json({ sent: false, reason: 'no-resend-key' })
 

@@ -41,13 +41,12 @@ export async function getDolarBlue() {
     // Stale cache (cualquier valor guardado, aunque vencido)
     if (cached?.venta) return cached.venta
 
-    // Fallback estático — se actualiza en cuanto una API responda
-    return 1300
+    return null
   } catch {
     try {
       const raw = localStorage.getItem(CACHE_KEY)
       if (raw) return JSON.parse(raw).venta
     } catch { /* nada */ }
-    return 1300
+    return null
   }
 }

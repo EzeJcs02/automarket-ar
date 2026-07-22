@@ -371,7 +371,10 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
 
   const destacadosActivos = autos.filter(a => a.destacado).length
   const urgentesActivos = autos.filter(a => a.urgente).length
-  const limiteDestacados = 0
+  const LIMITES_POR_PLAN = { basico: 1, pro: 3, premium: 10 }
+  const NOMBRE_PLAN = { basico: 'Básico', pro: 'Pro', premium: 'Premium' }
+  const limiteDestacados = LIMITES_POR_PLAN[concesionaria?.plan] ?? 0
+  const nombrePlan = NOMBRE_PLAN[concesionaria?.plan] || 'actual'
 
   async function toggleDestacado(auto) {
     if (!auto.destacado) {
@@ -382,7 +385,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
         return
       }
       if (limiteDestacados !== Infinity && destacadosActivos >= limiteDestacados) {
-        toast(`Tu plan Pro permite hasta ${limiteDestacados} destacados simultáneos. Ya tenés ${destacadosActivos} activos.`, 'warning')
+        toast(`Tu plan ${nombrePlan} permite hasta ${limiteDestacados} destacados simultáneos. Ya tenés ${destacadosActivos} activos.`, 'warning')
         return
       }
       await supabase.from('autos').update({ destacado: true, urgente: false }).eq('id', auto.id)
@@ -401,7 +404,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
         return
       }
       if (limiteDestacados !== Infinity && urgentesActivos >= limiteDestacados) {
-        toast(`Tu plan Pro permite hasta ${limiteDestacados} urgentes simultáneos. Ya tenés ${urgentesActivos} activos.`, 'warning')
+        toast(`Tu plan ${nombrePlan} permite hasta ${limiteDestacados} urgentes simultáneos. Ya tenés ${urgentesActivos} activos.`, 'warning')
         return
       }
       await supabase.from('autos').update({ urgente: true, destacado: false }).eq('id', auto.id)

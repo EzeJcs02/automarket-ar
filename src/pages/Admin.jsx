@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useModalA11y } from '../lib/useModalA11y'
 
 export default function Admin() {
   const { user, isAdmin, loading: authLoading } = useAuth()
@@ -22,6 +23,8 @@ export default function Admin() {
   const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '', fondo: 'oscuro' })
   const [adLoading, setAdLoading] = useState(false)
   const [consultaDetalle, setConsultaDetalle] = useState(null)
+  const consultaModalRef = useRef(null)
+  useModalA11y(consultaModalRef, () => setConsultaDetalle(null), !!consultaDetalle)
 
   async function verConsulta(c) {
     setConsultaDetalle(c)
@@ -36,6 +39,7 @@ export default function Admin() {
     if (!user) { navigate('/login'); return }
     if (!isAdmin) { navigate('/panel'); return }
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAdmin, authLoading])
 
   async function loadData() {
@@ -108,10 +112,6 @@ export default function Admin() {
 
   async function toggleFijado(auto) {
     if (await adminAction('toggleFijado', { id: auto.id, value: !auto.fijado_home })) loadData()
-  }
-
-  async function cambiarPlan(c, nuevoPlan) {
-    if (await adminAction('cambiarPlan', { id: c.id, plan: nuevoPlan })) loadData()
   }
 
   async function toggleDestacadoAuto(auto) {
@@ -200,6 +200,10 @@ export default function Admin() {
         <div className="sidebar-nav">
           {navItems.map(item => (
             <div key={item.id} onClick={() => setTab(item.id)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTab(item.id) } }}
+              role="button"
+              tabIndex={0}
+              aria-pressed={tab === item.id}
               style={{ padding: '14px 1.5rem', fontSize: '13px', fontWeight: tab === item.id ? '600' : '400', color: tab === item.id ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', transition: 'all .2s', borderLeft: `3px solid ${tab === item.id ? 'var(--accent)' : 'transparent'}`, background: tab === item.id ? 'var(--gray1)' : 'transparent', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textTransform: 'uppercase', letterSpacing: '.05em' }}>
               {item.label}
               {item.count > 0 && (
@@ -557,7 +561,7 @@ export default function Admin() {
               <div>
                 {consultaDetalle && (
                   <div onClick={() => setConsultaDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-                    <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
+                    <div ref={consultaModalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Detalle de consulta" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                         <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
                         <button onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
@@ -598,6 +602,10 @@ export default function Admin() {
                         {consultasAdmin.map(c => (
                           <tr key={c.id} style={{ borderBottom: '1px solid var(--gray2)', cursor: 'pointer', transition: 'background .2s', background: c.leido ? 'transparent' : 'rgba(230,51,41,0.04)' }}
                             onClick={() => verConsulta(c)}
+                            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); verConsulta(c) } }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Ver consulta de ${c.autos?.marca || ''} ${c.autos?.modelo || ''}`}
                             onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'}
                             onMouseLeave={e => e.currentTarget.style.background = c.leido ? 'transparent' : 'rgba(230,51,41,0.04)'}>
                             <td style={{ padding: '14px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{new Date(c.created_at).toLocaleDateString('es-AR')}</td>

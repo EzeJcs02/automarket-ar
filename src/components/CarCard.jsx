@@ -15,7 +15,15 @@ export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) 
   }
 
   return (
-    <div className="car-card" onClick={() => navigate(`/auto/${auto.id}`)} style={{ position: 'relative' }}>
+    <div
+      className="car-card"
+      onClick={() => navigate(`/auto/${auto.id}`)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/auto/${auto.id}`) } }}
+      role="link"
+      tabIndex={0}
+      aria-label={`Ver ${auto.marca} ${auto.modelo}`}
+      style={{ position: 'relative' }}
+    >
       {/* BADGE BOOST — arriba izquierda, flush con el borde */}
       {auto.urgente ? (
         <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, background: 'var(--accent)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '5px 13px', fontFamily: 'var(--font-mono)', letterSpacing: '.14em', textTransform: 'uppercase' }}>

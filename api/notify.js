@@ -84,6 +84,7 @@ async function sendWelcome(req, res) {
   }
 
   const esConcesionaria = tipo === 'concesionaria'
+  const sNombre = sanitize(nombre)
 
   try {
     await fetch('https://api.resend.com/emails', {
@@ -92,7 +93,7 @@ async function sendWelcome(req, res) {
       body: JSON.stringify({
         from: 'FIORA MARKET <noreply@fioramarket.store>',
         to: email,
-        subject: esConcesionaria ? `Bienvenido a FIORA MARKET, ${nombre}` : 'Bienvenido a FIORA MARKET',
+        subject: esConcesionaria ? `Bienvenido a FIORA MARKET, ${sNombre}` : 'Bienvenido a FIORA MARKET',
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0a0a0a;color:#f5f3ee;border-radius:12px;overflow:hidden">
             <div style="background:#e63329;padding:24px 32px">
@@ -100,7 +101,7 @@ async function sendWelcome(req, res) {
             </div>
             <div style="padding:32px">
               <div style="font-size:24px;font-weight:700;margin-bottom:8px">
-                ${esConcesionaria ? `¡Bienvenido, ${nombre}!` : '¡Bienvenido a FIORA MARKET!'}
+                ${esConcesionaria ? `¡Bienvenido, ${sNombre}!` : '¡Bienvenido a FIORA MARKET!'}
               </div>
               <p style="color:#888;font-size:14px;line-height:1.7;margin-bottom:24px">
                 ${esConcesionaria

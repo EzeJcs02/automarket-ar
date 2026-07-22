@@ -6,5 +6,12 @@ export default defineConfig({
   plugins: [react()],
   build: {
     modulePreload: { polyfill: false },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@supabase')) return 'supabase'
+        },
+      },
+    },
   },
 })

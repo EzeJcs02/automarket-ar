@@ -32,7 +32,7 @@ async function pagarConMP(tipo, { profesional_id, user_id, user_email } = {}, on
 }
 
 export default function PanelProfesional() {
-  const { user, profesional: profCtx, loading: authLoading, fetchConcesionaria } = useAuth()
+  const { user, loading: authLoading, fetchConcesionaria } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { toast } = useToast()
@@ -43,17 +43,6 @@ export default function PanelProfesional() {
   const [form, setForm] = useState({})
 
   const mpStatus = searchParams.get('mp')
-
-  useEffect(() => {
-    if (authLoading) return
-    if (!user) { navigate('/login'); return }
-    cargarPerfil()
-  }, [user, authLoading])
-
-  useEffect(() => {
-    if (mpStatus === 'ok') toast('¡Pago confirmado! Tu plan fue actualizado.', 'success')
-    if (mpStatus === 'fail') toast('El pago no pudo procesarse. Intentá nuevamente.', 'error')
-  }, [mpStatus])
 
   async function cargarPerfil() {
     const { data } = await supabase.from('profesionales').select('*').eq('user_id', user.id).maybeSingle()
@@ -69,6 +58,19 @@ export default function PanelProfesional() {
     })
     setLoading(false)
   }
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!user) { navigate('/login'); return }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount, no es un setState directo
+    cargarPerfil()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading])
+
+  useEffect(() => {
+    if (mpStatus === 'ok') toast('¡Pago confirmado! Tu plan fue actualizado.', 'success')
+    if (mpStatus === 'fail') toast('El pago no pudo procesarse. Intentá nuevamente.', 'error')
+  }, [mpStatus, toast])
 
   async function guardar() {
     setGuardando(true)

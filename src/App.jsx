@@ -83,6 +83,8 @@ function ComparadorBar() {
 }
 
 export default function App() {
+  const [analyticsOk, setAnalyticsOk] = useState(() => localStorage.getItem('cookie_consent') === 'accepted')
+
   useEffect(() => {
     let t
     const onScroll = () => {
@@ -133,8 +135,8 @@ export default function App() {
               </div>
               <ComparadorBar />
               <ScrollToTop />
-              <CookieBanner />
-              <Analytics />
+              <CookieBanner onConsent={setAnalyticsOk} />
+              {analyticsOk && <Analytics />}
             </>
           } />
         </Routes>

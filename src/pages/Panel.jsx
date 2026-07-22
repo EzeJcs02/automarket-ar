@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useModalA11y } from '../lib/useModalA11y'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
 async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
@@ -41,7 +42,7 @@ export default function Panel() {
       toast('El pago no se completó. Podés intentarlo nuevamente.', 'error')
       window.history.replaceState({}, '', '/panel')
     }
-  }, [])
+  }, [toast])
 
   useEffect(() => {
     if (authLoading) return
@@ -50,21 +51,32 @@ export default function Panel() {
     if (concesionaria) {
       loadData()
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- se está por navegar afuera de esta página, no hay "cascading render" real
       setLoading(false)
       navigate('/favoritos')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, concesionaria, authLoading])
 
   async function loadData() {
-    const [autosRes, consultasRes, pagosRes] = await Promise.all([
-      supabase.from('autos').select('*, vistas').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
-      supabase.from('consultas').select('*, autos(marca, modelo)').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
-      supabase.from('pagos').select('*, autos(marca, modelo)').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
-    ])
-    setAutos(autosRes.data || [])
-    setConsultas(consultasRes.data || [])
-    setPagos(pagosRes.data || [])
-    setLoading(false)
+    try {
+      const [autosRes, consultasRes, pagosRes] = await Promise.all([
+        supabase.from('autos').select('*, vistas').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
+        supabase.from('consultas').select('*, autos(marca, modelo)').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
+        supabase.from('pagos').select('*, autos(marca, modelo)').eq('concesionaria_id', concesionaria.id).order('created_at', { ascending: false }),
+      ])
+      if (autosRes.error || consultasRes.error || pagosRes.error) {
+        throw autosRes.error || consultasRes.error || pagosRes.error
+      }
+      setAutos(autosRes.data || [])
+      setConsultas(consultasRes.data || [])
+      setPagos(pagosRes.data || [])
+    } catch (err) {
+      console.error('Panel loadData failed:', err)
+      toast('Error al cargar los datos del panel. Recargá la página para reintentar.', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (loading) {
@@ -73,7 +85,6 @@ export default function Panel() {
 
   if (!concesionaria) return null
 
-  const plan = concesionaria?.plan || 'free'
   const autosActivos = autos.filter(a => a.activo).length
   const noLeidas = consultas.filter(c => !c.leido).length
 
@@ -132,7 +143,11 @@ export default function Panel() {
         {/* Nav */}
         <div className="sidebar-nav">
           {navItems.map(item => (
-            <div key={item.id} className={`sidebar-nav-item${tab === item.id ? ' active' : ''}`} onClick={() => setTab(item.id)}>
+            <div key={item.id} className={`sidebar-nav-item${tab === item.id ? ' active' : ''}`} onClick={() => setTab(item.id)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTab(item.id) } }}
+              role="button"
+              tabIndex={0}
+              aria-pressed={tab === item.id}>
               {NAV_ICONS[item.id]}
               <span style={{ flex: 1 }}>{item.label}</span>
               {item.count > 0 && <span className="sidebar-badge">{item.count}</span>}
@@ -166,8 +181,10 @@ export default function Panel() {
 }
 
 
-function Dashboard({ autos, consultas, pagos, concesionaria }) {
+function Dashboard({ autos, consultas, concesionaria }) {
   const [consultaDetalle, setConsultaDetalle] = useState(null)
+  const consultaModalRef = useRef(null)
+  useModalA11y(consultaModalRef, () => setConsultaDetalle(null), !!consultaDetalle)
   // eslint-disable-next-line react-hooks/purity
   const sevenDaysAgo = useMemo(() => new Date(Date.now() - 7 * 86400000), [])
 
@@ -175,7 +192,7 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
     <div>
       {consultaDetalle && (
         <div onClick={() => setConsultaDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
+          <div ref={consultaModalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Detalle de consulta" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
               <button onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
@@ -319,7 +336,10 @@ function Dashboard({ autos, consultas, pagos, concesionaria }) {
             </thead>
             <tbody>
               {consultas.map(c => (
-                <tr key={c.id} onClick={() => setConsultaDetalle(c)}>
+                <tr key={c.id} onClick={() => setConsultaDetalle(c)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setConsultaDetalle(c) } }}
+                  role="button"
+                  tabIndex={0}>
                   <td style={{ padding: '16px 20px', fontSize: '14px', fontWeight: '500' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {!c.leido && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, display: 'inline-block', boxShadow: '0 0 6px var(--accent)' }} />}
@@ -349,7 +369,6 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   const { toast } = useToast()
   const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
 
-  const plan = concesionaria?.plan || 'free'
   const destacadosActivos = autos.filter(a => a.destacado).length
   const urgentesActivos = autos.filter(a => a.urgente).length
   const limiteDestacados = 0
@@ -725,6 +744,8 @@ function NuevoAuto({ concesionaria, onSuccess }) {
 
 function Consultas({ consultas, reload }) {
   const [detalle, setDetalle] = useState(null)
+  const detalleModalRef = useRef(null)
+  useModalA11y(detalleModalRef, () => setDetalle(null), !!detalle)
 
   async function verDetalle(c) {
     setDetalle(c)
@@ -740,7 +761,7 @@ function Consultas({ consultas, reload }) {
     <div>
       {detalle && (
         <div onClick={() => setDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
+          <div ref={detalleModalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Detalle de consulta" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
               <button onClick={() => setDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>

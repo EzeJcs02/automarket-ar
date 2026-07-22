@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
+import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
 
@@ -55,6 +56,7 @@ export default function Catalogo() {
   useEffect(() => {
     supabase.from('concesionarias').select('id, nombre').eq('aprobada', true).then(({ data }) => setConcesionarias(data || []))
     fetchAutos(1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,7 +66,7 @@ export default function Catalogo() {
     if (!user || concesionaria || isAdmin) return
     supabase.from('favoritos').select('auto_id').eq('user_id', user.id)
       .then(({ data }) => setFavoritoIds(new Set(data?.map(f => f.auto_id) || [])))
-  }, [user])
+  }, [user, concesionaria, isAdmin])
 
   async function toggleFavorito(autoId) {
     if (!user) { navigate('/login'); return }
@@ -77,32 +79,33 @@ export default function Catalogo() {
     }
   }
 
-  async function fetchAutos(targetPage = page) {
+  async function fetchAutos(targetPage = page, filtrosOverride = filtros) {
     setLoading(true)
+    const f = filtrosOverride
     const from = (targetPage - 1) * PAGE_SIZE
     const to = from + PAGE_SIZE - 1
     // Si hay filtro de ciudad, usamos !inner para que el JOIN sea obligatorio
-    const concSelect = filtros.ciudad ? 'concesionarias!inner(nombre, ciudad, plan)' : 'concesionarias(nombre, ciudad, plan)'
+    const concSelect = f.ciudad ? 'concesionarias!inner(nombre, ciudad, plan)' : 'concesionarias(nombre, ciudad, plan)'
     let q = supabase.from('autos')
       .select(`*, ${concSelect}`, { count: 'exact' })
       .eq('activo', true)
-    if (filtros.tipo) q = q.eq('tipo', filtros.tipo)
-    if (filtros.categoria) q = q.eq('categoria', filtros.categoria)
-    if (filtros.marca) q = q.eq('marca', filtros.marca)
-    if (filtros.precioMin) q = q.gte('precio_ars', filtros.precioMin)
-    if (filtros.precioMax) q = q.lte('precio_ars', filtros.precioMax)
-    if (filtros.anioDesde) q = q.gte('anio', filtros.anioDesde)
-    if (filtros.anioHasta) q = q.lte('anio', filtros.anioHasta)
-    if (filtros.concesionaria) q = q.eq('concesionaria_id', filtros.concesionaria)
-    if (filtros.combustible) q = q.eq('combustible', filtros.combustible)
-    if (filtros.transmision) q = q.eq('transmision', filtros.transmision)
-    if (filtros.kmMax) q = q.lte('kilometraje', filtros.kmMax)
-    if (filtros.busqueda) {
-      const safe = filtros.busqueda.replace(/[%_,()]/g, '\\$&')
+    if (f.tipo) q = q.eq('tipo', f.tipo)
+    if (f.categoria) q = q.eq('categoria', f.categoria)
+    if (f.marca) q = q.eq('marca', f.marca)
+    if (f.precioMin) q = q.gte('precio_ars', f.precioMin)
+    if (f.precioMax) q = q.lte('precio_ars', f.precioMax)
+    if (f.anioDesde) q = q.gte('anio', f.anioDesde)
+    if (f.anioHasta) q = q.lte('anio', f.anioHasta)
+    if (f.concesionaria) q = q.eq('concesionaria_id', f.concesionaria)
+    if (f.combustible) q = q.eq('combustible', f.combustible)
+    if (f.transmision) q = q.eq('transmision', f.transmision)
+    if (f.kmMax) q = q.lte('kilometraje', f.kmMax)
+    if (f.busqueda) {
+      const safe = f.busqueda.replace(/[%_,()]/g, '\\$&')
       q = q.or(`marca.ilike.%${safe}%,modelo.ilike.%${safe}%`)
     }
-    if (filtros.ciudad) {
-      const safe = filtros.ciudad.replace(/[%_,()]/g, '\\$&')
+    if (f.ciudad) {
+      const safe = f.ciudad.replace(/[%_,()]/g, '\\$&')
       q = q.ilike('concesionarias.ciudad', `%${safe}%`)
     }
     const { data, count } = await q.range(from, to)
@@ -284,7 +287,13 @@ export default function Catalogo() {
             <input style={inputStyle} placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={aplicarFiltros}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => { setFiltros({ busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }); setOrdenar('relevancia'); setPage(1); setTimeout(() => fetchAutos(1), 100) }}>Limpiar</button>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => {
+            const vacio = { busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }
+            setFiltros(vacio)
+            setOrdenar('relevancia')
+            setPage(1)
+            fetchAutos(1, vacio)
+          }}>Limpiar</button>
 
           {/* ALERTA DE BÚSQUEDA */}
           <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray2)' }}>
@@ -329,7 +338,9 @@ export default function Catalogo() {
             </div>
           )}
           {loading
-            ? <div className="spinner" />
+            ? <div className="catalogo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(280px,100%),1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
+                {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
+              </div>
             : autos.length === 0
               ? <p style={{ color: 'var(--gray4)', fontSize: '15px', padding: '2rem 0' }}>No se encontraron autos con esos filtros.</p>
               : <>

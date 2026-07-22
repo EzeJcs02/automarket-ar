@@ -27,4 +27,4 @@ dist-ssr
 temp_repo_2/
 .env
 .env.*
-!.env.example
+!.env.local.example

@@ -13,7 +13,8 @@ const STATIC_URLS = [
 
 export default async function handler(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  // Solo lee filas que ya son públicas por RLS (activo=true, aprobada=true) — alcanza con la anon key.
+  const supabaseKey = process.env.SUPABASE_ANON_KEY
 
   let autos = []
   let concesionarias = []

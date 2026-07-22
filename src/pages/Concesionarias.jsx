@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { setPageMeta, resetMeta } from '../lib/seo'
@@ -137,6 +137,10 @@ function ConcCard({ c, i, navigate, featured = false }) {
   return (
     <div
       onClick={() => navigate(`/concesionaria/${c.id}`)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/concesionaria/${c.id}`) } }}
+      role="link"
+      tabIndex={0}
+      aria-label={`Ver ${c.nombre}`}
       style={{
         background: 'var(--gray1)',
         border: `1px solid ${featured ? 'rgba(230,51,41,.3)' : 'var(--gray2)'}`,
@@ -239,10 +243,10 @@ export function ConcesionariaDetalle() {
   const [resenaEnviando, setResenaEnviando] = useState(false)
   const [resenaOk, setResenaOk] = useState(false)
 
-  const pathId = window.location.pathname.split('/').pop()
+  const { id } = useParams()
 
   useEffect(() => {
-    supabase.from('concesionarias').select('*').eq('id', pathId).single().then(({ data }) => {
+    supabase.from('concesionarias').select('*').eq('id', id).single().then(({ data }) => {
       setC(data)
       if (data) {
         setPageMeta({
@@ -253,19 +257,19 @@ export function ConcesionariaDetalle() {
         })
       }
     })
-    supabase.from('autos').select('*').eq('concesionaria_id', pathId).eq('activo', true).then(({ data }) => {
+    supabase.from('autos').select('*').eq('concesionaria_id', id).eq('activo', true).then(({ data }) => {
       setAutos(data || [])
       setLoading(false)
     })
-    supabase.from('resenas').select('*').eq('concesionaria_id', pathId).order('created_at', { ascending: false }).then(({ data }) => setResenas(data || []))
+    supabase.from('resenas').select('*').eq('concesionaria_id', id).order('created_at', { ascending: false }).then(({ data }) => setResenas(data || []))
     return () => resetMeta()
-  }, [])
+  }, [id])
 
   async function enviarResena() {
     if (!resenaForm.nombre.trim() || !resenaForm.comentario.trim()) return
     setResenaEnviando(true)
     await supabase.from('resenas').insert({
-      concesionaria_id: pathId,
+      concesionaria_id: id,
       user_id: user?.id || null,
       nombre: resenaForm.nombre.trim(),
       rating: resenaForm.rating,
@@ -274,7 +278,7 @@ export function ConcesionariaDetalle() {
     setResenaOk(true)
     setResenaEnviando(false)
     setResenaForm({ nombre: '', rating: 5, comentario: '' })
-    const { data } = await supabase.from('resenas').select('*').eq('concesionaria_id', pathId).order('created_at', { ascending: false })
+    const { data } = await supabase.from('resenas').select('*').eq('concesionaria_id', id).order('created_at', { ascending: false })
     setResenas(data || [])
   }
 
@@ -292,11 +296,11 @@ export function ConcesionariaDetalle() {
     <div className="page-wrapper">
       {/* VOLVER */}
       <div className="responsive-section" style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
-        <span onClick={() => navigate('/concesionarias')} style={{ fontSize: '13px', color: 'var(--gray4)', cursor: 'pointer', fontFamily: 'var(--font-mono)', letterSpacing: '.05em' }}
+        <button onClick={() => navigate('/concesionarias')} style={{ fontSize: '13px', color: 'var(--gray4)', cursor: 'pointer', fontFamily: 'var(--font-mono)', letterSpacing: '.05em', background: 'none', border: 'none', padding: 0 }}
           onMouseEnter={e => e.currentTarget.style.color = 'var(--white)'}
           onMouseLeave={e => e.currentTarget.style.color = 'var(--gray4)'}>
           ← Volver a concesionarias
-        </span>
+        </button>
       </div>
 
       {/* BANNER / COVER */}
@@ -381,7 +385,12 @@ export function ConcesionariaDetalle() {
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Esta concesionaria no tiene autos publicados todavía.</p>
           : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(300px,100%),1fr))', gap: '1.5rem' }}>
               {autos.map(a => (
-                <div key={a.id} className="car-card" onClick={() => navigate(`/auto/${a.id}`)}>
+                <div key={a.id} className="car-card" onClick={() => navigate(`/auto/${a.id}`)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/auto/${a.id}`) } }}
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`Ver ${a.marca} ${a.modelo}`}
+                >
                   {a.fotos?.[0]
                     ? <img className="car-img-real" src={a.fotos[0]} alt={a.modelo} />
                     : <div className="car-img-placeholder">🚗</div>

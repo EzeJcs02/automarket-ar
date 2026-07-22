@@ -18,7 +18,7 @@ function sanitizeHtml(str) {
 }
 
 async function sendConsulta(req, res) {
-  const { auto_id, nombre, email, mensaje, telefono } = req.body
+  const { auto_id, nombre, email, mensaje, telefono } = req.body || {}
   if (!auto_id || !nombre || !email || !mensaje) return res.status(400).json({ error: 'Faltan datos' })
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auto_id)) {
     return res.status(400).json({ error: 'ID de publicación inválido' })
@@ -100,33 +100,40 @@ async function sendConsulta(req, res) {
 }
 
 async function sendConfirma(req, res) {
-  const { email, nombre, auto, concesionaria, auto_id } = req.body
+  const { email, nombre, auto, concesionaria, auto_id } = req.body || {}
   if (!email || !nombre || !auto || !auto_id) return res.status(400).json({ error: 'Faltan datos' })
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auto_id)) {
     return res.status(400).json({ error: 'ID de publicación inválido' })
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Email inválido' })
 
   if (!process.env.RESEND_API_KEY) return res.status(200).json({ sent: false, reason: 'no-resend-key' })
 
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  // Por defecto, si no hay credenciales de Supabase configuradas, se usan los
+  // datos del cliente (sanitizados). Si hay credenciales, se pisan abajo con
+  // los datos reales del auto, para no confiar en lo que mande el cliente.
+  let sAuto = sanitizeHtml(String(auto).slice(0, 200))
+  let sConcesionaria = sanitizeHtml(String(concesionaria || 'el vendedor').slice(0, 200))
+
   if (supabaseUrl && supabaseKey) {
     try {
-      const r = await fetch(`${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}&select=id&limit=1`, {
-        headers: { Authorization: `Bearer ${supabaseKey}`, apikey: supabaseKey },
-      })
-      const rows = await r.json()
-      if (!Array.isArray(rows) || rows.length === 0) {
-        return res.status(200).json({ sent: false, reason: 'invalid-auto' })
-      }
+      const r = await fetch(
+        `${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}&select=marca,modelo,concesionarias(nombre)`,
+        { headers: { Authorization: `Bearer ${supabaseKey}`, apikey: supabaseKey } }
+      )
+      const [row] = await r.json()
+      if (!row) return res.status(200).json({ sent: false, reason: 'invalid-auto' })
+      sAuto = sanitizeHtml(`${row.marca} ${row.modelo}`.slice(0, 200))
+      if (row.concesionarias?.nombre) sConcesionaria = sanitizeHtml(String(row.concesionarias.nombre).slice(0, 200))
     } catch {
       return res.status(200).json({ sent: false, reason: 'verify-error' })
     }
   }
 
-  const sNombre = String(nombre).slice(0, 200)
-  const sAuto = String(auto).slice(0, 200)
-  const sConcesionaria = String(concesionaria || 'el vendedor').slice(0, 200)
+  const sNombre = sanitizeHtml(String(nombre).slice(0, 200))
 
   try {
     await fetch('https://api.resend.com/emails', {

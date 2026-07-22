@@ -36,10 +36,11 @@ export default function Navbar() {
     clearTimeout(debounceRef.current)
     if (!val.trim() || val.length < 2) { setSugerencias([]); setShowSug(false); return }
     debounceRef.current = setTimeout(async () => {
+      const safe = val.replace(/[%_,()]/g, '\\$&')
       const { data } = await supabase.from('autos')
         .select('id, marca, modelo, anio, tipo')
         .eq('activo', true)
-        .or(`marca.ilike.%${val}%,modelo.ilike.%${val}%`)
+        .or(`marca.ilike.%${safe}%,modelo.ilike.%${safe}%`)
         .limit(6)
       setSugerencias(data || [])
       setShowSug(true)
@@ -143,7 +144,7 @@ export default function Navbar() {
         </div>
 
         {/* MOBILE: botón hamburguesa */}
-        <button onClick={() => setMenuOpen(!menuOpen)} className="nav-hamburger" style={{ background: 'transparent', border: 'none', color: 'var(--white)', cursor: 'pointer', padding: '8px', display: 'none', flexDirection: 'column', gap: '5px' }}>
+        <button onClick={() => setMenuOpen(!menuOpen)} className="nav-hamburger" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen} style={{ background: 'transparent', border: 'none', color: 'var(--white)', cursor: 'pointer', padding: '8px', display: 'none', flexDirection: 'column', gap: '5px' }}>
           <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
           <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', opacity: menuOpen ? 0 : 1 }} />
           <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />

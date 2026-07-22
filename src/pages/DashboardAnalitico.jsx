@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 export default function DashboardAnalitico() {
   const { user, isAdmin, loading: authLoading } = useAuth()
+  const { toast } = useToast()
   const navigate = useNavigate()
   const [dataLoading, setDataLoading] = useState(true)
   const [kpiCards, setKpiCards] = useState([])
@@ -14,60 +16,74 @@ export default function DashboardAnalitico() {
   const [recentConsultas, setRecentConsultas] = useState([])
   const [activeTab, setActiveTab] = useState('overview')
 
+  async function loadData() {
+    try {
+      const now = new Date()
+      const thirtyAgo = new Date(now.getTime() - 30 * 86400000)
+      const sixtyAgo = new Date(now.getTime() - 60 * 86400000)
+
+      const [totalAutosRes, activosRes, agenciasRes, consultasRes, prevActivosRes] = await Promise.all([
+        supabase.from('autos').select('id', { count: 'exact' }),
+        supabase.from('autos').select('id', { count: 'exact' }).eq('activo', true),
+        supabase.from('concesionarias').select('id', { count: 'exact' }).eq('aprobada', true),
+        supabase.from('consultas').select('id', { count: 'exact' }),
+        supabase.from('autos').select('id', { count: 'exact' }).gte('created_at', sixtyAgo.toISOString()).lt('created_at', thirtyAgo.toISOString()),
+      ])
+      if (totalAutosRes.error || activosRes.error || agenciasRes.error || consultasRes.error || prevActivosRes.error) {
+        throw totalAutosRes.error || activosRes.error || agenciasRes.error || consultasRes.error || prevActivosRes.error
+      }
+
+      const delta = prevActivosRes.count > 0 ? Math.round(((activosRes.count - prevActivosRes.count) / prevActivosRes.count) * 100) : 0
+
+      setKpiCards([
+        { label: 'Publicaciones Totales', value: totalAutosRes.count || 0, delta: delta },
+        { label: 'Agencias Activas', value: agenciasRes.count || 0, delta: 12 },
+        { label: 'Consultas Recibidas', value: consultasRes.count || 0, delta: 23 },
+        { label: 'Vistas Este Mes', value: 8420, delta: 8 },
+      ])
+
+      const sixMonths = []
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+        const next = new Date(now.getFullYear(), now.getMonth() - i + 1, 1)
+        sixMonths.push({ label: d.toLocaleDateString('es-AR', { month: 'short' }).replace('.', ''), start: d.toISOString(), end: next.toISOString() })
+      }
+
+      const pubsData = await Promise.all(sixMonths.map(async m => {
+        const { count } = await supabase.from('autos').select('id', { count: 'exact' }).gte('created_at', m.start).lt(m.end)
+        return { ...m, value: count || 0 }
+      }))
+      setMonthlyPublications(pubsData)
+
+      const [autosRes, concesRes, recentConsultasRes] = await Promise.all([
+        supabase.from('autos').select('marca, vistas').eq('activo', true).limit(100),
+        supabase.from('concesionarias').select('nombre, ciudad, created_at').eq('aprobada', true).order('created_at', { ascending: false }).limit(5),
+        supabase.from('consultas').select('nombre_comprador, email_comprador, mensaje, created_at, autos(marca, modelo), concesionarias(nombre)').order('created_at', { ascending: false }).limit(8),
+      ])
+      if (autosRes.error || concesRes.error || recentConsultasRes.error) {
+        throw autosRes.error || concesRes.error || recentConsultasRes.error
+      }
+
+      const marcaCount = {}
+      ;(autosRes.data || []).forEach(a => { marcaCount[a.marca] = (marcaCount[a.marca] || 0) + (a.vistas || 0) })
+      setTopMarcas(Object.entries(marcaCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, value]) => ({ name, value })))
+      setRecentConcesionarias(concesRes.data || [])
+      setRecentConsultas(recentConsultasRes.data || [])
+    } catch (err) {
+      console.error('DashboardAnalitico loadData failed:', err)
+      toast('Error al cargar el dashboard. Recargá la página para reintentar.', 'error')
+    } finally {
+      setDataLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (authLoading) return
     if (!user || !isAdmin) { navigate('/'); return }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount, no es un setState directo
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAdmin, authLoading])
-
-  async function loadData() {
-    const now = new Date()
-    const thirtyAgo = new Date(now.getTime() - 30 * 86400000)
-    const sixtyAgo = new Date(now.getTime() - 60 * 86400000)
-
-    const [totalAutosRes, activosRes, agenciasRes, consultasRes, prevActivosRes] = await Promise.all([
-      supabase.from('autos').select('id', { count: 'exact' }),
-      supabase.from('autos').select('id', { count: 'exact' }).eq('activo', true),
-      supabase.from('concesionarias').select('id', { count: 'exact' }).eq('aprobada', true),
-      supabase.from('consultas').select('id', { count: 'exact' }),
-      supabase.from('autos').select('id', { count: 'exact' }).gte('created_at', sixtyAgo.toISOString()).lt('created_at', thirtyAgo.toISOString()),
-    ])
-
-    const delta = prevActivosRes.count > 0 ? Math.round(((activosRes.count - prevActivosRes.count) / prevActivosRes.count) * 100) : 0
-
-    setKpiCards([
-      { label: 'Publicaciones Totales', value: totalAutosRes.count || 0, delta: delta },
-      { label: 'Agencias Activas', value: agenciasRes.count || 0, delta: 12 },
-      { label: 'Consultas Recibidas', value: consultasRes.count || 0, delta: 23 },
-      { label: 'Vistas Este Mes', value: 8420, delta: 8 },
-    ])
-
-    const sixMonths = []
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      const next = new Date(now.getFullYear(), now.getMonth() - i + 1, 1)
-      sixMonths.push({ label: d.toLocaleDateString('es-AR', { month: 'short' }).replace('.', ''), start: d.toISOString(), end: next.toISOString() })
-    }
-
-    const pubsData = await Promise.all(sixMonths.map(async m => {
-      const { count } = await supabase.from('autos').select('id', { count: 'exact' }).gte('created_at', m.start).lt(m.end)
-      return { ...m, value: count || 0 }
-    }))
-    setMonthlyPublications(pubsData)
-
-    const [autosRes, concesRes, recentConsultasRes] = await Promise.all([
-      supabase.from('autos').select('marca, vistas').eq('activo', true).limit(100),
-      supabase.from('concesionarias').select('nombre, ciudad, created_at').eq('aprobada', true).order('created_at', { ascending: false }).limit(5),
-      supabase.from('consultas').select('nombre_comprador, email_comprador, mensaje, created_at, autos(marca, modelo), concesionarias(nombre)').order('created_at', { ascending: false }).limit(8),
-    ])
-
-    const marcaCount = {}
-    ;(autosRes.data || []).forEach(a => { marcaCount[a.marca] = (marcaCount[a.marca] || 0) + (a.vistas || 0) })
-    setTopMarcas(Object.entries(marcaCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, value]) => ({ name, value })))
-    setRecentConcesionarias(concesRes.data || [])
-    setRecentConsultas(recentConsultasRes.data || [])
-    setDataLoading(false)
-  }
 
   if (dataLoading) return <div className="spinner" style={{ marginTop: '100px' }} />
 

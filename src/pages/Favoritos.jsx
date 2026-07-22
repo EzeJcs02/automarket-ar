@@ -2,25 +2,35 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import CarCard from '../components/CarCard'
+import CarCardSkeleton from '../components/CarCardSkeleton'
 
 export default function Favoritos() {
   const { user, concesionaria, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const [autos, setAutos] = useState([])
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
 
   async function fetchFavoritos() {
-    const { data } = await supabase
-      .from('favoritos')
-      .select('auto_id, autos(*, concesionarias(nombre, ciudad, plan))')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    const lista = data?.map(f => f.autos).filter(Boolean) || []
-    setAutos(lista)
-    setFavoritoIds(new Set(lista.map(a => a.id)))
-    setLoading(false)
+    try {
+      const { data, error } = await supabase
+        .from('favoritos')
+        .select('auto_id, autos(*, concesionarias(nombre, ciudad, plan))')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      const lista = data?.map(f => f.autos).filter(Boolean) || []
+      setAutos(lista)
+      setFavoritoIds(new Set(lista.map(a => a.id)))
+    } catch (err) {
+      console.error('Favoritos fetchFavoritos failed:', err)
+      toast('Error al cargar tus favoritos. Recargá la página para reintentar.', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -28,6 +38,7 @@ export default function Favoritos() {
     if (!user || concesionaria || isAdmin) { navigate('/'); return }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchFavoritos()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, concesionaria, isAdmin, authLoading])
 
   async function toggleFavorito(autoId) {
@@ -36,7 +47,15 @@ export default function Favoritos() {
     setFavoritoIds(prev => { const s = new Set(prev); s.delete(autoId); return s })
   }
 
-  if (loading) return <div className="page-wrapper"><div className="spinner" /></div>
+  if (loading) return (
+    <div className="page-wrapper">
+      <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px,100%), 1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
+          {[1, 2, 3].map(i => <CarCardSkeleton key={i} />)}
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="page-wrapper">

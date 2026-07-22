@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useModalA11y } from '../lib/useModalA11y'
 
 const DEFAULT_GUIAS = {
   compradores: {
@@ -236,6 +237,8 @@ function SeccionGuia({ s }) {
 export function GuiaBoton({ seccion, style = {} }) {
   const [open, setOpen] = useState(false)
   const [guia, setGuia] = useState(null)
+  const modalRef = useRef(null)
+  useModalA11y(modalRef, () => setOpen(false), open)
 
   useEffect(() => {
     supabase
@@ -283,7 +286,11 @@ export function GuiaBoton({ seccion, style = {} }) {
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 16px' }}
         >
           <div
+            ref={modalRef}
             onClick={e => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={data?.titulo}
             style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '780px', height: '88vh', display: 'flex', flexDirection: 'column', position: 'relative' }}
           >
             {/* Header */}

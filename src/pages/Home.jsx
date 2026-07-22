@@ -167,6 +167,10 @@ export default function Home() {
           {banners.length > 0 ? banners.map((b, i) => (
             <div key={b.id}
               onClick={() => navigate(`/concesionaria/${b.id}`)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/concesionaria/${b.id}`) } }}
+              role="link"
+              tabIndex={i === bottomIdx ? 0 : -1}
+              aria-label={`Ver ${b.nombre}`}
               style={{ position: 'absolute', inset: 0, opacity: i === bottomIdx ? 1 : 0, transition: 'opacity .8s ease-in-out', pointerEvents: i === bottomIdx ? 'auto' : 'none', cursor: 'pointer' }}>
               <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0f0f0f 0%, #1a0a0a 50%, #0f0f0f 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(230,51,41,.12) 0%, transparent 70%)' }} />
@@ -209,6 +213,10 @@ export default function Home() {
           </div>
           <div className="home-fijado-card" style={{ display: 'flex', gap: '2rem', alignItems: 'center', background: 'var(--gray1)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', cursor: 'pointer', maxWidth: '700px', transition: 'border-color .25s, box-shadow .25s, transform .25s' }}
             onClick={() => navigate(`/auto/${autoFijado.id}`)}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/auto/${autoFijado.id}`) } }}
+            role="link"
+            tabIndex={0}
+            aria-label={`Ver ${autoFijado.marca} ${autoFijado.modelo}`}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(230,51,41,0.8)'; e.currentTarget.style.boxShadow = '0 8px 40px rgba(230,51,41,0.18)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(230,51,41,0.3)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)' }}>
             {autoFijado.fotos?.[0] && (
@@ -351,6 +359,10 @@ export default function Home() {
                 const cardColor = colors[i % colors.length]
                 return (
                   <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/concesionaria/${c.id}`) } }}
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`Ver ${c.nombre}`}
                     className="dealer-card"
                     style={{ background: 'var(--gray1)', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color .2s, transform .15s, box-shadow .2s' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.6)' : 'var(--gray3)'; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,.5)' }}

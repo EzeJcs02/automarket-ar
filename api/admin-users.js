@@ -21,31 +21,36 @@ export default async function handler(req, res) {
   const anonKey = process.env.SUPABASE_ANON_KEY
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  // Verificar que el token pertenece al usuario admin usando anon key (igual que admin-actions)
-  const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
-    headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
-  })
+  try {
+    // Verificar que el token pertenece al usuario admin usando anon key (igual que admin-actions)
+    const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
+    })
 
-  if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' })
+    if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' })
 
-  const { email } = await userRes.json()
-  if (email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' })
+    const { email } = await userRes.json()
+    if (email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' })
 
-  // Listar usuarios usando service role key (privilegio elevado solo para esta operación)
-  const usersRes = await fetch(`${supabaseUrl}/auth/v1/admin/users?per_page=500`, {
-    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
-  })
+    // Listar usuarios usando service role key (privilegio elevado solo para esta operación)
+    const usersRes = await fetch(`${supabaseUrl}/auth/v1/admin/users?per_page=500`, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    })
 
-  if (!usersRes.ok) return res.status(500).json({ error: 'Failed to fetch users' })
+    if (!usersRes.ok) return res.status(500).json({ error: 'Failed to fetch users' })
 
-  const data = await usersRes.json()
-  const users = (data.users || []).map(u => ({
-    id: u.id,
-    email: u.email,
-    nombre: u.user_metadata?.nombre || null,
-    created_at: u.created_at,
-    last_sign_in_at: u.last_sign_in_at,
-  }))
+    const data = await usersRes.json()
+    const users = (data.users || []).map(u => ({
+      id: u.id,
+      email: u.email,
+      nombre: u.user_metadata?.nombre || null,
+      created_at: u.created_at,
+      last_sign_in_at: u.last_sign_in_at,
+    }))
 
-  res.status(200).json({ users })
+    res.status(200).json({ users })
+  } catch (err) {
+    console.error('admin-users error:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
 }

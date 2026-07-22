@@ -127,7 +127,7 @@ export default function AutoDetalle() {
     if (!esParticular) return
     supabase.from('favoritos').select('id').eq('user_id', user.id).eq('auto_id', id).single()
       .then(({ data }) => setIsFavorito(!!data))
-  }, [user, id])
+  }, [user, id, esParticular])
 
   async function toggleFavorito() {
     if (!user) { navigate('/login'); return }
@@ -233,6 +233,10 @@ export default function AutoDetalle() {
 
           {/* FOTO PRINCIPAL */}
           <div onClick={() => fotos.length > 0 && setZoom(true)}
+            onKeyDown={e => { if (fotos.length > 0 && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setZoom(true) } }}
+            role={fotos.length > 0 ? 'button' : undefined}
+            tabIndex={fotos.length > 0 ? 0 : undefined}
+            aria-label={fotos.length > 0 ? 'Ampliar foto' : undefined}
             style={{ width: '100%', height: 'clamp(200px, 45vw, 450px)', background: 'linear-gradient(135deg, var(--gray2), var(--gray1))', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', cursor: fotos.length > 0 ? 'zoom-in' : 'default', position: 'relative' }}>
             {fotos.length > 0
               ? <img src={fotos[fotoIdx]} alt={auto.modelo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -250,6 +254,11 @@ export default function AutoDetalle() {
             <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
               {fotos.map((f, i) => (
                 <div key={i} onClick={() => setFotoIdx(i)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFotoIdx(i) } }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Ver foto ${i + 1}`}
+                  aria-pressed={i === fotoIdx}
                   style={{ width: '90px', height: '65px', borderRadius: 'var(--radius)', overflow: 'hidden', border: `2px solid ${i === fotoIdx ? 'var(--accent)' : 'transparent'}`, cursor: 'pointer', opacity: i === fotoIdx ? 1 : 0.6, transition: 'all .2s' }}
                   onMouseEnter={e => e.currentTarget.style.opacity = 1}
                   onMouseLeave={e => e.currentTarget.style.opacity = i === fotoIdx ? 1 : 0.6}>
@@ -499,18 +508,30 @@ export default function AutoDetalle() {
             </div>
           )}
 
-          <div className="form-field">
+          <div>
             <div style={{ fontSize: '13px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '1rem' }}>Enviar Mensaje</div>
             {enviado
               ? <div style={{ padding: '1rem', background: 'rgba(74,222,128,0.1)', color: '#4ade80', borderRadius: 'var(--radius)', border: '1px solid rgba(74,222,128,0.2)', textAlign: 'center' }}>✓ Mensaje enviado con éxito.</div>
               : <>
-                  <input type="text" placeholder="Tu nombre *" value={consulta.nombre} onChange={e => { setConsulta(p => ({ ...p, nombre: e.target.value })); setErroresConsulta(p => ({ ...p, nombre: '' })) }} style={erroresConsulta.nombre ? { borderColor: '#f87171' } : {}} />
-                  {erroresConsulta.nombre && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '-8px', marginBottom: '4px' }}>⚠ {erroresConsulta.nombre}</div>}
-                  <input type="email" placeholder="Tu email *" value={consulta.email} onChange={e => { setConsulta(p => ({ ...p, email: e.target.value })); setErroresConsulta(p => ({ ...p, email: '' })) }} style={erroresConsulta.email ? { borderColor: '#f87171' } : {}} />
-                  {erroresConsulta.email && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '-8px', marginBottom: '4px' }}>⚠ {erroresConsulta.email}</div>}
-                  <input type="tel" placeholder="Tu teléfono (opcional)" value={consulta.telefono} onChange={e => setConsulta(p => ({ ...p, telefono: e.target.value }))} />
-                  <textarea placeholder="Hola, me interesa este vehículo... *" value={consulta.mensaje} onChange={e => { setConsulta(p => ({ ...p, mensaje: e.target.value })); setErroresConsulta(p => ({ ...p, mensaje: '' })) }} style={{ minHeight: '100px', ...(erroresConsulta.mensaje ? { borderColor: '#f87171' } : {}) }} />
-                  {erroresConsulta.mensaje && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '-8px', marginBottom: '4px' }}>⚠ {erroresConsulta.mensaje}</div>}
+                  <div className="form-field">
+                    <label>Nombre *</label>
+                    <input type="text" placeholder="Ej: Juan Pérez" value={consulta.nombre} onChange={e => { setConsulta(p => ({ ...p, nombre: e.target.value })); setErroresConsulta(p => ({ ...p, nombre: '' })) }} style={erroresConsulta.nombre ? { borderColor: '#f87171' } : {}} />
+                    {erroresConsulta.nombre && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.nombre}</div>}
+                  </div>
+                  <div className="form-field">
+                    <label>Email *</label>
+                    <input type="email" placeholder="tu@email.com" value={consulta.email} onChange={e => { setConsulta(p => ({ ...p, email: e.target.value })); setErroresConsulta(p => ({ ...p, email: '' })) }} style={erroresConsulta.email ? { borderColor: '#f87171' } : {}} />
+                    {erroresConsulta.email && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.email}</div>}
+                  </div>
+                  <div className="form-field">
+                    <label>Teléfono (opcional)</label>
+                    <input type="tel" placeholder="Ej: +54 387 000-0000" value={consulta.telefono} onChange={e => setConsulta(p => ({ ...p, telefono: e.target.value }))} />
+                  </div>
+                  <div className="form-field">
+                    <label>Mensaje *</label>
+                    <textarea placeholder="Hola, me interesa este vehículo..." value={consulta.mensaje} onChange={e => { setConsulta(p => ({ ...p, mensaje: e.target.value })); setErroresConsulta(p => ({ ...p, mensaje: '' })) }} style={{ minHeight: '100px', ...(erroresConsulta.mensaje ? { borderColor: '#f87171' } : {}) }} />
+                    {erroresConsulta.mensaje && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.mensaje}</div>}
+                  </div>
                   <button className="btn-primary" onClick={enviarConsulta} disabled={enviando} style={{ marginTop: '0.5rem', width: '100%' }}>
                     {enviando ? 'Enviando...' : 'Enviar consulta'}
                   </button>

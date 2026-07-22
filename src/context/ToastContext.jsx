@@ -24,7 +24,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div style={{ position: 'fixed', bottom: '90px', right: '1.25rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '360px', width: 'calc(100% - 2.5rem)' }}>
+      <div role="status" aria-live="polite" style={{ position: 'fixed', bottom: '90px', right: '1.25rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '360px', width: 'calc(100% - 2.5rem)' }}>
         {toasts.map(t => {
           const c = COLORS[t.type] || COLORS.info
           return (

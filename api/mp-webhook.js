@@ -185,6 +185,37 @@ export default async function handler(req, res) {
       }
     }
 
+    // 🔒 IDEMPOTENCIA REAL: insertamos la marca de "procesado" ANTES de
+    // cualquier efecto secundario (PATCH de boost, RPC de cupos, plan). El
+    // chequeo de arriba (SELECT) es sólo un atajo para el caso común
+    // (reintento secuencial); la garantía real contra dos entregas casi
+    // simultáneas la da la restricción UNIQUE en pagos.mp_payment_id (ver
+    // docs/migration_idempotencia_pagos_2026_07.sql): si dos requests llegan
+    // a la vez, sólo uno logra insertar acá y el otro recibe 409 y corta
+    // antes de acreditar el pago dos veces.
+    const insertPagoRes = await fetch(`${supabaseUrl}/rest/v1/pagos`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        mp_payment_id: String(id),
+        tipo,
+        auto_id: auto_id || null,
+        concesionaria_id: concesionaria_id || null,
+        profesional_id: profesional_id || null,
+        user_id: user_id || null,
+        monto: payment.transaction_amount,
+        estado: payment.status,
+      }),
+    })
+
+    if (insertPagoRes.status === 409) {
+      return res.status(200).json({ received: true, duplicated: true })
+    }
+    if (!insertPagoRes.ok) {
+      const text = await insertPagoRes.text()
+      throw new Error(`Fetch error: ${insertPagoRes.status} - ${text}`)
+    }
+
     // 🔧 PATCH SEGÚN TIPO (Modificaciones directas a un auto_id)
     const patchMap = {
       destacado: { destacado: true, urgente: false, destacado_expira_at: in30days },
@@ -240,22 +271,6 @@ export default async function handler(req, res) {
         }
       )
     }
-
-    // 💾 REGISTRO DE PAGO
-    await safeFetch(`${supabaseUrl}/rest/v1/pagos`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        mp_payment_id: String(id),
-        tipo,
-        auto_id: auto_id || null,
-        concesionaria_id: concesionaria_id || null,
-        profesional_id: profesional_id || null,
-        user_id: user_id || null,
-        monto: payment.transaction_amount,
-        estado: payment.status,
-      }),
-    })
 
     // 📧 EMAIL (Protegido para que no rompa el webhook)
     if (user_email && process.env.RESEND_API_KEY) {

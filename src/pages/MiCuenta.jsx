@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import { useToast } from '../context/ToastContext'
+import { useModalA11y } from '../lib/useModalA11y'
 
 export default function MiCuenta() {
   const { user, concesionaria, isAdmin, loading: authLoading, signOut } = useAuth()
@@ -21,6 +22,8 @@ export default function MiCuenta() {
   const [formKey, setFormKey] = useState(0)
   const [editandoAuto, setEditandoAuto] = useState(null)
   const [editandoPerfil, setEditandoPerfil] = useState(false)
+  const perfilModalRef = useRef(null)
+  useModalA11y(perfilModalRef, () => setEditandoPerfil(false), editandoPerfil)
   const [perfilForm, setPerfilForm] = useState({ nombre: '', telefono: '' })
   const [savingPerfil, setSavingPerfil] = useState(false)
 
@@ -34,35 +37,46 @@ export default function MiCuenta() {
       toast('El pago no se completó. Podés intentarlo nuevamente.', 'error')
       window.history.replaceState({}, '', '/mi-cuenta')
     }
-  }, [])
+  }, [toast])
 
   useEffect(() => {
     if (authLoading) return
     if (!user || concesionaria || isAdmin) { navigate('/'); return }
     fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, concesionaria, isAdmin, authLoading])
 
   async function fetchData() {
-    const [{ data: favData }, { data: consData }, { data: autosData }, { data: pagosData }] = await Promise.all([
-      supabase.from('favoritos').select('auto_id, autos(*, concesionarias(nombre, ciudad, plan))').eq('user_id', user.id).order('created_at', { ascending: false }),
-      supabase.from('consultas').select('*, autos(marca, modelo)').eq('email_comprador', user.email).order('created_at', { ascending: false }),
-      supabase.from('autos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-      supabase.from('pagos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-    ])
-    const lista = favData?.map(f => f.autos).filter(Boolean) || []
-    setFavoritos(lista)
-    setFavoritoIds(new Set(lista.map(a => a.id)))
-    setConsultas(consData || [])
-    setMisAutos(autosData || [])
-    setPagos(pagosData || [])
-    const autoIds = autosData?.map(a => a.id) || []
-    if (autoIds.length > 0) {
-      const { data: consRecibidas } = await supabase.from('consultas').select('*, autos(marca, modelo)').in('auto_id', autoIds).order('created_at', { ascending: false })
-      setConsultasRecibidas(consRecibidas || [])
-    } else {
-      setConsultasRecibidas([])
+    try {
+      const [favRes, consRes, autosRes, pagosRes] = await Promise.all([
+        supabase.from('favoritos').select('auto_id, autos(*, concesionarias(nombre, ciudad, plan))').eq('user_id', user.id).order('created_at', { ascending: false }),
+        supabase.from('consultas').select('*, autos(marca, modelo)').eq('email_comprador', user.email).order('created_at', { ascending: false }),
+        supabase.from('autos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+        supabase.from('pagos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+      ])
+      if (favRes.error || consRes.error || autosRes.error || pagosRes.error) {
+        throw favRes.error || consRes.error || autosRes.error || pagosRes.error
+      }
+      const lista = favRes.data?.map(f => f.autos).filter(Boolean) || []
+      setFavoritos(lista)
+      setFavoritoIds(new Set(lista.map(a => a.id)))
+      setConsultas(consRes.data || [])
+      setMisAutos(autosRes.data || [])
+      setPagos(pagosRes.data || [])
+      const autoIds = autosRes.data?.map(a => a.id) || []
+      if (autoIds.length > 0) {
+        const { data: consRecibidas, error: consRecibidasError } = await supabase.from('consultas').select('*, autos(marca, modelo)').in('auto_id', autoIds).order('created_at', { ascending: false })
+        if (consRecibidasError) throw consRecibidasError
+        setConsultasRecibidas(consRecibidas || [])
+      } else {
+        setConsultasRecibidas([])
+      }
+    } catch (err) {
+      console.error('MiCuenta fetchData failed:', err)
+      toast('Error al cargar tu cuenta. Recargá la página para reintentar.', 'error')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   async function toggleFavorito(autoId) {
@@ -122,7 +136,7 @@ export default function MiCuenta() {
       {editandoPerfil && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
           onClick={e => e.target === e.currentTarget && setEditandoPerfil(false)}>
-          <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '460px' }}>
+          <div ref={perfilModalRef} role="dialog" aria-modal="true" aria-label="Editar perfil" style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '460px' }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', marginBottom: '2rem' }}>EDITAR PERFIL</div>
             <form onSubmit={guardarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="form-field">
@@ -481,6 +495,8 @@ function PublicarForm({ user, onSuccess, onCancel }) {
 }
 
 function EditarAutoModal({ auto, onClose, onSave }) {
+  const modalRef = useRef(null)
+  useModalA11y(modalRef, onClose)
   const [form, setForm] = useState({
     marca: auto.marca || '', modelo: auto.modelo || '', anio: auto.anio || '', kilometraje: auto.kilometraje || '',
     tipo: auto.tipo || 'usado', categoria: auto.categoria || '', combustible: auto.combustible || 'Nafta',
@@ -523,7 +539,7 @@ function EditarAutoModal({ auto, onClose, onSave }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
-      <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '620px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--gray2)' }}>
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-label="Editar publicación" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '620px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--gray2)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>EDITAR PUBLICACIÓN</div>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
@@ -580,6 +596,8 @@ function EditarAutoModal({ auto, onClose, onSave }) {
 
 function ConsultasRecibidasList({ consultas, onRead }) {
   const [detalle, setDetalle] = useState(null)
+  const detalleModalRef = useRef(null)
+  useModalA11y(detalleModalRef, () => setDetalle(null), !!detalle)
 
   async function verDetalle(c) {
     setDetalle(c)
@@ -593,7 +611,7 @@ function ConsultasRecibidasList({ consultas, onRead }) {
     <>
       {detalle && (
         <div onClick={() => setDetalle(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
+          <div ref={detalleModalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Detalle de consulta" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
               <button onClick={() => setDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
@@ -631,6 +649,9 @@ function ConsultasRecibidasList({ consultas, onRead }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: 'var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', maxWidth: '800px' }}>
         {consultas.map(c => (
           <div key={c.id} onClick={() => verDetalle(c)}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); verDetalle(c) } }}
+            role="button"
+            tabIndex={0}
             style={{ background: c.leido ? 'var(--gray1)' : '#0d0d0d', padding: '1.25rem 1.5rem', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', transition: 'background .2s' }}
             onMouseEnter={e => e.currentTarget.style.background = '#1a1a1a'}
             onMouseLeave={e => e.currentTarget.style.background = c.leido ? 'var(--gray1)' : '#0d0d0d'}>

@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
+import HomeHero from '../components/HomeHero'
+import './Home.css'
 import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
@@ -18,6 +20,7 @@ export default function Home() {
   const [autoFijado, setAutoFijado] = useState(null)
   const [rightIdx, setRightIdx] = useState(0)
   const [bottomIdx, setBottomIdx] = useState(0)
+  const [adsPaused, setAdsPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [loading, setLoading] = useState(true)
   const [configMissing] = useState(!import.meta.env.VITE_SUPABASE_URL)
 
@@ -54,16 +57,16 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (rightAds.length <= 1) return
+    if (rightAds.length <= 1 || adsPaused) return
     const t = setInterval(() => setRightIdx(i => (i + 1) % rightAds.length), 3500)
     return () => clearInterval(t)
-  }, [rightAds.length])
+  }, [rightAds.length, adsPaused])
 
   useEffect(() => {
-    if (banners.length === 0) return
+    if (banners.length <= 1 || adsPaused) return
     const t = setInterval(() => setBottomIdx(i => (i + 1) % Math.max(banners.length, 1)), 4000)
     return () => clearInterval(t)
-  }, [banners.length])
+  }, [banners.length, adsPaused])
 
   const colors = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
@@ -82,128 +85,38 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className="market-home">
       {configMissing && (
         <div style={{ background: 'var(--accent)', color: 'white', padding: '10px', textAlign: 'center', fontSize: '13px', fontWeight: 600, position: 'sticky', top: '58px', zIndex: 1000 }}>
           ⚠️ Configuración de Supabase incompleta. Revisa tu archivo .env para ver los vehículos reales.
         </div>
       )}
 
-      {/* HERO + ADS DERECHA */}
-      <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', overflow: 'hidden' }}>
-        {/* Backgrounds */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%)' }} />
-        <div style={{ position: 'absolute', inset: 0, opacity: .04, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,var(--white) 60px,var(--white) 61px)' }} />
-        <div style={{ position: 'absolute', top: '-100px', right: '200px', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.15) 0%, transparent 70%)' }} />
+      <HomeHero />
 
-        {/* Hero content */}
-        <div className="home-hero responsive-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4rem', paddingTop: '6rem', position: 'relative' }}>
-          <div className="animate-fade-in" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-            Plataforma N°1 de vehículos en Argentina
+      {(rightAds.length > 0 || banners.length > 0) && (
+        <aside className="market-partners" aria-label="Publicidad">
+          <div className="market-partners-label"><span>ESPACIO PUBLICITARIO</span><strong>Conectá con los que<br />conocen el camino.</strong><Link to="/publicitate">Tu marca, acá ↗</Link>
+            {(rightAds.length > 1 || banners.length > 1) && <button className="market-ad-pause" onClick={() => setAdsPaused(!adsPaused)}>{adsPaused ? 'Reanudar publicidad' : 'Pausar publicidad'}</button>}
           </div>
-          <h1 className="animate-fade-in delay-1" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,8vw,130px)', lineHeight: 1.05, letterSpacing: '2px', marginBottom: '2rem' }}>
-            ENCONTRÁ<br />TU PRÓXIMO<br /><span style={{ color: 'var(--accent)' }}>VEHÍCULO</span>
-          </h1>
-          <p className="animate-fade-in delay-2" style={{ fontSize: '17px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '3rem' }}>
-            Miles de vehículos nuevos y usados de las mejores concesionarias de Argentina. Filtrá, compará y contactá directo.
-          </p>
-          <div className="animate-fade-in delay-3" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <button className="btn-primary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/catalogo')}>Ver catálogo completo</button>
-            <button className="btn-secondary" style={{ fontSize: '15px', padding: '14px 32px' }} onClick={() => navigate('/concesionarias')}>Ver concesionarias</button>
-          </div>
-          <div className="home-stats" style={{ display: 'flex', gap: '3rem', marginTop: '4rem', paddingTop: '3rem', borderTop: '1px solid var(--gray2)' }}>
-            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length > 0 ? `${autos.length}+` : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Vehículos publicados</div></div>
-            <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{concesionarias.length > 0 ? concesionarias.length : '—'}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Concesionarias</div></div>
-          </div>
-        </div>
-
-        {/* ADS DERECHA — cycling crossfade */}
-        <div className="hero-ads-right" style={{ flex: '0 0 38%', minWidth: 0, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--gray2)', position: 'relative', background: '#050505' }}>
-          <div style={{ fontSize: '9px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textAlign: 'center', padding: '8px 0 4px', borderBottom: '1px solid var(--gray2)', textTransform: 'uppercase', flexShrink: 0 }}>Publicidad</div>
-          <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-            {rightAds.length > 0 ? rightAds.map((ad, i) => (
-              <div key={ad.id}
-                onClick={() => ad.link_url && window.open(ad.link_url, '_blank', 'noopener')}
-                style={{
-                  position: 'absolute', inset: 0,
-                  opacity: i === rightIdx ? 1 : 0,
-                  transition: 'opacity .8s ease-in-out',
-                  pointerEvents: i === rightIdx ? 'auto' : 'none',
-                  cursor: ad.link_url ? 'pointer' : 'default',
-                  backgroundColor: ad.fondo === 'claro' ? '#fff' : '#0a0a0a',
-                  backgroundImage: `url(${ad.imagen_url})`,
-                  backgroundSize: '85%',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                }} />
-            )) : (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ fontSize: '9px', color: '#2a2a2a', textTransform: 'uppercase', letterSpacing: '.12em', fontFamily: 'var(--font-mono)', textAlign: 'center', lineHeight: 1.8 }}>ESPACIO<br/>PUBLICITARIO</div>
-              </div>
-            )}
-            {rightAds.length > 1 && (
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', height: '3px' }}>
-                {rightAds.map((_, i) => (
-                  <div key={i} onClick={() => setRightIdx(i)}
-                    style={{ flex: 1, height: '100%', background: 'rgba(255,255,255,.12)', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
-                    {i === rightIdx && (
-                      <div key={`fill-${rightIdx}`} style={{ position: 'absolute', inset: 0, background: 'var(--accent)', transformOrigin: 'left', animation: 'progressFill 3.5s linear forwards' }} />
-                    )}
-                    {i < rightIdx && (
-                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.35)' }} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* PUBLICIDAD INFERIOR — 1 banner dinámico cycling */}
-      <div style={{ borderBottom: '1px solid var(--gray2)', background: '#050505' }}>
-        <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', padding: '8px 2rem 6px', textTransform: 'uppercase' }}>Publicidad</div>
-        <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
-          {banners.length > 0 ? banners.map((b, i) => (
-            <div key={b.id}
-              onClick={() => navigate(`/concesionaria/${b.id}`)}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/concesionaria/${b.id}`) } }}
-              role="link"
-              tabIndex={i === bottomIdx ? 0 : -1}
-              aria-label={`Ver ${b.nombre}`}
-              style={{ position: 'absolute', inset: 0, opacity: i === bottomIdx ? 1 : 0, transition: 'opacity .8s ease-in-out', pointerEvents: i === bottomIdx ? 'auto' : 'none', cursor: 'pointer' }}>
-              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0f0f0f 0%, #1a0a0a 50%, #0f0f0f 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(230,51,41,.12) 0%, transparent 70%)' }} />
-                <img src="/fiora_logo.png" alt="logo" style={{ height: '32px', opacity: 0.4, position: 'relative' }} />
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px,3vw,32px)', color: 'var(--white)', letterSpacing: '.05em', textAlign: 'center', padding: '0 2rem', position: 'relative' }}>{b.nombre}</div>
-                <div style={{ fontSize: '10px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', letterSpacing: '.15em', textTransform: 'uppercase', position: 'relative' }}>Concesionaria verificada</div>
-              </div>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,.35) 0%, transparent 40%, transparent 60%, rgba(0,0,0,.35) 100%)' }} />
-            </div>
-          )) : (
-            <div style={{ width: '100%', height: '100%', border: '1px dashed var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--gray3)', textTransform: 'uppercase', letterSpacing: '.12em' }}>Espacio publicitario</div>
-              <div style={{ fontSize: '10px', color: 'var(--gray2)', fontFamily: 'var(--font-mono)' }}>Hasta 10 banners · cycling automático</div>
-            </div>
-          )}
-          {banners.length > 1 && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', height: '3px' }}>
-              {banners.map((_, i) => (
-                <div key={i} onClick={() => setBottomIdx(i)}
-                  style={{ flex: 1, height: '100%', background: 'rgba(255,255,255,.12)', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
-                  {i === bottomIdx && (
-                    <div key={`fill-${bottomIdx}`} style={{ position: 'absolute', inset: 0, background: 'var(--white)', transformOrigin: 'left', animation: 'progressFill 4s linear forwards' }} />
-                  )}
-                  {i < bottomIdx && (
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.4)' }} />
-                  )}
-                </div>
+          {rightAds.length > 0 && (
+            <div className="market-ad">
+              {rightAds.map((ad, i) => (
+                <a key={ad.id} href={ad.link_url || undefined} target="_blank" rel="noopener noreferrer" tabIndex={i === rightIdx ? 0 : -1} aria-hidden={i !== rightIdx} className={i === rightIdx ? 'is-active' : ''} style={{ background: ad.fondo === 'claro' ? '#fff' : '#101113' }}>
+                  <img src={ad.imagen_url} alt={ad.nombre} loading="lazy" />
+                </a>
               ))}
+              {rightAds.length > 1 && <div className="market-ad-dots">{rightAds.map((ad, i) => <button key={ad.id} aria-label={`Ver publicidad de ${ad.nombre}`} aria-pressed={i === rightIdx} onClick={() => setRightIdx(i)} />)}</div>}
             </div>
           )}
-        </div>
-      </div>
-
+          {banners.length > 0 && (
+            <div className="market-banner">
+              <span>CONCESIONARIA DESTACADA</span>
+              <Link to={`/concesionaria/${banners[bottomIdx]?.id}`}><strong>{banners[bottomIdx]?.nombre}</strong><span>Conocé sus vehículos →</span></Link>
+            </div>
+          )}
+        </aside>
+      )}
       {/* VEHÍCULO FIJADO */}
       {autoFijado && (
         <div className="home-section responsive-section" style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'rgba(230,51,41,0.03)' }}>
@@ -237,15 +150,15 @@ export default function Home() {
       {/* FEATURED CARS */}
       <div className="home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Lo último</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>VEHÍCULOS DESTACADOS</h2>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>Encontrá tu próximo vehículo</h2>
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1.5rem' }}>
+          <div className="market-vehicle-grid">
             {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
           </div>
         ) : autos.length === 0 ? (
           <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay autos publicados. ¡Sé el primero en publicar!</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1px', background: 'var(--gray2)' }}>
+          <div className="market-vehicle-grid">
             {autos.map(a => <CarCard key={a.id} auto={a} />)}
           </div>
         )}
@@ -346,7 +259,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Red de concesionarias</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, margin: 0 }}>QUIÉNES<br />PUBLICAN</h2>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, margin: 0 }}>Conocé a tu próxima<br />concesionaria</h2>
           </div>
           <button className="btn-secondary" onClick={() => navigate('/concesionarias')} style={{ flexShrink: 0 }}>Ver todas →</button>
         </div>

@@ -192,7 +192,7 @@ export default function Navbar() {
       )}
 
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 1200px) {
           .nav-desktop { display: none !important; }
           .nav-hamburger { display: flex !important; }
         }

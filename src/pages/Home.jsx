@@ -9,12 +9,41 @@ import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
 
+const MARCAS = ['TOYOTA', 'VOLKSWAGEN', 'FORD', 'CHEVROLET', 'PEUGEOT', 'FIAT', 'HONDA', 'RENAULT', 'JEEP', 'NISSAN']
+
+const TIPOS = {
+  autos: [
+    { tipo: 'SUV', img: '/assets/tipos/icon_suv.png' },
+    { tipo: 'Hatchback', img: '/assets/tipos/icon_hatchback.png' },
+    { tipo: 'Sedán', img: '/assets/tipos/icon_sedan.png' },
+    { tipo: 'Pickup', img: '/assets/tipos/icon_pickup.png' },
+    { tipo: 'Minivan', img: '/assets/tipos/icon_minivan.png' },
+    { tipo: 'Coupé', img: '/assets/tipos/icon_coupe.png' },
+  ],
+  motos: [
+    { tipo: 'Naked', img: '/assets/tipos/icon_moto_naked.png' },
+    { tipo: 'Deportiva', img: '/assets/tipos/icon_moto_deportiva.png' },
+    { tipo: 'Touring', img: '/assets/tipos/icon_moto_touring.png' },
+    { tipo: 'Scooter', img: '/assets/tipos/icon_moto_scooter.png' },
+    { tipo: 'Enduro', img: '/assets/tipos/icon_moto_enduro.png' },
+    { tipo: 'Custom', img: '/assets/tipos/icon_moto_custom.png' },
+  ],
+  nautica: [
+    { tipo: 'Lancha', img: '/assets/tipos/icon_nautica_lancha.png' },
+    { tipo: 'Velero', img: '/assets/tipos/icon_nautica_velero.png' },
+    { tipo: 'Yate', img: '/assets/tipos/icon_nautica_yate.png' },
+    { tipo: 'Moto de Agua', img: '/assets/tipos/icon_nautica_motoagua.png' },
+    { tipo: 'Semi-rígido', img: '/assets/tipos/icon_nautica_semirigido.png' },
+  ],
+}
+
 export default function Home() {
   const navigate = useNavigate()
   const { user, concesionaria } = useAuth()
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
   const [tabGuia, setTabGuia] = useState('comprar')
+  const [tipoCategoria, setTipoCategoria] = useState('autos')
   const [banners, setBanners] = useState([])
   const [rightAds, setRightAds] = useState([])
   const [autoFijado, setAutoFijado] = useState(null)
@@ -26,7 +55,7 @@ export default function Home() {
 
   useEffect(() => {
     setPageMeta({ title: null, description: 'La plataforma de vehículos más avanzada de Argentina. Miles de autos, motos y náutica de concesionarias verificadas.', path: '/' })
-    
+
     const fetchAll = async () => {
       try {
         const [rAutos, rConc, rBanners, rAds, rFijado] = await Promise.all([
@@ -36,7 +65,7 @@ export default function Home() {
           supabase.from('publicidades').select('id, nombre, imagen_url, link_url, fondo').eq('activo', true).order('created_at', { ascending: false }),
           supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).limit(1)
         ])
-        
+
         const sorted = (rAutos.data || []).sort((a, b) => {
           if (a.urgente !== b.urgente) return (b.urgente ? 1 : 0) - (a.urgente ? 1 : 0)
           return new Date(b.created_at) - new Date(a.created_at)
@@ -70,19 +99,44 @@ export default function Home() {
 
   const colors = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
-  function LogoConcesionaria({ c, i, size = 52, fontSize = 26 }) {
+  function LogoConcesionaria({ c, i, size = 46, fontSize = 22 }) {
     if (c.logo_url) {
       return (
         <img src={c.logo_url} alt={c.nombre}
-          style={{ width: size, height: size, borderRadius: 'var(--radius)', objectFit: 'cover', marginBottom: '1rem', flexShrink: 0 }} />
+          style={{ width: size, height: size, borderRadius: 'var(--radius)', objectFit: 'cover', flexShrink: 0 }} />
       )
     }
     return (
-      <div style={{ width: size, height: size, borderRadius: 'var(--radius)', background: colors[i % colors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize, marginBottom: '1rem', flexShrink: 0 }}>
+      <div style={{ width: size, height: size, borderRadius: 'var(--radius)', background: colors[i % colors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize, flexShrink: 0 }}>
         {c.nombre?.[0]?.toUpperCase()}
       </div>
     )
   }
+
+  const guiaData = {
+    comprar: {
+      para: 'Para compradores',
+      headline: 'Encontrá el vehículo ideal al mejor precio del mercado',
+      cta: 'Ver catálogo →',
+      steps: [
+        { num: '01', title: 'Explorá el catálogo', desc: 'Filtrá por marca, modelo, precio, año y ubicación para encontrar el vehículo ideal.' },
+        { num: '02', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de la agencia, su reputación y el stock disponible.' },
+        { num: '03', title: 'Contactá y coordiná', desc: 'Escribí por WhatsApp o enviá una consulta directa. Sin intermediarios ni comisiones.' },
+      ],
+    },
+    vender: {
+      para: 'Para vendedores',
+      headline: 'Publicá tu vehículo y llegá a miles de compradores',
+      cta: 'Publicar vehículo →',
+      steps: [
+        { num: '01', title: 'Ingresá los datos', desc: 'Completá los detalles de tu vehículo: marca, modelo, año, km y estado.' },
+        { num: '02', title: 'Publicá tu vehículo', desc: 'Sumá fotos y precio. Tu publicación llega a miles de compradores en minutos.' },
+        { num: '03', title: 'Coordiná la venta', desc: 'Respondé consultas y cerrá el trato directamente con el interesado.' },
+      ],
+    },
+  }
+  const guiaActual = guiaData[tabGuia]
+  const isComprar = tabGuia === 'comprar'
 
   return (
     <div className="market-home">
@@ -93,6 +147,15 @@ export default function Home() {
       )}
 
       <HomeHero />
+
+      {/* MARQUEE DE MARCAS */}
+      <div className="market-marquee" aria-hidden="true">
+        <div className="market-marquee__track">
+          {[...MARCAS, ...MARCAS].map((m, i) => (
+            <span key={i}><span className="market-marquee__dot" />{m}</span>
+          ))}
+        </div>
+      </div>
 
       {(rightAds.length > 0 || banners.length > 0) && (
         <aside className="market-partners" aria-label="Publicidad">
@@ -117,6 +180,7 @@ export default function Home() {
           )}
         </aside>
       )}
+
       {/* VEHÍCULO FIJADO */}
       {autoFijado && (
         <div className="home-section responsive-section" style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'rgba(230,51,41,0.03)' }}>
@@ -124,18 +188,15 @@ export default function Home() {
             <span style={{ display: 'inline-block', width: '24px', height: '1px', background: '#c9a84c', flexShrink: 0 }} />
             Vehículo destacado del día
           </div>
-          <div className="home-fijado-card" style={{ display: 'flex', gap: '2rem', alignItems: 'center', background: 'var(--gray1)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius-lg)', padding: '2rem', cursor: 'pointer', maxWidth: '700px', transition: 'border-color .25s, box-shadow .25s, transform .25s' }}
-            onClick={() => navigate(`/auto/${autoFijado.id}`)}
+          <div className="home-fijado-card" onClick={() => navigate(`/auto/${autoFijado.id}`)}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/auto/${autoFijado.id}`) } }}
-            role="link"
-            tabIndex={0}
-            aria-label={`Ver ${autoFijado.marca} ${autoFijado.modelo}`}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(230,51,41,0.8)'; e.currentTarget.style.boxShadow = '0 8px 40px rgba(230,51,41,0.18)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(230,51,41,0.3)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)' }}>
-            {autoFijado.fotos?.[0] && (
-              <img src={autoFijado.fotos[0]} alt={autoFijado.modelo} className="home-fijado-img" style={{ width: '200px', height: '130px', objectFit: 'cover', borderRadius: 'var(--radius)', flexShrink: 0, transition: 'transform .25s' }} />
-            )}
-            <div>
+            role="link" tabIndex={0} aria-label={`Ver ${autoFijado.marca} ${autoFijado.modelo}`}>
+            <div className="home-fijado-card__media">
+              {autoFijado.fotos?.[0]
+                ? <img src={autoFijado.fotos[0]} alt={autoFijado.modelo} />
+                : <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--gray3)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>}
+            </div>
+            <div className="home-fijado-card__body">
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)', marginBottom: '4px' }}>{autoFijado.marca}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', lineHeight: 1, marginBottom: '8px' }}>{autoFijado.modelo?.toUpperCase()}</div>
               <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '12px' }}>{autoFijado.anio} · {Number(autoFijado.kilometraje || 0).toLocaleString('es-AR')} km · {autoFijado.combustible}</div>
@@ -149,8 +210,12 @@ export default function Home() {
 
       {/* FEATURED CARS */}
       <div className="home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Lo último</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, marginBottom: '2rem' }}>Encontrá tu próximo vehículo</h2>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Lo último</div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, margin: 0 }}>Encontrá tu próximo vehículo</h2>
+          </div>
+        </div>
         {loading ? (
           <div className="market-vehicle-grid">
             {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
@@ -170,21 +235,14 @@ export default function Home() {
       {/* INSTRUCCIONES COMPRAR Y VENDER */}
       <div className="animate-fade-in home-section responsive-section" style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--black)' }}>
 
-        {/* Header + tabs en misma fila */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '3rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Guía práctica</div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,52px)', lineHeight: 1, margin: 0 }}>CÓMO FUNCIONA</h2>
           </div>
-          {/* TABS underline */}
-          <div style={{ display: 'flex', borderBottom: '1px solid var(--gray2)' }}>
+          <div className="market-pill-tabs">
             {['comprar', 'vender'].map(t => (
-              <button key={t} onClick={() => setTabGuia(t)}
-                style={{ padding: '10px 28px', background: 'transparent', border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-                  color: tabGuia === t ? 'var(--white)' : 'var(--gray4)',
-                  borderBottom: `2px solid ${tabGuia === t ? 'var(--accent)' : 'transparent'}`,
-                  marginBottom: '-1px', transition: 'all .2s' }}>
+              <button key={t} onClick={() => setTabGuia(t)} className={tabGuia === t ? 'is-active' : ''}>
                 {t === 'comprar' ? 'Comprar' : 'Vender'}
               </button>
             ))}
@@ -192,65 +250,37 @@ export default function Home() {
         </div>
 
         <div key={tabGuia} className="animate-fade-in">
-          {(() => {
-            const isComprar = tabGuia === 'comprar'
-            const steps = isComprar
-              ? [
-                  { num: '01', title: 'Explorá el catálogo', desc: 'Filtrá por marca, modelo, precio, año y ubicación para encontrar el vehículo ideal.' },
-                  { num: '02', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de la agencia, su reputación y el stock disponible.' },
-                  { num: '03', title: 'Contactá y coordiná', desc: 'Escribí por WhatsApp o enviá una consulta directa. Sin intermediarios ni comisiones.' },
-                ]
-              : [
-                  { num: '01', title: 'Ingresá los datos', desc: 'Completá los detalles de tu vehículo: marca, modelo, año, km y estado.' },
-                  { num: '02', title: 'Publicá tu vehículo', desc: 'Sumá fotos y precio. Tu publicación llega a miles de compradores en minutos.' },
-                  { num: '03', title: 'Coordiná la venta', desc: 'Respondé consultas y cerrá el trato directamente con el interesado.' },
-                ]
-            return (
-              <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)' }}>
-                {/* Panel izquierdo */}
-                <div style={{ background: 'var(--gray1)', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '2rem', borderLeft: '3px solid var(--accent)' }}>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>
-                      {isComprar ? 'Para compradores' : 'Para vendedores'}
-                    </div>
-                    <div style={{ fontSize: '21px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.35 }}>
-                      {isComprar
-                        ? 'Encontrá el vehículo ideal al mejor precio del mercado'
-                        : 'Publicá tu vehículo y llegá a miles de compradores'}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }}
-                      onClick={() => isComprar ? navigate('/catalogo') : (concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro'))}>
-                      {isComprar ? 'Ver catálogo →' : 'Publicar vehículo →'}
-                    </button>
-                    <GuiaBoton seccion={isComprar ? 'compradores' : 'vendedores'} />
-                  </div>
+          <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)', borderRadius: '16px', overflow: 'hidden' }}>
+            <div style={{ background: 'var(--gray1)', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '2rem', borderLeft: '3px solid var(--accent)' }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>
+                  {guiaActual.para}
                 </div>
-
-                {/* Steps */}
-                <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
-                  {steps.map((p, idx) => (
-                    <div key={p.num} className="step-card" style={{ background: 'var(--gray1)', padding: '2.5rem 2rem', position: 'relative' }}>
-                      {/* Conector horizontal entre steps */}
-                      {idx < 2 && (
-                        <div style={{ position: 'absolute', top: '2.5rem', right: 0, width: '1px', height: '28px', background: 'var(--gray2)' }} />
-                      )}
-                      {/* Número */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.75rem' }}>
-                        <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '1px solid rgba(230,51,41,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 800, color: 'var(--accent)', flexShrink: 0 }}>
-                          {p.num}
-                        </div>
-                        {idx < 2 && <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right, rgba(230,51,41,.3), transparent)' }} />}
-                      </div>
-                      <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', marginBottom: '.75rem', lineHeight: 1.3 }}>{p.title}</div>
-                      <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.75 }}>{p.desc}</div>
-                    </div>
-                  ))}
+                <div style={{ fontSize: '21px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.35 }}>
+                  {guiaActual.headline}
                 </div>
               </div>
-            )
-          })()}
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }}
+                  onClick={() => isComprar ? navigate('/catalogo') : (concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro'))}>
+                  {guiaActual.cta}
+                </button>
+                <GuiaBoton seccion={isComprar ? 'compradores' : 'vendedores'} />
+              </div>
+            </div>
+
+            <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
+              {guiaActual.steps.map((p) => (
+                <div key={p.num} className="step-card" style={{ background: 'var(--gray1)', padding: '2.5rem 2rem' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid rgba(230,51,41,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 800, color: 'var(--accent)', marginBottom: '1.75rem' }}>
+                    {p.num}
+                  </div>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', marginBottom: '.75rem', lineHeight: 1.3 }}>{p.title}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.75 }}>{p.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -265,7 +295,7 @@ export default function Home() {
         </div>
         {concesionarias.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay concesionarias registradas.</p>
-          : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: '1rem' }}>
+          : <div className="market-dealer-rail">
               {concesionarias.map((c, i) => {
                 const isPremium = c.plan === 'premium'
                 const isPro = c.plan === 'pro'
@@ -273,23 +303,14 @@ export default function Home() {
                 return (
                   <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
                     onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/concesionaria/${c.id}`) } }}
-                    role="link"
-                    tabIndex={0}
-                    aria-label={`Ver ${c.nombre}`}
-                    className="dealer-card"
-                    style={{ background: 'var(--gray1)', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'var(--gray2)'}`, borderRadius: 'var(--radius-lg)', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color .2s, transform .15s, box-shadow .2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.6)' : 'var(--gray3)'; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(0,0,0,.5)' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = isPremium ? 'rgba(230,51,41,.3)' : 'var(--gray2)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
-                  >
-                    {/* Banner */}
-                    <div style={{ height: '64px', background: c.portada_url ? `url(${c.portada_url}) center/cover` : `linear-gradient(135deg, ${isPremium ? 'rgba(230,51,41,.25)' : cardColor + '22'} 0%, #0d0d0d 100%)`, position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
-                      <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '140px', height: '140px', borderRadius: '50%', background: `radial-gradient(circle, ${isPremium ? 'rgba(230,51,41,.18)' : cardColor + '18'} 0%, transparent 70%)`, pointerEvents: 'none' }} />
-                    </div>
-                    {/* Body */}
-                    <div style={{ padding: '0 1.25rem 1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '-22px', marginBottom: '8px' }}>
-                        <div style={{ padding: '2px', background: 'var(--gray1)', borderRadius: 'calc(var(--radius) + 3px)', border: '2px solid var(--gray1)', lineHeight: 0 }}>
-                          <LogoConcesionaria c={c} i={i} size={44} fontSize={20} />
+                    role="link" tabIndex={0} aria-label={`Ver ${c.nombre}`}
+                    className="dealer-card market-dealer-card"
+                    style={{ borderColor: isPremium ? 'rgba(230,51,41,.3)' : 'var(--gray2)' }}>
+                    <div style={{ height: '70px', background: c.portada_url ? `url(${c.portada_url}) center/cover` : `linear-gradient(135deg, ${isPremium ? 'rgba(230,51,41,.25)' : cardColor + '33'} 0%, #0d0d0d 100%)` }} />
+                    <div style={{ padding: '0 1.25rem 1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '-23px', marginBottom: '10px' }}>
+                        <div style={{ padding: '3px', background: 'var(--gray1)', borderRadius: 'calc(var(--radius) + 3px)', border: '3px solid var(--gray1)', lineHeight: 0 }}>
+                          <LogoConcesionaria c={c} i={i} />
                         </div>
                         {(isPremium || isPro) && (
                           <span style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '.12em', padding: '3px 8px', borderRadius: '100px', flexShrink: 0, marginBottom: '2px', background: isPremium ? 'rgba(230,51,41,.15)' : 'rgba(201,168,76,.15)', color: isPremium ? 'var(--accent)' : '#c9a84c', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'rgba(201,168,76,.3)'}` }}>
@@ -305,7 +326,6 @@ export default function Home() {
                         </div>
                       )}
                     </div>
-                    {/* Footer */}
                     <div style={{ padding: '0.625rem 1.25rem', borderTop: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', letterSpacing: '.06em', color: c.destacada ? '#c9a84c' : 'var(--gray4)' }}>
                         {c.destacada ? '✓ VERIFICADA' : 'AGENCIA'}
@@ -324,62 +344,19 @@ export default function Home() {
 
       {/* EXPLORAR POR TIPO */}
       <div className="animate-fade-in home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Catálogo</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, marginBottom: '2.5rem' }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
-        {/* Autos */}
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Autos</div>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {[
-            { tipo: 'SUV',       img: '/assets/tipos/icon_suv.png' },
-            { tipo: 'Hatchback', img: '/assets/tipos/icon_hatchback.png' },
-            { tipo: 'Sedán',     img: '/assets/tipos/icon_sedan.png' },
-            { tipo: 'Pickup',    img: '/assets/tipos/icon_pickup.png' },
-            { tipo: 'Minivan',   img: '/assets/tipos/icon_minivan.png' },
-            { tipo: 'Coupé',     img: '/assets/tipos/icon_coupe.png' },
-          ].map(({ tipo, img }) => (
-            <button key={tipo} onClick={() => navigate(`/catalogo?categoria=${encodeURIComponent(tipo)}`)}
-              className="type-card"
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '1.5rem 2rem', background: 'var(--black)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', minWidth: '130px', color: 'var(--white)', flex: '1 1 130px' }}>
-              <div style={{ height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={img} alt={tipo} style={{ maxWidth: '110px', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.8))', borderRadius: '8px' }} />
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>{tipo}</span>
-            </button>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2.5rem' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Catálogo</div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, margin: 0 }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
+          </div>
+          <div className="market-type-tabs">
+            {[['autos', 'Autos'], ['motos', 'Motos'], ['nautica', 'Náutica']].map(([key, label]) => (
+              <button key={key} onClick={() => setTipoCategoria(key)} className={tipoCategoria === key ? 'is-active' : ''}>{label}</button>
+            ))}
+          </div>
         </div>
-
-        {/* Motos */}
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginTop: '2.5rem', marginBottom: '0.75rem' }}>Motos</div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {[
-            { tipo: 'Naked',     img: '/assets/tipos/icon_moto_naked.png' },
-            { tipo: 'Deportiva', img: '/assets/tipos/icon_moto_deportiva.png' },
-            { tipo: 'Touring',   img: '/assets/tipos/icon_moto_touring.png' },
-            { tipo: 'Scooter',   img: '/assets/tipos/icon_moto_scooter.png' },
-            { tipo: 'Enduro',    img: '/assets/tipos/icon_moto_enduro.png' },
-            { tipo: 'Custom',    img: '/assets/tipos/icon_moto_custom.png' },
-          ].map(({ tipo, img }) => (
-            <button key={tipo} onClick={() => navigate(`/catalogo?categoria=${encodeURIComponent(tipo)}`)}
-              className="type-card"
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '1.5rem 2rem', background: 'var(--black)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', minWidth: '130px', color: 'var(--white)', flex: '1 1 130px' }}>
-              <div style={{ height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={img} alt={tipo} style={{ maxWidth: '110px', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.8))', borderRadius: '8px' }} />
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>{tipo}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Náutica */}
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginTop: '2.5rem', marginBottom: '0.75rem' }}>Náutica</div>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {[
-            { tipo: 'Lancha',       img: '/assets/tipos/icon_nautica_lancha.png' },
-            { tipo: 'Velero',       img: '/assets/tipos/icon_nautica_velero.png' },
-            { tipo: 'Yate',         img: '/assets/tipos/icon_nautica_yate.png' },
-            { tipo: 'Moto de Agua', img: '/assets/tipos/icon_nautica_motoagua.png' },
-            { tipo: 'Semi-rígido',  img: '/assets/tipos/icon_nautica_semirigido.png' },
-          ].map(({ tipo, img }) => (
+          {TIPOS[tipoCategoria].map(({ tipo, img }) => (
             <button key={tipo} onClick={() => navigate(`/catalogo?categoria=${encodeURIComponent(tipo)}`)}
               className="type-card"
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '1.5rem 2rem', background: 'var(--black)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', minWidth: '130px', color: 'var(--white)', flex: '1 1 130px' }}>

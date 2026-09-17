@@ -7,6 +7,14 @@
   outline-offset: 5px;
 }
 
+/* La imagen del hero es cuadrada (no panorámica como en las otras páginas) */
+.home-hero { min-height: 520px; }
+.home-hero__bg { background-position: center 60%; }
+@media (max-width: 640px) {
+  .home-hero { min-height: 600px; }
+  .home-hero__bg { background-position: center 64%; }
+}
+
 /* ── BUSCADOR DEL HERO ───────────────────────────────────────── */
 .home-search {
   display: flex; align-items: center; flex-wrap: wrap; gap: 4px;

@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom'
-import { FONDO_SHOWROOM_DEFAULT } from '../lib/marca'
 
 const categories = ['SUV', 'Pickup', 'Sedán', 'Hatchback', 'Coupé', 'Deportiva', 'Lancha']
 
 export default function HomeHero() {
   return (
-    <section className="responsive-section conc-listado-hero" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', position: 'relative', overflow: 'hidden' }} aria-labelledby="market-title">
-      <div className="conc-listado-hero__bg" style={{ backgroundImage: `url("${FONDO_SHOWROOM_DEFAULT}")` }} />
+    <section className="responsive-section conc-listado-hero home-hero" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', position: 'relative', overflow: 'hidden' }} aria-labelledby="market-title">
+      <div className="conc-listado-hero__bg home-hero__bg" style={{ backgroundImage: 'url("/assets/tipos/icon_coupe.png")' }} />
       <div className="conc-listado-hero__scrim" />
       <div style={{ position: 'relative' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>

@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 const categories = [
@@ -7,54 +6,11 @@ const categories = [
 ]
 
 export default function HomeHero() {
-  const heroRef = useRef(null)
-  const videoRef = useRef(null)
-
-  useEffect(() => {
-    const hero = heroRef.current
-    const video = videoRef.current
-    if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-    let frame = 0
-    let duration = 0
-
-    const onLoadedMetadata = () => { duration = video?.duration || 0 }
-    video?.addEventListener('loadedmetadata', onLoadedMetadata)
-    // "Desbloquea" el seek en iOS Safari, que requiere haber arrancado la
-    // reproducción al menos una vez antes de permitir mover currentTime.
-    video?.play().then(() => video.pause()).catch(() => {})
-
-    const update = () => {
-      frame = 0
-      const { top, height } = hero.getBoundingClientRect()
-      const progress = Math.min(Math.max(-top / height, 0), 1)
-      hero.style.setProperty('--hero-scroll', progress.toFixed(4))
-      if (video && duration) video.currentTime = progress * duration
-    }
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      if (frame) cancelAnimationFrame(frame)
-      video?.removeEventListener('loadedmetadata', onLoadedMetadata)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
-  }, [])
-
   return (
     <>
-      <section className="market-hero" aria-labelledby="market-title" ref={heroRef}>
+      <section className="market-hero" aria-labelledby="market-title">
         <div className="market-hero-art" aria-hidden="true">
-          <video
-            ref={videoRef}
-            src="/assets/hero/hero-car.mp4"
-            poster="/assets/tipos/icon_coupe.png"
-            muted
-            playsInline
-            preload="auto"
-          />
+          <img src="/assets/tipos/icon_coupe.png" alt="" fetchPriority="high" />
         </div>
         <div className="market-hero-content">
           <p className="market-eyebrow"><span /> TU PRÓXIMA HISTORIA EMPIEZA ACÁ</p>

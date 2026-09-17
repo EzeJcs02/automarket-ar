@@ -10,9 +10,9 @@
   outline: 2px solid #ff766d;
   outline-offset: 5px;
 }
-.market-hero { position: relative; isolation: isolate; max-width: 1600px; margin: auto; min-height: 560px; overflow: hidden; }
+.market-hero { --hero-scroll: 0; position: relative; isolation: isolate; max-width: 1600px; margin: auto; min-height: 560px; overflow: hidden; }
 .market-hero-art { position: absolute; inset: 0 0 0 39%; z-index: -1; }
-.market-hero-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
+.market-hero-art :is(img, video) { width: 100%; height: 100%; object-fit: cover; object-position: center 55%; will-change: transform; transform: translate3d(calc(var(--hero-scroll) * 2.5%), calc(var(--hero-scroll) * 6%), 0) scale(calc(1 + var(--hero-scroll) * .14)); }
 .market-hero-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #0b0c0e, transparent 45%), linear-gradient(0deg, #0b0c0e, transparent 25%); }
 .market-hero-content { padding: 88px 5% 64px; position: relative; }
 .market-eyebrow { display: flex; align-items: center; gap: 10px; color: #c6c6ca; font-size: 10px; letter-spacing: .18em; font-weight: 600; margin-bottom: 28px; }
@@ -98,6 +98,7 @@
   .market-hero-links .btn-primary { padding: 14px 18px; }
   .market-benefits { gap: 12px; flex-wrap: wrap; margin-top: 22px; font-size: 9px; }
   .market-hero-art { inset: auto 0 0 12%; height: 310px; opacity: .85; }
+  .market-hero-art :is(img, video) { transform: translate3d(calc(var(--hero-scroll) * 6%), calc(var(--hero-scroll) * 3%), 0) scale(calc(1 + var(--hero-scroll) * .08)); }
   .market-hero-art::after { background: linear-gradient(180deg, #0b0c0e, transparent 25%, transparent 75%, #0b0c0e); }
   .market-hero-caption { bottom: 24px; right: 6%; }
   .market-hero-caption span:first-child { font-size: 8px; }

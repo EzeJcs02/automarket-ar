@@ -24,6 +24,7 @@ const Admin = lazy(() => import('./pages/Admin'))
 const Planes = lazy(() => import('./pages/Planes'))
 const Favoritos = lazy(() => import('./pages/Favoritos'))
 const MiCuenta = lazy(() => import('./pages/MiCuenta'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const Comparador = lazy(() => import('./pages/Comparador'))
 const Profesionales = lazy(() => import('./pages/Profesionales'))
 const PanelProfesional = lazy(() => import('./pages/PanelProfesional'))
@@ -104,6 +105,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
+          <Route path="/restablecer-password" element={<Suspense fallback={<PageLoader />}><ResetPassword /></Suspense>} />
           <Route path="*" element={
             <>
               <Navbar />

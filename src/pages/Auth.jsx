@@ -18,7 +18,7 @@ export function Login() {
   async function handleReset(e) {
     e.preventDefault()
     setResetLoading(true)
-    await supabase.auth.resetPasswordForEmail(resetEmail, { redirectTo: 'https://fioramarket.store/mi-cuenta' })
+    await supabase.auth.resetPasswordForEmail(resetEmail, { redirectTo: 'https://fioramarket.store/restablecer-password' })
     setResetLoading(false)
     setResetSent(true)
   }

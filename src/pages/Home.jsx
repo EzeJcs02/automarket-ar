@@ -9,8 +9,6 @@ import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
 
-const MARCAS = ['TOYOTA', 'VOLKSWAGEN', 'FORD', 'CHEVROLET', 'PEUGEOT', 'FIAT', 'HONDA', 'RENAULT', 'JEEP', 'NISSAN']
-
 const TIPOS = {
   autos: [
     { tipo: 'SUV', img: '/assets/tipos/icon_suv.png' },
@@ -147,15 +145,6 @@ export default function Home() {
       )}
 
       <HomeHero />
-
-      {/* MARQUEE DE MARCAS */}
-      <div className="market-marquee" aria-hidden="true">
-        <div className="market-marquee__track">
-          {[...MARCAS, ...MARCAS].map((m, i) => (
-            <span key={i}><span className="market-marquee__dot" />{m}</span>
-          ))}
-        </div>
-      </div>
 
       {(rightAds.length > 0 || banners.length > 0) && (
         <aside className="market-partners" aria-label="Publicidad">

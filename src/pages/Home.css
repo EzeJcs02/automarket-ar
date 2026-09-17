@@ -74,14 +74,6 @@
   .market-home *, .market-home *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* MARQUEE DE MARCAS */
-.market-marquee { border-top: 1px solid var(--gray2); border-bottom: 1px solid var(--gray2); padding: 14px 0; overflow: hidden; white-space: nowrap; background: #0d0d0d; }
-.market-marquee__track { display: inline-flex; animation: fmMarquee 26s linear infinite; }
-.market-marquee__track span { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; color: var(--gray3); text-transform: uppercase; padding: 0 28px; display: inline-flex; align-items: center; gap: 10px; }
-.market-marquee__dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); display: inline-block; }
-@keyframes fmMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@media (prefers-reduced-motion: reduce) { .market-marquee__track { animation: none; } }
-
 /* VEHÍCULO FIJADO — panel diagonal */
 .home-fijado-card {
   display: grid; grid-template-columns: 1fr 1.1fr; align-items: stretch;
@@ -112,8 +104,6 @@
 .market-dealer-rail { display: flex; gap: 1.25rem; overflow-x: auto; padding: 8px 2px 20px; scroll-snap-type: x mandatory; }
 .market-dealer-card { flex: 0 0 270px; scroll-snap-align: start; background: var(--gray1); border: 1px solid var(--gray2); border-radius: 14px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; transition: transform .25s, border-color .25s, box-shadow .25s; }
 .market-dealer-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
-
-@keyframes fmFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
 @media (max-width: 768px) {
   .home-fijado-card { grid-template-columns: 1fr; }

@@ -77,11 +77,6 @@ export default function HomeHero() {
           </div>
         </div>
       </div>
-
-      <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--gray3)', fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', animation: 'fmFloat 2.4s ease-in-out infinite' }}>
-        SCROLL
-        <div style={{ width: '1px', height: '26px', background: 'linear-gradient(var(--gray3), transparent)' }} />
-      </div>
     </section>
   )
 }

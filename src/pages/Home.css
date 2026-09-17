@@ -27,7 +27,7 @@
 .home-search .btn-primary { border-radius: 100px; padding: 12px 22px; font-size: 13px; flex-shrink: 0; box-shadow: none; }
 
 /* ── ESPACIO PUBLICITARIO ────────────────────────────────────── */
-.market-partners { max-width: 1296px; margin: 0 auto 40px; padding: 24px; display: flex; gap: 32px; align-items: center; background: var(--gray1); border: 1px solid var(--gray2); border-radius: var(--radius-lg); }
+.market-partners { max-width: 1296px; margin: 48px auto 40px; padding: 24px; display: flex; gap: 32px; align-items: center; background: var(--gray1); border: 1px solid var(--gray2); border-radius: var(--radius-lg); }
 .market-partners-label { flex: 1; }
 .market-partners-label > span, .market-banner > span { color: var(--gray4); font-size: 9px; letter-spacing: .13em; }
 .market-partners-label strong { display: block; font-size: 20px; font-weight: 500; margin: 10px 0; line-height: 1.35; color: var(--white); }

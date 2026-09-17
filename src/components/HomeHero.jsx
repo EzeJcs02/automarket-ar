@@ -7,6 +7,7 @@ export default function HomeHero() {
       aria-labelledby="market-title"
       style={{
         position: 'relative', minHeight: '92vh', overflow: 'hidden', display: 'flex', alignItems: 'center',
+        padding: 'clamp(6rem,12vh,9rem) 0',
       }}
     >
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/assets/tipos/icon_coupe.png")', backgroundSize: 'cover', backgroundPosition: 'center 42%' }} />

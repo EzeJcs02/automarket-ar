@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { setPageMeta, resetMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
 import { ConcesionariaPortada } from '../components/ConcesionariaPortada'
-import { colorDe } from '../lib/marca'
+import { colorDe, FONDO_SHOWROOM_DEFAULT } from '../lib/marca'
 
 const COLORS = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
@@ -57,32 +57,36 @@ export function Concesionarias() {
     <div className="page-wrapper">
 
       {/* HERO HEADER */}
-      <div className="responsive-section" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', background: 'linear-gradient(180deg, rgba(230,51,41,.04) 0%, transparent 100%)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>
-          Red oficial de agencias
-        </div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,6vw,64px)', lineHeight: .95, marginBottom: '1.25rem' }}>
-          CONCESIONARIAS
-        </div>
-        <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2rem' }}>
-          Agencias verificadas con catálogo online, reseñas reales y contacto directo.
-        </p>
-
-        {/* BARRA BÚSQUEDA + STAT */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 20px', width: '100%', maxWidth: '320px' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '14px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
-            {busqueda && <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>}
+      <div className="responsive-section conc-listado-hero" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', position: 'relative', overflow: 'hidden' }}>
+        <div className="conc-listado-hero__bg" style={{ backgroundImage: `url("${FONDO_SHOWROOM_DEFAULT}")` }} />
+        <div className="conc-listado-hero__scrim" />
+        <div style={{ position: 'relative' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>
+            Red oficial de agencias
           </div>
-          {!loading && (
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
-              {busqueda.trim() ? `${filtradas.length} resultado${filtradas.length !== 1 ? 's' : ''}` : `${lista.length} agencia${lista.length !== 1 ? 's' : ''} activa${lista.length !== 1 ? 's' : ''}`}
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,6vw,64px)', lineHeight: .95, marginBottom: '1.25rem' }}>
+            CONCESIONARIAS
+          </div>
+          <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '2rem' }}>
+            Agencias verificadas con catálogo online, reseñas reales y contacto directo.
+          </p>
+
+          {/* BARRA BÚSQUEDA + STAT */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(20,20,20,.7)', backdropFilter: 'blur(6px)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 20px', width: '100%', maxWidth: '320px' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '14px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
+              {busqueda && <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>}
             </div>
-          )}
+            {!loading && (
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
+                {busqueda.trim() ? `${filtradas.length} resultado${filtradas.length !== 1 ? 's' : ''}` : `${lista.length} agencia${lista.length !== 1 ? 's' : ''} activa${lista.length !== 1 ? 's' : ''}`}
+              </div>
+            )}
+          </div>
+          <GuiaBoton seccion="agencias" style={{ marginTop: '0.25rem' }} />
         </div>
-        <GuiaBoton seccion="agencias" style={{ marginTop: '0.25rem' }} />
       </div>
 
       <div className="responsive-section" style={{ padding: '3rem 4rem' }}>

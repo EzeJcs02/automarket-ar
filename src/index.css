@@ -572,6 +572,22 @@ body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
 .delay-2 { animation-delay: 0.4s; opacity: 0; }
 .delay-3 { animation-delay: 0.6s; opacity: 0; }
 
+/* ── HERO LISTADO DE CONCESIONARIAS ─────────────────────────── */
+.conc-listado-hero__bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center 38%;
+}
+.conc-listado-hero__scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10,10,10,.55) 0%, rgba(10,10,10,.88) 78%, var(--black) 100%),
+    linear-gradient(90deg, rgba(10,10,10,.75) 0%, rgba(10,10,10,.2) 55%, rgba(10,10,10,.55) 100%);
+}
+@media (max-width: 640px) {
+  .conc-listado-hero__bg { background-position: center 30%; }
+}
+
 /* ── PORTADA DE CONCESIONARIA ───────────────────────────────── */
 .conc-hero {
   position: relative;

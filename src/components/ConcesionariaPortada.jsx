@@ -1,9 +1,8 @@
 import { useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { colorDe, rgbaMarca, COLOR_MARCA_DEFAULT } from '../lib/marca'
+import { colorDe, rgbaMarca, COLOR_MARCA_DEFAULT, FONDO_SHOWROOM_DEFAULT as FONDO_DEFAULT } from '../lib/marca'
 
-const FONDO_DEFAULT = '/portada-showroom.jpg'
 const MAX_MB = 6
 
 const PALETA = [COLOR_MARCA_DEFAULT, '#185FA5', '#1a7a4a', '#c9a84c', '#7F77DD', '#D85A30', '#e8e6e1', '#6b7280']

@@ -1,4 +1,5 @@
 export const COLOR_MARCA_DEFAULT = '#e63329'
+export const FONDO_SHOWROOM_DEFAULT = '/portada-showroom.jpg'
 
 export function colorDe(c) {
   return /^#[0-9a-f]{6}$/i.test(c?.color_marca || '') ? c.color_marca : COLOR_MARCA_DEFAULT

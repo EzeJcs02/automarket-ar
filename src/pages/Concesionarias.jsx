@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { setPageMeta, resetMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
+import { ConcesionariaPortada } from '../components/ConcesionariaPortada'
+import { colorDe } from '../lib/marca'
 
 const COLORS = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
 
@@ -303,79 +305,62 @@ export function ConcesionariaDetalle() {
         </button>
       </div>
 
-      {/* BANNER / COVER */}
-      <div style={{ position: 'relative', height: '200px', overflow: 'hidden', background: 'linear-gradient(135deg, #1a0000 0%, #2e0a0a 40%, #0a0a0a 100%)' }}>
-        {c.portada_url
-          ? <img src={c.portada_url} alt="Portada" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          : <>
-              <div style={{ position: 'absolute', inset: 0, opacity: .06, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 40px,var(--white) 40px,var(--white) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,var(--white) 40px,var(--white) 41px)' }} />
-              <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.2) 0%, transparent 70%)' }} />
-              <div style={{ position: 'absolute', bottom: '-40px', left: '10%', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,51,41,.1) 0%, transparent 70%)' }} />
-            </>
-        }
-      </div>
+      {/* PORTADA PERSONALIZABLE */}
+      <ConcesionariaPortada key={c.id} c={c} onUpdate={datos => setC(prev => ({ ...prev, ...datos }))} />
 
-      {/* HEADER CON LOGO SOBRE EL BANNER */}
-      <div className="responsive-section" style={{ padding: '0 4rem 2rem', borderBottom: '1px solid var(--gray2)', position: 'relative' }}>
-        {/* LOGO - mitad dentro del banner, mitad afuera */}
-        <div style={{ marginTop: '-50px', marginBottom: '1.5rem', display: 'inline-block' }}>
-          {c.logo_url
-            ? <img src={c.logo_url} alt={c.nombre} style={{ width: '100px', height: '100px', borderRadius: 'var(--radius-lg)', objectFit: 'cover', border: '3px solid var(--black)', display: 'block' }} />
-            : <div style={{ width: '100px', height: '100px', borderRadius: 'var(--radius-lg)', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '48px', border: '3px solid var(--black)' }}>
-                {c.nombre?.[0]?.toUpperCase()}
-              </div>
-          }
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,5vw,52px)', lineHeight: 1, marginBottom: '.5rem' }}>{c.nombre.toUpperCase()}</div>
-            {c.direccion && <div style={{ fontSize: '14px', color: 'var(--gray4)', marginBottom: '.75rem' }}>{c.direccion}{c.ciudad ? `, ${c.ciudad}` : ''}</div>}
-            {c.descripcion && <p style={{ fontSize: '14px', color: 'var(--gray4)', maxWidth: '500px', lineHeight: 1.7 }}>{c.descripcion}</p>}
-          </div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', paddingTop: '.5rem' }}>
+      {/* DATOS DE CONTACTO + MÉTRICAS */}
+      <div className="conc-datos responsive-section">
+        <div className="conc-datos__contacto">
+          {(c.direccion || c.ciudad) && (
+            <div className="conc-datos__dir">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colorDe(c)} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+              {[c.direccion, c.ciudad].filter(Boolean).join(', ')}
+            </div>
+          )}
+          {c.descripcion && <p className="conc-datos__desc">{c.descripcion}</p>}
+          <div className="conc-datos__btns">
             {c.whatsapp && (
-              <button onClick={() => window.open(`https://wa.me/${c.whatsapp.replace(/\D/g,'')}?text=Hola! Vi su concesionaria en FIORA MARKET`, '_blank')}
-                style={{ background: '#25D366', border: 'none', borderRadius: '100px', padding: '10px 20px', fontSize: '13px', color: '#fff', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
+              <a className="conc-chip conc-chip--wa" target="_blank" rel="noopener noreferrer"
+                href={`https://wa.me/${c.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hola! Vi su concesionaria en FIORA MARKET')}`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z" /></svg>
                 WhatsApp
-              </button>
+              </a>
             )}
             {c.telefono && (
-              <button onClick={() => window.open(`tel:${c.telefono}`)}
-                style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', padding: '10px 18px', fontSize: '13px', color: 'var(--white)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'border-color .2s, background .2s' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.background = 'var(--gray2)' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--gray1)' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+              <a className="conc-chip" href={`tel:${c.telefono}`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colorDe(c)} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" /></svg>
                 <span style={{ fontFamily: 'var(--font-mono)', letterSpacing: '.04em' }}>{c.telefono}</span>
-              </button>
+              </a>
             )}
             {c.email && (
-              <button onClick={() => window.open(`mailto:${c.email}`)}
-                style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', padding: '10px 18px', fontSize: '13px', color: 'var(--white)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'border-color .2s, background .2s' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.background = 'var(--gray2)' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray2)'; e.currentTarget.style.background = 'var(--gray1)' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <span>{c.email}</span>
-              </button>
+              <a className="conc-chip" href={`mailto:${c.email}`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colorDe(c)} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                {c.email}
+              </a>
             )}
           </div>
         </div>
-      </div>
 
-      {/* STATS */}
-      <div className="responsive-section" style={{ display: 'flex', gap: '3rem', padding: '2rem 4rem', borderBottom: '1px solid var(--gray2)', flexWrap: 'wrap' }}>
-        <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Autos publicados</div></div>
-        <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.filter(a => a.tipo === 'nuevo').length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Nuevos</div></div>
-        <div><div style={{ fontFamily: 'var(--font-display)', fontSize: '42px' }}>{autos.filter(a => a.tipo === 'usado').length}</div><div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>Usados</div></div>
-        {promedioRating && (
+        <div className="conc-datos__metricas">
           <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: '#c9a84c' }}>
-              {promedioRating} <span style={{ fontSize: '24px' }}>★</span>
-            </div>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: '4px' }}>{resenas.length} reseña{resenas.length !== 1 ? 's' : ''}</div>
+            <div className="conc-metrica__n">{autos.length}</div>
+            <div className="conc-metrica__l">Autos publicados</div>
           </div>
-        )}
+          <div>
+            <div className="conc-metrica__n">{autos.filter(a => a.tipo === 'nuevo').length}</div>
+            <div className="conc-metrica__l">Nuevos</div>
+          </div>
+          <div>
+            <div className="conc-metrica__n">{autos.filter(a => a.tipo === 'usado').length}</div>
+            <div className="conc-metrica__l">Usados</div>
+          </div>
+          {promedioRating && (
+            <div>
+              <div className="conc-metrica__n" style={{ color: '#c9a84c' }}>{promedioRating} <span style={{ fontSize: '24px' }}>★</span></div>
+              <div className="conc-metrica__l">{resenas.length} reseña{resenas.length !== 1 ? 's' : ''}</div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* STOCK */}

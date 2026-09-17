@@ -152,19 +152,23 @@ export default function Catalogo() {
 
   return (
     <div className="page-wrapper">
-      <div className="responsive-section" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', background: 'linear-gradient(180deg, rgba(230,51,41,.04) 0%, transparent 100%)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>
-          Vehículos nuevos y usados
-        </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,6vw,64px)', lineHeight: .95 }}>CATÁLOGO</div>
-          <GuiaBoton seccion="compradores" style={{ marginBottom: '6px' }} />
-        </div>
-        <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '1rem' }}>
-          Miles de autos, motos y náutica de concesionarias verificadas y particulares.
-        </p>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
-          {loading ? 'Cargando...' : `${totalCount} resultado${totalCount !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
+      <div className="responsive-section conc-listado-hero" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', position: 'relative', overflow: 'hidden' }}>
+        <div className="conc-listado-hero__bg" style={{ backgroundImage: 'url("/portada-catalogo.jpg")' }} />
+        <div className="conc-listado-hero__scrim" />
+        <div style={{ position: 'relative' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>
+            Vehículos nuevos y usados
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,6vw,64px)', lineHeight: .95 }}>CATÁLOGO</div>
+            <GuiaBoton seccion="compradores" style={{ marginBottom: '6px' }} />
+          </div>
+          <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '1rem' }}>
+            Miles de autos, motos y náutica de concesionarias verificadas y particulares.
+          </p>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
+            {loading ? 'Cargando...' : `${totalCount} resultado${totalCount !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
+          </div>
         </div>
       </div>
       {/* TOGGLE DE FILTROS — solo mobile */}

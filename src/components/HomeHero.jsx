@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom'
-
 const categories = ['SUV', 'Pickup', 'Sedán', 'Hatchback', 'Coupé', 'Deportiva', 'Lancha']
 
 export default function HomeHero() {
@@ -40,15 +38,6 @@ export default function HomeHero() {
           </label>
           <button className="btn-primary" type="submit">Buscar vehículos <span aria-hidden="true">→</span></button>
         </form>
-
-        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '1.5rem' }}>
-          <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            Conocer concesionarias <span aria-hidden="true">→</span>
-          </Link>
-          <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', fontSize: '11px', color: 'var(--gray4)' }}>
-            <span>✓ Autos nuevos y usados</span><span>✓ Contacto directo</span><span>✓ Todo en un lugar</span>
-          </div>
-        </div>
       </div>
     </section>
   )

@@ -1,46 +1,19 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 const categories = ['SUV', 'Pickup', 'Sedán', 'Hatchback', 'Coupé', 'Deportiva', 'Lancha']
 
 export default function HomeHero() {
-  const [pos, setPos] = useState({ x: 0, y: 0 })
-
-  function handleMove(e) {
-    const rect = e.currentTarget.getBoundingClientRect()
-    setPos({
-      x: (e.clientX - rect.left) / rect.width - 0.5,
-      y: (e.clientY - rect.top) / rect.height - 0.5,
-    })
-  }
-
   return (
     <section
       className="home-hero"
-      onMouseMove={handleMove}
       aria-labelledby="market-title"
       style={{
         position: 'relative', minHeight: '92vh', overflow: 'hidden', display: 'flex', alignItems: 'center',
-        background: 'radial-gradient(ellipse 90% 60% at 30% 20%, rgba(230,51,41,.14) 0%, transparent 60%), linear-gradient(180deg, var(--black) 0%, #0d0d0d 60%, var(--black) 100%)',
       }}
     >
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/assets/tipos/icon_coupe.png")', backgroundSize: 'cover', backgroundPosition: 'center 42%' }} />
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(245,243,238,.05) 1px, transparent 1px)', backgroundSize: '26px 26px', maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)' }} />
-
-      <img
-        src="/assets/tipos/icon_coupe.png"
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          right: `${-40 + pos.x * -30}px`,
-          bottom: `${-40 + pos.y * -20}px`,
-          width: 'min(52vw, 780px)', opacity: .9,
-          filter: 'drop-shadow(0 40px 60px rgba(0,0,0,.7))',
-          transition: 'right .4s ease-out, bottom .4s ease-out',
-          pointerEvents: 'none',
-        }}
-      />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, var(--black) 20%, rgba(10,10,10,.4) 55%, transparent 78%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, var(--black) 0%, rgba(10,10,10,.82) 40%, rgba(10,10,10,.35) 62%, transparent 88%), linear-gradient(0deg, var(--black) 0%, transparent 18%)' }} />
 
       <div className="animate-fade-in" style={{ position: 'relative', maxWidth: '700px', padding: '0 clamp(20px,5vw,64px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: '1.25rem' }}>

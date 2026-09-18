@@ -1,4 +1,4 @@
-const categories = ['SUV', 'Pickup', 'Sedán', 'Hatchback', 'Coupé', 'Deportiva', 'Lancha']
+import { Link } from 'react-router-dom'
 
 export default function HomeHero() {
   return (
@@ -10,7 +10,7 @@ export default function HomeHero() {
         padding: 'clamp(4rem,8vh,6rem) 0',
       }}
     >
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/assets/tipos/icon_coupe.png")', backgroundSize: '70% auto', backgroundRepeat: 'no-repeat', backgroundPosition: 'center 42%' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/assets/hero-bg.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }} />
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(245,243,238,.05) 1px, transparent 1px)', backgroundSize: '26px 26px', maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, var(--black) 0%, rgba(10,10,10,.82) 40%, rgba(10,10,10,.35) 62%, transparent 88%), linear-gradient(0deg, var(--black) 0%, transparent 18%)' }} />
 
@@ -20,25 +20,16 @@ export default function HomeHero() {
           Tu próxima historia empieza acá
         </div>
         <h1 id="market-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px,4vw,52px)', color: 'var(--white)', lineHeight: 1.1, margin: '0 0 1.2rem' }}>
-          NO ES SOLO<br />UN AUTO. ES TU<br /><span style={{ color: 'var(--accent)' }}>PRÓXIMO DESTINO.</span>
+          EL ECOSISTEMA<br />DE VEHÍCULOS<br />DE ARGENTINA
         </h1>
-        <p style={{ fontSize: '16px', color: 'var(--gray4)', maxWidth: '440px', lineHeight: 1.7, marginBottom: '2.25rem' }}>
-          Encontrá el vehículo que va con vos. Explorá, compará y conectá con concesionarias de toda Argentina.
+        <p style={{ fontSize: '16px', color: 'var(--white)', maxWidth: '440px', lineHeight: 1.7, marginBottom: '2.25rem' }}>
+          Autos, motos y náutica. Explorá, compará y conectá con concesionarias de toda Argentina.
         </p>
 
-        <form className="home-search" action="/catalogo" method="get">
-          <label className="home-search__field home-search__field--query" htmlFor="home-query">
-            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            <input id="home-query" name="q" type="search" placeholder="Ej. Toyota Corolla" />
-          </label>
-          <label className="home-search__field" htmlFor="home-category">
-            <select id="home-category" name="categoria" defaultValue="">
-              <option value="">Todas las categorías</option>
-              {categories.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </label>
-          <button className="btn-primary" type="submit">Buscar vehículos <span aria-hidden="true">→</span></button>
-        </form>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <Link to="/catalogo"><button className="btn-primary" style={{ padding: '12px 26px', fontSize: '14px' }}>Explorar Catálogo</button></Link>
+          <Link to="/registro"><button className="btn-secondary" style={{ padding: '12px 26px', fontSize: '14px' }}>Publicar Vehículo</button></Link>
+        </div>
       </div>
     </section>
   )

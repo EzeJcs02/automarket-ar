@@ -110,3 +110,8 @@
   .home-fijado-card__media { min-height: 160px; clip-path: none; }
   .market-dealer-card { flex-basis: 240px; }
 }
+
+@media (max-width: 600px) {
+  .home-hero-cta a { flex: 1 1 100%; }
+  .home-hero-cta button { width: 100%; }
+}

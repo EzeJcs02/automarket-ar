@@ -3,6 +3,16 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 
+function VolverInicio({ centrado }) {
+  return (
+    <div style={{ marginBottom: '1.5rem', textAlign: centrado ? 'center' : 'left' }}>
+      <Link to="/" style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, color: 'var(--black)', background: 'var(--white)', borderRadius: 0, padding: '9px 18px' }}>
+        Volver al inicio
+      </Link>
+    </div>
+  )
+}
+
 export function Login() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
@@ -67,6 +77,7 @@ export function Login() {
       {/* LADO DERECHO — formulario */}
       <div style={{ width: '100%', maxWidth: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '380px' }}>
+          <VolverInicio />
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '3px', display: 'block', marginBottom: '3rem' }}>
             FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
           </Link>
@@ -247,6 +258,7 @@ export function Registro() {
       {ladoIzquierdo}
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
+          <VolverInicio />
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
             FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
           </Link>
@@ -316,6 +328,7 @@ export function Registro() {
   if (!tipo) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--black)' }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
+        <VolverInicio centrado />
         <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '3rem', textAlign: 'center' }}>
           FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
         </Link>
@@ -359,6 +372,7 @@ export function Registro() {
       {ladoIzquierdo}
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
+          <VolverInicio />
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
             FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
           </Link>
@@ -410,6 +424,7 @@ export function Registro() {
       {/* LADO DERECHO */}
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: 'var(--black)' }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
+          <VolverInicio />
           <Link to="/" style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '3px', display: 'block', marginBottom: '2.5rem' }}>
             FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
           </Link>

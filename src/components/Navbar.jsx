@@ -107,7 +107,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <Link to="/catalogo" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Catálogo</Link>
           <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Concesionarias</Link>
           <Link to="/profesionales" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Profesionales</Link>
@@ -142,7 +141,6 @@ export default function Navbar() {
               <Link to="/registro"><button className="btn-primary" style={{ padding: '7px 16px', fontSize: '13px' }}>Publicar vehículo</button></Link>
             </div>
           )}
-          </div>
         </div>
 
         {/* MOBILE: botón hamburguesa */}
@@ -194,11 +192,10 @@ export default function Navbar() {
       )}
 
       <style>{`
-        .nav-links { display: none !important; }
-        .nav-hamburger { display: flex !important; }
-        .nav-desktop { margin-right: 1rem; }
-        @media (max-width: 900px) { .nav-desktop { display: none !important; } }
-        .nav-mobile-menu { padding-inline: max(1.5rem, calc((100vw - 520px) / 2)) !important; overflow-y: auto; }
+        @media (max-width: 1200px) {
+          .nav-desktop { display: none !important; }
+          .nav-hamburger { display: flex !important; }
+        }
       `}</style>
     </>
   )

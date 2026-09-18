@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { RevealTitle } from './Reveal'
 
 export default function HomeHero() {
   return (
@@ -19,10 +20,10 @@ export default function HomeHero() {
           <span style={{ width: '26px', height: '1px', background: 'var(--accent)' }} />
           Tu próxima historia empieza acá
         </div>
-        <h1 id="market-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px,4vw,52px)', color: 'var(--white)', lineHeight: 1.1, margin: '0 0 1.2rem' }}>
+        <RevealTitle as="h1" id="market-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px,4vw,52px)', color: 'var(--white)', lineHeight: 1.1, margin: '0 0 1.2rem' }}>
           EL ECOSISTEMA<br />DE VEHÍCULOS<br />DE ARGENTINA
-        </h1>
-        <p style={{ fontSize: '16px', color: 'var(--white)', maxWidth: '440px', lineHeight: 1.7, marginBottom: '2.25rem' }}>
+        </RevealTitle>
+        <p data-reveal="up" style={{ fontSize: '16px', color: 'var(--white)', maxWidth: '440px', lineHeight: 1.7, marginBottom: '2.25rem' }}>
           Autos, motos y náutica. Explorá, compará y conectá con concesionarias de toda Argentina.
         </p>
 

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import HomeHero from '../components/HomeHero'
+import { RevealTitle, useScrollReveal } from '../components/Reveal'
 import './Home.css'
 import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
@@ -50,6 +51,8 @@ export default function Home() {
   const [adsPaused, setAdsPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [loading, setLoading] = useState(true)
   const [configMissing] = useState(!import.meta.env.VITE_SUPABASE_URL)
+
+  useScrollReveal([loading, autos.length, concesionarias.length, autoFijado, tabGuia])
 
   useEffect(() => {
     setPageMeta({ title: null, description: 'La plataforma de vehículos más avanzada de Argentina. Miles de autos, motos y náutica de concesionarias verificadas.', path: '/' })
@@ -147,7 +150,7 @@ export default function Home() {
       <HomeHero />
 
       {(rightAds.length > 0 || banners.length > 0) && (
-        <aside className="market-partners" aria-label="Publicidad">
+        <aside data-reveal="up" className="market-partners" aria-label="Publicidad">
           <div className="market-partners-label"><span>ESPACIO PUBLICITARIO</span><strong>Conectá con los que <br />conocen el camino.</strong><Link to="/publicitate">Tu marca, acá ↗</Link>
             {(rightAds.length > 1 || banners.length > 1) && <button className="market-ad-pause" onClick={() => setAdsPaused(!adsPaused)}>{adsPaused ? 'Reanudar publicidad' : 'Pausar publicidad'}</button>}
           </div>
@@ -177,7 +180,7 @@ export default function Home() {
             <span style={{ display: 'inline-block', width: '24px', height: '1px', background: '#c9a84c', flexShrink: 0 }} />
             Vehículo destacado del día
           </div>
-          <div className="home-fijado-card" onClick={() => navigate(`/auto/${autoFijado.id}`)}
+          <div data-reveal="up" className="home-fijado-card" onClick={() => navigate(`/auto/${autoFijado.id}`)}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/auto/${autoFijado.id}`) } }}
             role="link" tabIndex={0} aria-label={`Ver ${autoFijado.marca} ${autoFijado.modelo}`}>
             <div className="home-fijado-card__media">
@@ -202,17 +205,17 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Lo último</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Encontrá tu próximo vehículo</h2>
+            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Encontrá tu próximo vehículo</RevealTitle>
           </div>
         </div>
         {loading ? (
-          <div className="market-vehicle-grid">
+          <div className="market-vehicle-grid" data-reveal-stagger>
             {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
           </div>
         ) : autos.length === 0 ? (
           <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay autos publicados. ¡Sé el primero en publicar!</p>
         ) : (
-          <div className="market-vehicle-grid">
+          <div className="market-vehicle-grid" data-reveal-stagger>
             {autos.map(a => <CarCard key={a.id} auto={a} />)}
           </div>
         )}
@@ -227,7 +230,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '3rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Guía práctica</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>CÓMO FUNCIONA</h2>
+            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>CÓMO FUNCIONA</RevealTitle>
           </div>
           <div className="market-pill-tabs">
             {['comprar', 'vender'].map(t => (
@@ -258,7 +261,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="home-guide-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
+            <div className="home-guide-steps" data-reveal-stagger style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
               {guiaActual.steps.map((p) => (
                 <div key={p.num} className="step-card" style={{ background: 'var(--gray1)', padding: '2.5rem 2rem' }}>
                   <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid rgba(230,51,41,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 800, color: 'var(--accent)', marginBottom: '1.75rem' }}>
@@ -278,13 +281,13 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Red de concesionarias</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Conocé a tu próxima<br />concesionaria</h2>
+            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Conocé a tu próxima<br />concesionaria</RevealTitle>
           </div>
           <button className="btn-secondary" onClick={() => navigate('/concesionarias')} style={{ flexShrink: 0 }}>Ver todas →</button>
         </div>
         {concesionarias.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay concesionarias registradas.</p>
-          : <div className="market-dealer-rail">
+          : <div className="market-dealer-rail" data-reveal-stagger>
               {concesionarias.map((c, i) => {
                 const isPremium = c.plan === 'premium'
                 const isPro = c.plan === 'pro'
@@ -336,7 +339,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2.5rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Catálogo</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
+            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>EXPLORAR POR TIPO DE VEHÍCULO</RevealTitle>
           </div>
           <div className="market-type-tabs">
             {[['autos', 'Autos'], ['motos', 'Motos'], ['nautica', 'Náutica']].map(([key, label]) => (
@@ -344,7 +347,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <div data-reveal-stagger style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {TIPOS[tipoCategoria].map(({ tipo, img }) => (
             <button key={tipo} onClick={() => navigate(`/catalogo?categoria=${encodeURIComponent(tipo)}`)}
               className="type-card"

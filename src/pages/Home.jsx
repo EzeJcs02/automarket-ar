@@ -148,7 +148,7 @@ export default function Home() {
 
       {(rightAds.length > 0 || banners.length > 0) && (
         <aside className="market-partners" aria-label="Publicidad">
-          <div className="market-partners-label"><span>ESPACIO PUBLICITARIO</span><strong>Conectá con los que<br />conocen el camino.</strong><Link to="/publicitate">Tu marca, acá ↗</Link>
+          <div className="market-partners-label"><span>ESPACIO PUBLICITARIO</span><strong>Conectá con los que <br />conocen el camino.</strong><Link to="/publicitate">Tu marca, acá ↗</Link>
             {(rightAds.length > 1 || banners.length > 1) && <button className="market-ad-pause" onClick={() => setAdsPaused(!adsPaused)}>{adsPaused ? 'Reanudar publicidad' : 'Pausar publicidad'}</button>}
           </div>
           {rightAds.length > 0 && (

@@ -6,11 +6,11 @@ export default function HomeHero() {
       className="home-hero"
       aria-labelledby="market-title"
       style={{
-        position: 'relative', minHeight: '92vh', overflow: 'hidden', display: 'flex', alignItems: 'center',
-        padding: 'clamp(6rem,12vh,9rem) 0',
+        position: 'relative', minHeight: '68vh', overflow: 'hidden', display: 'flex', alignItems: 'center',
+        padding: 'clamp(4rem,8vh,6rem) 0',
       }}
     >
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/assets/tipos/icon_coupe.png")', backgroundSize: 'cover', backgroundPosition: 'center 42%' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/assets/tipos/icon_coupe.png")', backgroundSize: '70% auto', backgroundRepeat: 'no-repeat', backgroundPosition: 'center 42%' }} />
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(245,243,238,.05) 1px, transparent 1px)', backgroundSize: '26px 26px', maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, var(--black) 0%, rgba(10,10,10,.82) 40%, rgba(10,10,10,.35) 62%, transparent 88%), linear-gradient(0deg, var(--black) 0%, transparent 18%)' }} />
 
@@ -19,7 +19,7 @@ export default function HomeHero() {
           <span style={{ width: '26px', height: '1px', background: 'var(--accent)' }} />
           Tu próxima historia empieza acá
         </div>
-        <h1 id="market-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,8vw,96px)', lineHeight: .92, margin: '0 0 1.4rem' }}>
+        <h1 id="market-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px,4vw,52px)', color: 'var(--white)', lineHeight: 1.1, margin: '0 0 1.2rem' }}>
           NO ES SOLO<br />UN AUTO. ES TU<br /><span style={{ color: 'var(--accent)' }}>PRÓXIMO DESTINO.</span>
         </h1>
         <p style={{ fontSize: '16px', color: 'var(--gray4)', maxWidth: '440px', lineHeight: 1.7, marginBottom: '2.25rem' }}>

@@ -202,7 +202,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Lo último</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, margin: 0 }}>Encontrá tu próximo vehículo</h2>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Encontrá tu próximo vehículo</h2>
           </div>
         </div>
         {loading ? (
@@ -227,7 +227,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '3rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Guía práctica</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,52px)', lineHeight: 1, margin: 0 }}>CÓMO FUNCIONA</h2>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>CÓMO FUNCIONA</h2>
           </div>
           <div className="market-pill-tabs">
             {['comprar', 'vender'].map(t => (
@@ -278,7 +278,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Red de concesionarias</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1, margin: 0 }}>Conocé a tu próxima<br />concesionaria</h2>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Conocé a tu próxima<br />concesionaria</h2>
           </div>
           <button className="btn-secondary" onClick={() => navigate('/concesionarias')} style={{ flexShrink: 0 }}>Ver todas →</button>
         </div>
@@ -336,7 +336,7 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2.5rem' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Catálogo</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,4vw,48px)', lineHeight: 1, margin: 0 }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>EXPLORAR POR TIPO DE VEHÍCULO</h2>
           </div>
           <div className="market-type-tabs">
             {[['autos', 'Autos'], ['motos', 'Motos'], ['nautica', 'Náutica']].map(([key, label]) => (

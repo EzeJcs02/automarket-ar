@@ -9,6 +9,7 @@ import './Home.css'
 import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
+import { FONDO_SHOWROOM_DEFAULT } from '../lib/marca'
 
 const TIPOS = {
   autos: [
@@ -165,7 +166,7 @@ export default function Home() {
             </div>
           )}
           {banners.length > 0 && (
-            <div className="market-banner">
+            <div className="market-banner" style={{ backgroundImage: `url("${banners[bottomIdx]?.portada_url || FONDO_SHOWROOM_DEFAULT}")` }}>
               <span>CONCESIONARIA DESTACADA</span>
               <Link to={`/concesionaria/${banners[bottomIdx]?.id}`}><strong>{banners[bottomIdx]?.nombre}</strong><span>Conocé sus vehículos →</span></Link>
             </div>

@@ -141,7 +141,9 @@ export function AuthProvider({ children }) {
     return { error }
   }
 
-  const isAdmin = !!(user?.email && user.email === import.meta.env.VITE_ADMIN_EMAIL)
+  // Sólo para mostrar/ocultar UI: el rol vive en app_metadata (no editable por el usuario).
+  // El control de acceso real es server-side (api/admin-*.js compara con ADMIN_EMAIL).
+  const isAdmin = user?.app_metadata?.role === 'admin'
 
   return (
     <AuthContext.Provider value={{ user, concesionaria, profesional, loading, signIn, signUp, signUpUsuario, signUpProfesional, signOut, signInWithOAuth, isAdmin, fetchConcesionaria }}>

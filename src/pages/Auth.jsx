@@ -24,12 +24,20 @@ export function Login() {
   const [resetEmail, setResetEmail] = useState('')
   const [resetSent, setResetSent] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
+  const [resetError, setResetError] = useState('')
 
   async function handleReset(e) {
     e.preventDefault()
     setResetLoading(true)
-    await supabase.auth.resetPasswordForEmail(resetEmail, { redirectTo: 'https://fioramarket.store/restablecer-password' })
+    setResetError('')
+    // Supabase responde OK aunque el email no exista (no permite enumerar cuentas);
+    // sólo devuelve error por fallas reales (SMTP caído, límite de envíos).
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, { redirectTo: 'https://fioramarket.store/restablecer-password' })
     setResetLoading(false)
+    if (error) {
+      setResetError('No pudimos enviar el email en este momento. Intentá de nuevo en unos minutos.')
+      return
+    }
     setResetSent(true)
   }
 
@@ -45,7 +53,7 @@ export function Login() {
       setLoading(false)
     } else {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user?.email === import.meta.env.VITE_ADMIN_EMAIL) {
+      if (user?.app_metadata?.role === 'admin') {
         navigate('/admin')
       } else {
         const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).maybeSingle()
@@ -130,6 +138,7 @@ export function Login() {
                         <label>Email</label>
                         <input type="email" placeholder="tu@email.com" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required />
                       </div>
+                      {resetError && <div style={{ color: 'var(--accent)', fontSize: '13px', marginTop: '.75rem' }}>{resetError}</div>}
                       <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
                         <button type="submit" className="btn-primary" disabled={resetLoading} style={{ flex: 1 }}>
                           {resetLoading ? 'Enviando...' : 'Enviar enlace'}

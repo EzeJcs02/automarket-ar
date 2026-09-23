@@ -46,6 +46,7 @@ export default async function handler(req, res) {
       nombre: u.user_metadata?.nombre || null,
       created_at: u.created_at,
       last_sign_in_at: u.last_sign_in_at,
+      is_admin: u.email === ADMIN_EMAIL,
     }))
 
     res.status(200).json({ users })

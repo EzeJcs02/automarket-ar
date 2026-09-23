@@ -36,7 +36,7 @@ Scripts disponibles:
 
 Ver `.env.local.example` para la lista completa. Resumen:
 
-- **Frontend** (prefijo `VITE_`, van al bundle público): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_ADMIN_EMAIL` (solo oculta la UI de admin, no es control de acceso — eso vive server-side).
+- **Frontend** (prefijo `VITE_`, van al bundle público): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. El admin se reconoce en la UI por `app_metadata.role = 'admin'` del usuario (no hay email de admin en el bundle); el control de acceso real vive server-side con `ADMIN_EMAIL`.
 - **Backend** (solo en funciones de `api/`, nunca al cliente): `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`, `RESEND_API_KEY`, `ADMIN_EMAIL`, `CRON_SECRET`, `UNSUBSCRIBE_SECRET`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `APP_URL`.
 
 ## Estructura

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { completarRegistro } from '../lib/registroPendiente'
 
 const AuthContext = createContext({})
 
@@ -18,7 +19,7 @@ export function AuthProvider({ children }) {
         setUser(session?.user ?? null)
         if (session?.user) {
           lastFetchedUserId = session.user.id
-          await fetchConcesionaria(session.user.id)
+          await fetchConcesionaria(session.user.id, session.user)
         } else {
           setLoading(false)
         }
@@ -39,7 +40,7 @@ export function AuthProvider({ children }) {
           if (lastFetchedUserId === newUserId) return // evita double-fetch en boot
           lastFetchedUserId = newUserId
           setLoading(true)
-          fetchConcesionaria(session.user.id)
+          fetchConcesionaria(session.user.id, session.user)
         } else {
           lastFetchedUserId = null
           setConcesionaria(null)
@@ -57,8 +58,10 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  async function fetchConcesionaria(userId) {
+  async function fetchConcesionaria(userId, authUser) {
     try {
+      // Registro diferido: si venía pendiente (confirmación de email), crear el perfil primero.
+      if (authUser) await completarRegistro(authUser)
       const [{ data: concData }, { data: profData }] = await Promise.all([
         supabase.from('concesionarias').select('*').eq('user_id', userId).maybeSingle(),
         supabase.from('profesionales').select('*').eq('user_id', userId).maybeSingle(),
@@ -74,72 +77,48 @@ export function AuthProvider({ children }) {
   }
 
   async function signIn(email, password) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error && data?.user) await completarRegistro(data.user)
     return { error }
   }
 
-  async function signUp(email, password, datos) {
-    const { data, error } = await supabase.auth.signUp({ email, password })
+  // Los datos del perfil viajan en user_metadata.registro_pendiente y se crean en
+  // el primer login (ver src/lib/registroPendiente.js). Si Supabase devuelve
+  // sesión (confirmación de email desactivada) se completa en el acto.
+  async function registrar(email, password, pendiente, extraMeta = {}) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { ...extraMeta, registro_pendiente: pendiente } },
+    })
     if (error) return { error }
-    if (data.user) {
-      await supabase.from('concesionarias').insert({
-        user_id: data.user.id,
-        nombre: datos.nombre,
-        responsable: datos.responsable,
-        email,
-        telefono: datos.telefono,
-        ciudad: datos.ciudad,
-        aprobada: false,
-      })
-      fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'admin', nombre: datos.nombre, email, telefono: datos.telefono, ciudad: datos.ciudad }),
-      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
-      fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'welcome', nombre: datos.nombre, email, tipo: 'concesionaria', user_id: data.user.id }),
-      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
-    }
-    return { error: null }
+    if (data.session && data.user) await completarRegistro(data.user)
+    return { error: null, needsConfirmation: !data.session }
   }
 
-  async function signUpProfesional(email, password, datos) {
-    const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) return { error }
-    if (data.user) {
-      await supabase.from('profesionales').insert({
-        user_id: data.user.id,
-        nombre: datos.nombre,
-        categoria: datos.categoria,
-        ciudad: datos.ciudad || null,
-        telefono: datos.telefono || null,
-        whatsapp: datos.whatsapp || null,
-        email,
-        aprobado: false,
-        activo: false,
-      })
-      fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'admin', nombre: datos.nombre, email, telefono: datos.telefono, ciudad: datos.ciudad, tipo: 'profesional' }),
-      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
-    }
-    return { error: null }
+  function signUp(email, password, datos) {
+    return registrar(email, password, {
+      tipo: 'concesionaria',
+      nombre: datos.nombre,
+      responsable: datos.responsable,
+      telefono: datos.telefono,
+      ciudad: datos.ciudad,
+    })
   }
 
-  async function signUpUsuario(email, password, nombre) {
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
-    if (error) return { error }
-    if (data.user) {
-      fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'welcome', nombre, email, tipo: 'particular', user_id: data.user.id }),
-      }).catch(err => console.error('[AuthContext] notify endpoint failed:', err))
-    }
-    return { error: null }
+  function signUpProfesional(email, password, datos) {
+    return registrar(email, password, {
+      tipo: 'profesional',
+      nombre: datos.nombre,
+      categoria: datos.categoria,
+      ciudad: datos.ciudad || null,
+      telefono: datos.telefono || null,
+      whatsapp: datos.whatsapp || null,
+    })
+  }
+
+  function signUpUsuario(email, password, nombre) {
+    return registrar(email, password, { tipo: 'particular', nombre }, { nombre })
   }
 
   async function signInWithOAuth(provider, redirectTo = 'https://fioramarket.store/mi-cuenta') {

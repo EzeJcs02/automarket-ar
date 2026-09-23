@@ -39,7 +39,9 @@ export function Login() {
     setError('')
     const { error } = await signIn(email, pass)
     if (error) {
-      setError('Email o contraseña incorrectos.')
+      setError(/not confirmed/i.test(error.message)
+        ? 'Tenés que confirmar tu email antes de iniciar sesión. Revisá tu casilla (y el spam).'
+        : 'Email o contraseña incorrectos.')
       setLoading(false)
     } else {
       const { data: { user } } = await supabase.auth.getUser()
@@ -170,6 +172,7 @@ export function Registro() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [ok, setOk] = useState(false)
+  const [necesitaConfirmar, setNecesitaConfirmar] = useState(false)
   const [aceptaTerminos, setAceptaTerminos] = useState(false)
 
   function setF(k, v) { setForm(p => ({ ...p, [k]: v })) }
@@ -178,9 +181,9 @@ export function Registro() {
     if (!aceptaTerminos) { setError('Debés aceptar los Términos y Condiciones.'); return }
     setLoading(true)
     setError('')
-    const { error } = await signUp(form.email, form.pass, form)
+    const { error, needsConfirmation } = await signUp(form.email, form.pass, form)
     if (error) { setError(error.message); setLoading(false) }
-    else setOk(true)
+    else { setNecesitaConfirmar(!!needsConfirmation); setOk(true) }
   }
 
   async function handleRegisterProfesional(e) {
@@ -189,9 +192,9 @@ export function Registro() {
     if (!aceptaTerminos) { setError('Debés aceptar los Términos y Condiciones.'); return }
     setLoading(true)
     setError('')
-    const { error } = await signUpProfesional(form.email, form.pass, form)
+    const { error, needsConfirmation } = await signUpProfesional(form.email, form.pass, form)
     if (error) { setError(error.message); setLoading(false) }
-    else setOk(true)
+    else { setNecesitaConfirmar(!!needsConfirmation); setOk(true) }
   }
 
   async function handleRegisterParticular(e) {
@@ -200,9 +203,9 @@ export function Registro() {
     if (!aceptaTerminos) { setError('Debés aceptar los Términos y Condiciones.'); return }
     setLoading(true)
     setError('')
-    const { error } = await signUpUsuario(form.email, form.pass, form.nombre)
+    const { error, needsConfirmation } = await signUpUsuario(form.email, form.pass, form.nombre)
     if (error) { setError(error.message); setLoading(false) }
-    else setOk(true)
+    else { setNecesitaConfirmar(!!needsConfirmation); setOk(true) }
   }
 
   function siguientePaso() {
@@ -239,12 +242,14 @@ export function Registro() {
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '1rem' }}>
-          {tipo === 'particular' ? 'REGISTRO EXITOSO' : 'SOLICITUD ENVIADA'}
+          {necesitaConfirmar ? 'CONFIRMÁ TU EMAIL' : tipo === 'particular' ? 'REGISTRO EXITOSO' : 'SOLICITUD ENVIADA'}
         </div>
         <p style={{ fontSize: '15px', color: 'var(--gray4)', lineHeight: 1.7, marginBottom: '2rem' }}>
-          {tipo === 'particular'
-            ? 'Tu cuenta fue creada. Ya podés iniciar sesión y explorar el catálogo.'
-            : 'Tu solicitud fue enviada. Nuestro equipo la va a revisar y te notificamos por email cuando esté aprobada.'}
+          {necesitaConfirmar
+            ? 'Te enviamos un email con un link de confirmación. Confirmalo y después iniciá sesión para terminar el registro. Revisá también la carpeta de spam.'
+            : tipo === 'particular'
+              ? 'Tu cuenta fue creada. Ya podés iniciar sesión y explorar el catálogo.'
+              : 'Tu solicitud fue enviada. Nuestro equipo la va a revisar y te notificamos por email cuando esté aprobada.'}
         </p>
         <Link to="/login"><button className="btn-primary" style={{ marginRight: '1rem' }}>Iniciar sesión</button></Link>
         <Link to="/"><button className="btn-secondary">Volver al inicio</button></Link>

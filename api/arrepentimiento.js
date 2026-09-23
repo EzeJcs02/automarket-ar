@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown'
-  const allowed = await rateLimit('arrepentimiento', ip, { limit: 3, windowSec: 60 })
+  const allowed = await rateLimit('arrepentimiento', ip, { limit: 3, windowSec: 60, failClosed: true })
   if (!allowed) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
 
   const { nombre, email, telefono, nro_operacion, motivo, fecha_operacion, monto_pagado, user_id } = req.body || {}

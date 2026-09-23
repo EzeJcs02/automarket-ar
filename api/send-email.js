@@ -95,7 +95,7 @@ async function sendConsulta(req, res) {
     return res.status(200).json({ sent: true })
   } catch (err) {
     console.error('send-email/consulta error:', err)
-    return res.status(200).json({ sent: false, error: err.message })
+    return res.status(200).json({ sent: false })
   }
 }
 
@@ -170,7 +170,7 @@ async function sendConfirma(req, res) {
     return res.status(200).json({ sent: true })
   } catch (err) {
     console.error('send-email/confirma error:', err)
-    return res.status(200).json({ sent: false, error: err.message })
+    return res.status(200).json({ sent: false })
   }
 }
 
@@ -182,7 +182,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown'
-  const allowed = await rateLimit('send-email', ip, { limit: 5, windowSec: 60 })
+  const allowed = await rateLimit('send-email', ip, { limit: 5, windowSec: 60, failClosed: true })
   if (!allowed) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
 
   const action = req.body?.action

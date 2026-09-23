@@ -167,6 +167,6 @@ export default async function handler(req, res) {
     res.status(200).json({ ok: true })
   } catch (err) {
     console.error('admin-actions error:', err)
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: 'Error interno del servidor' })
   }
 }

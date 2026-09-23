@@ -59,7 +59,8 @@ async function notifyAdmin(req, res) {
     })
     return res.json({ ok: true })
   } catch (err) {
-    return res.status(500).json({ error: err.message })
+    console.error('notify/admin error:', err)
+    return res.status(500).json({ error: 'Error interno del servidor' })
   }
 }
 
@@ -132,7 +133,8 @@ async function sendWelcome(req, res) {
     })
     return res.json({ sent: true })
   } catch (err) {
-    return res.status(200).json({ sent: false, error: err.message })
+    console.error('notify/welcome error:', err)
+    return res.status(200).json({ sent: false })
   }
 }
 
@@ -145,7 +147,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress || 'unknown'
-  const allowed = await rateLimit('notify', ip, { limit: 5, windowSec: 60 })
+  const allowed = await rateLimit('notify', ip, { limit: 5, windowSec: 60, failClosed: true })
   if (!allowed) return res.status(429).json({ error: 'Demasiadas solicitudes' })
 
   const action = req.body?.action

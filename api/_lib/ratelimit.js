@@ -5,6 +5,15 @@
 //   import { rateLimit } from './_lib/ratelimit.js'
 //   const ok = await rateLimit('arrepentimiento', ip, { limit: 3, windowSec: 60 })
 //   if (!ok) return res.status(429).json({ error: '...' })
+//
+// failClosed (default false, ver Hallazgo H-05/H-06 de la auditoría 2026-09):
+// si Upstash responde con error, por default se permite la request (fail-open)
+// para no romperle la experiencia a usuarios legítimos si Redis tiene un
+// hiccup — ver comentario en el catch de abajo. Pero para endpoints públicos
+// sin autenticación que envían emails (arrepentimiento, notify, send-email),
+// un fail-open convierte cualquier caída/hiccup de Upstash en una ventana sin
+// límite para hacer spam/email-bombing desde el dominio — ahí se pasa
+// `failClosed: true` para cortar en vez de permitir.
 
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
@@ -19,6 +28,12 @@ if (hasUpstash) {
     url: process.env.UPSTASH_REDIS_REST_URL,
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
   })
+} else if (process.env.VERCEL) {
+  // Desplegado (prod o preview) sin Upstash configurado: el fallback en
+  // memoria es por-instancia y no protege nada entre invocaciones/regiones.
+  // Esto NO debería pasar en producción — avisar fuerte en los logs.
+  console.error('[ratelimit] ⚠️ UPSTASH_REDIS_REST_URL/TOKEN no configuradas en un entorno desplegado. ' +
+    'El rate-limit cae a memoria por-instancia (fácilmente bypaseable). Configurar Upstash en Vercel.')
 }
 
 // Fallback en memoria — sólo se activa si Upstash no está configurado.
@@ -39,10 +54,11 @@ function memRateLimit(key, limit, windowSec) {
 /**
  * @param {string} namespace — identifica el endpoint (ej. 'arrepentimiento', 'send-email')
  * @param {string} identifier — ip o user_id
- * @param {{limit:number, windowSec:number}} opts
+ * @param {{limit:number, windowSec:number, failClosed?:boolean}} opts — failClosed: bloquear
+ *   (en vez de permitir) si Upstash tira error. Default false. Ver comentario arriba.
  * @returns {Promise<boolean>} true si se permite la request, false si excedió
  */
-export async function rateLimit(namespace, identifier, { limit, windowSec }) {
+export async function rateLimit(namespace, identifier, { limit, windowSec, failClosed = false }) {
   const key = `${namespace}:${identifier}`
 
   if (!hasUpstash) {
@@ -65,9 +81,7 @@ export async function rateLimit(namespace, identifier, { limit, windowSec }) {
     const { success } = await limiter.limit(key)
     return success
   } catch (err) {
-    // Si Redis falla, no bloqueamos al usuario — loguear y permitir.
-    // La alternativa (fail-closed) cae mal a usuarios legítimos.
-    console.error('[ratelimit] Upstash error, fail-open:', err.message)
-    return true
+    console.error(`[ratelimit] Upstash error, fail-${failClosed ? 'closed' : 'open'}:`, err.message)
+    return !failClosed
   }
 }

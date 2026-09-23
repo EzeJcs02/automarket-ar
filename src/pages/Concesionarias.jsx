@@ -248,6 +248,7 @@ export function ConcesionariaDetalle() {
   const [resenaForm, setResenaForm] = useState({ nombre: '', rating: 5, comentario: '' })
   const [resenaEnviando, setResenaEnviando] = useState(false)
   const [resenaOk, setResenaOk] = useState(false)
+  const [resenaError, setResenaError] = useState('')
 
   const { id } = useParams()
 
@@ -274,15 +275,20 @@ export function ConcesionariaDetalle() {
   async function enviarResena() {
     if (!resenaForm.nombre.trim() || !resenaForm.comentario.trim()) return
     setResenaEnviando(true)
-    await supabase.from('resenas').insert({
+    setResenaError('')
+    const { error } = await supabase.from('resenas').insert({
       concesionaria_id: id,
       user_id: user?.id || null,
       nombre: resenaForm.nombre.trim(),
       rating: resenaForm.rating,
       comentario: resenaForm.comentario.trim(),
     })
-    setResenaOk(true)
     setResenaEnviando(false)
+    if (error) {
+      setResenaError('No se pudo publicar la reseña. Intentá nuevamente.')
+      return
+    }
+    setResenaOk(true)
     setResenaForm({ nombre: '', rating: 5, comentario: '' })
     const { data } = await supabase.from('resenas').select('*').eq('concesionaria_id', id).order('created_at', { ascending: false })
     setResenas(data || [])
@@ -411,6 +417,7 @@ export function ConcesionariaDetalle() {
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Tu nombre</div>
                 <input value={resenaForm.nombre} onChange={e => setResenaForm(p => ({ ...p, nombre: e.target.value }))}
+                  maxLength={200}
                   placeholder="Juan Pérez" style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none' }} />
               </div>
               <div style={{ marginBottom: '12px' }}>
@@ -425,9 +432,11 @@ export function ConcesionariaDetalle() {
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Comentario</div>
                 <textarea value={resenaForm.comentario} onChange={e => setResenaForm(p => ({ ...p, comentario: e.target.value }))}
+                  maxLength={2000}
                   placeholder="Contá tu experiencia..." rows={3}
                   style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'var(--font-body)' }} />
               </div>
+              {resenaError && <div style={{ color: 'var(--accent)', fontSize: '13px', marginBottom: '12px' }}>{resenaError}</div>}
               <button className="btn-primary" onClick={enviarResena} disabled={resenaEnviando || !resenaForm.nombre.trim() || !resenaForm.comentario.trim()} style={{ padding: '10px 24px', fontSize: '13px' }}>
                 {resenaEnviando ? 'Enviando...' : 'Publicar reseña'}
               </button>

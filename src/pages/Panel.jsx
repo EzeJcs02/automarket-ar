@@ -22,6 +22,21 @@ async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_
   }
 }
 
+// Activa/desactiva destacado o urgente dentro del cupo gratuito del plan.
+// La escritura directa a autos.destacado/urgente con la anon key ya no está
+// permitida (ver docs/migration_lockdown_columnas_privilegiadas_2026_09.sql);
+// este endpoint la reemplaza revalidando ownership y cupo server-side.
+async function toggleBoostServer(campo, autoId, activar) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const res = await fetch('/api/boost-toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+    body: JSON.stringify({ auto_id: autoId, campo, activar }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'No se pudo actualizar')
+}
+
 export default function Panel() {
   const { user, concesionaria, fetchConcesionaria, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
@@ -388,9 +403,19 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
         toast(`Tu plan ${nombrePlan} permite hasta ${limiteDestacados} destacados simultáneos. Ya tenés ${destacadosActivos} activos.`, 'warning')
         return
       }
-      await supabase.from('autos').update({ destacado: true, urgente: false }).eq('id', auto.id)
+      try {
+        await toggleBoostServer('destacado', auto.id, true)
+      } catch (err) {
+        toast(err.message, 'error')
+        return
+      }
     } else {
-      await supabase.from('autos').update({ destacado: false }).eq('id', auto.id)
+      try {
+        await toggleBoostServer('destacado', auto.id, false)
+      } catch (err) {
+        toast(err.message, 'error')
+        return
+      }
     }
     reload()
   }
@@ -407,9 +432,19 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
         toast(`Tu plan ${nombrePlan} permite hasta ${limiteDestacados} urgentes simultáneos. Ya tenés ${urgentesActivos} activos.`, 'warning')
         return
       }
-      await supabase.from('autos').update({ urgente: true, destacado: false }).eq('id', auto.id)
+      try {
+        await toggleBoostServer('urgente', auto.id, true)
+      } catch (err) {
+        toast(err.message, 'error')
+        return
+      }
     } else {
-      await supabase.from('autos').update({ urgente: false }).eq('id', auto.id)
+      try {
+        await toggleBoostServer('urgente', auto.id, false)
+      } catch (err) {
+        toast(err.message, 'error')
+        return
+      }
     }
     reload()
   }

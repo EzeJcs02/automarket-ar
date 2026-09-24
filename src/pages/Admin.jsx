@@ -5,12 +5,14 @@ import { PanelSkeleton, ErrorState } from '../components/Estados'
 import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useConfirm } from '../context/ConfirmContext'
 import { useModalA11y } from '../lib/useModalA11y'
 
 export default function Admin() {
   const { user, isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const confirmar = useConfirm()
   const [pendientes, setPendientes] = useState([])
   const [aprobadas, setAprobadas] = useState([])
   const [publicaciones, setPublicaciones] = useState([])
@@ -99,12 +101,12 @@ export default function Admin() {
   }
 
   async function rechazar(id) {
-    if (!confirm('¿Seguro que querés rechazar y eliminar permanentemente esta solicitud?')) return
+    if (!(await confirmar({ titulo: 'Rechazar solicitud', texto: 'Se elimina la concesionaria y todas sus publicaciones. No se puede deshacer.', confirmar: 'Rechazar y eliminar', peligro: true }))) return
     if (await adminAction('rechazar', { id })) loadData()
   }
 
   async function suspender(id) {
-    if (!confirm('¿Suspender esta concesionaria? Sus publicaciones dejarán de ser visibles.')) return
+    if (!(await confirmar({ titulo: 'Suspender concesionaria', texto: 'Sus publicaciones dejan de verse en el catálogo hasta que la vuelvas a aprobar.', confirmar: 'Suspender', peligro: true }))) return
     if (await adminAction('suspender', { id })) loadData()
   }
 
@@ -155,17 +157,17 @@ export default function Admin() {
   }
 
   async function eliminarUsuario(id, email) {
-    if (!confirm(`¿Eliminar permanentemente al usuario "${email}"?\nSe borrarán también todas sus publicaciones.`)) return
+    if (!(await confirmar({ titulo: 'Eliminar usuario', texto: `Se elimina "${email}" y todas sus publicaciones. No se puede deshacer.`, confirmar: 'Eliminar', peligro: true }))) return
     if (await adminAction('eliminarUsuario', { id })) setUsuarios(prev => prev.filter(u => u.id !== id))
   }
 
   async function rechazarProfesional(id) {
-    if (!confirm('¿Seguro que querés rechazar y eliminar este perfil profesional?')) return
+    if (!(await confirmar({ titulo: 'Rechazar profesional', texto: 'Se elimina el perfil profesional. No se puede deshacer.', confirmar: 'Rechazar y eliminar', peligro: true }))) return
     if (await adminAction('rechazarProfesional', { id })) loadData()
   }
 
   async function suspenderProfesional(id) {
-    if (!confirm('¿Suspender este profesional? Dejará de verse en el directorio.')) return
+    if (!(await confirmar({ titulo: 'Suspender profesional', texto: 'Deja de verse en el directorio hasta que lo vuelvas a aprobar.', confirmar: 'Suspender', peligro: true }))) return
     if (await adminAction('suspenderProfesional', { id })) loadData()
   }
 
@@ -178,7 +180,7 @@ export default function Admin() {
   }
 
   async function eliminarAd(id) {
-    if (!confirm('¿Eliminar esta publicidad?')) return
+    if (!(await confirmar({ titulo: 'Eliminar publicidad', confirmar: 'Eliminar', peligro: true }))) return
     if (await adminAction('eliminarAd', { id }))
       setPublicidades(prev => prev.filter(a => a.id !== id))
   }

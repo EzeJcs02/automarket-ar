@@ -249,15 +249,6 @@ export default async function handler(req, res) {
       )
     }
 
-    // 🎁 INCREMENTO DE CUPOS (Llamadas RPC en Supabase para Concesionarias)
-    if (tipo === 'pack_destacados_10' && concesionaria_id) {
-      await safeFetch(`${supabaseUrl}/rest/v1/rpc/incrementar_cupo_destacados`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ p_concesionaria_id: concesionaria_id, cantidad: 10 }),
-      })
-    }
-
     // 🔧 PLANES PROFESIONALES
     if (['plan_profesional_base', 'plan_profesional_destacado'].includes(tipo) && profesional_id) {
       const esDestacado = tipo === 'plan_profesional_destacado'

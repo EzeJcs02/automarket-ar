@@ -4,11 +4,12 @@ import { supabase } from '../lib/supabase'
 import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useConfirm } from '../context/ConfirmContext'
 import { useModalA11y } from '../lib/useModalA11y'
 import { PanelSkeleton, ErrorState, EmptyState } from '../components/Estados'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
-async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
+async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => console.error(m)) {
   try {
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/mp-create-preference', {
@@ -394,7 +395,13 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   const [editFotosNuevas, setEditFotosNuevas] = useState([])
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
+  const confirmar = useConfirm()
   const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
+  async function comprar(tipo, auto, titulo, texto) {
+    if (await confirmar({ titulo, texto, confirmar: 'Ir a pagar' })) {
+      pay(tipo, { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
+    }
+  }
 
   const destacadosActivos = autos.filter(a => a.destacado && !a.destacado_expira_at).length
   const urgentesActivos = autos.filter(a => a.urgente && !a.urgente_expira_at).length
@@ -406,9 +413,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   async function toggleDestacado(auto) {
     if (!auto.destacado) {
       if (limiteDestacados === 0) {
-        if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Destacado individual por $15.000 para ${auto.marca} ${auto.modelo}?`)) {
-          pay('destacado', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
-        }
+        await comprar('destacado', auto, 'Destacado · $15.000', `Tu plan no incluye destacados. Podés destacar ${auto.marca} ${auto.modelo} por 30 días pagando con MercadoPago.`)
         return
       }
       if (limiteDestacados !== Infinity && destacadosActivos >= limiteDestacados) {
@@ -435,9 +440,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   async function toggleUrgente(auto) {
     if (!auto.urgente) {
       if (limiteDestacados === 0) {
-        if (confirm(`Tu plan no incluye boosts.\n¿Comprás un Boost Urgente individual por $20.000 para ${auto.marca} ${auto.modelo}?`)) {
-          pay('urgente', { auto_id: auto.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email })
-        }
+        await comprar('urgente', auto, 'Urgente · $20.000', `Tu plan no incluye urgentes. Podés marcar ${auto.marca} ${auto.modelo} como urgente por 30 días pagando con MercadoPago.`)
         return
       }
       if (limiteDestacados !== Infinity && urgentesActivos >= limiteDestacados) {
@@ -471,7 +474,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
     reload()
   }
   async function eliminar(id) {
-    if (!confirm('¿Seguro que querés eliminar permanentemente este vehículo?')) return
+    if (!(await confirmar({ titulo: 'Eliminar vehículo', texto: 'Se borra la publicación de forma permanente. Si solo querés ocultarla, usá Pausar.', confirmar: 'Eliminar', peligro: true }))) return
     const { error } = await supabase.from('autos').delete().eq('id', id)
     if (error) toast('No se pudo eliminar el vehículo. Probá de nuevo.', 'error')
     reload()
@@ -616,14 +619,14 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                         <svg width="11" height="11" viewBox="0 0 24 24" fill={a.urgente ? 'var(--accent)' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                         Urgente
                       </button>
-                      <button onClick={() => { if (confirm(`¿Subir "${a.marca} ${a.modelo}" al tope por $10.000?`)) pay('subir_tope', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                      <button onClick={() => comprar('subir_tope', a, 'Subir al tope · $10.000', `${a.marca} ${a.modelo} vuelve al primer lugar del catálogo.`)}
                         title="Subir al tope del catálogo — $10.000"
                         style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all .15s', background: 'rgba(255,255,255,0.02)', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                         Tope
                       </button>
                       {!a.fijado_home ? (
-                        <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $25.000?`)) pay('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
+                        <button onClick={() => comprar('fijado_home', a, 'Fijar en el inicio · $25.000', `${a.marca} ${a.modelo} aparece destacado en la página de inicio durante 30 días.`)}
                           title="Fijar en página de inicio — $25.000"
                           style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all .15s', background: 'rgba(255,255,255,0.02)', color: 'var(--gray4)', letterSpacing: '.03em' }}>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>

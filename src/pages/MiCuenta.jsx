@@ -6,12 +6,14 @@ import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import { useToast } from '../context/ToastContext'
+import { useConfirm } from '../context/ConfirmContext'
 import { useModalA11y } from '../lib/useModalA11y'
 
 export default function MiCuenta() {
   const { user, concesionaria, isAdmin, loading: authLoading, signOut } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const confirmar = useConfirm()
   const [favoritos, setFavoritos] = useState([])
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [consultas, setConsultas] = useState([])
@@ -91,7 +93,7 @@ export default function MiCuenta() {
   }
 
   async function despublicar(autoId) {
-    if (!confirm('¿Desactivar esta publicación?')) return
+    if (!(await confirmar({ titulo: 'Desactivar publicación', texto: 'Deja de verse en el catálogo. Podés renovarla más adelante desde Planes.', confirmar: 'Desactivar' }))) return
     const { error } = await supabase.from('autos').update({ activo: false }).eq('id', autoId)
     if (error) { toast('No se pudo desactivar la publicación. Probá de nuevo.', 'error'); return }
     setMisAutos(prev => prev.map(a => a.id === autoId ? { ...a, activo: false } : a))
@@ -709,12 +711,14 @@ function ExtrasConMP({ user, autos }) {
   const [paying, setPaying] = useState(null)
   const [autoId, setAutoId] = useState(autos[0]?.id || '')
   const { toast } = useToast()
+  const confirmar = useConfirm()
   const autoElegido = autos.find(a => a.id === autoId)
 
   async function pagar(tipo) {
     if (!autoElegido) { toast('Necesitás tener una publicación para usar este extra.', 'warning'); return }
     if (!autoElegido.activo && tipo !== 'renovar') { toast('Esa publicación está vencida o pausada. Renovala primero.', 'warning'); return }
-    if (!confirm(`¿Confirmás el pago de "${extras.find(e => e.id === tipo)?.nombre}" para ${autoElegido.marca} ${autoElegido.modelo}?`)) return
+    const extra = extras.find(e => e.id === tipo)
+    if (!(await confirmar({ titulo: `${extra?.nombre} · ${extra?.precio}`, texto: `Se aplica a ${autoElegido.marca} ${autoElegido.modelo}. Vas a pagar con MercadoPago.`, confirmar: 'Ir a pagar' }))) return
     setPaying(tipo)
     try {
       const { data: { session } } = await supabase.auth.getSession()

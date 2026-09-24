@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import { AuthProvider } from './context/AuthContext'
 import { ComparadorProvider, useComparador } from './context/ComparadorContext'
 import { ToastProvider } from './context/ToastContext'
+import { ConfirmProvider } from './context/ConfirmContext'
 import { useEffect, useState, lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 
@@ -100,6 +101,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ToastProvider>
+      <ConfirmProvider>
       <ComparadorProvider>
       <BrowserRouter>
         <Routes>
@@ -144,6 +146,7 @@ export default function App() {
         </Routes>
       </BrowserRouter>
       </ComparadorProvider>
+      </ConfirmProvider>
       </ToastProvider>
     </AuthProvider>
   )

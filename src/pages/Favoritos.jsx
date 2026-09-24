@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { ErrorState } from '../components/Estados'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import CarCard from '../components/CarCard'
@@ -13,6 +14,7 @@ export default function Favoritos() {
   const [autos, setAutos] = useState([])
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
+  const [cargaError, setCargaError] = useState(false)
 
   async function fetchFavoritos() {
     try {
@@ -25,9 +27,10 @@ export default function Favoritos() {
       const lista = data?.map(f => f.autos).filter(Boolean) || []
       setAutos(lista)
       setFavoritoIds(new Set(lista.map(a => a.id)))
+      setCargaError(false)
     } catch (err) {
       console.error('Favoritos fetchFavoritos failed:', err)
-      toast('Error al cargar tus favoritos. Recargá la página para reintentar.', 'error')
+      setCargaError(true)
     } finally {
       setLoading(false)
     }
@@ -42,7 +45,8 @@ export default function Favoritos() {
   }, [user, concesionaria, isAdmin, authLoading])
 
   async function toggleFavorito(autoId) {
-    await supabase.from('favoritos').delete().eq('user_id', user.id).eq('auto_id', autoId)
+    const { error } = await supabase.from('favoritos').delete().eq('user_id', user.id).eq('auto_id', autoId)
+    if (error) { toast('No se pudo quitar de favoritos. Probá de nuevo.', 'error'); return }
     setAutos(prev => prev.filter(a => a.id !== autoId))
     setFavoritoIds(prev => { const s = new Set(prev); s.delete(autoId); return s })
   }
@@ -70,7 +74,9 @@ export default function Favoritos() {
       </div>
 
       <div className="responsive-section" style={{ padding: '2rem 4rem' }}>
-        {autos.length === 0 ? (
+        {cargaError ? (
+          <ErrorState texto="No pudimos cargar tus favoritos. Revisá tu conexión." onRetry={() => { setLoading(true); fetchFavoritos() }} />
+        ) : autos.length === 0 ? (
           <div style={{ padding: '5rem', textAlign: 'center' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--gray1)', border: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>

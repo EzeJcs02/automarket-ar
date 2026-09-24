@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { DetalleSkeleton, EmptyState } from '../components/Estados'
 import { useAuth } from '../context/AuthContext'
 import { useComparador } from '../context/ComparadorContext'
 import CarCard from '../components/CarCard'
@@ -192,14 +193,14 @@ export default function AutoDetalle() {
     return '$' + Number(n).toLocaleString('es-AR')
   }
 
-  if (loading) return <div className="page-wrapper"><div className="spinner" /></div>
+  if (loading) return <div className="page-wrapper"><div className="responsive-section" style={{ padding: '0 4rem' }}><DetalleSkeleton /></div></div>
   if (fetchError) return (
     <div className="page-wrapper" style={{ padding: '4rem', textAlign: 'center' }}>
       <p style={{ color: '#f87171', marginBottom: '1rem' }}>⚠ {fetchError}</p>
       <button className="btn-secondary" onClick={() => window.location.reload()}>Reintentar</button>
     </div>
   )
-  if (!auto) return <div className="page-wrapper" style={{ padding: '4rem' }}><p style={{ color: 'var(--gray4)' }}>Vehículo no encontrado.</p></div>
+  if (!auto) return <div className="page-wrapper"><div className="responsive-section" style={{ padding: '4rem' }}><EmptyState titulo="Vehículo no encontrado" texto="Puede que la publicación haya sido pausada o eliminada." accion="Ver el catálogo" to="/catalogo" /></div></div>
 
   const fotos = auto.fotos || []
   const c = auto.concesionarias

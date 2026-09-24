@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { Skeleton } from '../components/Estados'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
 
@@ -277,7 +278,9 @@ export default function Profesionales() {
       {/* Contenido */}
       <div className="responsive-section" style={{ padding: '2.5rem 4rem' }}>
         {loading ? (
-          <div className="spinner" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: '1.5rem' }}>
+            {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} h={200} r="12px" />)}
+          </div>
         ) : filtrados.length === 0 ? (
           <div style={{ padding: '6rem 0', textAlign: 'center' }}>
             {lista.length === 0 ? (

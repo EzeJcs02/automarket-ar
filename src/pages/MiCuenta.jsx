@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { PanelSkeleton } from '../components/Estados'
 import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
@@ -121,7 +122,7 @@ export default function MiCuenta() {
     color: active ? 'var(--white)' : 'var(--gray4)',
   })
 
-  if (loading) return <div className="page-wrapper"><div className="spinner" /></div>
+  if (loading) return <div className="page-wrapper"><div className="responsive-section" style={{ padding: '3rem 4rem' }}><PanelSkeleton stats={0} filas={5} /></div></div>
 
   return (
     <div className="page-wrapper">

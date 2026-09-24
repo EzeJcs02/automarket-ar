@@ -5,6 +5,7 @@ import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useModalA11y } from '../lib/useModalA11y'
+import { PanelSkeleton, ErrorState, EmptyState } from '../components/Estados'
 
 const MARCAS = ['Toyota','Ford','Volkswagen','Chevrolet','Renault','Peugeot','Fiat','Honda','Nissan','Jeep','Citroën','Otro']
 async function pagarConMP(tipo, { auto_id = null, concesionaria_id = null, user_id = null, user_email = null } = {}, onError = (m) => alert(m)) {
@@ -47,6 +48,7 @@ export default function Panel() {
   const [consultas, setConsultas] = useState([])
   const [pagos, setPagos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [cargaError, setCargaError] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -87,16 +89,17 @@ export default function Panel() {
       setAutos(autosRes.data || [])
       setConsultas(consultasRes.data || [])
       setPagos(pagosRes.data || [])
+      setCargaError(false)
     } catch (err) {
       console.error('Panel loadData failed:', err)
-      toast('Error al cargar los datos del panel. Recargá la página para reintentar.', 'error')
+      setCargaError(true)
     } finally {
       setLoading(false)
     }
   }
 
   if (loading) {
-    return <div className="page-wrapper"><div className="spinner" /></div>
+    return <div className="page-wrapper"><div className="panel-content"><PanelSkeleton /></div></div>
   }
 
   if (!concesionaria) return null
@@ -184,7 +187,7 @@ export default function Panel() {
             <strong style={{ color: '#c9a84c' }}>Tu concesionaria está en revisión.</strong> Podés cargar tu stock, pero las publicaciones van a quedar pausadas y no se van a ver en el catálogo hasta que la aprobemos.
           </div>
         )}
-        {loading ? <div className="spinner" /> : (
+        {cargaError ? <ErrorState texto="No pudimos cargar los datos del panel. Revisá tu conexión." onRetry={() => { setLoading(true); loadData() }} /> : (
           <>
             {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} setTab={setTab} />}
             {tab === 'mis-autos' && <MisAutos autos={autos} reload={loadData} setTab={setTab} concesionaria={concesionaria} />}
@@ -573,7 +576,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
       )}
 
       {autos.length === 0
-        ? <div style={{ padding: '4rem', textAlign: 'center', background: 'linear-gradient(135deg,#141414,#0f0f0f)', borderRadius: '12px', color: 'var(--gray4)', border: '1px solid rgba(255,255,255,0.06)' }}><p style={{ fontSize: '15px' }}>Inventario vacío.</p></div>
+        ? <EmptyState titulo="Todavía no cargaste vehículos" texto="Publicá tu primer vehículo para que aparezca en el catálogo." accion="Publicar vehículo" onClick={() => setTab('nuevo-auto')} />
         : <table className="panel-table">
             <thead>
               <tr>

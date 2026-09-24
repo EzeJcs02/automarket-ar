@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { Skeleton, PanelSkeleton, EmptyState } from '../components/Estados'
 import { useAuth } from '../context/AuthContext'
 import { setPageMeta, resetMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
@@ -91,7 +92,9 @@ export function Concesionarias() {
 
       <div className="responsive-section" style={{ padding: '3rem 4rem' }}>
         {loading ? (
-          <div className="spinner" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: '1.5rem' }}>
+            {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} h={220} r="12px" />)}
+          </div>
         ) : filtradas.length === 0 ? (
           <div style={{ padding: '5rem 0', textAlign: 'center' }}>
             <div style={{ fontSize: '40px', marginBottom: '1rem', opacity: .3 }}>🏢</div>
@@ -301,8 +304,8 @@ export function ConcesionariaDetalle() {
     return '$' + Number(n).toLocaleString('es-AR')
   }
 
-  if (loading) return <div className="page-wrapper"><div className="spinner" /></div>
-  if (!c) return <div className="page-wrapper" style={{ padding: '4rem' }}><p style={{ color: 'var(--gray4)' }}>No encontrado.</p></div>
+  if (loading) return <div className="page-wrapper"><div className="responsive-section" style={{ padding: '2.5rem 4rem' }}><PanelSkeleton stats={0} filas={4} /></div></div>
+  if (!c) return <div className="page-wrapper"><div className="responsive-section" style={{ padding: '4rem' }}><EmptyState titulo="Concesionaria no encontrada" texto="Puede que ya no esté disponible en FIORA MARKET." accion="Ver concesionarias" to="/concesionarias" /></div></div>
 
   return (
     <div className="page-wrapper">

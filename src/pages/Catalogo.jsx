@@ -6,6 +6,7 @@ import CarCard from '../components/CarCard'
 import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
+import { EmptyState, ErrorState } from '../components/Estados'
 
 const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot', 'Fiat', 'Honda', 'Nissan', 'Jeep', 'Citroën']
 const PAGE_SIZE = 24
@@ -130,6 +131,14 @@ export default function Catalogo() {
   }
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
+
+  function limpiarFiltros() {
+    const vacio = { busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }
+    setFiltros(vacio)
+    if (page === 1 && ordenar === 'relevancia') fetchAutos(1, vacio)
+    setOrdenar('relevancia')
+    setPage(1)
+  }
 
   async function guardarAlerta() {
     if (!user) { navigate('/login'); return }
@@ -298,13 +307,7 @@ export default function Catalogo() {
             <input style={inputStyle} placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={aplicarFiltros}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => {
-            const vacio = { busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }
-            setFiltros(vacio)
-            if (page === 1 && ordenar === 'relevancia') fetchAutos(1, vacio)
-            setOrdenar('relevancia')
-            setPage(1)
-          }}>Limpiar</button>
+          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={limpiarFiltros}>Limpiar</button>
 
           {/* ALERTA DE BÚSQUEDA */}
           <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray2)' }}>
@@ -347,12 +350,9 @@ export default function Catalogo() {
                 {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
               </div>
             : cargaError
-              ? <div role="alert" style={{ padding: '2rem 0' }}>
-                  <p style={{ color: 'var(--gray4)', fontSize: '15px', marginBottom: '1rem' }}>No pudimos cargar los vehículos. Revisá tu conexión.</p>
-                  <button className="btn-secondary" onClick={() => fetchAutos(page)}>Reintentar</button>
-                </div>
+              ? <ErrorState texto="No pudimos cargar los vehículos. Revisá tu conexión." onRetry={() => fetchAutos(page)} />
             : autos.length === 0
-              ? <p style={{ color: 'var(--gray4)', fontSize: '15px', padding: '2rem 0' }}>No se encontraron autos con esos filtros.</p>
+              ? <EmptyState titulo="No encontramos vehículos con esos filtros" texto="Probá con menos filtros o limpialos para ver todo el stock." accion={filtrosActivosCount > 0 ? 'Limpiar filtros' : undefined} onClick={limpiarFiltros} />
               : <>
                   <div className="catalogo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(280px,100%),1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
                     {autosPagina.map(a => <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={esParticular ? toggleFavorito : undefined} />)}

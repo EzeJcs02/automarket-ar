@@ -7,6 +7,7 @@ import HomeHero from '../components/HomeHero'
 import { RevealTitle, useScrollReveal } from '../components/Reveal'
 import './Home.css'
 import CarCardSkeleton from '../components/CarCardSkeleton'
+import { ErrorState, Skeleton } from '../components/Estados'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
 import { FONDO_SHOWROOM_DEFAULT } from '../lib/marca'
@@ -55,10 +56,16 @@ export default function Home() {
 
   useScrollReveal([loading, autos.length, concesionarias.length, autoFijado, tabGuia])
 
+  const [cargaError, setCargaError] = useState(false)
+
   useEffect(() => {
     setPageMeta({ title: null, description: 'La plataforma de vehículos más avanzada de Argentina. Miles de autos, motos y náutica de concesionarias verificadas.', path: '/' })
+    fetchAll()
+  }, [])
 
-    const fetchAll = async () => {
+  async function fetchAll() {
+      setLoading(true)
+      setCargaError(false)
       try {
         const [rAutos, rConc, rBanners, rAds, rFijado] = await Promise.all([
           supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).or('urgente.eq.true,destacado.eq.true').limit(6).order('created_at', { ascending: false }),
@@ -67,6 +74,7 @@ export default function Home() {
           supabase.from('publicidades').select('id, nombre, imagen_url, link_url, fondo').eq('activo', true).order('created_at', { ascending: false }),
           supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).eq('activo', true).limit(20)
         ])
+        if (rAutos.error || rConc.error) throw rAutos.error || rConc.error
 
         const sorted = (rAutos.data || []).sort((a, b) => {
           if (a.urgente !== b.urgente) return (b.urgente ? 1 : 0) - (a.urgente ? 1 : 0)
@@ -81,13 +89,11 @@ export default function Home() {
         setAutoFijado(fijados.length ? fijados[Math.floor(Math.random() * fijados.length)] : null)
       } catch (err) {
         console.error("Error fetching home data:", err)
+        setCargaError(true)
       } finally {
         setLoading(false)
       }
-    }
-
-    fetchAll()
-  }, [])
+  }
 
   useEffect(() => {
     if (rightAds.length <= 1 || adsPaused) return
@@ -215,8 +221,10 @@ export default function Home() {
           <div className="market-vehicle-grid" data-reveal-stagger>
             {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
           </div>
+        ) : cargaError ? (
+          <ErrorState onRetry={fetchAll} />
         ) : autos.length === 0 ? (
-          <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay autos publicados. ¡Sé el primero en publicar!</p>
+          <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Por ahora no hay vehículos destacados. Mirá todo el stock en el catálogo.</p>
         ) : (
           <div className="market-vehicle-grid" data-reveal-stagger>
             {autos.map(a => <CarCard key={a.id} auto={a} />)}
@@ -288,7 +296,9 @@ export default function Home() {
           </div>
           <button className="btn-secondary" onClick={() => navigate('/concesionarias')} style={{ flexShrink: 0 }}>Ver todas →</button>
         </div>
-        {concesionarias.length === 0
+        {loading || cargaError
+          ? <div className="market-dealer-rail">{[1, 2, 3].map(i => <Skeleton key={i} h={180} r="12px" style={{ minWidth: 240, flex: 1 }} />)}</div>
+          : concesionarias.length === 0
           ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay concesionarias registradas.</p>
           : <div className="market-dealer-rail" data-reveal-stagger>
               {concesionarias.map((c, i) => {

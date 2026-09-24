@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { PanelSkeleton, ErrorState } from '../components/Estados'
 import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -20,6 +21,7 @@ export default function Admin() {
   const [profesionalesPendientes, setProfesionalesPendientes] = useState([])
   const [profesionalesActivos, setProfesionalesActivos] = useState([])
   const [dataLoading, setDataLoading] = useState(true)
+  const [cargaError, setCargaError] = useState(false)
   const [tab, setTab] = useState('pendientes')
   const [nuevaAd, setNuevaAd] = useState({ nombre: '', imagen_url: '', link_url: '', fondo: 'oscuro' })
   const [adLoading, setAdLoading] = useState(false)
@@ -57,6 +59,9 @@ export default function Admin() {
         supabase.from('profesionales').select('*').eq('aprobado', false).order('created_at'),
         supabase.from('profesionales').select('*').eq('aprobado', true).order('nombre'),
       ])
+      const fallo = [p, a, pub, pag, ads, cons, profPend, profActivos].find(r => r.error)
+      if (fallo) throw fallo.error
+      setCargaError(false)
       setPendientes(p.data || [])
       setAprobadas(a.data || [])
       setPublicaciones(pub.data || [])
@@ -68,7 +73,7 @@ export default function Admin() {
       setProfesionalesActivos(profActivos.data || [])
     } catch (err) {
       console.error('Admin loadData failed:', err)
-      toast('Error al cargar los datos del panel', 'error')
+      setCargaError(true)
     } finally {
       setDataLoading(false)
     }
@@ -219,7 +224,7 @@ export default function Admin() {
 
       {/* CONTENIDO */}
       <div className="panel-content" style={{ flex: 1, overflowY: 'auto' }}>
-        {dataLoading ? <div className="spinner" /> : (
+        {dataLoading ? <PanelSkeleton /> : cargaError ? <ErrorState texto="No pudimos cargar los datos del panel. Revisá tu conexión." onRetry={() => { setDataLoading(true); loadData() }} /> : (
           <>
             {/* PENDIENTES */}
             {tab === 'pendientes' && (

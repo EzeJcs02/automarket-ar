@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { PanelSkeleton } from '../components/Estados'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
@@ -95,8 +96,8 @@ export default function PanelProfesional() {
   }, msg => toast(msg, 'error'))
 
   if (authLoading || loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 58px)' }}>
-      <div className="spinner" />
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'calc(58px + 2.5rem) 1.25rem 5rem' }}>
+      <PanelSkeleton stats={2} filas={4} />
     </div>
   )
 

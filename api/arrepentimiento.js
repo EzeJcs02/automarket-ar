@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   const allowed = await rateLimit('arrepentimiento', ip, { limit: 3, windowSec: 60, failClosed: true })
   if (!allowed) return res.status(429).json({ error: 'Demasiadas solicitudes. Intentá en un minuto.' })
 
-  const { nombre, email, telefono, nro_operacion, motivo, fecha_operacion, monto_pagado, user_id } = req.body || {}
+  const { nombre, email, telefono, nro_operacion, motivo, fecha_operacion, monto_pagado } = req.body || {}
   if (!nombre || !email || !nro_operacion) return res.status(400).json({ error: 'Faltan datos' })
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Email inválido' })
   if (nombre.length > 200 || (motivo && motivo.length > 2000)) return res.status(400).json({ error: 'Datos demasiado largos' })
@@ -72,6 +72,21 @@ export default async function handler(req, res) {
     Prefer: 'return=representation', // FIX HALLAZGO 1: necesitamos el registro insertado
   }
 
+  // El botón es público (requisito legal), pero si hay sesión el user_id sale del token
+  // verificado: tomarlo del body permitía dejar un registro legal a nombre de otro usuario.
+  let userId = null
+  const authHeader = req.headers.authorization
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: { apikey: process.env.SUPABASE_ANON_KEY, Authorization: authHeader },
+      })
+      if (userRes.ok) userId = (await userRes.json()).id || null
+    } catch (e) {
+      console.error('[arrepentimiento] no se pudo verificar la sesión:', e.message)
+    }
+  }
+
   const ahora = new Date()
   const fechaLimite = calcularFechaLimite(ahora, 10)
 
@@ -95,7 +110,7 @@ export default async function handler(req, res) {
         // Hallazgo 3 FIX: campos auditables
         estado: 'pendiente',
         monto_pagado: montoValidado,         // ← importe real de la operación
-        user_id: user_id || null,            // ← trazabilidad del usuario logueado
+        user_id: userId,
         ip_solicitante: ip,
         created_at: ahora.toISOString(),
         fecha_limite_resolucion: fechaLimite,

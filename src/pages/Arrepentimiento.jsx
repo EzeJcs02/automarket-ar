@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { setPageMeta } from '../lib/seo'
-import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
 export default function Arrepentimiento() {
-  const { user } = useAuth()
   const [form, setForm] = useState({ nombre: '', email: '', telefono: '', nro_operacion: '', motivo: '', fecha_operacion: '', monto_pagado: '' })
   const [enviado, setEnviado] = useState(false)
   const [enviando, setEnviando] = useState(false)
@@ -21,10 +20,11 @@ export default function Arrepentimiento() {
     setEnviando(true)
     setError('')
     try {
+      const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch('/api/arrepentimiento', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, user_id: user?.id || null }),
+        headers: { 'Content-Type': 'application/json', ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+        body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error('Error al procesar la solicitud')
       setEnviado(true)

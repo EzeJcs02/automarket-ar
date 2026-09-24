@@ -17,6 +17,20 @@ function sanitizeHtml(str) {
     .slice(0, 2000)
 }
 
+// Sólo se manda mail si existe una consulta real, recién guardada, de ese auto y ese email.
+// Sin esto el endpoint servía para mandar mails a cualquier dirección desde nuestro dominio.
+async function consultaReciente(supabaseUrl, sbHeaders, autoId, email) {
+  const desde = new Date(Date.now() - 10 * 60 * 1000).toISOString()
+  const r = await fetch(
+    `${supabaseUrl}/rest/v1/consultas?auto_id=eq.${autoId}&email_comprador=eq.${encodeURIComponent(email)}` +
+    `&created_at=gte.${encodeURIComponent(desde)}&select=nombre_comprador,email_comprador,telefono_comprador,mensaje&order=created_at.desc&limit=1`,
+    { headers: sbHeaders }
+  )
+  if (!r.ok) return null
+  const [row] = await r.json().catch(() => [])
+  return row || null
+}
+
 async function sendConsulta(req, res) {
   const { auto_id, nombre, email, mensaje, telefono } = req.body || {}
   if (!auto_id || !nombre || !email || !mensaje) return res.status(400).json({ error: 'Faltan datos' })
@@ -32,12 +46,14 @@ async function sendConsulta(req, res) {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const sbHeaders = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
 
-  const sNombre = sanitizeHtml(nombre)
-  const sEmail = sanitizeHtml(email)
-  const sMensaje = sanitizeHtml(mensaje)
-  const sTelefono = telefono ? sanitizeHtml(telefono) : null
-
   try {
+    const consulta = await consultaReciente(supabaseUrl, sbHeaders, auto_id, email)
+    if (!consulta) return res.status(200).json({ sent: false, reason: 'consulta-not-found' })
+    const sNombre = sanitizeHtml(consulta.nombre_comprador || nombre)
+    const sEmail = sanitizeHtml(consulta.email_comprador)
+    const sMensaje = sanitizeHtml(consulta.mensaje || mensaje)
+    const sTelefono = consulta.telefono_comprador || telefono ? sanitizeHtml(consulta.telefono_comprador || telefono) : null
+
     const autoRes = await fetch(
       `${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}&select=marca,modelo,concesionaria_id,user_id,concesionarias(email,nombre)`,
       { headers: sbHeaders }
@@ -111,29 +127,29 @@ async function sendConfirma(req, res) {
 
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !supabaseKey) return res.status(200).json({ sent: false, reason: 'no-supabase' })
+  const sbHeaders = { Authorization: `Bearer ${supabaseKey}`, apikey: supabaseKey }
 
-  // Por defecto, si no hay credenciales de Supabase configuradas, se usan los
-  // datos del cliente (sanitizados). Si hay credenciales, se pisan abajo con
-  // los datos reales del auto, para no confiar en lo que mande el cliente.
   let sAuto = sanitizeHtml(String(auto).slice(0, 200))
   let sConcesionaria = sanitizeHtml(String(concesionaria || 'el vendedor').slice(0, 200))
+  let sNombre = sanitizeHtml(String(nombre).slice(0, 200))
 
-  if (supabaseUrl && supabaseKey) {
-    try {
-      const r = await fetch(
-        `${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}&select=marca,modelo,concesionarias(nombre)`,
-        { headers: { Authorization: `Bearer ${supabaseKey}`, apikey: supabaseKey } }
-      )
-      const [row] = await r.json()
-      if (!row) return res.status(200).json({ sent: false, reason: 'invalid-auto' })
-      sAuto = sanitizeHtml(`${row.marca} ${row.modelo}`.slice(0, 200))
-      if (row.concesionarias?.nombre) sConcesionaria = sanitizeHtml(String(row.concesionarias.nombre).slice(0, 200))
-    } catch {
-      return res.status(200).json({ sent: false, reason: 'verify-error' })
-    }
+  try {
+    const consulta = await consultaReciente(supabaseUrl, sbHeaders, auto_id, email)
+    if (!consulta) return res.status(200).json({ sent: false, reason: 'consulta-not-found' })
+    if (consulta.nombre_comprador) sNombre = sanitizeHtml(String(consulta.nombre_comprador).slice(0, 200))
+
+    const r = await fetch(
+      `${supabaseUrl}/rest/v1/autos?id=eq.${auto_id}&select=marca,modelo,concesionarias(nombre)`,
+      { headers: sbHeaders }
+    )
+    const [row] = await r.json()
+    if (!row) return res.status(200).json({ sent: false, reason: 'invalid-auto' })
+    sAuto = sanitizeHtml(`${row.marca} ${row.modelo}`.slice(0, 200))
+    if (row.concesionarias?.nombre) sConcesionaria = sanitizeHtml(String(row.concesionarias.nombre).slice(0, 200))
+  } catch {
+    return res.status(200).json({ sent: false, reason: 'verify-error' })
   }
-
-  const sNombre = sanitizeHtml(String(nombre).slice(0, 200))
 
   try {
     await fetch('https://api.resend.com/emails', {

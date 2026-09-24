@@ -178,6 +178,11 @@ export default function Panel() {
 
       {/* CONTENIDO */}
       <div className="panel-content">
+        {concesionaria && !concesionaria.aprobada && (
+          <div role="status" style={{ background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.3)', borderRadius: 'var(--radius-lg)', padding: '1rem 1.25rem', marginBottom: '1.5rem', fontSize: '14px', color: 'var(--gray4)', lineHeight: 1.6 }}>
+            <strong style={{ color: '#c9a84c' }}>Tu concesionaria está en revisión.</strong> Podés cargar tu stock, pero las publicaciones van a quedar pausadas y no se van a ver en el catálogo hasta que la aprobemos.
+          </div>
+        )}
         {loading ? <div className="spinner" /> : (
           <>
             {tab === 'dashboard' && <Dashboard autos={autos} consultas={consultas} pagos={pagos} concesionaria={concesionaria} setTab={setTab} />}
@@ -216,7 +221,7 @@ function Dashboard({ autos, consultas, concesionaria }) {
               <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Vehículo</div>
               <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--white)' }}>{consultaDetalle.autos?.marca} {consultaDetalle.autos?.modelo}</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
                 <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Nombre</div>
                 <div style={{ fontSize: '14px', color: 'var(--white)' }}>{consultaDetalle.nombre_comprador}</div>
@@ -450,12 +455,18 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   }
 
   async function toggleActivo(auto) {
-    await supabase.from('autos').update({ activo: !auto.activo }).eq('id', auto.id)
+    if (!auto.activo && !concesionaria?.aprobada) {
+      toast('Tu concesionaria todavía no está aprobada: las publicaciones quedan pausadas hasta la aprobación.', 'warning')
+      return
+    }
+    const { error } = await supabase.from('autos').update({ activo: !auto.activo }).eq('id', auto.id)
+    if (error) toast('No se pudo actualizar la publicación. Probá de nuevo.', 'error')
     reload()
   }
   async function eliminar(id) {
     if (!confirm('¿Seguro que querés eliminar permanentemente este vehículo?')) return
-    await supabase.from('autos').delete().eq('id', id)
+    const { error } = await supabase.from('autos').delete().eq('id', id)
+    if (error) toast('No se pudo eliminar el vehículo. Probá de nuevo.', 'error')
     reload()
   }
   function abrirEdicion(auto) {
@@ -466,20 +477,27 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   }
   async function guardarEdicion() {
     setSaving(true)
-    let fotoUrls = [...editFotos]
-    for (const file of editFotosNuevas) {
-      const ext = file.name.split('.').pop()
-      const path = `${concesionaria.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-      const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-      if (!upErr) {
+    try {
+      let fotoUrls = [...editFotos]
+      let fotosFallidas = 0
+      for (const file of editFotosNuevas) {
+        const ext = file.name.split('.').pop()
+        const path = `${concesionaria.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
+        if (upErr) { fotosFallidas++; continue }
         const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
         fotoUrls.push(data.publicUrl)
       }
+      const { error } = await supabase.from('autos').update({ ...editForm, anio: parseInt(editForm.anio), kilometraje: parseInt(editForm.kilometraje) || 0, fotos: fotoUrls }).eq('id', editando)
+      if (error) { toast('No se pudieron guardar los cambios. Probá de nuevo.', 'error'); return }
+      if (fotosFallidas) toast(`${fotosFallidas} foto(s) no se pudieron subir (solo JPG, PNG o WebP de hasta 10 MB).`, 'warning')
+      setEditando(null)
+      reload()
+    } catch {
+      toast('Error de conexión. Probá de nuevo.', 'error')
+    } finally {
+      setSaving(false)
     }
-    await supabase.from('autos').update({ ...editForm, anio: parseInt(editForm.anio), kilometraje: parseInt(editForm.kilometraje) || 0, fotos: fotoUrls }).eq('id', editando)
-    setSaving(false)
-    setEditando(null)
-    reload()
   }
   function setEF(k, v) { setEditForm(p => ({ ...p, [k]: v })) }
 
@@ -492,7 +510,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px' }}>EDITAR VEHÍCULO</div>
               <button onClick={() => setEditando(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: KTM, BMW, Honda..." required value={editForm.marca} onChange={e => setEF('marca', e.target.value)} /></div>
               <div className="form-field"><label>Modelo *</label><input type="text" required value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
               <div className="form-field"><label>Año *</label><input type="number" required value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
@@ -632,7 +650,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
 }
 
 const DRAFT_KEY = 'panel_nuevo_auto_draft'
-const FORM_DEFAULTS = { marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' }
+const FORM_DEFAULTS = { marca: '', modelo: '', anio: '', kilometraje: '0', tipo: 'nuevo', categoria: 'SUV', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', precio_usd: '', descripcion: '' }
 
 function NuevoAuto({ concesionaria, onSuccess }) {
   const [form, setForm] = useState(() => {
@@ -672,28 +690,36 @@ function NuevoAuto({ concesionaria, onSuccess }) {
     if (fotos.length < 5) { setError('Debés subir mínimo 5 fotos.'); return }
     setLoading(true)
     setError('')
-    let fotoUrls = []
-    for (const file of fotos) {
-      const ext = file.name.split('.').pop()
-      const path = `${concesionaria.id}/${Date.now()}.${ext}`
-      const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-      if (!upErr) {
+    try {
+      const fotoUrls = []
+      for (const file of fotos) {
+        const ext = file.name.split('.').pop()
+        const path = `${concesionaria.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
+        if (upErr) {
+          setError(`No se pudo subir "${file.name}". Solo se aceptan JPG, PNG o WebP de hasta 10 MB.`)
+          return
+        }
         const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
         fotoUrls.push(data.publicUrl)
       }
+      const { error: insErr } = await supabase.from('autos').insert({
+        concesionaria_id: concesionaria.id,
+        marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
+        kilometraje: parseInt(form.kilometraje) || 0,
+        tipo: form.tipo, categoria: form.categoria || null, combustible: form.combustible, transmision: form.transmision,
+        color: form.color, precio_ars: form.precio_ars || null, precio_usd: form.precio_usd || null,
+        descripcion: form.descripcion, fotos: fotoUrls, activo: true,
+        nombre_vendedor: concesionaria.nombre || null,
+      })
+      if (insErr) { setError('No se pudo publicar el vehículo. Revisá los datos y probá de nuevo.'); return }
+      localStorage.removeItem(DRAFT_KEY)
+      onSuccess()
+    } catch {
+      setError('Error de conexión. Probá de nuevo.')
+    } finally {
+      setLoading(false)
     }
-    const { error: insErr } = await supabase.from('autos').insert({
-      concesionaria_id: concesionaria.id,
-      marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
-      kilometraje: parseInt(form.kilometraje) || 0,
-      tipo: form.tipo, categoria: form.categoria || null, combustible: form.combustible, transmision: form.transmision,
-      color: form.color, precio_ars: form.precio_ars || null, precio_usd: form.precio_usd || null,
-      descripcion: form.descripcion, fotos: fotoUrls, activo: true,
-      nombre_vendedor: concesionaria.nombre || null,
-    })
-    setLoading(false)
-    if (insErr) setError(insErr.message)
-    else { localStorage.removeItem(DRAFT_KEY); onSuccess() }
   }
 
   return (
@@ -739,7 +765,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
           </label>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>ESPECIFICACIONES TÉCNICAS</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+          <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
             <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: KTM, BMW, Honda..." value={form.marca} onChange={e => setF('marca', e.target.value)} required /></div>
             <div className="form-field"><label>Modelo Exacto *</label><input type="text" placeholder="Ej: Amarok 2.0 TDI" value={form.modelo} onChange={e => setF('modelo', e.target.value)} required /></div>
             <div className="form-field"><label>Año *</label><input type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
@@ -752,7 +778,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
           </div>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>VALOR COMERCIAL</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+          <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
             <div className="form-field"><label>Precio de Lista (ARS) *</label><input type="number" placeholder="Ej: 25000000" value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} required /></div>
             <div className="form-field"><label>Referencia USD (Opcional)</label><input type="number" placeholder="Ej: 15000" value={form.precio_usd} onChange={e => setF('precio_usd', e.target.value)} /></div>
           </div>
@@ -802,7 +828,7 @@ function Consultas({ consultas, reload }) {
               <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Vehículo</div>
               <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--white)' }}>{detalle.autos?.marca} {detalle.autos?.modelo}</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
                 <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Nombre</div>
                 <div style={{ fontSize: '14px', color: 'var(--white)' }}>{detalle.nombre_comprador}</div>
@@ -956,7 +982,7 @@ function Perfil({ concesionaria, onSave }) {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           <div className="form-field"><label>Razón Social / Nombre Comercial</label><input type="text" value={form.nombre} onChange={e => setF('nombre', e.target.value)} /></div>
           <div className="form-field"><label>Responsable de Ventas</label><input type="text" value={form.responsable} onChange={e => setF('responsable', e.target.value)} /></div>
           <div className="form-field"><label>Teléfono Fijo</label><input type="text" value={form.telefono} onChange={e => setF('telefono', e.target.value)} /></div>

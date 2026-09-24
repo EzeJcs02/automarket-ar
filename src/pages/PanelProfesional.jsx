@@ -106,7 +106,7 @@ export default function PanelProfesional() {
   const planVence = perfil?.plan_vence_at ? new Date(perfil.plan_vence_at) : null
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '3rem 2rem 5rem' }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'calc(58px + 2.5rem) 1.25rem 5rem' }}>
       {/* Header */}
       <div style={{ marginBottom: '2.5rem', paddingBottom: '2.5rem', borderBottom: '1px solid var(--gray2)' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '.75rem' }}>
@@ -165,7 +165,7 @@ export default function PanelProfesional() {
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: '1.25rem' }}>
               Datos de contacto
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Email</div>
                 <div style={{ fontSize: '14px' }}>{perfil?.email}</div>
@@ -202,7 +202,7 @@ export default function PanelProfesional() {
                     rows={3} placeholder="Qué hacés, especialidad, diferencial..."
                     style={{ width: '100%', padding: '10px 14px', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: 'var(--white)', fontSize: '14px', resize: 'vertical', fontFamily: 'var(--font-body)', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-field" style={{ margin: 0 }}>
                     <label>WhatsApp</label>
                     <input value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} placeholder="+54 9 387..." />
@@ -212,7 +212,7 @@ export default function PanelProfesional() {
                     <input value={form.telefono} onChange={e => setF('telefono', e.target.value)} placeholder="(387) 421..." />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-field" style={{ margin: 0 }}>
                     <label>Precio aproximado</label>
                     <input value={form.precio_aproximado} onChange={e => setF('precio_aproximado', e.target.value)} placeholder="Ej: $15.000" />
@@ -239,7 +239,7 @@ export default function PanelProfesional() {
                     {perfil?.descripcion || 'Sin descripción. Hacé click en Editar para completarla.'}
                   </p>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>WhatsApp</div>
                     <div style={{ fontSize: '14px' }}>{perfil?.whatsapp || '—'}</div>

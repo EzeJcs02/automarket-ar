@@ -380,6 +380,21 @@ body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
   font-size: 13px; color: var(--gray4); margin-top: 6px;
 }
 
+/* Tablas en mobile: scroll horizontal en vez de cortar columnas y botones.
+   (html/body tienen overflow-x: clip, así que sin esto lo que sobra no se puede alcanzar.)
+   !important porque las tablas de Admin traen overflow:hidden inline. */
+@media (max-width: 760px) {
+  .panel-table, .scroll-table {
+    display: block; overflow-x: auto !important; -webkit-overflow-scrolling: touch;
+  }
+  .panel-table th, .panel-table td, .scroll-table th, .scroll-table td { white-space: nowrap; }
+}
+
+/* Formularios de dos columnas: una sola columna en mobile (!important: las columnas vienen inline) */
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr !important; }
+}
+
 /* Panel dashboard — tablet y mobile */
 @media (max-width: 900px) {
   .col-hide-mobile { display: none !important; }

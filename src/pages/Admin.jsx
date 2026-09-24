@@ -395,7 +395,7 @@ export default function Admin() {
                         ))}
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                      <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                         {/* Gráfico por tipo */}
                         {top.length > 0 && (
                           <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '1.5rem 2rem' }}>
@@ -487,7 +487,7 @@ export default function Admin() {
                 {/* FORM NUEVA AD */}
                 <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2rem', marginBottom: '2rem' }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Agregar nueva publicidad</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr', gap: '12px', marginBottom: '12px' }}>
+                  <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr', gap: '12px', marginBottom: '12px' }}>
                     <div className="form-field" style={{ margin: 0 }}>
                       <label>Nombre del negocio *</label>
                       <input placeholder="Ej: Lubricentro López" value={nuevaAd.nombre} onChange={e => setNuevaAd(p => ({ ...p, nombre: e.target.value }))} />
@@ -571,7 +571,7 @@ export default function Admin() {
                         <div style={{ fontWeight: 600 }}>{consultaDetalle.autos?.marca} {consultaDetalle.autos?.modelo}</div>
                         <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '2px' }}>Concesionaria: {consultaDetalle.concesionarias?.nombre || '—'}</div>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                      <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                         <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
                           <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>NOMBRE</div>
                           <div style={{ fontSize: '14px' }}>{consultaDetalle.nombre_comprador}</div>
@@ -596,7 +596,7 @@ export default function Admin() {
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todas las consultas recibidas en la plataforma ({consultasAdmin.length} total).</div>
                 {consultasAdmin.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay consultas registradas.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                  : <table className="scroll-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
                       <thead><tr>{['Fecha','Vehículo','Agencia','Comprador','Mensaje',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {consultasAdmin.map(c => (
@@ -650,7 +650,7 @@ export default function Admin() {
                   <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Todos los usuarios registrados en la plataforma.</div>
                   {usuarios.length === 0
                     ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay usuarios registrados aún.</p></div>
-                    : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                    : <table className="scroll-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
                         <thead><tr>{['Nombre','Email','Tipo','Registro','Último acceso',''].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                         <tbody>
                           {usuarios.map(u => {
@@ -685,7 +685,7 @@ export default function Admin() {
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Solicitudes de alta de profesionales automotores.</div>
                 {profesionalesPendientes.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay solicitudes pendientes.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                  : <table className="scroll-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
                       <thead><tr>{['Nombre','Categoría','Ciudad','Email','Fecha','Resolución'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {profesionalesPendientes.map(p => (
@@ -714,7 +714,7 @@ export default function Admin() {
                 <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Gestión de profesionales del directorio.</div>
                 {profesionalesActivos.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay profesionales activos aún.</p></div>
-                  : <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                  : <table className="scroll-table" style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
                       <thead><tr>{['Nombre','Categoría','Ciudad','Plan','Verificado','Destacado','Acciones'].map(h => <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: 'var(--gray5)', padding: '16px 20px', borderBottom: '1px solid var(--gray2)' }}>{h}</th>)}</tr></thead>
                       <tbody>
                         {profesionalesActivos.map(p => (

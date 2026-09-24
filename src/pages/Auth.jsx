@@ -295,7 +295,7 @@ export function Registro() {
               <label>Ciudad / Zona *</label>
               <input type="text" placeholder="Salta Capital" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} required />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div className="form-field">
                 <label>WhatsApp</label>
                 <input type="text" placeholder="+54 9 387..." value={form.whatsapp || ''} onChange={e => setF('whatsapp', e.target.value)} />

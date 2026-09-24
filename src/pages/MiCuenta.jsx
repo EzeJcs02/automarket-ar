@@ -87,7 +87,8 @@ export default function MiCuenta() {
 
   async function despublicar(autoId) {
     if (!confirm('¿Desactivar esta publicación?')) return
-    await supabase.from('autos').update({ activo: false }).eq('id', autoId)
+    const { error } = await supabase.from('autos').update({ activo: false }).eq('id', autoId)
+    if (error) { toast('No se pudo desactivar la publicación. Probá de nuevo.', 'error'); return }
     setMisAutos(prev => prev.filter(a => a.id !== autoId))
   }
 
@@ -106,8 +107,10 @@ export default function MiCuenta() {
   async function guardarPerfil(e) {
     e.preventDefault()
     setSavingPerfil(true)
-    await supabase.auth.updateUser({ data: { nombre: perfilForm.nombre, telefono: perfilForm.telefono } })
+    const { error } = await supabase.auth.updateUser({ data: { nombre: perfilForm.nombre, telefono: perfilForm.telefono } })
     setSavingPerfil(false)
+    if (error) { toast('No se pudo guardar el perfil. Probá de nuevo.', 'error'); return }
+    toast('Perfil actualizado.', 'success')
     setEditandoPerfil(false)
   }
 
@@ -398,31 +401,38 @@ function PublicarForm({ user, onSuccess, onCancel }) {
     if (fotos.length < 5) { setError('Debés subir mínimo 5 fotos.'); return }
     setLoading(true)
     setError('')
-    let fotoUrls = []
-    for (const file of fotos) {
-      const ext = file.name.split('.').pop()
-      const path = `particulares/${user.id}/${Date.now()}.${ext}`
-      const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-      if (!upErr) {
+    try {
+      const fotoUrls = []
+      for (const file of fotos) {
+        const ext = file.name.split('.').pop()
+        const path = `particulares/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
+        if (upErr) {
+          setError(`No se pudo subir "${file.name}". Solo se aceptan JPG, PNG o WebP de hasta 10 MB.`)
+          return
+        }
         const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
         fotoUrls.push(data.publicUrl)
       }
+      const { error: insErr } = await supabase.from('autos').insert({
+        user_id: user.id,
+        concesionaria_id: null,
+        marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
+        kilometraje: parseInt(form.kilometraje) || 0,
+        tipo: form.tipo, categoria: form.categoria || null,
+        combustible: form.combustible, transmision: form.transmision,
+        color: form.color, precio_ars: form.precio_ars || null,
+        descripcion: form.descripcion, fotos: fotoUrls, activo: true,
+        whatsapp: form.whatsapp || null,
+        nombre_vendedor: user.user_metadata?.nombre || null,
+      })
+      if (insErr) { setError('No se pudo publicar el vehículo. Revisá los datos y probá de nuevo.'); return }
+      onSuccess()
+    } catch {
+      setError('Error de conexión. Probá de nuevo.')
+    } finally {
+      setLoading(false)
     }
-    const { error: insErr } = await supabase.from('autos').insert({
-      user_id: user.id,
-      concesionaria_id: null,
-      marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
-      kilometraje: parseInt(form.kilometraje) || 0,
-      tipo: form.tipo, categoria: form.categoria || null,
-      combustible: form.combustible, transmision: form.transmision,
-      color: form.color, precio_ars: form.precio_ars || null,
-      descripcion: form.descripcion, fotos: fotoUrls, activo: true,
-      whatsapp: form.whatsapp || null,
-      nombre_vendedor: user.user_metadata?.nombre || null,
-    })
-    setLoading(false)
-    if (insErr) setError(insErr.message)
-    else onSuccess()
   }
 
   return (
@@ -514,27 +524,34 @@ function EditarAutoModal({ auto, onClose, onSave }) {
     e.preventDefault()
     setSaving(true)
     setError('')
-    let fotoUrls = [...fotos]
-    for (const file of fotosNuevas) {
-      const ext = file.name.split('.').pop()
-      const path = `${auto.user_id || auto.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-      const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-      if (!upErr) {
+    try {
+      const fotoUrls = [...fotos]
+      for (const file of fotosNuevas) {
+        const ext = file.name.split('.').pop()
+        const path = `particulares/${auto.user_id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
+        if (upErr) {
+          setError(`No se pudo subir "${file.name}". Solo se aceptan JPG, PNG o WebP de hasta 10 MB.`)
+          return
+        }
         const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
         fotoUrls.push(data.publicUrl)
       }
+      const { error: err } = await supabase.from('autos').update({
+        marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
+        kilometraje: parseInt(form.kilometraje) || 0, tipo: form.tipo,
+        categoria: form.categoria || null, combustible: form.combustible,
+        transmision: form.transmision, color: form.color,
+        precio_ars: form.precio_ars || null, descripcion: form.descripcion,
+        whatsapp: form.whatsapp || null, fotos: fotoUrls,
+      }).eq('id', auto.id)
+      if (err) { setError('No se pudieron guardar los cambios. Probá de nuevo.'); return }
+      onSave()
+    } catch {
+      setError('Error de conexión. Probá de nuevo.')
+    } finally {
+      setSaving(false)
     }
-    const { error: err } = await supabase.from('autos').update({
-      marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
-      kilometraje: parseInt(form.kilometraje) || 0, tipo: form.tipo,
-      categoria: form.categoria || null, combustible: form.combustible,
-      transmision: form.transmision, color: form.color,
-      precio_ars: form.precio_ars || null, descripcion: form.descripcion,
-      whatsapp: form.whatsapp || null, fotos: fotoUrls,
-    }).eq('id', auto.id)
-    setSaving(false)
-    if (err) setError(err.message)
-    else onSave()
   }
 
   return (
@@ -620,7 +637,7 @@ function ConsultasRecibidasList({ consultas, onRead }) {
               <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Vehículo</div>
               <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--white)' }}>{detalle.autos?.marca} {detalle.autos?.modelo}</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem' }}>
                 <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Nombre</div>
                 <div style={{ fontSize: '14px', color: 'var(--white)' }}>{detalle.nombre_comprador}</div>

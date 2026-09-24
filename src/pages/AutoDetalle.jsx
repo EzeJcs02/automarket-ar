@@ -433,7 +433,7 @@ export default function AutoDetalle() {
             return (
               <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid var(--gray2)' }}>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '1rem' }}>Calculadora de cuotas</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Plazo</div>
                     <select value={cuotasMeses} onChange={e => setCuotasMeses(Number(e.target.value))}

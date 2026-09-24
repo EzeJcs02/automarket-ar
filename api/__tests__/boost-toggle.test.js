@@ -219,3 +219,37 @@ describe('boost-toggle — rate limit', () => {
     expect(lastRes.statusCode).toBe(429)
   })
 })
+
+describe('boost-toggle — boosts pagos', () => {
+  function mockAuto(extra) {
+    const base = mockFetch.getMockImplementation()
+    mockFetch.mockImplementation(async (url, opts) => {
+      if (url.includes('/rest/v1/autos') && url.includes('select=id,destacado,urgente')) {
+        return new Response(JSON.stringify([{ ...autoRow()[0], ...extra }]), { status: 200 })
+      }
+      return base(url, opts)
+    })
+  }
+
+  it('no pisa un destacado pago vigente al activar urgente del plan', async () => {
+    mockAuto({ destacado: true, destacado_expira_at: new Date(Date.now() + 5 * 864e5).toISOString() })
+    const res = makeRes()
+    await handler(makeReq({ body: { auto_id: AUTO_ID, campo: 'urgente', activar: true }, ip: '3.3.3.1' }), res)
+    expect(res.statusCode).toBe(409)
+    expect(mockFetch.mock.calls.find(c => c[1]?.method === 'PATCH')).toBeUndefined()
+  })
+
+  it('no deja apagar a mano un boost pago', async () => {
+    mockAuto({ destacado: true, destacado_expira_at: new Date(Date.now() + 5 * 864e5).toISOString() })
+    const res = makeRes()
+    await handler(makeReq({ body: { auto_id: AUTO_ID, campo: 'destacado', activar: false }, ip: '3.3.3.2' }), res)
+    expect(res.statusCode).toBe(409)
+  })
+
+  it('el cupo del plan cuenta solo boosts sin vencimiento (los del plan)', async () => {
+    const res = makeRes()
+    await handler(makeReq({ body: { auto_id: AUTO_ID, campo: 'destacado', activar: true }, ip: '3.3.3.3' }), res)
+    const countCall = mockFetch.mock.calls.find(c => c[0].includes(`concesionaria_id=eq.${CONC_ID}`))
+    expect(countCall[0]).toContain('destacado_expira_at=is.null')
+  })
+})

@@ -69,8 +69,11 @@ export default function PanelProfesional() {
   }, [user, authLoading])
 
   useEffect(() => {
-    if (mpStatus === 'ok') toast('¡Pago confirmado! Tu plan fue actualizado.', 'success')
+    if (!mpStatus) return
+    if (mpStatus === 'ok') toast('¡Pago recibido! Tu plan se activa en unos minutos.', 'success')
     if (mpStatus === 'fail') toast('El pago no pudo procesarse. Intentá nuevamente.', 'error')
+    if (mpStatus === 'pending') toast('Tu pago quedó pendiente de acreditación. Lo activamos apenas MercadoPago lo confirme.', 'warning')
+    window.history.replaceState({}, '', '/panel-profesional')
   }, [mpStatus, toast])
 
   async function guardar() {

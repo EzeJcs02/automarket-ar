@@ -38,6 +38,9 @@ export default function MiCuenta() {
     } else if (mp === 'fail') {
       toast('El pago no se completó. Podés intentarlo nuevamente.', 'error')
       window.history.replaceState({}, '', '/mi-cuenta')
+    } else if (mp === 'pending') {
+      toast('Tu pago quedó pendiente de acreditación. Lo activamos apenas MercadoPago lo confirme.', 'warning')
+      window.history.replaceState({}, '', '/mi-cuenta')
     }
   }, [toast])
 
@@ -91,7 +94,7 @@ export default function MiCuenta() {
     if (!confirm('¿Desactivar esta publicación?')) return
     const { error } = await supabase.from('autos').update({ activo: false }).eq('id', autoId)
     if (error) { toast('No se pudo desactivar la publicación. Probá de nuevo.', 'error'); return }
-    setMisAutos(prev => prev.filter(a => a.id !== autoId))
+    setMisAutos(prev => prev.map(a => a.id === autoId ? { ...a, activo: false } : a))
   }
 
   async function handleSignOut() {
@@ -262,7 +265,7 @@ export default function MiCuenta() {
             <>
               {(() => {
                 const limite = 4
-                const puedePublicar = misAutos.length < limite
+                const puedePublicar = misAutos.filter(a => a.activo).length < limite
                 return (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -279,7 +282,7 @@ export default function MiCuenta() {
                     {!puedePublicar && (
                       <div style={{ background: 'rgba(224,160,32,.08)', border: '1px solid rgba(224,160,32,.3)', borderRadius: 'var(--radius-lg)', padding: '1.25rem 1.5rem', marginBottom: '2rem' }}>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#e0a020', marginBottom: '2px' }}>Límite alcanzado</div>
-                        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>El plan gratuito permite hasta 4 publicaciones activas. Eliminá una para poder publicar otra.</div>
+                        <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>El plan gratuito permite hasta 4 publicaciones activas. Desactivá una para poder publicar otra.</div>
                       </div>
                     )}
                   </>
@@ -302,10 +305,17 @@ export default function MiCuenta() {
                             <div style={{ fontWeight: 700, color: 'var(--white)', fontSize: '15px' }}>{a.marca} {a.modelo}</div>
                             {a.destacado && <span style={{ fontSize: '10px', fontWeight: 800, background: 'rgba(201,168,76,.2)', color: '#c9a84c', padding: '2px 8px', borderRadius: '100px', letterSpacing: '.05em' }}>★ DESTACADO</span>}
                             {a.urgente && <span style={{ fontSize: '10px', fontWeight: 800, background: 'rgba(230,51,41,.2)', color: 'var(--accent)', padding: '2px 8px', borderRadius: '100px', letterSpacing: '.05em' }}>⚡ URGENTE</span>}
+                            {!a.activo && <span style={{ fontSize: '10px', fontWeight: 800, background: 'rgba(255,255,255,.08)', color: 'var(--gray4)', padding: '2px 8px', borderRadius: '100px', letterSpacing: '.05em' }}>VENCIDA O DESACTIVADA</span>}
                             {a.fijado_home && <span style={{ fontSize: '10px', fontWeight: 800, background: 'rgba(74,222,128,.15)', color: '#4ade80', padding: '2px 8px', borderRadius: '100px', letterSpacing: '.05em' }}>📌 FIJADO HOME</span>}
                           </div>
                           <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>{a.anio} · {Number(a.kilometraje || 0).toLocaleString('es-AR')} km</div>
                           <div style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, marginTop: '4px' }}>${Number(a.precio_ars).toLocaleString('es-AR')}</div>
+                          {a.activo && (a.renovado_at || a.created_at) && (
+                            <div style={{ fontSize: '11px', color: 'var(--gray4)', marginTop: '4px' }}>Activa hasta el {new Date(new Date(a.renovado_at || a.created_at).getTime() + 30 * 864e5).toLocaleDateString('es-AR')}</div>
+                          )}
+                          {!a.activo && (
+                            <div style={{ fontSize: '11px', color: 'var(--gray4)', marginTop: '4px' }}>No se muestra en el catálogo. Podés renovarla desde la pestaña Planes.</div>
+                          )}
                           {a.destacado && a.destacado_expira_at && (
                             <div style={{ fontSize: '11px', color: '#c9a84c', marginTop: '4px' }}>Destacado hasta {new Date(a.destacado_expira_at).toLocaleDateString('es-AR')}</div>
                           )}
@@ -319,7 +329,7 @@ export default function MiCuenta() {
                           <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px' }}>Ver →</button>
                         </Link>
                         <button className="btn-secondary" style={{ fontSize: '12px', padding: '6px 14px' }} onClick={() => setEditandoAuto(a)}>Editar</button>
-                        <button onClick={() => despublicar(a.id)} style={{ fontSize: '12px', padding: '6px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(230,51,41,.4)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer' }}>Eliminar</button>
+                        {a.activo && <button onClick={() => despublicar(a.id)} style={{ fontSize: '12px', padding: '6px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(230,51,41,.4)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer' }}>Desactivar</button>}
                       </div>
                     </div>
                   ))}
@@ -336,7 +346,7 @@ export default function MiCuenta() {
             <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Base</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', color: '#4ade80', lineHeight: 1, marginBottom: '2rem' }}>GRATIS</div>
-              {['1 publicación activa por 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias', 'Guardado de favoritos'].map(b => (
+              {['Hasta 4 publicaciones activas por 30 días', 'Sin prioridad en resultados', 'Acceso al catálogo completo', 'Consultas directas a agencias', 'Guardado de favoritos'].map(b => (
                 <div key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}><polyline points="20 6 9 17 4 12"/></svg>
                   <span style={{ fontSize: '14px', color: 'var(--gray4)' }}>{b}</span>

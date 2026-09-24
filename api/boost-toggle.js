@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     // Trae el auto + su concesionaria (ownership real y plan) en un solo round-trip.
     const autoRes = await fetch(
       `${supabaseUrl}/rest/v1/autos?id=eq.${encodeURIComponent(auto_id)}` +
-      `&select=id,destacado,urgente,concesionaria_id,concesionarias(id,user_id,plan)`,
+      `&select=id,destacado,urgente,destacado_expira_at,urgente_expira_at,concesionaria_id,concesionarias(id,user_id,plan)`,
       { headers: sbHeaders }
     )
     if (!autoRes.ok) throw new Error(`Supabase GET /autos ${autoRes.status}`)
@@ -62,6 +62,18 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'No tenés permiso sobre esta publicación' })
     }
 
+    // Los boosts pagos tienen *_expira_at; los del plan no. Un boost pago vigente
+    // no se pisa desde acá (antes activar urgente apagaba un destacado ya cobrado).
+    const otro = campo === 'destacado' ? 'urgente' : 'destacado'
+    if (activar && auto[otro] && auto[`${otro}_expira_at`]) {
+      return res.status(409).json({
+        error: `Esta publicación tiene un ${otro} pago vigente hasta el ${new Date(auto[`${otro}_expira_at`]).toLocaleDateString('es-AR')}. Podés cambiarlo cuando venza.`,
+      })
+    }
+    if (!activar && auto[`${campo}_expira_at`]) {
+      return res.status(409).json({ error: `Este ${campo} es pago y vence solo el ${new Date(auto[`${campo}_expira_at`]).toLocaleDateString('es-AR')}.` })
+    }
+
     if (activar) {
       const limite = LIMITES_POR_PLAN[conc.plan] ?? 0
       if (limite === 0) {
@@ -71,7 +83,7 @@ export default async function handler(req, res) {
       // Cuenta los activos actuales del mismo campo para esta concesionaria —
       // server-side, no confiar en el contador que mande el cliente.
       const countRes = await fetch(
-        `${supabaseUrl}/rest/v1/autos?concesionaria_id=eq.${encodeURIComponent(conc.id)}&${campo}=eq.true&select=id`,
+        `${supabaseUrl}/rest/v1/autos?concesionaria_id=eq.${encodeURIComponent(conc.id)}&${campo}=eq.true&${campo}_expira_at=is.null&select=id`,
         { headers: sbHeaders }
       )
       if (!countRes.ok) throw new Error(`Supabase GET count ${countRes.status}`)

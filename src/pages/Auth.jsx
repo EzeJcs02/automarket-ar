@@ -52,17 +52,22 @@ export function Login() {
         : 'Email o contraseña incorrectos.')
       setLoading(false)
     } else {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user?.app_metadata?.role === 'admin') {
-        navigate('/admin')
-      } else {
-        const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).maybeSingle()
-        if (conc) {
-          navigate('/panel')
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user?.app_metadata?.role === 'admin') {
+          navigate('/admin')
         } else {
-          const { data: prof } = await supabase.from('profesionales').select('id').eq('user_id', user.id).maybeSingle()
-          navigate(prof ? '/panel-profesional' : '/mi-cuenta')
+          const { data: conc } = await supabase.from('concesionarias').select('id').eq('user_id', user.id).maybeSingle()
+          if (conc) {
+            navigate('/panel')
+          } else {
+            const { data: prof } = await supabase.from('profesionales').select('id').eq('user_id', user.id).maybeSingle()
+            navigate(prof ? '/panel-profesional' : '/mi-cuenta')
+          }
         }
+      } catch {
+        // La sesión ya está iniciada: si falla sólo la redirección, mandamos a una ruta segura.
+        navigate('/mi-cuenta')
       }
     }
   }
@@ -191,7 +196,7 @@ export function Registro() {
     setLoading(true)
     setError('')
     const { error, needsConfirmation } = await signUp(form.email, form.pass, form)
-    if (error) { setError(error.message); setLoading(false) }
+    if (error) { setError(traducirErrorAuth(error.message)); setLoading(false) }
     else { setNecesitaConfirmar(!!needsConfirmation); setOk(true) }
   }
 
@@ -202,7 +207,7 @@ export function Registro() {
     setLoading(true)
     setError('')
     const { error, needsConfirmation } = await signUpProfesional(form.email, form.pass, form)
-    if (error) { setError(error.message); setLoading(false) }
+    if (error) { setError(traducirErrorAuth(error.message)); setLoading(false) }
     else { setNecesitaConfirmar(!!needsConfirmation); setOk(true) }
   }
 
@@ -213,7 +218,7 @@ export function Registro() {
     setLoading(true)
     setError('')
     const { error, needsConfirmation } = await signUpUsuario(form.email, form.pass, form.nombre)
-    if (error) { setError(error.message); setLoading(false) }
+    if (error) { setError(traducirErrorAuth(error.message)); setLoading(false) }
     else { setNecesitaConfirmar(!!needsConfirmation); setOk(true) }
   }
 
@@ -539,4 +544,13 @@ export function Registro() {
       `}</style>
     </div>
   )
+function traducirErrorAuth(msg = '') {
+  if (/already registered|already been registered|already exists/i.test(msg)) return 'Ya existe una cuenta con ese email. Probá iniciar sesión o recuperar tu contraseña.'
+  if (/password.*(at least|characters|short)/i.test(msg)) return 'La contraseña es muy corta. Usá al menos 6 caracteres.'
+  if (/invalid.*email|email.*invalid|valid email/i.test(msg)) return 'El email no es válido.'
+  if (/rate limit|too many|only request this after/i.test(msg)) return 'Hiciste demasiados intentos. Esperá unos minutos y probá de nuevo.'
+  if (/weak|pwned|leaked/i.test(msg)) return 'Esa contraseña es muy fácil de adivinar. Elegí otra.'
+  return 'No pudimos crear la cuenta. Revisá los datos y probá de nuevo.'
+}
+
 }

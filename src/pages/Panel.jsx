@@ -59,6 +59,9 @@ export default function Panel() {
     } else if (mp === 'fail') {
       toast('El pago no se completó. Podés intentarlo nuevamente.', 'error')
       window.history.replaceState({}, '', '/panel')
+    } else if (mp === 'pending') {
+      toast('Tu pago quedó pendiente de acreditación. Lo activamos apenas MercadoPago lo confirme.', 'warning')
+      window.history.replaceState({}, '', '/panel')
     }
   }, [toast])
 
@@ -393,8 +396,8 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   const { toast } = useToast()
   const pay = (tipo, opts) => pagarConMP(tipo, opts, msg => toast(msg, 'error'))
 
-  const destacadosActivos = autos.filter(a => a.destacado).length
-  const urgentesActivos = autos.filter(a => a.urgente).length
+  const destacadosActivos = autos.filter(a => a.destacado && !a.destacado_expira_at).length
+  const urgentesActivos = autos.filter(a => a.urgente && !a.urgente_expira_at).length
   const LIMITES_POR_PLAN = { basico: 1, pro: 3, premium: 10 }
   const NOMBRE_PLAN = { basico: 'Básico', pro: 'Pro', premium: 'Premium' }
   const limiteDestacados = LIMITES_POR_PLAN[concesionaria?.plan] ?? 0

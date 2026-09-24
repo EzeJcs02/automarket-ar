@@ -1,0 +1,34 @@
+-- ════════════════════════════════════════════════════════════════════════
+-- LIMPIEZA DE POLICIES RLS DUPLICADAS — FIORA MARKET — 2026-09
+-- ════════════════════════════════════════════════════════════════════════
+-- Ejecutar en el SQL editor de Supabase (proyecto kulnlwynzwdpqzyloljd).
+--
+-- MOTIVO: la auditoría de seguridad (2026-09-23) encontró en `concesionarias`
+-- dos policies distintas que hacen exactamente lo mismo (auth.uid() = user_id,
+-- ALL) — "concesionarias_owner_all" y "Concesionaria gestiona su perfil".
+-- No es un problema de seguridad (Postgres OR-ea policies permisivas del
+-- mismo comando, así que el resultado es idéntico), es solo prolijidad.
+-- Los duplicados de policies de admin por email en autos/concesionarias ya
+-- se borraron en migration_admin_por_rol_2026_09.sql.
+--
+-- ANTES DE CORRER: confirmar que los nombres siguen siendo estos (pueden
+-- haber cambiado desde la auditoría). Si no aparecen, no hacer nada.
+--   select tablename, policyname, cmd, qual
+--   from pg_policies
+--   where tablename = 'concesionarias'
+--   order by policyname;
+-- ════════════════════════════════════════════════════════════════════════
+
+DROP POLICY IF EXISTS "Concesionaria gestiona su perfil" ON concesionarias;
+
+-- ════════════════════════════════════════════════════════════════════════
+-- VERIFICACIÓN
+-- ════════════════════════════════════════════════════════════════════════
+-- 1) Debe quedar una sola policy ALL de dueño en concesionarias:
+--   select policyname from pg_policies
+--   where tablename = 'concesionarias' and cmd = 'ALL';
+--   -- esperado: solo "concesionarias_owner_all"
+--
+-- 2) Una concesionaria logueada todavía puede editar su propio perfil
+--    (Panel.jsx) sin errores de permiso.
+-- ════════════════════════════════════════════════════════════════════════

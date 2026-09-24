@@ -228,13 +228,14 @@ export default function Profesionales() {
               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input
                 type="text"
+                aria-label="Buscar profesionales por nombre o ciudad"
                 placeholder="Buscar por nombre o ciudad..."
                 value={busqueda}
                 onChange={e => setBusqueda(e.target.value)}
                 style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }}
               />
               {busqueda && (
-                <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>
+                <button aria-label="Borrar búsqueda" onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>
               )}
             </div>
             <GuiaBoton seccion="profesionales" />

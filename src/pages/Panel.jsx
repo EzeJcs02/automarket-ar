@@ -121,7 +121,7 @@ export default function Panel() {
   }
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'dashboard', label: 'Resumen' },
     { id: 'mis-autos', label: 'Inventario' },
     { id: 'nuevo-auto', label: 'Nueva Publicación' },
     { id: 'consultas', label: 'Consultas', count: noLeidas },
@@ -223,7 +223,7 @@ function Dashboard({ autos, consultas, concesionaria }) {
           <div ref={consultaModalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Detalle de consulta" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
-              <button onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+              <button aria-label="Cerrar" onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
             </div>
             <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1.25rem', marginBottom: '1.5rem' }}>
               <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Vehículo</div>
@@ -261,7 +261,7 @@ function Dashboard({ autos, consultas, concesionaria }) {
             {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
           <div className="panel-page-title">Resumen de Actividad</div>
-          <div className="panel-page-sub">Métricas en tiempo real de <strong style={{ color: 'var(--white)' }}>{concesionaria?.nombre}</strong></div>
+          <div className="panel-page-sub">Actividad de <strong style={{ color: 'var(--white)' }}>{concesionaria?.nombre}</strong></div>
         </div>
       </div>
 
@@ -518,22 +518,22 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
           <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--gray2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px' }}>EDITAR VEHÍCULO</div>
-              <button onClick={() => setEditando(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+              <button aria-label="Cerrar" onClick={() => setEditando(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
             </div>
             <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: KTM, BMW, Honda..." required value={editForm.marca} onChange={e => setEF('marca', e.target.value)} /></div>
-              <div className="form-field"><label>Modelo *</label><input type="text" required value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
-              <div className="form-field"><label>Año *</label><input type="number" required value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
-              <div className="form-field"><label>Kilometraje *</label><input type="number" required min="0" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
-              <div className="form-field"><label>Condición *</label><select required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
-              <div className="form-field"><label>Categoría</label><select value={editForm.categoria} onChange={e => setEF('categoria', e.target.value)}><option value="">— Seleccionar —</option><optgroup label="Autos"><option value="SUV">SUV</option><option value="Hatchback">Hatchback</option><option value="Sedán">Sedán</option><option value="Pickup">Pickup</option><option value="Minivan">Minivan</option><option value="Coupé">Coupé</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Deportiva">Deportiva</option><option value="Touring">Touring</option><option value="Scooter">Scooter</option><option value="Enduro">Enduro</option><option value="Custom">Custom</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Velero">Velero</option><option value="Yate">Yate</option><option value="Moto de Agua">Moto de Agua</option><option value="Semi-rígido">Semi-rígido</option></optgroup></select></div>
-              <div className="form-field"><label>Combustible *</label><select required value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
-              <div className="form-field"><label>Transmisión *</label><select required value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option></select></div>
-              <div className="form-field"><label>Color *</label><input type="text" required placeholder="Ej: Plata Metalizado" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
-              <div className="form-field"><label>Precio ARS *</label><input type="number" required value={editForm.precio_ars} onChange={e => setEF('precio_ars', e.target.value)} /></div>
-              <div className="form-field"><label>Precio USD</label><input type="number" value={editForm.precio_usd} onChange={e => setEF('precio_usd', e.target.value)} /></div>
+              <div className="form-field"><label>Marca *</label><input aria-label="Marca" type="text" placeholder="Ej: KTM, BMW, Honda..." required value={editForm.marca} onChange={e => setEF('marca', e.target.value)} /></div>
+              <div className="form-field"><label>Modelo *</label><input aria-label="Modelo" type="text" required value={editForm.modelo} onChange={e => setEF('modelo', e.target.value)} /></div>
+              <div className="form-field"><label>Año *</label><input aria-label="Año" type="number" required value={editForm.anio} onChange={e => setEF('anio', e.target.value)} /></div>
+              <div className="form-field"><label>Kilometraje *</label><input aria-label="Kilometraje" type="number" required min="0" value={editForm.kilometraje} onChange={e => setEF('kilometraje', e.target.value)} /></div>
+              <div className="form-field"><label>Condición *</label><select aria-label="Condición" required value={editForm.tipo} onChange={e => setEF('tipo', e.target.value)}><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
+              <div className="form-field"><label>Categoría</label><select aria-label="Categoría" value={editForm.categoria} onChange={e => setEF('categoria', e.target.value)}><option value="">— Seleccionar —</option><optgroup label="Autos"><option value="SUV">SUV</option><option value="Hatchback">Hatchback</option><option value="Sedán">Sedán</option><option value="Pickup">Pickup</option><option value="Minivan">Minivan</option><option value="Coupé">Coupé</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Deportiva">Deportiva</option><option value="Touring">Touring</option><option value="Scooter">Scooter</option><option value="Enduro">Enduro</option><option value="Custom">Custom</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Velero">Velero</option><option value="Yate">Yate</option><option value="Moto de Agua">Moto de Agua</option><option value="Semi-rígido">Semi-rígido</option></optgroup></select></div>
+              <div className="form-field"><label>Combustible *</label><select aria-label="Combustible" required value={editForm.combustible} onChange={e => setEF('combustible', e.target.value)}><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+              <div className="form-field"><label>Transmisión *</label><select aria-label="Transmisión" required value={editForm.transmision} onChange={e => setEF('transmision', e.target.value)}><option>Manual</option><option>Automática</option></select></div>
+              <div className="form-field"><label>Color *</label><input aria-label="Color" type="text" required placeholder="Ej: Plata Metalizado" value={editForm.color} onChange={e => setEF('color', e.target.value)} /></div>
+              <div className="form-field"><label>Precio ARS *</label><input aria-label="Precio ARS" type="number" required value={editForm.precio_ars} onChange={e => setEF('precio_ars', e.target.value)} /></div>
+              <div className="form-field"><label>Precio USD</label><input aria-label="Precio USD" type="number" value={editForm.precio_usd} onChange={e => setEF('precio_usd', e.target.value)} /></div>
             </div>
-            <div className="form-field" style={{ marginTop: '.5rem' }}><label>Descripción *</label><textarea style={{ height: '100px', resize: 'vertical' }} required value={editForm.descripcion} onChange={e => setEF('descripcion', e.target.value)} /></div>
+            <div className="form-field" style={{ marginTop: '.5rem' }}><label>Descripción *</label><textarea aria-label="Descripción" style={{ height: '100px', resize: 'vertical' }} required value={editForm.descripcion} onChange={e => setEF('descripcion', e.target.value)} /></div>
             <div style={{ marginTop: '1.5rem' }}>
               <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
                 <span>FOTOS</span>
@@ -543,13 +543,13 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                 {editFotos.map((url, i) => (
                   <div key={url} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
                     <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <button type="button" onClick={() => setEditFotos(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    <button aria-label="Quitar foto" type="button" onClick={() => setEditFotos(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                   </div>
                 ))}
                 {editFotosNuevas.map((f, i) => (
                   <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(74,222,128,.3)' }}>
                     <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <button type="button" onClick={() => setEditFotosNuevas(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    <button aria-label="Quitar foto" type="button" onClick={() => setEditFotosNuevas(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                   </div>
                 ))}
               </div>
@@ -751,7 +751,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
               {fotos.map((f, i) => (
                 <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
                   <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <button type="button" onClick={() => eliminarFoto(i)}
+                  <button type="button" aria-label="Quitar foto" onClick={() => eliminarFoto(i)}
                     style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,.7)', border: 'none', color: '#fff', borderRadius: '100px', width: '22px', height: '22px', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     ×
                   </button>
@@ -766,7 +766,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
           <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--gray2)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: fotos.length > 0 ? '1.2rem' : '3rem', textAlign: 'center', cursor: 'pointer', marginBottom: '2rem', transition: 'all .2s' }}>
             <input key={inputKey} type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
             <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray4)' }}>
-              {fotos.length === 0 ? 'Click para subir fotografías' : '+ Agregar más fotos'}
+              {fotos.length === 0 ? 'Tocá para subir fotos' : '+ Agregar más fotos'}
             </div>
             {fotos.length === 0 && <div style={{ fontSize: '13px', color: 'var(--gray5)', marginTop: '4px' }}>Mínimo 5 fotos · JPG, PNG</div>}
             {fotos.length > 0 && fotos.length < 5 && (
@@ -776,27 +776,27 @@ function NuevoAuto({ concesionaria, onSuccess }) {
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>ESPECIFICACIONES TÉCNICAS</div>
           <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-            <div className="form-field"><label>Marca *</label><input type="text" placeholder="Ej: KTM, BMW, Honda..." value={form.marca} onChange={e => setF('marca', e.target.value)} required /></div>
-            <div className="form-field"><label>Modelo Exacto *</label><input type="text" placeholder="Ej: Amarok 2.0 TDI" value={form.modelo} onChange={e => setF('modelo', e.target.value)} required /></div>
-            <div className="form-field"><label>Año *</label><input type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
-            <div className="form-field"><label>Kilometraje *</label><input type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
-            <div className="form-field"><label>Condición *</label><select value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
-            <div className="form-field"><label>Categoría *</label><select value={form.categoria} onChange={e => setF('categoria', e.target.value)} required><optgroup label="Autos"><option value="SUV">SUV</option><option value="Hatchback">Hatchback</option><option value="Sedán">Sedán</option><option value="Pickup">Pickup</option><option value="Minivan">Minivan</option><option value="Coupé">Coupé</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Deportiva">Deportiva</option><option value="Touring">Touring</option><option value="Scooter">Scooter</option><option value="Enduro">Enduro</option><option value="Custom">Custom</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Velero">Velero</option><option value="Yate">Yate</option><option value="Moto de Agua">Moto de Agua</option><option value="Semi-rígido">Semi-rígido</option></optgroup></select></div>
-            <div className="form-field"><label>Combustible *</label><select value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
-            <div className="form-field"><label>Transmisión *</label><select value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
-            <div className="form-field"><label>Color Exterior *</label><input type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>
+            <div className="form-field"><label>Marca *</label><input aria-label="Marca" type="text" placeholder="Ej: KTM, BMW, Honda..." value={form.marca} onChange={e => setF('marca', e.target.value)} required /></div>
+            <div className="form-field"><label>Modelo Exacto *</label><input aria-label="Modelo Exacto" type="text" placeholder="Ej: Amarok 2.0 TDI" value={form.modelo} onChange={e => setF('modelo', e.target.value)} required /></div>
+            <div className="form-field"><label>Año *</label><input aria-label="Año" type="number" placeholder="2024" min="1900" max="2030" value={form.anio} onChange={e => setF('anio', e.target.value)} required /></div>
+            <div className="form-field"><label>Kilometraje *</label><input aria-label="Kilometraje" type="number" placeholder="0" min="0" value={form.kilometraje} onChange={e => setF('kilometraje', e.target.value)} required /></div>
+            <div className="form-field"><label>Condición *</label><select aria-label="Condición" value={form.tipo} onChange={e => setF('tipo', e.target.value)} required><option value="nuevo">0KM / Nuevo</option><option value="usado">Usado</option></select></div>
+            <div className="form-field"><label>Categoría *</label><select aria-label="Categoría" value={form.categoria} onChange={e => setF('categoria', e.target.value)} required><optgroup label="Autos"><option value="SUV">SUV</option><option value="Hatchback">Hatchback</option><option value="Sedán">Sedán</option><option value="Pickup">Pickup</option><option value="Minivan">Minivan</option><option value="Coupé">Coupé</option></optgroup><optgroup label="Motos"><option value="Naked">Naked</option><option value="Deportiva">Deportiva</option><option value="Touring">Touring</option><option value="Scooter">Scooter</option><option value="Enduro">Enduro</option><option value="Custom">Custom</option></optgroup><optgroup label="Náutica"><option value="Lancha">Lancha</option><option value="Velero">Velero</option><option value="Yate">Yate</option><option value="Moto de Agua">Moto de Agua</option><option value="Semi-rígido">Semi-rígido</option></optgroup></select></div>
+            <div className="form-field"><label>Combustible *</label><select aria-label="Combustible" value={form.combustible} onChange={e => setF('combustible', e.target.value)} required><option>Nafta</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+            <div className="form-field"><label>Transmisión *</label><select aria-label="Transmisión" value={form.transmision} onChange={e => setF('transmision', e.target.value)} required><option>Manual</option><option>Automática</option></select></div>
+            <div className="form-field"><label>Color Exterior *</label><input aria-label="Color Exterior" type="text" placeholder="Ej: Plata Metalizado" value={form.color} onChange={e => setF('color', e.target.value)} required /></div>
           </div>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>VALOR COMERCIAL</div>
           <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-            <div className="form-field"><label>Precio de Lista (ARS) *</label><input type="number" placeholder="Ej: 25000000" value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} required /></div>
-            <div className="form-field"><label>Referencia USD (Opcional)</label><input type="number" placeholder="Ej: 15000" value={form.precio_usd} onChange={e => setF('precio_usd', e.target.value)} /></div>
+            <div className="form-field"><label>Precio de Lista (ARS) *</label><input aria-label="Precio de Lista (ARS)" type="number" placeholder="Ej: 25000000" value={form.precio_ars} onChange={e => setF('precio_ars', e.target.value)} required /></div>
+            <div className="form-field"><label>Referencia USD (Opcional)</label><input aria-label="Referencia USD (Opcional)" type="number" placeholder="Ej: 15000" value={form.precio_usd} onChange={e => setF('precio_usd', e.target.value)} /></div>
           </div>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>INFORMACIÓN ADICIONAL</div>
           <div className="form-field">
             <label>Descripción detallada *</label>
-            <textarea style={{ height: '140px', resize: 'vertical' }} placeholder="Detallar estado general, mantenimientos realizados, accesorios extra, etc." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} required />
+            <textarea aria-label="Descripción detallada" style={{ height: '140px', resize: 'vertical' }} placeholder="Detallar estado general, mantenimientos realizados, accesorios extra, etc." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} required />
           </div>
 
           {error && <div style={{ padding: '1rem', background: 'rgba(230,51,41,0.1)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius)', marginTop: '1rem' }}>{error}</div>}
@@ -832,7 +832,7 @@ function Consultas({ consultas, reload }) {
           <div ref={detalleModalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Detalle de consulta" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
-              <button onClick={() => setDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+              <button aria-label="Cerrar" onClick={() => setDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
             </div>
             <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1.25rem', marginBottom: '1.5rem' }}>
               <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginBottom: '4px' }}>Vehículo</div>
@@ -973,7 +973,7 @@ function Perfil({ concesionaria, onSave }) {
           </div>
           <div style={{ flex: 1 }} className="form-field">
             <label style={{ color: 'var(--white)', fontWeight: 'bold' }}>Logo de la Empresa (URL)</label>
-            <input type="text" placeholder="Pegar enlace de la imagen" value={form.logo_url} onChange={e => setF('logo_url', e.target.value)} style={{ marginTop: '8px' }} />
+            <input aria-label="Logo de la Empresa (URL)" type="text" placeholder="Pegar enlace de la imagen" value={form.logo_url} onChange={e => setF('logo_url', e.target.value)} style={{ marginTop: '8px' }} />
             <span style={{ fontSize: '12px', color: 'var(--gray5)', marginTop: '4px' }}>Esta imagen aparecerá en tus publicaciones y perfil.</span>
           </div>
         </div>
@@ -987,21 +987,21 @@ function Perfil({ concesionaria, onSave }) {
           )}
           <div className="form-field">
             <label style={{ color: 'var(--white)', fontWeight: 'bold' }}>URL de la imagen de portada</label>
-            <input type="text" placeholder="Pegar enlace de la imagen de portada" value={form.portada_url} onChange={e => setF('portada_url', e.target.value)} style={{ marginTop: '8px' }} />
+            <input aria-label="URL de la imagen de portada" type="text" placeholder="Pegar enlace de la imagen de portada" value={form.portada_url} onChange={e => setF('portada_url', e.target.value)} style={{ marginTop: '8px' }} />
             <span style={{ fontSize: '12px', color: 'var(--gray5)', marginTop: '4px' }}>Esta imagen aparecerá como fondo en tu perfil público. Tamaño recomendado: 1200×300px.</span>
           </div>
         </div>
 
         <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-          <div className="form-field"><label>Razón Social / Nombre Comercial</label><input type="text" value={form.nombre} onChange={e => setF('nombre', e.target.value)} /></div>
-          <div className="form-field"><label>Responsable de Ventas</label><input type="text" value={form.responsable} onChange={e => setF('responsable', e.target.value)} /></div>
-          <div className="form-field"><label>Teléfono Fijo</label><input type="text" value={form.telefono} onChange={e => setF('telefono', e.target.value)} /></div>
-          <div className="form-field"><label>Línea WhatsApp Comercial</label><input type="text" placeholder="+54 9 387 421-0000" value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} /></div>
-          <div className="form-field"><label>Correo Electrónico Oficial</label><input type="email" value={form.email} onChange={e => setF('email', e.target.value)} /></div>
-          <div className="form-field"><label>Provincia y Localidad</label><input type="text" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} /></div>
+          <div className="form-field"><label>Razón Social / Nombre Comercial</label><input aria-label="Razón Social / Nombre Comercial" type="text" value={form.nombre} onChange={e => setF('nombre', e.target.value)} /></div>
+          <div className="form-field"><label>Responsable de Ventas</label><input aria-label="Responsable de Ventas" type="text" value={form.responsable} onChange={e => setF('responsable', e.target.value)} /></div>
+          <div className="form-field"><label>Teléfono Fijo</label><input aria-label="Teléfono Fijo" type="text" value={form.telefono} onChange={e => setF('telefono', e.target.value)} /></div>
+          <div className="form-field"><label>Línea WhatsApp Comercial</label><input aria-label="Línea WhatsApp Comercial" type="text" placeholder="+54 9 387 421-0000" value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} /></div>
+          <div className="form-field"><label>Correo Electrónico Oficial</label><input aria-label="Correo Electrónico Oficial" type="email" value={form.email} onChange={e => setF('email', e.target.value)} /></div>
+          <div className="form-field"><label>Provincia y Localidad</label><input aria-label="Provincia y Localidad" type="text" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} /></div>
         </div>
-        <div className="form-field" style={{ marginTop: '1.5rem' }}><label>Dirección del Local</label><input type="text" placeholder="Calle, Número, Barrio" value={form.direccion} onChange={e => setF('direccion', e.target.value)} /></div>
-        <div className="form-field" style={{ marginTop: '1.5rem' }}><label>Breve Reseña de la Empresa</label><textarea style={{ height: '100px', resize: 'vertical' }} placeholder="Trayectoria, servicios, métodos de pago..." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} /></div>
+        <div className="form-field" style={{ marginTop: '1.5rem' }}><label>Dirección del Local</label><input aria-label="Dirección del Local" type="text" placeholder="Calle, Número, Barrio" value={form.direccion} onChange={e => setF('direccion', e.target.value)} /></div>
+        <div className="form-field" style={{ marginTop: '1.5rem' }}><label>Breve Reseña de la Empresa</label><textarea aria-label="Breve Reseña de la Empresa" style={{ height: '100px', resize: 'vertical' }} placeholder="Trayectoria, servicios, métodos de pago..." value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} /></div>
 
         <div style={{ marginTop: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--gray2)', paddingTop: '2rem' }}>
           <div>{ok && <span style={{ color: '#4ade80', fontSize: '14px', fontWeight: 500 }}>✓ Configuración guardada exitosamente</span>}</div>

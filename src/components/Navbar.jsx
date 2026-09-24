@@ -81,7 +81,7 @@ export default function Navbar() {
           <div ref={searchRef} style={{ position: 'relative', maxWidth: '360px', width: '100%' }}>
             <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Buscar vehículo, marca, modelo..." value={busqueda}
+              <input type="text" aria-label="Buscar vehículos" placeholder="Buscar vehículo, marca, modelo..." value={busqueda}
                 onChange={e => handleBusquedaChange(e.target.value)}
                 onFocus={() => sugerencias.length > 0 && setShowSug(true)}
                 onBlur={() => setTimeout(() => setShowSug(false), 150)}
@@ -156,7 +156,7 @@ export default function Navbar() {
         <div style={{ position: 'fixed', top: '58px', left: 0, right: 0, bottom: 0, background: 'var(--black)', zIndex: 999, padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="nav-mobile-menu">
           <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 16px', width: '100%' }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Buscar vehículos..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '15px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
+            <input type="text" aria-label="Buscar vehículos" placeholder="Buscar vehículos..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '15px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
           </form>
           <Link to="/catalogo" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Catálogo</Link>
           <Link to="/concesionarias" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Concesionarias</Link>

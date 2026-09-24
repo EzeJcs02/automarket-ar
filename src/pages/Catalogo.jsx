@@ -200,7 +200,7 @@ export default function Catalogo() {
         <div className={`catalogo-filters${filtrosAbiertos ? ' is-open' : ''}`}>
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Búsqueda</div>
-            <input style={inputStyle} placeholder="Marca, modelo..." value={filtros.busqueda} onChange={e => setF('busqueda', e.target.value)} />
+            <input style={inputStyle} aria-label="Buscar por marca o modelo" placeholder="Marca, modelo..." value={filtros.busqueda} onChange={e => setF('busqueda', e.target.value)} />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Condición</div>
@@ -260,8 +260,8 @@ export default function Catalogo() {
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Año</div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <input style={inputStyle} placeholder="Desde" value={filtros.anioDesde} onChange={e => setF('anioDesde', e.target.value)} />
-              <input style={inputStyle} placeholder="Hasta" value={filtros.anioHasta} onChange={e => setF('anioHasta', e.target.value)} />
+              <input style={inputStyle} aria-label="Año desde" placeholder="Desde" value={filtros.anioDesde} onChange={e => setF('anioDesde', e.target.value)} />
+              <input style={inputStyle} aria-label="Año hasta" placeholder="Hasta" value={filtros.anioHasta} onChange={e => setF('anioHasta', e.target.value)} />
             </div>
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
@@ -304,7 +304,7 @@ export default function Catalogo() {
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Ciudad / Localidad</div>
-            <input style={inputStyle} placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
+            <input style={inputStyle} aria-label="Ciudad o localidad" placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
           </div>
           <button className="btn-primary" style={{ width: '100%' }} onClick={aplicarFiltros}>Aplicar filtros</button>
           <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={limpiarFiltros}>Limpiar</button>

@@ -202,28 +202,28 @@ export default function PanelProfesional() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="form-field" style={{ margin: 0 }}>
                   <label>Descripción</label>
-                  <textarea value={form.descripcion} onChange={e => setF('descripcion', e.target.value)}
+                  <textarea aria-label="Descripción" value={form.descripcion} onChange={e => setF('descripcion', e.target.value)}
                     rows={3} placeholder="Qué hacés, especialidad, diferencial..."
                     style={{ width: '100%', padding: '10px 14px', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: 'var(--white)', fontSize: '14px', resize: 'vertical', fontFamily: 'var(--font-body)', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-field" style={{ margin: 0 }}>
                     <label>WhatsApp</label>
-                    <input value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} placeholder="+54 9 387..." />
+                    <input aria-label="WhatsApp" value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} placeholder="+54 9 387..." />
                   </div>
                   <div className="form-field" style={{ margin: 0 }}>
                     <label>Teléfono</label>
-                    <input value={form.telefono} onChange={e => setF('telefono', e.target.value)} placeholder="(387) 421..." />
+                    <input aria-label="Teléfono" value={form.telefono} onChange={e => setF('telefono', e.target.value)} placeholder="(387) 421..." />
                   </div>
                 </div>
                 <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-field" style={{ margin: 0 }}>
                     <label>Precio aproximado</label>
-                    <input value={form.precio_aproximado} onChange={e => setF('precio_aproximado', e.target.value)} placeholder="Ej: $15.000" />
+                    <input aria-label="Precio aproximado" value={form.precio_aproximado} onChange={e => setF('precio_aproximado', e.target.value)} placeholder="Ej: $15.000" />
                   </div>
                   <div className="form-field" style={{ margin: 0 }}>
                     <label>Horarios</label>
-                    <input value={form.horarios} onChange={e => setF('horarios', e.target.value)} placeholder="Lun-Vie 9-18hs" />
+                    <input aria-label="Horarios" value={form.horarios} onChange={e => setF('horarios', e.target.value)} placeholder="Lun-Vie 9-18hs" />
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -240,7 +240,7 @@ export default function PanelProfesional() {
                 <div>
                   <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Descripción</div>
                   <p style={{ fontSize: '14px', lineHeight: 1.6, margin: 0, color: perfil?.descripcion ? 'var(--white)' : 'var(--gray4)' }}>
-                    {perfil?.descripcion || 'Sin descripción. Hacé click en Editar para completarla.'}
+                    {perfil?.descripcion || 'Sin descripción. Tocá Editar para completarla.'}
                   </p>
                 </div>
                 <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

@@ -24,6 +24,11 @@ body { font-family: var(--font-body); background: var(--black); color: var(--whi
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: var(--font-body); }
 input, select, textarea { font-family: var(--font-body); }
+/* Foco visible para quien navega con teclado. !important porque varios inputs traen outline:none inline. */
+:is(a, button, input, select, textarea, [role="button"], [role="link"], [tabindex]):focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px;
+}
 
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -181,8 +186,13 @@ body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
   animation: shimmer 1.5s infinite linear;
   border-radius: var(--radius);
 }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
 @media (prefers-reduced-motion: reduce) {
   .skeleton { animation: none; }
+  [style*="pulse"] { animation: none !important; }
 }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

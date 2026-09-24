@@ -76,9 +76,9 @@ export function Concesionarias() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(20,20,20,.7)', backdropFilter: 'blur(6px)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 20px', width: '100%', maxWidth: '320px' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
+              <input type="text" aria-label="Buscar concesionarias por nombre o ciudad" placeholder="Buscar por nombre o ciudad..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
                 style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '14px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
-              {busqueda && <button onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>}
+              {busqueda && <button aria-label="Borrar búsqueda" onClick={() => setBusqueda('')} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 0 0 6px' }}>×</button>}
             </div>
             {!loading && (
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
@@ -419,7 +419,7 @@ export function ConcesionariaDetalle() {
             <>
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Tu nombre</div>
-                <input value={resenaForm.nombre} onChange={e => setResenaForm(p => ({ ...p, nombre: e.target.value }))}
+                <input aria-label="Tu nombre" value={resenaForm.nombre} onChange={e => setResenaForm(p => ({ ...p, nombre: e.target.value }))}
                   maxLength={200}
                   placeholder="Juan Pérez" style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none' }} />
               </div>
@@ -427,14 +427,14 @@ export function ConcesionariaDetalle() {
                 <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Puntuación</div>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   {[1,2,3,4,5].map(n => (
-                    <button key={n} onClick={() => setResenaForm(p => ({ ...p, rating: n }))}
+                    <button key={n} type="button" aria-label={`${n} estrella${n > 1 ? 's' : ''}`} aria-pressed={n <= resenaForm.rating} onClick={() => setResenaForm(p => ({ ...p, rating: n }))}
                       style={{ fontSize: '22px', background: 'none', border: 'none', cursor: 'pointer', opacity: n <= resenaForm.rating ? 1 : 0.3, transition: 'opacity .15s' }}>★</button>
                   ))}
                 </div>
               </div>
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Comentario</div>
-                <textarea value={resenaForm.comentario} onChange={e => setResenaForm(p => ({ ...p, comentario: e.target.value }))}
+                <textarea aria-label="Tu comentario" value={resenaForm.comentario} onChange={e => setResenaForm(p => ({ ...p, comentario: e.target.value }))}
                   maxLength={2000}
                   placeholder="Contá tu experiencia..." rows={3}
                   style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'var(--font-body)' }} />

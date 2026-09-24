@@ -31,7 +31,7 @@ export function ToastProvider({ children }) {
             <div key={t.id} style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text, padding: '12px 14px', borderRadius: 'var(--radius-lg)', fontSize: '14px', fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'flex-start', gap: '10px', boxShadow: '0 4px 20px rgba(0,0,0,.6)', animation: 'toast-in .22s ease' }}>
               <span style={{ fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>{ICONS[t.type]}</span>
               <span style={{ flex: 1, lineHeight: 1.5 }}>{t.message}</span>
-              <button onClick={() => dismiss(t.id)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.5, fontSize: '16px', padding: 0, lineHeight: 1, flexShrink: 0 }}>✕</button>
+              <button aria-label="Cerrar aviso" onClick={() => dismiss(t.id)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.5, fontSize: '16px', padding: 0, lineHeight: 1, flexShrink: 0 }}>✕</button>
             </div>
           )
         })}

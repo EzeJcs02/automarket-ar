@@ -101,11 +101,11 @@ export function Login() {
           <form onSubmit={handleLogin}>
             <div className="form-field">
               <label>Email</label>
-              <input type="email" placeholder="concesionaria@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+              <input aria-label="Email" type="email" placeholder="concesionaria@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
             </div>
             <div className="form-field">
               <label>Contraseña</label>
-              <input type="password" placeholder="••••••••" value={pass} onChange={e => setPass(e.target.value)} required />
+              <input aria-label="Contraseña" type="password" placeholder="••••••••" value={pass} onChange={e => setPass(e.target.value)} required />
             </div>
             {error && <p className="error-msg">{error}</p>}
             <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }} disabled={loading}>
@@ -141,7 +141,7 @@ export function Login() {
                     <form onSubmit={handleReset}>
                       <div className="form-field">
                         <label>Email</label>
-                        <input type="email" placeholder="tu@email.com" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required />
+                        <input aria-label="Email" type="email" placeholder="tu@email.com" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required />
                       </div>
                       {resetError && <div style={{ color: 'var(--accent)', fontSize: '13px', marginTop: '.75rem' }}>{resetError}</div>}
                       <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
@@ -286,11 +286,11 @@ export function Registro() {
           <form onSubmit={handleRegisterProfesional}>
             <div className="form-field">
               <label>Nombre / Empresa *</label>
-              <input type="text" placeholder="Ej: Gestoría López" value={form.nombre} onChange={e => setF('nombre', e.target.value)} required />
+              <input aria-label="Nombre / Empresa" type="text" placeholder="Ej: Gestoría López" value={form.nombre} onChange={e => setF('nombre', e.target.value)} required />
             </div>
             <div className="form-field">
               <label>Categoría *</label>
-              <select value={form.categoria || ''} onChange={e => setF('categoria', e.target.value)} required
+              <select aria-label="Categoría" value={form.categoria || ''} onChange={e => setF('categoria', e.target.value)} required
                 style={{ width: '100%', padding: '10px 14px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius)', color: form.categoria ? 'var(--white)' : 'var(--gray4)', fontSize: '14px', outline: 'none' }}>
                 <option value="" disabled>Seleccioná tu categoría</option>
                 {CATEGORIAS_PROF.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
@@ -298,25 +298,25 @@ export function Registro() {
             </div>
             <div className="form-field">
               <label>Ciudad / Zona *</label>
-              <input type="text" placeholder="Salta Capital" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} required />
+              <input aria-label="Ciudad / Zona" type="text" placeholder="Salta Capital" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} required />
             </div>
             <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div className="form-field">
                 <label>WhatsApp</label>
-                <input type="text" placeholder="+54 9 387..." value={form.whatsapp || ''} onChange={e => setF('whatsapp', e.target.value)} />
+                <input aria-label="WhatsApp" type="text" placeholder="+54 9 387..." value={form.whatsapp || ''} onChange={e => setF('whatsapp', e.target.value)} />
               </div>
               <div className="form-field">
                 <label>Teléfono</label>
-                <input type="text" placeholder="(387) 421..." value={form.telefono} onChange={e => setF('telefono', e.target.value)} />
+                <input aria-label="Teléfono" type="text" placeholder="(387) 421..." value={form.telefono} onChange={e => setF('telefono', e.target.value)} />
               </div>
             </div>
             <div className="form-field">
               <label>Email *</label>
-              <input type="email" placeholder="tu@email.com" value={form.email} onChange={e => setF('email', e.target.value)} required />
+              <input aria-label="Email" type="email" placeholder="tu@email.com" value={form.email} onChange={e => setF('email', e.target.value)} required />
             </div>
             <div className="form-field">
               <label>Contraseña *</label>
-              <input type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} required />
+              <input aria-label="Contraseña" type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} required />
             </div>
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginTop: '0.5rem' }}>
               <input type="checkbox" checked={aceptaTerminos} onChange={e => setAceptaTerminos(e.target.checked)} style={{ marginTop: '3px', accentColor: 'var(--accent)', width: '15px', height: '15px', flexShrink: 0 }} />
@@ -400,15 +400,15 @@ export function Registro() {
           <form onSubmit={handleRegisterParticular}>
             <div className="form-field">
               <label>Nombre y apellido *</label>
-              <input type="text" placeholder="Juan Pérez" value={form.nombre} onChange={e => setF('nombre', e.target.value)} required />
+              <input aria-label="Nombre y apellido" type="text" placeholder="Juan Pérez" value={form.nombre} onChange={e => setF('nombre', e.target.value)} required />
             </div>
             <div className="form-field">
               <label>Email *</label>
-              <input type="email" placeholder="tu@email.com" value={form.email} onChange={e => setF('email', e.target.value)} required />
+              <input aria-label="Email" type="email" placeholder="tu@email.com" value={form.email} onChange={e => setF('email', e.target.value)} required />
             </div>
             <div className="form-field">
               <label>Contraseña *</label>
-              <input type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} required />
+              <input aria-label="Contraseña" type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} required />
             </div>
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginTop: '0.5rem' }}>
               <input type="checkbox" checked={aceptaTerminos} onChange={e => setAceptaTerminos(e.target.checked)} style={{ marginTop: '3px', accentColor: 'var(--accent)', width: '15px', height: '15px', flexShrink: 0 }} />
@@ -467,11 +467,11 @@ export function Registro() {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '2rem' }}>TU CONCESIONARIA</div>
               <div className="form-field">
                 <label>Nombre de la concesionaria *</label>
-                <input type="text" placeholder="Ej: Toyota del Norte" value={form.nombre} onChange={e => setF('nombre', e.target.value)} />
+                <input aria-label="Nombre de la concesionaria" type="text" placeholder="Ej: Toyota del Norte" value={form.nombre} onChange={e => setF('nombre', e.target.value)} />
               </div>
               <div className="form-field">
                 <label>Responsable *</label>
-                <input type="text" placeholder="Nombre y apellido" value={form.responsable} onChange={e => setF('responsable', e.target.value)} />
+                <input aria-label="Responsable" type="text" placeholder="Nombre y apellido" value={form.responsable} onChange={e => setF('responsable', e.target.value)} />
               </div>
             </div>
           )}
@@ -482,11 +482,11 @@ export function Registro() {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '2rem' }}>UBICACIÓN</div>
               <div className="form-field">
                 <label>Ciudad / Provincia *</label>
-                <input type="text" placeholder="Salta Capital, Salta" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} />
+                <input aria-label="Ciudad / Provincia" type="text" placeholder="Salta Capital, Salta" value={form.ciudad} onChange={e => setF('ciudad', e.target.value)} />
               </div>
               <div className="form-field">
                 <label>Teléfono</label>
-                <input type="text" placeholder="(387) 421-0000" value={form.telefono} onChange={e => setF('telefono', e.target.value)} />
+                <input aria-label="Teléfono" type="text" placeholder="(387) 421-0000" value={form.telefono} onChange={e => setF('telefono', e.target.value)} />
               </div>
             </div>
           )}
@@ -497,11 +497,11 @@ export function Registro() {
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', lineHeight: 1, marginBottom: '2rem' }}>TU ACCESO</div>
               <div className="form-field">
                 <label>Email *</label>
-                <input type="email" placeholder="ventas@tuconcesionaria.com.ar" value={form.email} onChange={e => setF('email', e.target.value)} />
+                <input aria-label="Email" type="email" placeholder="ventas@tuconcesionaria.com.ar" value={form.email} onChange={e => setF('email', e.target.value)} />
               </div>
               <div className="form-field">
                 <label>Contraseña *</label>
-                <input type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} />
+                <input aria-label="Contraseña" type="password" placeholder="Mínimo 6 caracteres" value={form.pass} onChange={e => setF('pass', e.target.value)} minLength={6} />
               </div>
             </div>
           )}

@@ -66,31 +66,31 @@ export default function Arrepentimiento() {
 
             <div>
               <label style={labelStyle}>Nombre completo *</label>
-              <input type="text" required style={inputStyle} placeholder="Ej: Juan Pérez"
+              <input aria-label="Nombre completo" type="text" required style={inputStyle} placeholder="Ej: Juan Pérez"
                 value={form.nombre} onChange={e => setF('nombre', e.target.value)} />
             </div>
 
             <div>
               <label style={labelStyle}>Email de contacto *</label>
-              <input type="email" required style={inputStyle} placeholder="tu@email.com"
+              <input aria-label="Email de contacto" type="email" required style={inputStyle} placeholder="tu@email.com"
                 value={form.email} onChange={e => setF('email', e.target.value)} />
             </div>
 
             <div>
               <label style={labelStyle}>Teléfono (opcional)</label>
-              <input type="tel" style={inputStyle} placeholder="Ej: +54 387 000-0000"
+              <input aria-label="Teléfono (opcional)" type="tel" style={inputStyle} placeholder="Ej: +54 387 000-0000"
                 value={form.telefono} onChange={e => setF('telefono', e.target.value)} />
             </div>
 
             <div>
               <label style={labelStyle}>Número de Reserva / Operación *</label>
-              <input type="text" required style={inputStyle} placeholder="Ej: RES-987654"
+              <input aria-label="Número de Reserva / Operación" type="text" required style={inputStyle} placeholder="Ej: RES-987654"
                 value={form.nro_operacion} onChange={e => setF('nro_operacion', e.target.value)} />
             </div>
 
             <div>
               <label style={labelStyle}>Fecha de la compra / reserva *</label>
-              <input
+              <input aria-label="Fecha de la compra / reserva"
                 type="date"
                 required
                 style={inputStyle}
@@ -122,7 +122,7 @@ export default function Arrepentimiento() {
 
             <div>
               <label style={labelStyle}>Monto de la operación en ARS (opcional)</label>
-              <input
+              <input aria-label="Monto de la operación en ARS (opcional)"
                 type="number"
                 min="0"
                 style={inputStyle}
@@ -137,7 +137,7 @@ export default function Arrepentimiento() {
 
             <div>
               <label style={labelStyle}>Motivo (opcional)</label>
-              <textarea rows="3" style={{ ...inputStyle, resize: 'vertical' }} placeholder="Contanos brevemente por qué deseás cancelar..."
+              <textarea aria-label="Motivo (opcional)" rows="3" style={{ ...inputStyle, resize: 'vertical' }} placeholder="Contanos brevemente por qué deseás cancelar..."
                 value={form.motivo} onChange={e => setF('motivo', e.target.value)} />
             </div>
 

@@ -203,7 +203,7 @@ export default function Admin() {
       {/* SIDEBAR */}
       <div className="panel-sidebar" style={{ borderRight: '1px solid var(--gray2)', padding: '2rem 0', background: '#080808' }}>
         <div style={{ padding: '0 1.5rem 1.5rem', fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--accent)', letterSpacing: '.15em', borderBottom: '1px solid var(--gray2)', marginBottom: '1.5rem', fontWeight: 'bold' }}>
-          MODO SUPERADMIN
+          ADMINISTRACIÓN
         </div>
         <div className="sidebar-nav">
           {navItems.map(item => (
@@ -263,7 +263,7 @@ export default function Admin() {
             {tab === 'publicaciones' && (
               <div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '42px', marginBottom: '.5rem' }}>PUBLICACIONES</div>
-                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Marcá autos como Destacados o Urgentes con un click.</div>
+                <div style={{ fontSize: '14px', color: 'var(--gray5)', marginBottom: '3rem' }}>Marcá autos como Destacados o Urgentes con un clic.</div>
                 {publicaciones.length === 0
                   ? <div style={{ padding: '4rem', textAlign: 'center', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)' }}><p style={{ color: 'var(--gray4)', fontSize: '15px' }}>No hay publicaciones activas.</p></div>
                   : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', minWidth: '650px' }}>
@@ -498,15 +498,15 @@ export default function Admin() {
                   <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr', gap: '12px', marginBottom: '12px' }}>
                     <div className="form-field" style={{ margin: 0 }}>
                       <label>Nombre del negocio *</label>
-                      <input placeholder="Ej: Lubricentro López" value={nuevaAd.nombre} onChange={e => setNuevaAd(p => ({ ...p, nombre: e.target.value }))} />
+                      <input aria-label="Nombre del negocio" placeholder="Ej: Lubricentro López" value={nuevaAd.nombre} onChange={e => setNuevaAd(p => ({ ...p, nombre: e.target.value }))} />
                     </div>
                     <div className="form-field" style={{ margin: 0 }}>
                       <label>URL de imagen * — subí tu imagen a <a href="https://imgur.com/upload" target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Imgur</a> o similar y pegá el link</label>
                       <input placeholder="https://i.imgur.com/..." value={nuevaAd.imagen_url} onChange={e => setNuevaAd(p => ({ ...p, imagen_url: e.target.value }))} />
                     </div>
                     <div className="form-field" style={{ margin: 0 }}>
-                      <label>Link al hacer click (opcional)</label>
-                      <input placeholder="https://wa.me/..." value={nuevaAd.link_url} onChange={e => setNuevaAd(p => ({ ...p, link_url: e.target.value }))} />
+                      <label>Link al hacer clic (opcional)</label>
+                      <input aria-label="Link al hacer clic (opcional)" placeholder="https://wa.me/..." value={nuevaAd.link_url} onChange={e => setNuevaAd(p => ({ ...p, link_url: e.target.value }))} />
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px' }}>
@@ -552,7 +552,7 @@ export default function Admin() {
                               <button onClick={() => toggleAd(ad)} style={{ flex: 1, padding: '5px 0', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer', background: ad.activo ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: ad.activo ? '#4ade80' : 'var(--gray4)', transition: 'all .2s' }}>
                                 {ad.activo ? 'Activa' : 'Inactiva'}
                               </button>
-                              <button onClick={() => eliminarAd(ad.id)} style={{ padding: '5px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(230,51,41,0.3)', cursor: 'pointer', background: 'transparent', color: 'var(--accent)', transition: 'all .2s' }}>
+                              <button aria-label="Eliminar publicidad" onClick={() => eliminarAd(ad.id)} style={{ padding: '5px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(230,51,41,0.3)', cursor: 'pointer', background: 'transparent', color: 'var(--accent)', transition: 'all .2s' }}>
                                 ✕
                               </button>
                             </div>
@@ -572,7 +572,7 @@ export default function Admin() {
                     <div ref={consultaModalRef} onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Detalle de consulta" style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '2.5rem', width: '100%', maxWidth: '500px', border: '1px solid var(--gray2)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                         <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px' }}>CONSULTA</div>
-                        <button onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
+                        <button aria-label="Cerrar" onClick={() => setConsultaDetalle(null)} style={{ background: 'transparent', border: 'none', color: 'var(--gray4)', fontSize: '24px', cursor: 'pointer' }}>✕</button>
                       </div>
                       <div style={{ background: 'var(--gray2)', borderRadius: 'var(--radius)', padding: '1rem', marginBottom: '1rem' }}>
                         <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>VEHÍCULO</div>

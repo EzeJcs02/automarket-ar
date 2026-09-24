@@ -516,21 +516,21 @@ export default function AutoDetalle() {
               : <>
                   <div className="form-field">
                     <label>Nombre *</label>
-                    <input type="text" placeholder="Ej: Juan Pérez" value={consulta.nombre} onChange={e => { setConsulta(p => ({ ...p, nombre: e.target.value })); setErroresConsulta(p => ({ ...p, nombre: '' })) }} style={erroresConsulta.nombre ? { borderColor: '#f87171' } : {}} />
+                    <input aria-label="Nombre" type="text" placeholder="Ej: Juan Pérez" value={consulta.nombre} onChange={e => { setConsulta(p => ({ ...p, nombre: e.target.value })); setErroresConsulta(p => ({ ...p, nombre: '' })) }} style={erroresConsulta.nombre ? { borderColor: '#f87171' } : {}} />
                     {erroresConsulta.nombre && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.nombre}</div>}
                   </div>
                   <div className="form-field">
                     <label>Email *</label>
-                    <input type="email" placeholder="tu@email.com" value={consulta.email} onChange={e => { setConsulta(p => ({ ...p, email: e.target.value })); setErroresConsulta(p => ({ ...p, email: '' })) }} style={erroresConsulta.email ? { borderColor: '#f87171' } : {}} />
+                    <input aria-label="Email" type="email" placeholder="tu@email.com" value={consulta.email} onChange={e => { setConsulta(p => ({ ...p, email: e.target.value })); setErroresConsulta(p => ({ ...p, email: '' })) }} style={erroresConsulta.email ? { borderColor: '#f87171' } : {}} />
                     {erroresConsulta.email && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.email}</div>}
                   </div>
                   <div className="form-field">
                     <label>Teléfono (opcional)</label>
-                    <input type="tel" placeholder="Ej: +54 387 000-0000" value={consulta.telefono} onChange={e => setConsulta(p => ({ ...p, telefono: e.target.value }))} />
+                    <input aria-label="Teléfono (opcional)" type="tel" placeholder="Ej: +54 387 000-0000" value={consulta.telefono} onChange={e => setConsulta(p => ({ ...p, telefono: e.target.value }))} />
                   </div>
                   <div className="form-field">
                     <label>Mensaje *</label>
-                    <textarea placeholder="Hola, me interesa este vehículo..." value={consulta.mensaje} onChange={e => { setConsulta(p => ({ ...p, mensaje: e.target.value })); setErroresConsulta(p => ({ ...p, mensaje: '' })) }} style={{ minHeight: '100px', ...(erroresConsulta.mensaje ? { borderColor: '#f87171' } : {}) }} />
+                    <textarea aria-label="Mensaje" placeholder="Hola, me interesa este vehículo..." value={consulta.mensaje} onChange={e => { setConsulta(p => ({ ...p, mensaje: e.target.value })); setErroresConsulta(p => ({ ...p, mensaje: '' })) }} style={{ minHeight: '100px', ...(erroresConsulta.mensaje ? { borderColor: '#f87171' } : {}) }} />
                     {erroresConsulta.mensaje && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.mensaje}</div>}
                   </div>
                   <button className="btn-primary" onClick={enviarConsulta} disabled={enviando} style={{ marginTop: '0.5rem', width: '100%' }}>

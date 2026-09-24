@@ -75,11 +75,11 @@ export default function ResetPassword() {
             <form onSubmit={handleSubmit}>
               <div className="form-field">
                 <label>Contraseña nueva</label>
-                <input type="password" placeholder="Mínimo 6 caracteres" value={pass} onChange={e => setPass(e.target.value)} minLength={6} required />
+                <input aria-label="Contraseña nueva" type="password" placeholder="Mínimo 6 caracteres" value={pass} onChange={e => setPass(e.target.value)} minLength={6} required />
               </div>
               <div className="form-field">
                 <label>Repetir contraseña</label>
-                <input type="password" placeholder="••••••••" value={pass2} onChange={e => setPass2(e.target.value)} minLength={6} required />
+                <input aria-label="Repetir contraseña" type="password" placeholder="••••••••" value={pass2} onChange={e => setPass2(e.target.value)} minLength={6} required />
               </div>
               {error && <p className="error-msg">{error}</p>}
               <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>

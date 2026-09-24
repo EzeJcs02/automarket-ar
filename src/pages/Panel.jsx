@@ -5,6 +5,8 @@ import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useConfirm } from '../context/ConfirmContext'
+import FotosUploader from '../components/FotosUploader'
+import { subirFotos, fotosDesdeUrls } from '../lib/fotos'
 import { useModalA11y } from '../lib/useModalA11y'
 import { PanelSkeleton, ErrorState, EmptyState } from '../components/Estados'
 
@@ -392,7 +394,7 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   const [editando, setEditando] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [editFotos, setEditFotos] = useState([])
-  const [editFotosNuevas, setEditFotosNuevas] = useState([])
+  const [progresoEdicion, setProgresoEdicion] = useState('')
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
   const confirmar = useConfirm()
@@ -482,31 +484,27 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
   function abrirEdicion(auto) {
     setEditando(auto.id)
     setEditForm({ marca: auto.marca, modelo: auto.modelo, anio: auto.anio, kilometraje: auto.kilometraje, precio_ars: auto.precio_ars || '', precio_usd: auto.precio_usd || '', combustible: auto.combustible || '', transmision: auto.transmision || '', color: auto.color || '', descripcion: auto.descripcion || '', tipo: auto.tipo, categoria: auto.categoria || '' })
-    setEditFotos(auto.fotos || [])
-    setEditFotosNuevas([])
+    setEditFotos(fotosDesdeUrls(auto.fotos))
   }
   async function guardarEdicion() {
     setSaving(true)
     try {
-      let fotoUrls = [...editFotos]
-      let fotosFallidas = 0
-      for (const file of editFotosNuevas) {
-        const ext = file.name.split('.').pop()
-        const path = `${concesionaria.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-        if (upErr) { fotosFallidas++; continue }
-        const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
-        fotoUrls.push(data.publicUrl)
+      let fotoUrls
+      try {
+        fotoUrls = await subirFotos(editFotos, concesionaria.id, (h, t) => t && setProgresoEdicion(`Subiendo fotos ${h}/${t}…`))
+      } catch (err) {
+        toast(err.message, 'error')
+        return
       }
       const { error } = await supabase.from('autos').update({ ...editForm, anio: parseInt(editForm.anio), kilometraje: parseInt(editForm.kilometraje) || 0, fotos: fotoUrls }).eq('id', editando)
       if (error) { toast('No se pudieron guardar los cambios. Probá de nuevo.', 'error'); return }
-      if (fotosFallidas) toast(`${fotosFallidas} foto(s) no se pudieron subir (solo JPG, PNG o WebP de hasta 10 MB).`, 'warning')
       setEditando(null)
       reload()
     } catch {
       toast('Error de conexión. Probá de nuevo.', 'error')
     } finally {
       setSaving(false)
+      setProgresoEdicion('')
     }
   }
   function setEF(k, v) { setEditForm(p => ({ ...p, [k]: v })) }
@@ -535,32 +533,11 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
             </div>
             <div className="form-field" style={{ marginTop: '.5rem' }}><label>Descripción *</label><textarea aria-label="Descripción" style={{ height: '100px', resize: 'vertical' }} required value={editForm.descripcion} onChange={e => setEF('descripcion', e.target.value)} /></div>
             <div style={{ marginTop: '1.5rem' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                <span>FOTOS</span>
-                <span style={{ color: editFotos.length + editFotosNuevas.length >= 5 ? '#4ade80' : 'var(--gray4)', fontWeight: 400 }}>{editFotos.length + editFotosNuevas.length} foto{editFotos.length + editFotosNuevas.length !== 1 ? 's' : ''}</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px', marginBottom: '10px' }}>
-                {editFotos.map((url, i) => (
-                  <div key={url} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
-                    <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <button aria-label="Quitar foto" type="button" onClick={() => setEditFotos(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-                  </div>
-                ))}
-                {editFotosNuevas.map((f, i) => (
-                  <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(74,222,128,.3)' }}>
-                    <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <button aria-label="Quitar foto" type="button" onClick={() => setEditFotosNuevas(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-                  </div>
-                ))}
-              </div>
-              <label style={{ display: 'block', border: '2px dashed var(--gray3)', borderRadius: 'var(--radius)', padding: '10px', textAlign: 'center', cursor: 'pointer' }}>
-                <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => { setEditFotosNuevas(p => [...p, ...Array.from(e.target.files)]); e.target.value = '' }} />
-                <span style={{ fontSize: '13px', color: 'var(--gray4)' }}>+ Agregar fotos</span>
-              </label>
+              <FotosUploader fotos={editFotos} setFotos={setEditFotos} minimo={5} />
             </div>
             <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
               <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setEditando(null)}>Cancelar</button>
-              <button className="btn-primary" style={{ flex: 1 }} onClick={guardarEdicion} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>
+              <button className="btn-primary" style={{ flex: 1 }} onClick={guardarEdicion} disabled={saving}>{saving ? (progresoEdicion || 'Guardando…') : 'Guardar cambios'}</button>
             </div>
           </div>
         </div>
@@ -668,8 +645,8 @@ function NuevoAuto({ concesionaria, onSuccess }) {
     catch { return FORM_DEFAULTS }
   })
   const [fotos, setFotos] = useState([])
-  const [inputKey, setInputKey] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [progreso, setProgreso] = useState('')
   const [error, setError] = useState('')
 
   function setF(k, v) {
@@ -680,39 +657,20 @@ function NuevoAuto({ concesionaria, onSuccess }) {
     })
   }
 
-  function handleFotos(e) {
-    const nuevas = Array.from(e.target.files)
-    setFotos(prev => {
-      const combinadas = [...prev, ...nuevas]
-      if (combinadas.length >= 5) setError('')
-      return combinadas
-    })
-    setInputKey(k => k + 1)
-  }
-
-  function eliminarFoto(idx) {
-    setFotos(prev => prev.filter((_, i) => i !== idx))
-    setInputKey(k => k + 1)
-  }
-
   async function handleSubmit(e) {
     e.preventDefault()
     if (fotos.length < 5) { setError('Debés subir mínimo 5 fotos.'); return }
     setLoading(true)
     setError('')
     try {
-      const fotoUrls = []
-      for (const file of fotos) {
-        const ext = file.name.split('.').pop()
-        const path = `${concesionaria.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-        if (upErr) {
-          setError(`No se pudo subir "${file.name}". Solo se aceptan JPG, PNG o WebP de hasta 10 MB.`)
-          return
-        }
-        const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
-        fotoUrls.push(data.publicUrl)
+      let fotoUrls
+      try {
+        fotoUrls = await subirFotos(fotos, concesionaria.id, (hechas, total) => setProgreso(`Subiendo fotos ${hechas}/${total}…`))
+      } catch (err) {
+        setError(err.message)
+        return
       }
+      setProgreso('Publicando…')
       const { error: insErr } = await supabase.from('autos').insert({
         concesionaria_id: concesionaria.id,
         marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
@@ -729,6 +687,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
       setError('Error de conexión. Probá de nuevo.')
     } finally {
       setLoading(false)
+      setProgreso('')
     }
   }
 
@@ -739,40 +698,9 @@ function NuevoAuto({ concesionaria, onSuccess }) {
 
       <form onSubmit={handleSubmit}>
         <div style={{ background: 'linear-gradient(135deg, #141414 0%, #0f0f0f 100%)', padding: '2.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)' }}>GALERÍA DE IMÁGENES</div>
-            <div style={{ fontSize: '12px', color: fotos.length >= 5 ? '#4ade80' : 'var(--gray4)' }}>
-              {fotos.length}/5 mínimo {fotos.length >= 5 ? '✓' : ''}
-            </div>
+          <div style={{ marginBottom: '2rem' }}>
+            <FotosUploader fotos={fotos} setFotos={setFotos} minimo={5} />
           </div>
-
-          {fotos.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '10px', marginBottom: '1rem' }}>
-              {fotos.map((f, i) => (
-                <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
-                  <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <button type="button" aria-label="Quitar foto" onClick={() => eliminarFoto(i)}
-                    style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,.7)', border: 'none', color: '#fff', borderRadius: '100px', width: '22px', height: '22px', cursor: 'pointer', fontSize: '14px', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ×
-                  </button>
-                  {i === 0 && (
-                    <div style={{ position: 'absolute', bottom: '4px', left: '4px', background: 'var(--accent)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', letterSpacing: '.05em' }}>PORTADA</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--gray2)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: fotos.length > 0 ? '1.2rem' : '3rem', textAlign: 'center', cursor: 'pointer', marginBottom: '2rem', transition: 'all .2s' }}>
-            <input key={inputKey} type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
-            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray4)' }}>
-              {fotos.length === 0 ? 'Tocá para subir fotos' : '+ Agregar más fotos'}
-            </div>
-            {fotos.length === 0 && <div style={{ fontSize: '13px', color: 'var(--gray5)', marginTop: '4px' }}>Mínimo 5 fotos · JPG, PNG</div>}
-            {fotos.length > 0 && fotos.length < 5 && (
-              <div style={{ fontSize: '12px', color: 'var(--gold)', marginTop: '4px' }}>Faltan {5 - fotos.length} foto{5 - fotos.length !== 1 ? 's' : ''} para el mínimo</div>
-            )}
-          </label>
 
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--white)', marginBottom: '1.5rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '10px' }}>ESPECIFICACIONES TÉCNICAS</div>
           <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
@@ -802,7 +730,7 @@ function NuevoAuto({ concesionaria, onSuccess }) {
           {error && <div style={{ padding: '1rem', background: 'rgba(230,51,41,0.1)', color: 'var(--accent)', border: '1px solid rgba(230,51,41,0.3)', borderRadius: 'var(--radius)', marginTop: '1rem' }}>{error}</div>}
 
           <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'PROCESANDO...' : 'PUBLICAR EN CATÁLOGO'}</button>
+            <button type="submit" className="btn-primary" disabled={loading}>{loading ? (progreso || 'Procesando…') : 'Publicar en el catálogo'}</button>
           </div>
         </div>
       </form>

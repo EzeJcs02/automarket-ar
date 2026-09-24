@@ -7,6 +7,8 @@ import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import { useToast } from '../context/ToastContext'
 import { useConfirm } from '../context/ConfirmContext'
+import FotosUploader from '../components/FotosUploader'
+import { subirFotos, fotosDesdeUrls } from '../lib/fotos'
 import { useModalA11y } from '../lib/useModalA11y'
 
 export default function MiCuenta() {
@@ -393,22 +395,11 @@ export default function MiCuenta() {
 function PublicarForm({ user, onSuccess, onCancel }) {
   const [form, setForm] = useState({ marca: '', modelo: '', anio: '', kilometraje: '', tipo: 'usado', categoria: '', combustible: 'Nafta', transmision: 'Manual', color: '', precio_ars: '', descripcion: '', whatsapp: '' })
   const [fotos, setFotos] = useState([])
-  const [inputKey, setInputKey] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [progreso, setProgreso] = useState('')
   const [error, setError] = useState('')
 
   const setF = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
-
-  function handleFotos(e) {
-    const nuevas = Array.from(e.target.files)
-    setFotos(prev => [...prev, ...nuevas])
-    setInputKey(k => k + 1)
-  }
-
-  function eliminarFoto(idx) {
-    setFotos(prev => prev.filter((_, i) => i !== idx))
-    setInputKey(k => k + 1)
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -416,18 +407,14 @@ function PublicarForm({ user, onSuccess, onCancel }) {
     setLoading(true)
     setError('')
     try {
-      const fotoUrls = []
-      for (const file of fotos) {
-        const ext = file.name.split('.').pop()
-        const path = `particulares/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-        if (upErr) {
-          setError(`No se pudo subir "${file.name}". Solo se aceptan JPG, PNG o WebP de hasta 10 MB.`)
-          return
-        }
-        const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
-        fotoUrls.push(data.publicUrl)
+      let fotoUrls
+      try {
+        fotoUrls = await subirFotos(fotos, `particulares/${user.id}`, (h, t) => setProgreso(`Subiendo fotos ${h}/${t}…`))
+      } catch (err) {
+        setError(err.message)
+        return
       }
+      setProgreso('Publicando…')
       const { error: insErr } = await supabase.from('autos').insert({
         user_id: user.id,
         concesionaria_id: null,
@@ -446,6 +433,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
       setError('Error de conexión. Probá de nuevo.')
     } finally {
       setLoading(false)
+      setProgreso('')
     }
   }
 
@@ -458,38 +446,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
       {error && <div style={{ background: 'rgba(230,51,41,.1)', border: '1px solid rgba(230,51,41,.3)', borderRadius: 'var(--radius)', padding: '12px 16px', color: 'var(--accent)', fontSize: '13px', marginBottom: '1.5rem' }}>{error}</div>}
       <form onSubmit={handleSubmit}>
         <div style={{ background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--gray2)', paddingBottom: '8px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)' }}>FOTOS</div>
-            <div style={{ fontSize: '12px', color: fotos.length >= 5 ? '#4ade80' : 'var(--gray4)' }}>
-              {fotos.length}/5 mínimo {fotos.length >= 5 ? '✓' : ''}
-            </div>
-          </div>
-          {fotos.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '8px', marginBottom: '1rem' }}>
-              {fotos.map((f, i) => (
-                <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
-                  <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <button type="button" aria-label="Quitar foto" onClick={() => eliminarFoto(i)}
-                    style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,.7)', border: 'none', color: '#fff', borderRadius: '100px', width: '22px', height: '22px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ×
-                  </button>
-                  {i === 0 && (
-                    <div style={{ position: 'absolute', bottom: '4px', left: '4px', background: 'var(--accent)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px' }}>PORTADA</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          <label style={{ display: 'block', border: `2px dashed ${fotos.length >= 5 ? 'var(--gray2)' : 'var(--gray3)'}`, borderRadius: 'var(--radius)', padding: fotos.length > 0 ? '1rem' : '2rem', textAlign: 'center', cursor: 'pointer' }}>
-            <input key={inputKey} type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
-            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gray4)' }}>
-              {fotos.length === 0 ? 'Tocá para subir fotos' : '+ Agregar más fotos'}
-            </div>
-            {fotos.length === 0 && <div style={{ fontSize: '12px', color: 'var(--gray5)', marginTop: '4px' }}>Mínimo 5 fotos · JPG, PNG</div>}
-            {fotos.length > 0 && fotos.length < 5 && (
-              <div style={{ fontSize: '12px', color: 'var(--gold)', marginTop: '4px' }}>Faltan {5 - fotos.length} foto{5 - fotos.length !== 1 ? 's' : ''} para el mínimo</div>
-            )}
-          </label>
+          <FotosUploader fotos={fotos} setFotos={setFotos} minimo={5} />
         </div>
 
         <div style={{ background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', marginBottom: '1.5rem' }}>
@@ -511,7 +468,7 @@ function PublicarForm({ user, onSuccess, onCancel }) {
         </div>
 
         <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', padding: '14px', fontSize: '14px' }}>
-          {loading ? 'Publicando...' : 'Publicar vehículo →'}
+          {loading ? (progreso || 'Procesando…') : 'Publicar vehículo →'}
         </button>
       </form>
     </div>
@@ -527,10 +484,9 @@ function EditarAutoModal({ auto, onClose, onSave }) {
     transmision: auto.transmision || 'Manual', color: auto.color || '', precio_ars: auto.precio_ars || '',
     descripcion: auto.descripcion || '', whatsapp: auto.whatsapp || '',
   })
-  const [fotos, setFotos] = useState(auto.fotos || [])
-  const [fotosNuevas, setFotosNuevas] = useState([])
-  const [inputKey, setInputKey] = useState(0)
+  const [fotos, setFotos] = useState(() => fotosDesdeUrls(auto.fotos))
   const [saving, setSaving] = useState(false)
+  const [progreso, setProgreso] = useState('')
   const [error, setError] = useState('')
   const setF = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
@@ -539,17 +495,12 @@ function EditarAutoModal({ auto, onClose, onSave }) {
     setSaving(true)
     setError('')
     try {
-      const fotoUrls = [...fotos]
-      for (const file of fotosNuevas) {
-        const ext = file.name.split('.').pop()
-        const path = `particulares/${auto.user_id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-        const { error: upErr } = await supabase.storage.from('fotos-autos').upload(path, file)
-        if (upErr) {
-          setError(`No se pudo subir "${file.name}". Solo se aceptan JPG, PNG o WebP de hasta 10 MB.`)
-          return
-        }
-        const { data } = supabase.storage.from('fotos-autos').getPublicUrl(path)
-        fotoUrls.push(data.publicUrl)
+      let fotoUrls
+      try {
+        fotoUrls = await subirFotos(fotos, `particulares/${auto.user_id}`, (h, t) => t && setProgreso(`Subiendo fotos ${h}/${t}…`))
+      } catch (err) {
+        setError(err.message)
+        return
       }
       const { error: err } = await supabase.from('autos').update({
         marca: form.marca, modelo: form.modelo, anio: parseInt(form.anio),
@@ -565,6 +516,7 @@ function EditarAutoModal({ auto, onClose, onSave }) {
       setError('Error de conexión. Probá de nuevo.')
     } finally {
       setSaving(false)
+      setProgreso('')
     }
   }
 
@@ -592,32 +544,11 @@ function EditarAutoModal({ auto, onClose, onSave }) {
           </div>
           <div className="form-field" style={{ marginTop: '1rem' }}><label>Descripción</label><textarea aria-label="Descripción" rows={3} value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: 'var(--white)', padding: '10px 12px', fontSize: '14px', resize: 'vertical' }} /></div>
           <div style={{ marginTop: '1.5rem' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--white)', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-              <span>FOTOS</span>
-              <span style={{ color: fotos.length + fotosNuevas.length >= 5 ? '#4ade80' : 'var(--gray4)', fontWeight: 400 }}>{fotos.length + fotosNuevas.length} foto{fotos.length + fotosNuevas.length !== 1 ? 's' : ''}</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px', marginBottom: '10px' }}>
-              {fotos.map((url, i) => (
-                <div key={url} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--gray2)' }}>
-                  <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <button aria-label="Quitar foto" type="button" onClick={() => setFotos(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-                </div>
-              ))}
-              {fotosNuevas.map((f, i) => (
-                <div key={i} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(74,222,128,.3)' }}>
-                  <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <button aria-label="Quitar foto" type="button" onClick={() => setFotosNuevas(p => p.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,.75)', border: 'none', color: '#fff', borderRadius: '100px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-                </div>
-              ))}
-            </div>
-            <label style={{ display: 'block', border: '2px dashed var(--gray3)', borderRadius: 'var(--radius)', padding: '10px', textAlign: 'center', cursor: 'pointer' }}>
-              <input key={inputKey} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => { const nuevas = Array.from(e.target.files); setFotosNuevas(p => [...p, ...nuevas]); setInputKey(k => k + 1) }} />
-              <span style={{ fontSize: '13px', color: 'var(--gray4)' }}>+ Agregar fotos</span>
-            </label>
+            <FotosUploader fotos={fotos} setFotos={setFotos} minimo={5} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
             <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>
+            <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={saving}>{saving ? (progreso || 'Guardando…') : 'Guardar cambios'}</button>
           </div>
         </form>
       </div>

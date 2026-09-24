@@ -209,7 +209,7 @@ export default function Profesionales() {
     <div className="page-wrapper">
       {/* Header */}
       <div className="responsive-section conc-listado-hero" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', position: 'relative', overflow: 'hidden' }}>
-        <div className="conc-listado-hero__bg" style={{ backgroundImage: 'url("/portada-profesionales.jpg")' }} />
+        <div className="conc-listado-hero__bg" style={{ backgroundImage: 'url("/img/portada-profesionales.webp")' }} />
         <div className="conc-listado-hero__scrim" />
         <div style={{ position: 'relative' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>

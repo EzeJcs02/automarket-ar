@@ -11,7 +11,7 @@ export default function HomeHero() {
         padding: 'clamp(4rem,8vh,6rem) 0',
       }}
     >
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/assets/hero-bg.jpg")', backgroundSize: 'cover', backgroundPosition: '72% center' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("/img/hero-bg.webp")', backgroundSize: 'cover', backgroundPosition: '72% center' }} />
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(245,243,238,.05) 1px, transparent 1px)', backgroundSize: '26px 26px', maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%)' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, var(--black) 0%, rgba(10,10,10,.82) 40%, rgba(10,10,10,.35) 62%, transparent 88%), linear-gradient(0deg, var(--black) 0%, transparent 18%)' }} />
 

@@ -16,7 +16,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!concesionaria) return
-    supabase.from('consultas').select('id', { count: 'exact' }).eq('concesionaria_id', concesionaria.id).eq('leido', false)
+    supabase.from('consultas').select('id', { count: 'exact', head: true }).eq('concesionaria_id', concesionaria.id).eq('leido', false)
       .then(({ count }) => setNoLeidas(count || 0))
     const channel = supabase.channel('consultas-badge')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'consultas', filter: `concesionaria_id=eq.${concesionaria.id}` },

@@ -13,27 +13,27 @@ import { FONDO_SHOWROOM_DEFAULT } from '../lib/marca'
 
 const TIPOS = {
   autos: [
-    { tipo: 'SUV', img: '/assets/tipos/icon_suv.png' },
-    { tipo: 'Hatchback', img: '/assets/tipos/icon_hatchback.png' },
-    { tipo: 'Sedán', img: '/assets/tipos/icon_sedan.png' },
-    { tipo: 'Pickup', img: '/assets/tipos/icon_pickup.png' },
-    { tipo: 'Minivan', img: '/assets/tipos/icon_minivan.png' },
-    { tipo: 'Coupé', img: '/assets/tipos/icon_coupe.png' },
+    { tipo: 'SUV', img: '/img/tipos/icon_suv.webp' },
+    { tipo: 'Hatchback', img: '/img/tipos/icon_hatchback.webp' },
+    { tipo: 'Sedán', img: '/img/tipos/icon_sedan.webp' },
+    { tipo: 'Pickup', img: '/img/tipos/icon_pickup.webp' },
+    { tipo: 'Minivan', img: '/img/tipos/icon_minivan.webp' },
+    { tipo: 'Coupé', img: '/img/tipos/icon_coupe.webp' },
   ],
   motos: [
-    { tipo: 'Naked', img: '/assets/tipos/icon_moto_naked.png' },
-    { tipo: 'Deportiva', img: '/assets/tipos/icon_moto_deportiva.png' },
-    { tipo: 'Touring', img: '/assets/tipos/icon_moto_touring.png' },
-    { tipo: 'Scooter', img: '/assets/tipos/icon_moto_scooter.png' },
-    { tipo: 'Enduro', img: '/assets/tipos/icon_moto_enduro.png' },
-    { tipo: 'Custom', img: '/assets/tipos/icon_moto_custom.png' },
+    { tipo: 'Naked', img: '/img/tipos/icon_moto_naked.webp' },
+    { tipo: 'Deportiva', img: '/img/tipos/icon_moto_deportiva.webp' },
+    { tipo: 'Touring', img: '/img/tipos/icon_moto_touring.webp' },
+    { tipo: 'Scooter', img: '/img/tipos/icon_moto_scooter.webp' },
+    { tipo: 'Enduro', img: '/img/tipos/icon_moto_enduro.webp' },
+    { tipo: 'Custom', img: '/img/tipos/icon_moto_custom.webp' },
   ],
   nautica: [
-    { tipo: 'Lancha', img: '/assets/tipos/icon_nautica_lancha.png' },
-    { tipo: 'Velero', img: '/assets/tipos/icon_nautica_velero.png' },
-    { tipo: 'Yate', img: '/assets/tipos/icon_nautica_yate.png' },
-    { tipo: 'Moto de Agua', img: '/assets/tipos/icon_nautica_motoagua.png' },
-    { tipo: 'Semi-rígido', img: '/assets/tipos/icon_nautica_semirigido.png' },
+    { tipo: 'Lancha', img: '/img/tipos/icon_nautica_lancha.webp' },
+    { tipo: 'Velero', img: '/img/tipos/icon_nautica_velero.webp' },
+    { tipo: 'Yate', img: '/img/tipos/icon_nautica_yate.webp' },
+    { tipo: 'Moto de Agua', img: '/img/tipos/icon_nautica_motoagua.webp' },
+    { tipo: 'Semi-rígido', img: '/img/tipos/icon_nautica_semirigido.webp' },
   ],
 }
 
@@ -354,7 +354,7 @@ export default function Home() {
               className="type-card"
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '1.5rem 2rem', background: 'var(--black)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', minWidth: '130px', color: 'var(--white)', flex: '1 1 130px' }}>
               <div style={{ height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={img} alt={tipo} style={{ maxWidth: '110px', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.8))', borderRadius: '8px' }} />
+                <img src={img} alt={tipo} width="75" height="75" loading="lazy" decoding="async" style={{ maxWidth: '110px', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.8))', borderRadius: '8px' }} />
               </div>
               <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>{tipo}</span>
             </button>

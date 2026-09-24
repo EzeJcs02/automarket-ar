@@ -39,10 +39,11 @@ export default function Catalogo() {
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [page, setPage] = useState(1)
   const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', categoria: searchParams.get('categoria') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '', ciudad: '', kmMax: '', transmision: '' })
-  const [alertaEmail, setAlertaEmail] = useState('')
+  const [alertaError, setAlertaError] = useState('')
   const [alertaOk, setAlertaOk] = useState(false)
   const [alertaGuardando, setAlertaGuardando] = useState(false)
   const [ordenar, setOrdenar] = useState('relevancia')
+  const [cargaError, setCargaError] = useState(false)
   const [autosRaw, setAutosRaw] = useState([])
   const [totalCount, setTotalCount] = useState(0)
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false)
@@ -55,12 +56,10 @@ export default function Catalogo() {
 
   useEffect(() => {
     supabase.from('concesionarias').select('id, nombre').eq('aprobada', true).then(({ data }) => setConcesionarias(data || []))
-    fetchAutos(1)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchAutos(page) }, [page])
+  useEffect(() => { fetchAutos(page) }, [page, ordenar])
 
   useEffect(() => {
     if (!user || concesionaria || isAdmin) return
@@ -108,15 +107,22 @@ export default function Catalogo() {
       const safe = f.ciudad.replace(/[%_,()]/g, '\\$&')
       q = q.ilike('concesionarias.ciudad', `%${safe}%`)
     }
-    const { data, count } = await q.range(from, to)
+    if (ordenar === 'precio_asc') q = q.order('precio_ars', { ascending: true, nullsFirst: false })
+    else if (ordenar === 'precio_desc') q = q.order('precio_ars', { ascending: false, nullsFirst: false })
+    else if (ordenar === 'anio_desc') q = q.order('anio', { ascending: false })
+    else if (ordenar === 'anio_asc') q = q.order('anio', { ascending: true })
+    else q = q.order('urgente', { ascending: false, nullsFirst: false }).order('destacado', { ascending: false, nullsFirst: false })
+    q = q.order('created_at', { ascending: false }).order('id')
+    const { data, count, error } = await q.range(from, to)
+    setCargaError(!!error)
     setAutosRaw(data || [])
     setTotalCount(count || 0)
     setLoading(false)
   }
 
   function aplicarFiltros() {
-    setPage(1)
-    fetchAutos(1)
+    if (page === 1) fetchAutos(1)
+    else setPage(1)
     if (window.innerWidth <= 900) {
       setFiltrosAbiertos(false)
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50)
@@ -126,14 +132,15 @@ export default function Catalogo() {
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
 
   async function guardarAlerta() {
-    const email = alertaEmail || user?.email
-    if (!email) return
+    if (!user) { navigate('/login'); return }
     const filtrosActivos = Object.fromEntries(Object.entries(filtros).filter(([, v]) => v))
-    if (Object.keys(filtrosActivos).length === 0) return
+    if (Object.keys(filtrosActivos).length === 0) { setAlertaError('Elegí al menos un filtro para crear la alerta.'); return }
+    setAlertaError('')
     setAlertaGuardando(true)
-    await supabase.from('alertas_busqueda').insert({ email, filtros: filtrosActivos, user_id: user?.id || null })
-    setAlertaOk(true)
+    const { error } = await supabase.from('alertas_busqueda').insert({ email: user.email, filtros: filtrosActivos, user_id: user.id })
     setAlertaGuardando(false)
+    if (error) { setAlertaError('No pudimos guardar la alerta. Probá de nuevo.'); return }
+    setAlertaOk(true)
     setTimeout(() => setAlertaOk(false), 4000)
   }
 
@@ -294,9 +301,9 @@ export default function Catalogo() {
           <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={() => {
             const vacio = { busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }
             setFiltros(vacio)
+            if (page === 1 && ordenar === 'relevancia') fetchAutos(1, vacio)
             setOrdenar('relevancia')
             setPage(1)
-            fetchAutos(1, vacio)
           }}>Limpiar</button>
 
           {/* ALERTA DE BÚSQUEDA */}
@@ -308,20 +315,14 @@ export default function Catalogo() {
             {alertaOk
               ? <div style={{ fontSize: '12px', color: '#4ade80', padding: '8px 12px', background: 'rgba(74,222,128,.08)', borderRadius: 'var(--radius)', border: '1px solid rgba(74,222,128,.2)' }}>✓ Alerta guardada</div>
               : <>
-                  {!user && (
-                    <input
-                      type="email" placeholder="Tu email"
-                      value={alertaEmail} onChange={e => setAlertaEmail(e.target.value)}
-                      style={{ ...inputStyle, marginBottom: '8px' }}
-                    />
-                  )}
                   <button
                     onClick={guardarAlerta}
-                    disabled={alertaGuardando || (!user && !alertaEmail)}
+                    disabled={alertaGuardando}
                     className="btn-secondary"
                     style={{ width: '100%', fontSize: '12px', padding: '8px' }}>
-                    {alertaGuardando ? 'Guardando...' : 'Guardar alerta'}
+                    {alertaGuardando ? 'Guardando...' : user ? 'Guardar alerta' : 'Ingresá para guardar la alerta'}
                   </button>
+                  {alertaError && <div role="alert" style={{ fontSize: '12px', color: '#f87171', marginTop: '8px' }}>{alertaError}</div>}
                 </>
             }
           </div>
@@ -345,6 +346,11 @@ export default function Catalogo() {
             ? <div className="catalogo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(280px,100%),1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
                 {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
               </div>
+            : cargaError
+              ? <div role="alert" style={{ padding: '2rem 0' }}>
+                  <p style={{ color: 'var(--gray4)', fontSize: '15px', marginBottom: '1rem' }}>No pudimos cargar los vehículos. Revisá tu conexión.</p>
+                  <button className="btn-secondary" onClick={() => fetchAutos(page)}>Reintentar</button>
+                </div>
             : autos.length === 0
               ? <p style={{ color: 'var(--gray4)', fontSize: '15px', padding: '2rem 0' }}>No se encontraron autos con esos filtros.</p>
               : <>

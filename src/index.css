@@ -909,3 +909,14 @@ body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
 @media (hover: none) {
   .solo-desktop { display: none; }
 }
+
+/* Botón de publicar/guardar siempre a mano en el celular */
+@media (max-width: 640px) {
+  .acciones-form {
+    position: sticky; bottom: 0; z-index: 5;
+    background: var(--gray1); padding: 12px 0;
+    border-top: 1px solid var(--gray2);
+    box-shadow: 0 -10px 20px rgba(0, 0, 0, .45);
+  }
+  .acciones-form > .btn-primary { flex: 1; width: 100%; }
+}

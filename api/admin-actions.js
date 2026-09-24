@@ -23,12 +23,6 @@ export default async function handler(req, res) {
   const anonKey = process.env.SUPABASE_ANON_KEY
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL
-  if (!ADMIN_EMAIL) {
-    console.error('FATAL: ADMIN_EMAIL env var not set')
-    return res.status(500).json({ error: 'Server misconfiguration' })
-  }
-
   try {
     const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
@@ -40,8 +34,9 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid token' })
     }
 
-    const { email } = await userRes.json()
-    if (email !== ADMIN_EMAIL) {
+    // Mismo criterio que la UI y la función SQL es_admin(): app_metadata sólo se escribe desde el servidor.
+    const caller = await userRes.json()
+    if (caller.app_metadata?.role !== 'admin') {
       return res.status(403).json({ error: 'Forbidden' })
     }
 

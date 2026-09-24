@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useModalA11y } from '../lib/useModalA11y'
@@ -1058,7 +1059,7 @@ function MisPagos({ pagos }) {
               </td>
               <td style={{ padding: '16px 20px' }}>
                 <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)', letterSpacing: '.05em' }}>
-                  {p.estado === 'approved' ? 'APROBADO' : p.estado?.toUpperCase()}
+                  {estadoPago(p.estado).toUpperCase()}
                 </span>
               </td>
             </tr>

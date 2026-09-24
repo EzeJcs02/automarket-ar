@@ -10,12 +10,6 @@ export default async function handler(req, res) {
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' })
 
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL
-  if (!ADMIN_EMAIL) {
-    console.error('FATAL: ADMIN_EMAIL env var not set')
-    return res.status(500).json({ error: 'Server misconfiguration' })
-  }
-
   const token = authHeader.replace('Bearer ', '')
   const supabaseUrl = process.env.SUPABASE_URL
   const anonKey = process.env.SUPABASE_ANON_KEY
@@ -29,8 +23,8 @@ export default async function handler(req, res) {
 
     if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' })
 
-    const { email } = await userRes.json()
-    if (email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Forbidden' })
+    const caller = await userRes.json()
+    if (caller.app_metadata?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' })
 
     // Listar usuarios usando service role key (privilegio elevado solo para esta operación)
     const usersRes = await fetch(`${supabaseUrl}/auth/v1/admin/users?per_page=500`, {
@@ -46,7 +40,7 @@ export default async function handler(req, res) {
       nombre: u.user_metadata?.nombre || null,
       created_at: u.created_at,
       last_sign_in_at: u.last_sign_in_at,
-      is_admin: u.email === ADMIN_EMAIL,
+      is_admin: u.app_metadata?.role === 'admin',
     }))
 
     res.status(200).json({ users })

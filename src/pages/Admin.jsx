@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useModalA11y } from '../lib/useModalA11y'
@@ -466,7 +467,7 @@ export default function Admin() {
                               <span style={{ padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700,
                                 background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)',
                                 color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)' }}>
-                                {p.estado}
+                                {estadoPago(p.estado)}
                               </span>
                             </td>
                             <td style={{ padding: '16px 20px', color: 'var(--gray5)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{p.mp_payment_id || '—'}</td>

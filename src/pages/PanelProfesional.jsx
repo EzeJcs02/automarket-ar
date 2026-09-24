@@ -334,7 +334,7 @@ export default function PanelProfesional() {
                 <li>30 días de vigencia</li>
               </ul>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '26px', marginBottom: '1rem' }}>
-                $30.000<span style={{ fontSize: '14px', color: 'var(--gray4)', fontFamily: 'var(--font-body)', fontWeight: 400 }}>/mes</span>
+                $20.000<span style={{ fontSize: '14px', color: 'var(--gray4)', fontFamily: 'var(--font-body)', fontWeight: 400 }}>/mes</span>
               </div>
               <button className="btn-primary" onClick={() => pay('plan_profesional_destacado')}
                 style={{ width: '100%', padding: '10px', fontSize: '13px', background: 'linear-gradient(135deg, #b8860b, #c9a84c)' }}>

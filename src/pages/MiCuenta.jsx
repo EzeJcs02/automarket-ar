@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { estadoPago } from '../lib/estadoPago'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
 import { useToast } from '../context/ToastContext'
@@ -361,7 +362,7 @@ export default function MiCuenta() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--accent)' }}>${Number(p.monto).toLocaleString('es-AR')}</div>
                         <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', background: p.estado === 'approved' ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.08)', color: p.estado === 'approved' ? '#4ade80' : 'var(--gray4)', letterSpacing: '.05em' }}>
-                          {p.estado === 'approved' ? 'APROBADO' : p.estado?.toUpperCase()}
+                          {estadoPago(p.estado).toUpperCase()}
                         </span>
                       </div>
                     </div>

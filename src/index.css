@@ -12,7 +12,7 @@
   --gray6: #ddd;
   --green: #1a7a4a;
   --font-display: 'Bebas Neue', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --font-mono: 'DM Mono', monospace;
   --radius: 4px;
   --radius-lg: 8px;
@@ -904,4 +904,8 @@ body.is-scrolling::-webkit-scrollbar-thumb { background: var(--accent); }
   .conc-datos { padding: 1.5rem 1.25rem; }
   .conc-datos__metricas { gap: 1.75rem; }
   .conc-metrica__n { font-size: 32px; }
-}
+}
+/* Textos que sólo tienen sentido con mouse (p. ej. "arrastrá acá") */
+@media (hover: none) {
+  .solo-desktop { display: none; }
+}

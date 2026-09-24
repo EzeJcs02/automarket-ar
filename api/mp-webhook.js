@@ -222,7 +222,7 @@ export default async function handler(req, res) {
     const patchMap = {
       destacado: { destacado: true, urgente: false, destacado_expira_at: in30days },
       urgente: { urgente: true, destacado: false, urgente_expira_at: in30days },
-      fijado_home: { fijado_home: true },
+      fijado_home: { fijado_home: true, fijado_home_expira_at: in30days },
       destacado_individual: { destacado: true, urgente: false, destacado_expira_at: in30days },
       urgente_individual: { urgente: true, destacado: false, urgente_expira_at: in30days },
       subir_tope: { created_at: new Date().toISOString() },
@@ -244,7 +244,7 @@ export default async function handler(req, res) {
         {
           method: 'PATCH',
           headers,
-          body: JSON.stringify({ banner_activo: true }),
+          body: JSON.stringify({ banner_activo: true, banner_expira_at: in30days }),
         }
       )
     }

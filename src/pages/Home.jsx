@@ -65,7 +65,7 @@ export default function Home() {
           supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6),
           supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10),
           supabase.from('publicidades').select('id, nombre, imagen_url, link_url, fondo').eq('activo', true).order('created_at', { ascending: false }),
-          supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).limit(1)
+          supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).eq('activo', true).limit(20)
         ])
 
         const sorted = (rAutos.data || []).sort((a, b) => {
@@ -76,7 +76,9 @@ export default function Home() {
         setConcesionarias(rConc.data || [])
         setBanners(rBanners.data || [])
         setRightAds(rAds.data || [])
-        setAutoFijado(rFijado.data?.[0] || null)
+        // Un solo lugar en el home: si pagaron varios, rota al azar en cada visita.
+        const fijados = rFijado.data || []
+        setAutoFijado(fijados.length ? fijados[Math.floor(Math.random() * fijados.length)] : null)
       } catch (err) {
         console.error("Error fetching home data:", err)
       } finally {

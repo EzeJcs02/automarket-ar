@@ -24,9 +24,13 @@ export default async function handler(req, res) {
   const now = new Date(Date.now() + BUFFER_MS).toISOString()
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000 - BUFFER_MS).toISOString()
 
-  let r1, r2, r3
+  const patch = (path, body) => fetch(`${supabaseUrl}/rest/v1/${path}`, {
+    method: 'PATCH', headers, body: JSON.stringify(body), signal: AbortSignal.timeout(10_000),
+  })
+
+  let r1, r2, r3, r4, r5, r6
   try {
-    ;[r1, r2, r3] = await Promise.all([
+    ;[r1, r2, r3, r4, r5, r6] = await Promise.all([
       // Expirar boosts destacado vencidos
       fetch(`${supabaseUrl}/rest/v1/autos?destacado=eq.true&destacado_expira_at=lt.${now}`, {
         method: 'PATCH',
@@ -52,6 +56,10 @@ export default async function handler(req, res) {
           signal: AbortSignal.timeout(10_000),
         }
       ),
+      // Productos de 30 días (expira_at NULL = activado por el admin, no vence)
+      patch(`autos?fijado_home=eq.true&fijado_home_expira_at=lt.${now}`, { fijado_home: false, fijado_home_expira_at: null }),
+      patch(`concesionarias?banner_activo=eq.true&banner_expira_at=lt.${now}`, { banner_activo: false, banner_expira_at: null }),
+      patch(`profesionales?plan=eq.destacado&plan_vence_at=lt.${now}`, { plan: 'base', destacado: false, plan_vence_at: null }),
     ])
   } catch (err) {
     console.error('[cron-expire-boosts] Supabase request failed:', err.message)
@@ -63,6 +71,9 @@ export default async function handler(req, res) {
     destacado: r1.status,
     urgente: r2.status,
     autos_expired: r3.status,
+    fijado_home: r4.status,
+    banner_home: r5.status,
+    plan_profesional: r6.status,
   }
 
   const failedOps = Object.entries(results).filter(([, status]) => status >= 400)

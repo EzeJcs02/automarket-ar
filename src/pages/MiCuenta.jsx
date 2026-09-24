@@ -338,7 +338,7 @@ export default function MiCuenta() {
                 </div>
               ))}
             </div>
-            <ExtrasConMP user={user} autoId={misAutos[0]?.id || null} />
+            <ExtrasConMP user={user} autos={misAutos} />
           </div>
           {pagos.length > 0 && (
             <div style={{ maxWidth: '900px' }}>
@@ -676,12 +676,16 @@ function ConsultasRecibidasList({ consultas, onRead }) {
   )
 }
 
-function ExtrasConMP({ user, autoId }) {
+function ExtrasConMP({ user, autos }) {
   const [paying, setPaying] = useState(null)
+  const [autoId, setAutoId] = useState(autos[0]?.id || '')
   const { toast } = useToast()
+  const autoElegido = autos.find(a => a.id === autoId)
 
   async function pagar(tipo) {
-    if (!autoId) { toast('Necesitás tener una publicación activa para usar este boost.', 'warning'); return }
+    if (!autoElegido) { toast('Necesitás tener una publicación para usar este extra.', 'warning'); return }
+    if (!autoElegido.activo && tipo !== 'renovar') { toast('Esa publicación está vencida o pausada. Renovala primero.', 'warning'); return }
+    if (!confirm(`¿Confirmás el pago de "${extras.find(e => e.id === tipo)?.nombre}" para ${autoElegido.marca} ${autoElegido.modelo}?`)) return
     setPaying(tipo)
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -706,7 +710,18 @@ function ExtrasConMP({ user, autoId }) {
 
   return (
     <div style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '2.5rem' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Extras pagos</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Extras pagos</div>
+      {autos.length > 0 && (
+        <label style={{ display: 'block', marginBottom: '1rem' }}>
+          <span style={{ display: 'block', fontSize: '12px', color: 'var(--gray4)', marginBottom: '6px' }}>Publicación</span>
+          <select value={autoId} onChange={e => setAutoId(e.target.value)}
+            style={{ width: '100%', background: 'var(--black)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px' }}>
+            {autos.map(a => (
+              <option key={a.id} value={a.id}>{a.marca} {a.modelo} {a.anio || ''}{a.activo ? '' : ' (vencida o pausada)'}</option>
+            ))}
+          </select>
+        </label>
+      )}
       {extras.map(e => (
         <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--gray2)' }}>
           <div>

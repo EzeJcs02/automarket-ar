@@ -184,6 +184,61 @@ describe('mp-webhook — idempotencia', () => {
   })
 })
 
+const AUTO_ID = '00000000-0000-0000-0000-000000000001'
+const USER_ID = '33333333-3333-3333-3333-333333333333'
+
+function mockPagoAprobado({ tipo, precio, autoPatchStatus = 200 }) {
+  mockFetch.mockImplementation(async (url, opts = {}) => {
+    if (url.includes('api.mercadopago.com')) {
+      return new Response(JSON.stringify({
+        status: 'approved', status_detail: 'accredited', transaction_amount: precio,
+        metadata: { tipo, auto_id: AUTO_ID, user_id: USER_ID },
+      }), { status: 200 })
+    }
+    if (url.includes('/rest/v1/pagos?mp_payment_id=') && !opts.method) return new Response('[]', { status: 200 })
+    if (url.includes('/rest/v1/autos?id=') && !opts.method) {
+      return new Response(JSON.stringify([{ id: AUTO_ID, user_id: USER_ID, concesionaria_id: null }]), { status: 200 })
+    }
+    if (url.includes('/rest/v1/autos?id=') && opts.method === 'PATCH') return new Response('{}', { status: autoPatchStatus })
+    return new Response('{}', { status: 201 })
+  })
+}
+
+describe('mp-webhook — renovar', () => {
+  it('extiende el vencimiento (renovado_at) y reactiva el aviso', async () => {
+    mockPagoAprobado({ tipo: 'renovar', precio: 10000 })
+    const res = makeRes()
+    await handler(makeReq(), res)
+    expect(res._json).toEqual({ received: true, processed: true })
+    const patch = mockFetch.mock.calls.find(c => c[0].includes('/rest/v1/autos?id=') && c[1]?.method === 'PATCH')
+    const body = JSON.parse(patch[1].body)
+    expect(body.renovado_at).toBeDefined()
+    expect(body.activo).toBe(true)
+  })
+})
+
+describe('mp-webhook — fallo al acreditar', () => {
+  it('borra el registro del pago para que el reintento de MP lo vuelva a aplicar', async () => {
+    mockPagoAprobado({ tipo: 'renovar', precio: 10000, autoPatchStatus: 500 })
+    const res = makeRes()
+    await handler(makeReq(), res)
+    expect(res.statusCode).toBe(500)
+    const rollback = mockFetch.mock.calls.find(c => c[0].includes(`/rest/v1/pagos?mp_payment_id=eq.${MP_PAYMENT_ID}`) && c[1]?.method === 'DELETE')
+    expect(rollback).toBeDefined()
+  })
+
+  it('no borra nada si falla antes de registrar el pago', async () => {
+    mockFetch.mockImplementation(async (url) => {
+      if (url.includes('api.mercadopago.com')) return new Response('boom', { status: 502 })
+      return new Response('{}', { status: 200 })
+    })
+    const res = makeRes()
+    await handler(makeReq(), res)
+    expect(res.statusCode).toBe(500)
+    expect(mockFetch.mock.calls.find(c => c[1]?.method === 'DELETE')).toBeUndefined()
+  })
+})
+
 describe('mp-webhook — ownership', () => {
   it('rechaza si concesionaria_id del metadata no es la dueña del auto', async () => {
     const req = makeReq()

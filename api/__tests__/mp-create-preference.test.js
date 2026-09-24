@@ -127,3 +127,35 @@ describe('mp-create-preference — rate limit', () => {
     expect(lastRes.statusCode).toBe(429)
   })
 })
+
+describe('mp-create-preference — renovar', () => {
+  function mockAuto(auto) {
+    const base = mockFetch.getMockImplementation()
+    mockFetch.mockImplementation(async (url, opts) => {
+      if (url.includes('/rest/v1/autos')) return new Response(JSON.stringify(auto ? [auto] : []), { status: 200 })
+      return base(url, opts)
+    })
+  }
+
+  it('rechaza renovar un auto de concesionaria (no vencen)', async () => {
+    mockAuto({ user_id: USER_ID, concesionaria_id: CONCESIONARIA_ID })
+    const res = makeRes()
+    await handler(makeReq({ body: { tipo: 'renovar', auto_id: 'x' }, ip: '2.2.3.1' }), res)
+    expect(res.statusCode).toBe(400)
+  })
+
+  it('rechaza renovar un auto ajeno', async () => {
+    mockAuto({ user_id: OTHER_USER_ID, concesionaria_id: null })
+    const res = makeRes()
+    await handler(makeReq({ body: { tipo: 'renovar', auto_id: 'x' }, ip: '2.2.3.2' }), res)
+    expect(res.statusCode).toBe(403)
+  })
+
+  it('permite renovar el aviso propio de un particular', async () => {
+    mockAuto({ user_id: USER_ID, concesionaria_id: null })
+    const res = makeRes()
+    await handler(makeReq({ body: { tipo: 'renovar', auto_id: 'x' }, ip: '2.2.3.3' }), res)
+    expect(res.statusCode).toBe(200)
+    expect(res._json.init_point).toBeDefined()
+  })
+})

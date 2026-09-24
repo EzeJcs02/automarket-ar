@@ -75,6 +75,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Formato de ID inválido' })
   }
 
+  let pagoRegistrado = false
   try {
     const payment = await safeFetch(
       `https://api.mercadopago.com/v1/payments/${id}`,
@@ -215,6 +216,7 @@ export default async function handler(req, res) {
       const text = await insertPagoRes.text()
       throw new Error(`Fetch error: ${insertPagoRes.status} - ${text}`)
     }
+    pagoRegistrado = true
 
     // 🔧 PATCH SEGÚN TIPO (Modificaciones directas a un auto_id)
     const patchMap = {
@@ -224,7 +226,8 @@ export default async function handler(req, res) {
       destacado_individual: { destacado: true, urgente: false, destacado_expira_at: in30days },
       urgente_individual: { urgente: true, destacado: false, urgente_expira_at: in30days },
       subir_tope: { created_at: new Date().toISOString() },
-      renovar: { created_at: new Date().toISOString() },
+      // El cron vence particulares por renovado_at: sin tocarlo, renovar no extendía nada.
+      renovar: { created_at: new Date().toISOString(), renovado_at: new Date().toISOString(), activo: true },
     }
 
     if (patchMap[tipo] && auto_id) {
@@ -296,6 +299,20 @@ export default async function handler(req, res) {
     res.status(200).json({ received: true, processed: true })
   } catch (err) {
     console.error('mp-webhook error:', err)
+    // Si ya marcamos el pago como procesado pero falló la acreditación, hay que
+    // desmarcarlo: si no, el reintento de MP lo ve como duplicado y el pago queda
+    // cobrado sin efecto para siempre.
+    if (pagoRegistrado) {
+      try {
+        const k = process.env.SUPABASE_SERVICE_ROLE_KEY
+        await fetch(`${process.env.SUPABASE_URL}/rest/v1/pagos?mp_payment_id=eq.${encodeURIComponent(String(id))}`, {
+          method: 'DELETE',
+          headers: { apikey: k, Authorization: `Bearer ${k}` },
+        })
+      } catch (rollbackErr) {
+        console.error('[mp-webhook] no se pudo revertir el registro del pago', id, rollbackErr)
+      }
+    }
     // ⚠️ ALERTA: Retornamos 500 para errores internos críticos (ej. fallo de red con Supabase)
     // Así MercadoPago interpreta que hubo una falla nuestra y vuelve a enviar el webhook en unos minutos.
     res.status(500).json({ error: 'Internal Server Error' })

@@ -71,6 +71,18 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'No tenés permiso para usar este recurso' })
     }
 
+    // Los autos de concesionaria no vencen (el cron sólo vence particulares): renovarlos sería cobrar por nada.
+    if (tipo === 'renovar') {
+      if (!auto_id) return res.status(400).json({ error: 'Falta la publicación a renovar' })
+      const autoRes = await fetch(
+        `${supabaseUrl}/rest/v1/autos?id=eq.${encodeURIComponent(auto_id)}&select=concesionaria_id,user_id`,
+        { headers: sbHeaders }
+      )
+      const [auto] = await autoRes.json().catch(() => [])
+      if (!auto || auto.user_id !== userId) return res.status(403).json({ error: 'No tenés permiso para usar este recurso' })
+      if (auto.concesionaria_id) return res.status(400).json({ error: 'Las publicaciones de concesionaria no vencen, no hace falta renovarlas' })
+    }
+
     const APP_URL = process.env.APP_URL || 'https://fioramarket.store'
     const back_url = origen === 'mi-cuenta' ? `${APP_URL}/mi-cuenta`
       : origen === 'panel-profesional' ? `${APP_URL}/panel-profesional`

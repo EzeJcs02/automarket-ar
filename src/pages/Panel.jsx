@@ -597,12 +597,6 @@ function MisAutos({ autos, reload, setTab, concesionaria }) {
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                         Tope
                       </button>
-                      <button onClick={() => { if (confirm(`¿Renovar "${a.marca} ${a.modelo}" por 30 días más por $10.000?`)) pay('renovar', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
-                        title="Renovar publicación 30 días — $10.000"
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all .15s', background: 'rgba(255,255,255,0.02)', color: 'var(--gray4)', letterSpacing: '.03em' }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
-                        Renovar
-                      </button>
                       {!a.fijado_home ? (
                         <button onClick={() => { if (confirm(`¿Fijar "${a.marca} ${a.modelo}" en Home por $25.000?`)) pay('fijado_home', { auto_id: a.id, concesionaria_id: concesionaria?.id, user_id: user?.id, user_email: user?.email }) }}
                           title="Fijar en página de inicio — $25.000"

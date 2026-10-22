@@ -7,9 +7,18 @@ import CarCardSkeleton from '../components/CarCardSkeleton'
 import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
 import { EmptyState, ErrorState } from '../components/Estados'
+import Button from '../components/ui/Button'
+import Icon from '../components/ui/Icon'
+import { CATEGORIAS, GRUPOS } from '../lib/categorias'
+import './Catalogo.css'
 
 const MARCAS = ['Toyota', 'Ford', 'Volkswagen', 'Chevrolet', 'Renault', 'Peugeot', 'Fiat', 'Honda', 'Nissan', 'Jeep', 'Citroën']
+const KM_MAX = [10000, 30000, 50000, 100000, 150000, 200000]
 const PAGE_SIZE = 24
+const VACIO = { busqueda: '', tipo: '', categoria: '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '', ciudad: '', kmMax: '', transmision: '' }
+
+const soloDigitos = v => v.replace(/\D/g, '')
+const miles = v => (v ? Number(v).toLocaleString('es-AR') : '')
 
 function sortByPriority(lista) {
   const planScore = { premium: 1000, pro: 100, basico: 10 }
@@ -31,6 +40,30 @@ function applySort(lista, ord) {
   return sortByPriority(lista)
 }
 
+// Texto de cada filtro aplicado, para los chips removibles sobre los resultados
+function etiquetaFiltro(k, v, concesionarias) {
+  switch (k) {
+    case 'busqueda': return `“${v}”`
+    case 'tipo': return v === 'nuevo' ? 'Nuevo' : 'Usado'
+    case 'precioMin': return `Desde $${miles(v)}`
+    case 'precioMax': return `Hasta $${miles(v)}`
+    case 'anioDesde': return `Año desde ${v}`
+    case 'anioHasta': return `Año hasta ${v}`
+    case 'kmMax': return `Hasta ${miles(v)} km`
+    case 'concesionaria': return concesionarias.find(c => String(c.id) === String(v))?.nombre || 'Concesionaria'
+    default: return v
+  }
+}
+
+function Grupo({ titulo, children }) {
+  return (
+    <fieldset className="filtros__grupo">
+      <legend className="filtros__legend">{titulo}</legend>
+      {children}
+    </fieldset>
+  )
+}
+
 export default function Catalogo() {
   const { user, concesionaria, isAdmin } = useAuth()
   const navigate = useNavigate()
@@ -39,7 +72,8 @@ export default function Catalogo() {
   const [loading, setLoading] = useState(true)
   const [favoritoIds, setFavoritoIds] = useState(new Set())
   const [page, setPage] = useState(1)
-  const [filtros, setFiltros] = useState({ busqueda: searchParams.get('q') || '', tipo: '', categoria: searchParams.get('categoria') || '', marca: '', precioMin: '', precioMax: '', anioDesde: '', anioHasta: '', concesionaria: '', combustible: '', ciudad: '', kmMax: '', transmision: '' })
+  const [filtros, setFiltros] = useState({ ...VACIO, busqueda: searchParams.get('q') || '', categoria: searchParams.get('categoria') || '', precioMax: soloDigitos(searchParams.get('precioMax') || '') })
+  const [aplicados, setAplicados] = useState(VACIO)
   const [alertaError, setAlertaError] = useState('')
   const [alertaOk, setAlertaOk] = useState(false)
   const [alertaGuardando, setAlertaGuardando] = useState(false)
@@ -50,6 +84,7 @@ export default function Catalogo() {
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false)
   const autos = useMemo(() => applySort(autosRaw, ordenar), [autosRaw, ordenar])
   const filtrosActivosCount = Object.values(filtros).filter(Boolean).length
+  const chipsAplicados = Object.entries(aplicados).filter(([, v]) => v)
 
   const esParticular = user && !concesionaria && !isAdmin
 
@@ -67,6 +102,16 @@ export default function Catalogo() {
     supabase.from('favoritos').select('auto_id').eq('user_id', user.id)
       .then(({ data }) => setFavoritoIds(new Set(data?.map(f => f.auto_id) || [])))
   }, [user, concesionaria, isAdmin])
+
+  // Panel de filtros del celular: Escape cierra y el fondo no scrollea
+  useEffect(() => {
+    if (!filtrosAbiertos) return
+    const onKey = e => { if (e.key === 'Escape') setFiltrosAbiertos(false) }
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', onKey)
+    return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey) }
+  }, [filtrosAbiertos])
 
   async function toggleFavorito(autoId) {
     if (!user) { navigate('/login'); return }
@@ -118,13 +163,14 @@ export default function Catalogo() {
     setCargaError(!!error)
     setAutosRaw(data || [])
     setTotalCount(count || 0)
+    setAplicados(f)
     setLoading(false)
   }
 
   function aplicarFiltros() {
     if (page === 1) fetchAutos(1)
     else setPage(1)
-    if (window.innerWidth <= 900) {
+    if (filtrosAbiertos) {
       setFiltrosAbiertos(false)
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50)
     }
@@ -132,10 +178,16 @@ export default function Catalogo() {
 
   function setF(k, v) { setFiltros(p => ({ ...p, [k]: v })) }
 
+  function quitarFiltro(k) {
+    const nuevos = { ...filtros, [k]: '' }
+    setFiltros(nuevos)
+    if (page === 1) fetchAutos(1, nuevos)
+    else setPage(1)
+  }
+
   function limpiarFiltros() {
-    const vacio = { busqueda:'',tipo:'',categoria:'',marca:'',precioMin:'',precioMax:'',anioDesde:'',anioHasta:'',concesionaria:'',combustible:'',ciudad:'',kmMax:'',transmision:'' }
-    setFiltros(vacio)
-    if (page === 1 && ordenar === 'relevancia') fetchAutos(1, vacio)
+    setFiltros(VACIO)
+    if (page === 1 && ordenar === 'relevancia') fetchAutos(1, VACIO)
     setOrdenar('relevancia')
     setPage(1)
   }
@@ -154,7 +206,6 @@ export default function Catalogo() {
   }
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
-  const autosPagina = autos // ya viene paginado del server
 
   function irAPagina(p) {
     if (p < 1 || p > totalPages) return
@@ -162,231 +213,204 @@ export default function Catalogo() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const inputStyle = { width: '100%', background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '9px 12px', borderRadius: 'var(--radius)', fontSize: '14px', outline: 'none' }
-  const chipBase = { padding: '6px 14px', borderRadius: '100px', border: '1px solid var(--gray3)', fontSize: '12px', cursor: 'pointer', transition: 'all .2s', color: 'var(--gray4)', background: 'transparent' }
-  const chipActive = { ...chipBase, background: 'var(--accent)', borderColor: 'var(--accent)', color: 'var(--white)' }
+  const chips = (k, opciones) => (
+    <div className="filtros__chips">
+      {opciones.map(([valor, label]) => (
+        <button key={valor} type="button" className="chip" aria-pressed={filtros[k] === valor} onClick={() => setF(k, valor)}>{label}</button>
+      ))}
+    </div>
+  )
 
   return (
-    <div className="page-wrapper">
-      <div className="responsive-section conc-listado-hero" style={{ padding: '4rem 4rem 3rem', borderBottom: '1px solid var(--gray2)', position: 'relative', overflow: 'hidden' }}>
-        <div className="conc-listado-hero__bg" style={{ backgroundImage: 'url("/img/portada-catalogo.webp")' }} />
-        <div className="conc-listado-hero__scrim" />
-        <div style={{ position: 'relative' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1rem' }}>
-            Vehículos nuevos y usados
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,6vw,64px)', lineHeight: .95 }}>CATÁLOGO</div>
-            <GuiaBoton seccion="compradores" style={{ marginBottom: '6px' }} />
-          </div>
-          <p style={{ fontSize: '15px', color: 'var(--gray4)', maxWidth: '480px', lineHeight: 1.7, marginBottom: '1rem' }}>
-            Miles de autos, motos y náutica de concesionarias verificadas y particulares.
-          </p>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)' }}>
-            {loading ? 'Cargando...' : `${totalCount} resultado${totalCount !== 1 ? 's' : ''}${totalPages > 1 ? ` · Página ${page} de ${totalPages}` : ''}`}
+    <div className="page-wrapper catalogo">
+      <header className="page-head">
+        <div className="page-head__bg" style={{ backgroundImage: 'url("/img/portada-catalogo.webp")' }} aria-hidden="true" />
+        <div className="container page-head__inner">
+          <p className="page-head__kicker">Vehículos nuevos y usados</p>
+          <h1 className="display-title">Catálogo</h1>
+          <div className="page-head__row">
+            <p className="page-head__lead">Autos, motos y náutica de concesionarias verificadas y particulares.</p>
+            <GuiaBoton seccion="compradores" />
           </div>
         </div>
-      </div>
-      {/* TOGGLE DE FILTROS — solo mobile */}
-      <div className="catalogo-filtros-toggle">
-        <button className="btn-secondary" onClick={() => setFiltrosAbiertos(o => !o)}
-          style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-          {filtrosAbiertos ? 'Ocultar filtros' : 'Filtros'}{filtrosActivosCount > 0 ? ` · ${filtrosActivosCount}` : ''}
-        </button>
-      </div>
-      <div className="catalogo-layout">
-        {/* SIDEBAR */}
-        <div className={`catalogo-filters${filtrosAbiertos ? ' is-open' : ''}`}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Búsqueda</div>
-            <input style={inputStyle} aria-label="Buscar por marca o modelo" placeholder="Marca, modelo..." value={filtros.busqueda} onChange={e => setF('busqueda', e.target.value)} />
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Condición</div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {['', 'nuevo', 'usado'].map(t => (
-                <button key={t} style={filtros.tipo === t ? chipActive : chipBase} onClick={() => setF('tipo', t)}>
-                  {t === '' ? 'Todos' : t === 'nuevo' ? 'Nuevo' : 'Usado'}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Categoría</div>
-            <select style={{ ...inputStyle, cursor: 'pointer' }} value={filtros.categoria} onChange={e => setF('categoria', e.target.value)}>
-              <option value="">Todas</option>
-              <optgroup label="Autos">
-                {['SUV','Hatchback','Sedán','Pickup','Minivan','Coupé'].map(t => <option key={t} value={t}>{t}</option>)}
-              </optgroup>
-              <optgroup label="Motos">
-                {['Naked','Deportiva','Touring','Scooter','Enduro','Custom'].map(t => <option key={t} value={t}>{t}</option>)}
-              </optgroup>
-              <optgroup label="Náutica">
-                {['Lancha','Velero','Yate','Moto de Agua','Semi-rígido'].map(t => <option key={t} value={t}>{t}</option>)}
-              </optgroup>
-            </select>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Marca</div>
-            <select style={inputStyle} value={filtros.marca} onChange={e => setF('marca', e.target.value)}>
-              <option value="">Todas las marcas</option>
-              {MARCAS.map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Precio (ARS)</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--gray5)', marginBottom: '6px' }}>
-              <span>{filtros.precioMin ? `$${Number(filtros.precioMin).toLocaleString('es-AR')}` : '$0'}</span>
-              <span style={{ color: 'var(--white)' }}>{filtros.precioMax ? `$${Number(filtros.precioMax).toLocaleString('es-AR')}` : 'Sin límite'}</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Mínimo</div>
-                <input type="range" min="0" max="200000000" step="500000"
-                  value={filtros.precioMin || 0}
-                  onChange={e => setF('precioMin', e.target.value === '0' ? '' : e.target.value)}
-                  style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }} />
-              </div>
-              <div>
-                <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Máximo</div>
-                <input type="range" min="0" max="200000000" step="500000"
-                  value={filtros.precioMax || 200000000}
-                  onChange={e => setF('precioMax', e.target.value === '200000000' ? '' : e.target.value)}
-                  style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }} />
-              </div>
-            </div>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Año</div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input style={inputStyle} aria-label="Año desde" placeholder="Desde" value={filtros.anioDesde} onChange={e => setF('anioDesde', e.target.value)} />
-              <input style={inputStyle} aria-label="Año hasta" placeholder="Hasta" value={filtros.anioHasta} onChange={e => setF('anioHasta', e.target.value)} />
-            </div>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Concesionaria</div>
-            <select style={inputStyle} value={filtros.concesionaria} onChange={e => setF('concesionaria', e.target.value)}>
-              <option value="">Todas</option>
-              {concesionarias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-            </select>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Combustible</div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {['', 'Nafta', 'Diesel', 'Híbrido', 'Eléctrico'].map(c => (
-                <button key={c} style={filtros.combustible === c ? chipActive : chipBase} onClick={() => setF('combustible', c)}>
-                  {c === '' ? 'Todos' : c}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Transmisión</div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {['', 'Manual', 'Automática'].map(t => (
-                <button key={t} style={filtros.transmision === t ? chipActive : chipBase} onClick={() => setF('transmision', t)}>
-                  {t === '' ? 'Todas' : t}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Kilometraje máximo</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--gray5)', marginBottom: '6px' }}>
-              <span>0 km</span>
-              <span style={{ color: 'var(--white)' }}>{filtros.kmMax ? `${Number(filtros.kmMax).toLocaleString('es-AR')} km` : 'Sin límite'}</span>
-            </div>
-            <input type="range" min="0" max="300000" step="5000"
-              value={filtros.kmMax || 300000}
-              onChange={e => setF('kmMax', e.target.value === '300000' ? '' : e.target.value)}
-              style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }} />
-          </div>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '.75rem' }}>Ciudad / Localidad</div>
-            <input style={inputStyle} aria-label="Ciudad o localidad" placeholder="Ej: Salta, Córdoba..." value={filtros.ciudad} onChange={e => setF('ciudad', e.target.value)} />
-          </div>
-          <button className="btn-primary" style={{ width: '100%' }} onClick={aplicarFiltros}>Aplicar filtros</button>
-          <button className="btn-secondary" style={{ width: '100%', marginTop: '8px' }} onClick={limpiarFiltros}>Limpiar</button>
+      </header>
 
-          {/* ALERTA DE BÚSQUEDA */}
-          <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray2)' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.12em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '.5rem' }}>🔔 Alerta de búsqueda</div>
-            <div style={{ fontSize: '12px', color: 'var(--gray4)', marginBottom: '.75rem', lineHeight: 1.5 }}>
-              Recibí un email cuando se publique un vehículo con estos filtros.
-            </div>
-            {alertaOk
-              ? <div style={{ fontSize: '12px', color: '#4ade80', padding: '8px 12px', background: 'rgba(74,222,128,.08)', borderRadius: 'var(--radius)', border: '1px solid rgba(74,222,128,.2)' }}>✓ Alerta guardada</div>
-              : <>
-                  <button
-                    onClick={guardarAlerta}
-                    disabled={alertaGuardando}
-                    className="btn-secondary"
-                    style={{ width: '100%', fontSize: '12px', padding: '8px' }}>
-                    {alertaGuardando ? 'Guardando...' : user ? 'Guardar alerta' : 'Ingresá para guardar la alerta'}
-                  </button>
-                  {alertaError && <div role="alert" style={{ fontSize: '12px', color: '#f87171', marginTop: '8px' }}>{alertaError}</div>}
-                </>
-            }
+      <div className="container catalogo__layout">
+        {/* FILTROS: columna fija en escritorio, panel deslizable en el celular */}
+        <div className={`filtros-backdrop ${filtrosAbiertos ? 'is-open' : ''}`} onClick={() => setFiltrosAbiertos(false)} aria-hidden="true" />
+        <aside id="filtros" className={`filtros ${filtrosAbiertos ? 'is-open' : ''}`} aria-label="Filtros">
+          <div className="filtros__head">
+            <h2>Filtros</h2>
+            <button type="button" className="icon-btn filtros__close" onClick={() => setFiltrosAbiertos(false)} aria-label="Cerrar filtros"><Icon name="close" size={20} /></button>
           </div>
-        </div>
-        {/* RESULTS */}
-        <div className="catalogo-results">
-          {!loading && totalCount > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '13px', color: 'var(--gray4)' }}>{totalCount} resultado{totalCount !== 1 ? 's' : ''}</div>
-              <select value={ordenar} onChange={e => { setOrdenar(e.target.value); setPage(1) }}
-                style={{ background: 'var(--gray1)', border: '1px solid var(--gray2)', color: 'var(--white)', padding: '7px 12px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none', cursor: 'pointer' }}>
-                <option value="relevancia">Relevancia</option>
-                <option value="precio_asc">Precio: menor a mayor</option>
-                <option value="precio_desc">Precio: mayor a menor</option>
-                <option value="anio_desc">Año: más reciente</option>
-                <option value="anio_asc">Año: más antiguo</option>
+
+          <div className="filtros__body">
+            <Grupo titulo="Búsqueda">
+              <input className="input" aria-label="Buscar por marca o modelo" placeholder="Marca, modelo…" value={filtros.busqueda}
+                onChange={e => setF('busqueda', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') aplicarFiltros() }} />
+            </Grupo>
+
+            <Grupo titulo="Condición">
+              {chips('tipo', [['', 'Todos'], ['nuevo', 'Nuevo'], ['usado', 'Usado']])}
+            </Grupo>
+
+            <Grupo titulo="Categoría">
+              <select className="input" aria-label="Categoría" value={filtros.categoria} onChange={e => setF('categoria', e.target.value)}>
+                <option value="">Todas</option>
+                {GRUPOS.map(([key, label]) => (
+                  <optgroup key={key} label={label}>
+                    {CATEGORIAS[key].map(({ tipo }) => <option key={tipo} value={tipo}>{tipo}</option>)}
+                  </optgroup>
+                ))}
               </select>
-            </div>
-          )}
-          {loading
-            ? <div className="catalogo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(280px,100%),1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
-                {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
+            </Grupo>
+
+            <Grupo titulo="Marca">
+              <select className="input" aria-label="Marca" value={filtros.marca} onChange={e => setF('marca', e.target.value)}>
+                <option value="">Todas las marcas</option>
+                {MARCAS.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </Grupo>
+
+            <Grupo titulo="Precio (ARS)">
+              <div className="filtros__pair">
+                <label className="filtros__money">
+                  <span>$</span>
+                  <input className="input tabular" inputMode="numeric" aria-label="Precio mínimo" placeholder="Mínimo"
+                    value={miles(filtros.precioMin)} onChange={e => setF('precioMin', soloDigitos(e.target.value))} />
+                </label>
+                <label className="filtros__money">
+                  <span>$</span>
+                  <input className="input tabular" inputMode="numeric" aria-label="Precio máximo" placeholder="Máximo"
+                    value={miles(filtros.precioMax)} onChange={e => setF('precioMax', soloDigitos(e.target.value))} />
+                </label>
               </div>
+            </Grupo>
+
+            <Grupo titulo="Año">
+              <div className="filtros__pair">
+                <input className="input tabular" inputMode="numeric" maxLength={4} aria-label="Año desde" placeholder="Desde" value={filtros.anioDesde} onChange={e => setF('anioDesde', soloDigitos(e.target.value))} />
+                <input className="input tabular" inputMode="numeric" maxLength={4} aria-label="Año hasta" placeholder="Hasta" value={filtros.anioHasta} onChange={e => setF('anioHasta', soloDigitos(e.target.value))} />
+              </div>
+            </Grupo>
+
+            <Grupo titulo="Kilometraje máximo">
+              <select className="input tabular" aria-label="Kilometraje máximo" value={filtros.kmMax} onChange={e => setF('kmMax', e.target.value)}>
+                <option value="">Sin límite</option>
+                {KM_MAX.map(km => <option key={km} value={km}>Hasta {miles(km)} km</option>)}
+              </select>
+            </Grupo>
+
+            <Grupo titulo="Combustible">
+              {chips('combustible', [['', 'Todos'], ['Nafta', 'Nafta'], ['Diesel', 'Diesel'], ['Híbrido', 'Híbrido'], ['Eléctrico', 'Eléctrico']])}
+            </Grupo>
+
+            <Grupo titulo="Transmisión">
+              {chips('transmision', [['', 'Todas'], ['Manual', 'Manual'], ['Automática', 'Automática']])}
+            </Grupo>
+
+            <Grupo titulo="Concesionaria">
+              <select className="input" aria-label="Concesionaria" value={filtros.concesionaria} onChange={e => setF('concesionaria', e.target.value)}>
+                <option value="">Todas</option>
+                {concesionarias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+              </select>
+            </Grupo>
+
+            <Grupo titulo="Ciudad o localidad">
+              <input className="input" aria-label="Ciudad o localidad" placeholder="Ej: Salta, Córdoba…" value={filtros.ciudad}
+                onChange={e => setF('ciudad', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') aplicarFiltros() }} />
+            </Grupo>
+
+            <div className="alerta">
+              <div className="alerta__head"><Icon name="bell" size={16} />Alerta de búsqueda</div>
+              <p>Te mandamos un email cuando se publique un vehículo con estos filtros.</p>
+              {alertaOk
+                ? <p className="alerta__ok" role="status"><Icon name="check" size={14} strokeWidth={2.25} />Alerta guardada</p>
+                : <Button variant="secondary" size="sm" block onClick={guardarAlerta} disabled={alertaGuardando}>
+                    {alertaGuardando ? 'Guardando…' : user ? 'Guardar alerta' : 'Ingresá para guardar la alerta'}
+                  </Button>}
+              {alertaError && <p className="field__error" role="alert">{alertaError}</p>}
+            </div>
+          </div>
+
+          <div className="filtros__foot">
+            <Button variant="ghost" onClick={limpiarFiltros}>Limpiar</Button>
+            <Button onClick={aplicarFiltros}>Aplicar filtros</Button>
+          </div>
+        </aside>
+
+        {/* RESULTADOS */}
+        <section className="resultados" aria-label="Resultados" aria-busy={loading}>
+          <div className="resultados__bar">
+            <p className="resultados__count tabular" role="status">
+              {loading ? 'Buscando…' : <><strong>{totalCount.toLocaleString('es-AR')}</strong> resultado{totalCount !== 1 ? 's' : ''}{totalPages > 1 ? ` · página ${page} de ${totalPages}` : ''}</>}
+            </p>
+            <button type="button" className="btn btn--secondary btn--sm resultados__filtros" onClick={() => setFiltrosAbiertos(true)} aria-controls="filtros" aria-expanded={filtrosAbiertos}>
+              <Icon name="filter" size={16} />Filtros{filtrosActivosCount > 0 && <span className="resultados__badge tabular">{filtrosActivosCount}</span>}
+            </button>
+            <label className="resultados__sort">
+              <span>Ordenar</span>
+              <select className="input" value={ordenar} onChange={e => { setOrdenar(e.target.value); setPage(1) }}>
+                <option value="relevancia">Relevancia</option>
+                <option value="precio_asc">Menor precio</option>
+                <option value="precio_desc">Mayor precio</option>
+                <option value="anio_desc">Más nuevos</option>
+                <option value="anio_asc">Más antiguos</option>
+              </select>
+            </label>
+          </div>
+
+          {chipsAplicados.length > 0 && (
+            <ul className="resultados__chips" aria-label="Filtros aplicados">
+              {chipsAplicados.map(([k, v]) => (
+                <li key={k}>
+                  <button type="button" className="chip is-active" onClick={() => quitarFiltro(k)} aria-label={`Quitar filtro ${etiquetaFiltro(k, v, concesionarias)}`}>
+                    {etiquetaFiltro(k, v, concesionarias)}<Icon name="close" size={14} className="chip__x" />
+                  </button>
+                </li>
+              ))}
+              <li><button type="button" className="resultados__clear" onClick={limpiarFiltros}>Borrar todo</button></li>
+            </ul>
+          )}
+
+          {loading
+            ? <div className="vgrid">{[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}</div>
             : cargaError
               ? <ErrorState texto="No pudimos cargar los vehículos. Revisá tu conexión." onRetry={() => fetchAutos(page)} />
             : autos.length === 0
               ? <EmptyState titulo="No encontramos vehículos con esos filtros" texto="Probá con menos filtros o limpialos para ver todo el stock." accion={filtrosActivosCount > 0 ? 'Limpiar filtros' : undefined} onClick={limpiarFiltros} />
               : <>
-                  <div className="catalogo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(280px,100%),1fr))', gap: '1.5px', background: 'var(--gray2)' }}>
-                    {autosPagina.map(a => <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={esParticular ? toggleFavorito : undefined} />)}
+                  <div className="vgrid">
+                    {autos.map(a => <CarCard key={a.id} auto={a} isFavorito={favoritoIds.has(a.id)} onToggleFavorito={esParticular ? toggleFavorito : undefined} />)}
                   </div>
 
                   {totalPages > 1 && (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', padding: '2.5rem 0 1rem', flexWrap: 'wrap' }}>
-                      <button onClick={() => irAPagina(page - 1)} disabled={page === 1}
-                        style={{ padding: '8px 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)', background: 'transparent', color: page === 1 ? 'var(--gray3)' : 'var(--white)', cursor: page === 1 ? 'not-allowed' : 'pointer', fontSize: '13px' }}>
-                        ← Anterior
+                    <nav className="paginacion" aria-label="Paginación">
+                      <button type="button" className="paginacion__nav" onClick={() => irAPagina(page - 1)} disabled={page === 1}>
+                        <Icon name="arrowLeft" size={16} />Anterior
                       </button>
-
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
-                        const show = p === 1 || p === totalPages || Math.abs(p - page) <= 1
-                        const isDot = !show && (p === 2 && page > 4) || (!show && p === totalPages - 1 && page < totalPages - 3)
-                        if (!show && !isDot) return null
-                        if (isDot) return <span key={p} style={{ color: 'var(--gray4)', padding: '0 4px' }}>…</span>
-                        return (
-                          <button key={p} onClick={() => irAPagina(p)}
-                            style={{ width: '36px', height: '36px', borderRadius: 'var(--radius)', border: `1px solid ${p === page ? 'var(--accent)' : 'var(--gray2)'}`, background: p === page ? 'var(--accent)' : 'transparent', color: p === page ? 'var(--white)' : 'var(--gray4)', cursor: 'pointer', fontSize: '13px', fontWeight: p === page ? 700 : 400 }}>
-                            {p}
-                          </button>
-                        )
-                      })}
-
-                      <button onClick={() => irAPagina(page + 1)} disabled={page === totalPages}
-                        style={{ padding: '8px 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray2)', background: 'transparent', color: page === totalPages ? 'var(--gray3)' : 'var(--white)', cursor: page === totalPages ? 'not-allowed' : 'pointer', fontSize: '13px' }}>
-                        Siguiente →
+                      <ol>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
+                          const show = p === 1 || p === totalPages || Math.abs(p - page) <= 1
+                          const isDot = (!show && p === 2 && page > 4) || (!show && p === totalPages - 1 && page < totalPages - 3)
+                          if (!show && !isDot) return null
+                          if (isDot) return <li key={p} className="paginacion__dots" aria-hidden="true">…</li>
+                          return (
+                            <li key={p}>
+                              <button type="button" className="paginacion__num tabular" onClick={() => irAPagina(p)}
+                                aria-current={p === page ? 'page' : undefined} aria-label={`Página ${p}`}>{p}</button>
+                            </li>
+                          )
+                        })}
+                      </ol>
+                      <button type="button" className="paginacion__nav" onClick={() => irAPagina(page + 1)} disabled={page === totalPages}>
+                        Siguiente<Icon name="arrowRight" size={16} />
                       </button>
-                    </div>
+                    </nav>
                   )}
                 </>
           }
-        </div>
+        </section>
       </div>
     </div>
   )

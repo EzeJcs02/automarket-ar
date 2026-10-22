@@ -1,18 +1,41 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
+import { AnimatePresence, motion as Motion } from 'motion/react'
+import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { useModalA11y } from '../lib/useModalA11y'
+import SearchCombobox from './SearchCombobox'
+import Button from './ui/Button'
+import Icon from './ui/Icon'
+import './Navbar.css'
+
+const LINKS = [
+  ['/catalogo', 'Catálogo'],
+  ['/concesionarias', 'Concesionarias'],
+  ['/profesionales', 'Profesionales'],
+  ['/planes', 'Planes'],
+]
+
+function Wordmark() {
+  return (
+    <Link to="/" className="nav__brand" aria-label="FIORA MARKET, inicio">
+      <img src="/fiora_logo.png" alt="" className="nav__logo" />
+      <span className="nav__wordmark">FIORA<span> MARKET</span></span>
+    </Link>
+  )
+}
 
 export default function Navbar() {
   const { user, concesionaria, profesional, signOut, isAdmin } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [busqueda, setBusqueda] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [noLeidas, setNoLeidas] = useState(0)
-  const [sugerencias, setSugerencias] = useState([])
-  const [showSug, setShowSug] = useState(false)
-  const debounceRef = useRef(null)
-  const searchRef = useRef(null)
+  const [scrolled, setScrolled] = useState(false)
+  const sheetRef = useRef(null)
+
+  useModalA11y(sheetRef, () => setMenuOpen(false), menuOpen)
 
   useEffect(() => {
     if (!concesionaria) return
@@ -25,178 +48,134 @@ export default function Navbar() {
     return () => supabase.removeChannel(channel)
   }, [concesionaria])
 
-  async function handleSignOut() {
-    await signOut()
-    navigate('/')
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Cerrar el menú al navegar (ajuste de estado durante el render, sin efecto)
+  const [ultimaRuta, setUltimaRuta] = useState(location.pathname)
+  if (ultimaRuta !== location.pathname) {
+    setUltimaRuta(location.pathname)
     setMenuOpen(false)
   }
 
-  function handleBusquedaChange(val) {
-    setBusqueda(val)
-    clearTimeout(debounceRef.current)
-    if (!val.trim() || val.length < 2) { setSugerencias([]); setShowSug(false); return }
-    debounceRef.current = setTimeout(async () => {
-      const safe = val.replace(/[%_,()]/g, '\\$&')
-      const { data } = await supabase.from('autos')
-        .select('id, marca, modelo, anio, tipo')
-        .eq('activo', true)
-        .or(`marca.ilike.%${safe}%,modelo.ilike.%${safe}%`)
-        .limit(6)
-      setSugerencias(data || [])
-      setShowSug(true)
-    }, 280)
-  }
+  // Bloquear el scroll de fondo mientras el menú está abierto
+  useEffect(() => {
+    if (!menuOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [menuOpen])
 
-  function elegirSugerencia(a) {
-    setShowSug(false)
-    setBusqueda('')
-    navigate(`/auto/${a.id}`)
+  async function handleSignOut() {
+    await signOut()
+    setMenuOpen(false)
+    navigate('/')
   }
 
   function handleSearch(e) {
     e.preventDefault()
-    setShowSug(false)
-    if (busqueda.trim()) navigate(`/catalogo?q=${encodeURIComponent(busqueda.trim())}`)
-    else navigate('/catalogo')
+    const q = busqueda.trim()
+    navigate(q ? `/catalogo?q=${encodeURIComponent(q)}` : '/catalogo')
+    setBusqueda('')
     setMenuOpen(false)
   }
 
+  const esParticular = user && !concesionaria && !isAdmin
+  const tienePanel = isAdmin || concesionaria || profesional
+  const panelTo = isAdmin ? '/admin' : concesionaria ? '/panel' : '/panel-profesional'
+  const panelLabel = isAdmin ? 'Admin' : concesionaria ? (concesionaria?.nombre || 'Mi panel') : (profesional?.nombre || 'Mi panel')
+  const badge = noLeidas > 0 && <span className="nav__count" aria-label={`${noLeidas} consultas sin leer`}>{noLeidas > 99 ? '99+' : noLeidas}</span>
+
+  const searchForm = (extra = '') => (
+    <form onSubmit={handleSearch} className={`nav__search ${extra}`} role="search">
+      <Icon name="search" size={16} className="nav__search-icon" />
+      <SearchCombobox value={busqueda} onChange={setBusqueda} placeholder="Marca, modelo…" inputClassName="nav__search-input" />
+    </form>
+  )
+
   return (
     <>
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-        background: 'var(--black)', borderBottom: '1px solid var(--gray2)',
-        padding: '0 1.5rem', height: '58px', display: 'flex',
-        alignItems: 'center', justifyContent: 'space-between'
-      }}>
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', whiteSpace: 'nowrap' }}>
-          <img src="/fiora_logo.png" alt="Fiora Market Logo" style={{ height: '36px', mixBlendMode: 'lighten', borderRadius: '2px' }} />
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '2px', color: 'var(--white)' }}>
-            FIORA<span style={{ color: 'var(--accent)' }}> MARKET</span>
-          </span>
-        </Link>
+      <a href="#contenido" className="skip-link">Saltar al contenido</a>
+      <header className={`nav ${scrolled ? 'is-scrolled' : ''}`}>
+        <div className="nav__inner">
+          <Wordmark />
 
-        {/* DESKTOP: buscador + links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'flex-end' }} className="nav-desktop">
-          <div ref={searchRef} style={{ position: 'relative', maxWidth: '360px', width: '100%' }}>
-            <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '6px 16px' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" aria-label="Buscar vehículos" placeholder="Buscar vehículo, marca, modelo..." value={busqueda}
-                onChange={e => handleBusquedaChange(e.target.value)}
-                onFocus={() => sugerencias.length > 0 && setShowSug(true)}
-                onBlur={() => setTimeout(() => setShowSug(false), 150)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '13px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
-            </form>
-            {showSug && sugerencias.length > 0 && (
-              <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', zIndex: 2000, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-                {sugerencias.map(a => (
-                  <div key={a.id} onMouseDown={() => elegirSugerencia(a)}
-                    style={{ padding: '10px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray2)', transition: 'background .15s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--gray2)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                    <span style={{ fontSize: '13px', color: 'var(--white)', fontWeight: 500 }}>{a.marca} {a.modelo}</span>
-                    <span style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)' }}>{a.anio} · {a.tipo}</span>
-                  </div>
-                ))}
-                <div onMouseDown={handleSearch}
-                  style={{ padding: '9px 16px', cursor: 'pointer', fontSize: '12px', color: 'var(--accent)', textAlign: 'center', fontWeight: 600 }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--gray2)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  Ver todos los resultados →
-                </div>
-              </div>
+          <nav className="nav__links" aria-label="Principal">
+            {LINKS.map(([to, label]) => (
+              <NavLink key={to} to={to} className={({ isActive }) => `nav__link ${isActive ? 'is-active' : ''}`}>{label}</NavLink>
+            ))}
+          </nav>
+
+          <div className="nav__actions">
+            {searchForm('nav__search--desktop')}
+            {user ? (
+              <>
+                {esParticular && (
+                  <NavLink to="/favoritos" className="nav__icon-btn" aria-label="Favoritos" title="Favoritos"><Icon name="heart" /></NavLink>
+                )}
+                {esParticular && <Button to="/mi-cuenta" variant="secondary" size="sm">Mi cuenta</Button>}
+                {tienePanel && (
+                  <Button to={panelTo} variant="secondary" size="sm" className="nav__panel-btn">
+                    <span className="nav__panel-label">{panelLabel}</span>{badge}
+                  </Button>
+                )}
+                <button type="button" className="nav__icon-btn" onClick={handleSignOut} aria-label="Cerrar sesión" title="Cerrar sesión"><Icon name="logout" /></button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="nav__link">Ingresar</Link>
+                <Button to="/registro" size="sm">Publicar vehículo</Button>
+              </>
             )}
           </div>
-          <Link to="/catalogo" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Catálogo</Link>
-          <Link to="/concesionarias" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Concesionarias</Link>
-          <Link to="/profesionales" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>Profesionales</Link>
-          <Link to="/planes" style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>Planes</Link>
-          {user ? (
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              {!concesionaria && !isAdmin && (
-                <>
-                  <Link to="/favoritos" style={{ fontSize: '13px', color: 'var(--gray4)', fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>♡ Favoritos</Link>
-                  <Link to="/mi-cuenta"><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Mi cuenta</button></Link>
-                </>
-              )}
-              {(isAdmin || concesionaria || profesional) && (
-                <>
-                  <Link to={isAdmin ? '/admin' : concesionaria ? '/panel' : '/panel-profesional'}>
-                    <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px', position: 'relative' }}>
-                      {isAdmin ? 'Admin' : concesionaria ? (concesionaria?.nombre || 'Mi panel') : (profesional?.nombre || 'Mi panel')}
-                      {noLeidas > 0 && (
-                        <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '10px', fontWeight: 700, padding: '2px 6px', minWidth: '18px', textAlign: 'center', lineHeight: 1.4 }}>
-                          {noLeidas > 99 ? '99+' : noLeidas}
-                        </span>
-                      )}
-                    </button>
-                  </Link>
-                </>
-              )}
-              <button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }} onClick={handleSignOut}>Salir</button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <Link to="/login"><button className="btn-secondary" style={{ padding: '7px 16px', fontSize: '13px' }}>Ingresar</button></Link>
-              <Link to="/registro"><button className="btn-primary" style={{ padding: '7px 16px', fontSize: '13px' }}>Publicar vehículo</button></Link>
-            </div>
-          )}
+
+          <button type="button" className="nav__burger" onClick={() => setMenuOpen(true)} aria-label="Abrir menú" aria-expanded={menuOpen} aria-controls="menu-movil">
+            <Icon name="menu" size={22} />
+          </button>
         </div>
+      </header>
 
-        {/* MOBILE: botón hamburguesa */}
-        <button onClick={() => setMenuOpen(!menuOpen)} className="nav-hamburger" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen} style={{ background: 'transparent', border: 'none', color: 'var(--white)', cursor: 'pointer', padding: '8px', display: 'none', flexDirection: 'column', gap: '5px' }}>
-          <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
-          <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', opacity: menuOpen ? 0 : 1 }} />
-          <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--white)', transition: 'all .2s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
-        </button>
-      </nav>
-
-      {/* MOBILE MENU */}
-      {menuOpen && (
-        <div style={{ position: 'fixed', top: '58px', left: 0, right: 0, bottom: 0, background: 'var(--black)', zIndex: 999, padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="nav-mobile-menu">
-          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: '100px', padding: '10px 16px', width: '100%' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" aria-label="Buscar vehículos" placeholder="Buscar vehículos..." value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--white)', fontSize: '15px', outline: 'none', width: '100%', marginLeft: '10px', fontFamily: 'var(--font-body)' }} />
-          </form>
-          <Link to="/catalogo" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Catálogo</Link>
-          <Link to="/concesionarias" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Concesionarias</Link>
-          <Link to="/profesionales" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Profesionales</Link>
-          <Link to="/planes" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--accent)', fontWeight: 700, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Planes</Link>
-          {user ? (
-            <>
-              {!concesionaria && !isAdmin && (
-                <>
-                  <Link to="/favoritos" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>♡ Mis Favoritos</Link>
-                  <Link to="/mi-cuenta" onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)' }}>Mi cuenta</Link>
-                </>
-              )}
-              {(isAdmin || concesionaria || profesional) && (
-                <Link to={isAdmin ? '/admin' : concesionaria ? '/panel' : '/panel-profesional'} onClick={() => setMenuOpen(false)} style={{ fontSize: '18px', color: 'var(--white)', fontWeight: 500, textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {isAdmin ? 'Panel Admin' : 'Mi Panel'}
-                  {noLeidas > 0 && (
-                    <span style={{ background: 'var(--accent)', color: '#fff', borderRadius: '100px', fontSize: '12px', fontWeight: 700, padding: '2px 8px' }}>
-                      {noLeidas > 99 ? '99+' : noLeidas}
-                    </span>
-                  )}
-                </Link>
-              )}
-              <button onClick={handleSignOut} style={{ background: 'transparent', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '14px', borderRadius: 'var(--radius)', fontSize: '15px', cursor: 'pointer', marginTop: 'auto' }}>Cerrar sesión</button>
-            </>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'auto' }}>
-              <Link to="/login" onClick={() => setMenuOpen(false)}><button className="btn-secondary" style={{ width: '100%', padding: '14px', fontSize: '15px' }}>Ingresar</button></Link>
-              <Link to="/registro" onClick={() => setMenuOpen(false)}><button className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '15px' }}>Publicar vehículo</button></Link>
+      <AnimatePresence>
+        {menuOpen && (
+          <Motion.div
+            id="menu-movil" ref={sheetRef} className="nav-sheet"
+            role="dialog" aria-modal="true" aria-label="Menú"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
+          >
+            <div className="nav-sheet__head">
+              <Wordmark />
+              <button type="button" className="nav__icon-btn" onClick={() => setMenuOpen(false)} aria-label="Cerrar menú"><Icon name="close" size={22} /></button>
             </div>
-          )}
-        </div>
-      )}
-
-      <style>{`
-        @media (max-width: 1200px) {
-          .nav-desktop { display: none !important; }
-          .nav-hamburger { display: flex !important; }
-        }
-      `}</style>
+            <Motion.div className="nav-sheet__body"
+              initial={{ y: 12 }} animate={{ y: 0 }} transition={{ duration: 0.32, ease: [0.2, 0.7, 0.2, 1] }}>
+              {searchForm('nav__search--sheet')}
+              <nav className="nav-sheet__links" aria-label="Principal">
+                {LINKS.map(([to, label]) => (
+                  <NavLink key={to} to={to} className={({ isActive }) => `nav-sheet__link ${isActive ? 'is-active' : ''}`}>
+                    {label}<Icon name="arrowRight" size={18} />
+                  </NavLink>
+                ))}
+                {esParticular && <NavLink to="/favoritos" className="nav-sheet__link">Mis favoritos<Icon name="arrowRight" size={18} /></NavLink>}
+                {esParticular && <NavLink to="/mi-cuenta" className="nav-sheet__link">Mi cuenta<Icon name="arrowRight" size={18} /></NavLink>}
+                {tienePanel && <NavLink to={panelTo} className="nav-sheet__link">{isAdmin ? 'Panel admin' : 'Mi panel'}{badge}<Icon name="arrowRight" size={18} /></NavLink>}
+              </nav>
+              <div className="nav-sheet__foot">
+                {user
+                  ? <Button variant="secondary" size="lg" block onClick={handleSignOut}>Cerrar sesión</Button>
+                  : <>
+                      <Button to="/registro" size="lg" block>Publicar vehículo</Button>
+                      <Button to="/login" variant="secondary" size="lg" block>Ingresar</Button>
+                    </>}
+              </div>
+            </Motion.div>
+          </Motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

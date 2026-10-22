@@ -1,0 +1,21 @@
+.combo { position: relative; flex: 1; min-width: 0; }
+.combo input { width: 100%; }
+.combo input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+.combo__list {
+  position: absolute; top: calc(100% + 10px); left: 0; right: 0; z-index: 1200;
+  min-width: 260px; padding: var(--space-1); list-style: none;
+  background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--r-md);
+  box-shadow: var(--shadow-pop), var(--highlight);
+  animation: combo-in var(--dur-2) var(--ease-out);
+}
+.combo__option {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  padding: 10px var(--space-3); border-radius: var(--r-sm); cursor: pointer;
+  text-align: left;
+}
+.combo__option[aria-selected="true"] { background: var(--surface-4); }
+.combo__name { font-size: var(--text-sm); font-weight: 500; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.combo__meta { flex-shrink: 0; font-size: var(--text-xs); color: var(--text-3); text-transform: capitalize; }
+
+@keyframes combo-in { from { opacity: 0; transform: translateY(-4px); } }

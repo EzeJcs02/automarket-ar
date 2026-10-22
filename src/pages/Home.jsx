@@ -1,62 +1,73 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { AnimatePresence, motion as Motion } from 'motion/react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CarCard from '../components/CarCard'
-import HomeHero from '../components/HomeHero'
-import { RevealTitle, useScrollReveal } from '../components/Reveal'
-import './Home.css'
 import CarCardSkeleton from '../components/CarCardSkeleton'
+import DealerCard from '../components/DealerCard'
+import HomeHero from '../components/HomeHero'
+import { useScrollReveal } from '../components/Reveal'
 import { ErrorState, Skeleton } from '../components/Estados'
-import { setPageMeta } from '../lib/seo'
 import { GuiaBoton } from '../components/GuiaModal'
+import Button from '../components/ui/Button'
+import Badge from '../components/ui/Badge'
+import Icon from '../components/ui/Icon'
+import SectionHeader from '../components/ui/SectionHeader'
+import Segmented from '../components/ui/Segmented'
+import { setPageMeta } from '../lib/seo'
 import { FONDO_SHOWROOM_DEFAULT } from '../lib/marca'
+import { CATEGORIAS, GRUPOS } from '../lib/categorias'
+import { formatKm, formatPrecio } from '../lib/formato'
+import './Home.css'
 
-const TIPOS = {
-  autos: [
-    { tipo: 'SUV', img: '/img/tipos/icon_suv.webp' },
-    { tipo: 'Hatchback', img: '/img/tipos/icon_hatchback.webp' },
-    { tipo: 'Sedán', img: '/img/tipos/icon_sedan.webp' },
-    { tipo: 'Pickup', img: '/img/tipos/icon_pickup.webp' },
-    { tipo: 'Minivan', img: '/img/tipos/icon_minivan.webp' },
-    { tipo: 'Coupé', img: '/img/tipos/icon_coupe.webp' },
-  ],
-  motos: [
-    { tipo: 'Naked', img: '/img/tipos/icon_moto_naked.webp' },
-    { tipo: 'Deportiva', img: '/img/tipos/icon_moto_deportiva.webp' },
-    { tipo: 'Touring', img: '/img/tipos/icon_moto_touring.webp' },
-    { tipo: 'Scooter', img: '/img/tipos/icon_moto_scooter.webp' },
-    { tipo: 'Enduro', img: '/img/tipos/icon_moto_enduro.webp' },
-    { tipo: 'Custom', img: '/img/tipos/icon_moto_custom.webp' },
-  ],
-  nautica: [
-    { tipo: 'Lancha', img: '/img/tipos/icon_nautica_lancha.webp' },
-    { tipo: 'Velero', img: '/img/tipos/icon_nautica_velero.webp' },
-    { tipo: 'Yate', img: '/img/tipos/icon_nautica_yate.webp' },
-    { tipo: 'Moto de Agua', img: '/img/tipos/icon_nautica_motoagua.webp' },
-    { tipo: 'Semi-rígido', img: '/img/tipos/icon_nautica_semirigido.webp' },
-  ],
+const CONFIANZA = [
+  ['shield', 'Concesionarias verificadas', 'Cada agencia se revisa antes de publicar.'],
+  ['whatsapp', 'Contacto directo', 'Hablás con quien vende, sin intermediarios ni comisiones.'],
+  ['compare', 'Compará hasta 3', 'Fichas lado a lado para decidir con datos.'],
+  ['bell', 'Alertas de búsqueda', 'Te avisamos por email cuando aparece lo que buscás.'],
+]
+
+const GUIA = {
+  comprar: {
+    titulo: 'Encontrá el vehículo ideal al mejor precio',
+    cta: 'Explorar catálogo',
+    guia: 'compradores',
+    pasos: [
+      ['Explorá el catálogo', 'Filtrá por marca, modelo, precio, año y ubicación.'],
+      ['Elegí con confianza', 'Revisá el perfil de la agencia, sus reseñas y su stock.'],
+      ['Contactá directo', 'Escribí por WhatsApp o enviá una consulta. Sin comisiones.'],
+    ],
+  },
+  vender: {
+    titulo: 'Publicá tu vehículo y llegá a miles de compradores',
+    cta: 'Publicar vehículo',
+    guia: 'vendedores',
+    pasos: [
+      ['Cargá los datos', 'Marca, modelo, año, kilómetros y estado del vehículo.'],
+      ['Sumá fotos y precio', 'Tu publicación queda visible en minutos.'],
+      ['Cerrá la venta', 'Respondé consultas y coordiná directo con el interesado.'],
+    ],
+  },
 }
 
 export default function Home() {
-  const navigate = useNavigate()
   const { user, concesionaria } = useAuth()
   const [autos, setAutos] = useState([])
   const [concesionarias, setConcesionarias] = useState([])
   const [tabGuia, setTabGuia] = useState('comprar')
-  const [tipoCategoria, setTipoCategoria] = useState('autos')
+  const [grupo, setGrupo] = useState('autos')
   const [banners, setBanners] = useState([])
-  const [rightAds, setRightAds] = useState([])
+  const [ads, setAds] = useState([])
   const [autoFijado, setAutoFijado] = useState(null)
-  const [rightIdx, setRightIdx] = useState(0)
-  const [bottomIdx, setBottomIdx] = useState(0)
+  const [adIdx, setAdIdx] = useState(0)
+  const [bannerIdx, setBannerIdx] = useState(0)
   const [adsPaused, setAdsPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [loading, setLoading] = useState(true)
-  const [configMissing] = useState(!import.meta.env.VITE_SUPABASE_URL)
-
-  useScrollReveal([loading, autos.length, concesionarias.length, autoFijado, tabGuia])
-
   const [cargaError, setCargaError] = useState(false)
+  const configMissing = !import.meta.env.VITE_SUPABASE_URL
+
+  useScrollReveal([loading, autos.length, concesionarias.length, autoFijado, grupo])
 
   useEffect(() => {
     setPageMeta({ title: null, description: 'La plataforma de vehículos más avanzada de Argentina. Miles de autos, motos y náutica de concesionarias verificadas.', path: '/' })
@@ -64,315 +75,251 @@ export default function Home() {
   }, [])
 
   async function fetchAll() {
-      setLoading(true)
-      setCargaError(false)
-      try {
-        const [rAutos, rConc, rBanners, rAds, rFijado] = await Promise.all([
-          supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('activo', true).or('urgente.eq.true,destacado.eq.true').limit(6).order('created_at', { ascending: false }),
-          supabase.from('concesionarias').select('*').eq('aprobada', true).limit(6),
-          supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10),
-          supabase.from('publicidades').select('id, nombre, imagen_url, link_url, fondo').eq('activo', true).order('created_at', { ascending: false }),
-          supabase.from('autos').select('*, concesionarias(nombre, ciudad)').eq('fijado_home', true).eq('activo', true).limit(20)
-        ])
-        if (rAutos.error || rConc.error) throw rAutos.error || rConc.error
-
-        const sorted = (rAutos.data || []).sort((a, b) => {
-          if (a.urgente !== b.urgente) return (b.urgente ? 1 : 0) - (a.urgente ? 1 : 0)
-          return new Date(b.created_at) - new Date(a.created_at)
-        })
-        setAutos(sorted)
-        setConcesionarias(rConc.data || [])
-        setBanners(rBanners.data || [])
-        setRightAds(rAds.data || [])
-        // Un solo lugar en el home: si pagaron varios, rota al azar en cada visita.
-        const fijados = rFijado.data || []
-        setAutoFijado(fijados.length ? fijados[Math.floor(Math.random() * fijados.length)] : null)
-      } catch (err) {
-        console.error("Error fetching home data:", err)
-        setCargaError(true)
-      } finally {
-        setLoading(false)
-      }
+    setLoading(true)
+    setCargaError(false)
+    try {
+      const [rAutos, rConc, rBanners, rAds, rFijado] = await Promise.all([
+        // Recién publicados: primero los urgentes y destacados (pagos), después lo más nuevo
+        supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)').eq('activo', true)
+          .order('urgente', { ascending: false, nullsFirst: false })
+          .order('destacado', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false }).limit(6),
+        supabase.from('concesionarias').select('*, autos(count)').eq('aprobada', true).order('destacada', { ascending: false }).limit(8),
+        supabase.from('concesionarias').select('id, nombre, portada_url').eq('banner_activo', true).limit(10),
+        supabase.from('publicidades').select('id, nombre, imagen_url, link_url, fondo').eq('activo', true).order('created_at', { ascending: false }),
+        supabase.from('autos').select('*, concesionarias(nombre, ciudad, plan)').eq('fijado_home', true).eq('activo', true).limit(20),
+      ])
+      if (rAutos.error || rConc.error) throw rAutos.error || rConc.error
+      setAutos(rAutos.data || [])
+      setConcesionarias(rConc.data || [])
+      setBanners(rBanners.data || [])
+      setAds(rAds.data || [])
+      // Un solo lugar en el home: si pagaron varios, rota al azar en cada visita.
+      const fijados = rFijado.data || []
+      setAutoFijado(fijados.length ? fijados[Math.floor(Math.random() * fijados.length)] : null)
+    } catch (err) {
+      console.error('Error fetching home data:', err)
+      setCargaError(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    if (rightAds.length <= 1 || adsPaused) return
-    const t = setInterval(() => setRightIdx(i => (i + 1) % rightAds.length), 3500)
+    if (ads.length <= 1 || adsPaused) return
+    const t = setInterval(() => setAdIdx(i => (i + 1) % ads.length), 3500)
     return () => clearInterval(t)
-  }, [rightAds.length, adsPaused])
+  }, [ads.length, adsPaused])
 
   useEffect(() => {
     if (banners.length <= 1 || adsPaused) return
-    const t = setInterval(() => setBottomIdx(i => (i + 1) % Math.max(banners.length, 1)), 4000)
+    const t = setInterval(() => setBannerIdx(i => (i + 1) % banners.length), 4000)
     return () => clearInterval(t)
   }, [banners.length, adsPaused])
 
-  const colors = ['var(--accent)', '#1a7a4a', '#185FA5', '#c9a84c', '#7F77DD', '#D85A30']
-
-  function LogoConcesionaria({ c, i, size = 46, fontSize = 22 }) {
-    if (c.logo_url) {
-      return (
-        <img src={c.logo_url} alt={c.nombre}
-          style={{ width: size, height: size, borderRadius: 'var(--radius)', objectFit: 'cover', flexShrink: 0 }} />
-      )
-    }
-    return (
-      <div style={{ width: size, height: size, borderRadius: 'var(--radius)', background: colors[i % colors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize, flexShrink: 0 }}>
-        {c.nombre?.[0]?.toUpperCase()}
-      </div>
-    )
-  }
-
-  const guiaData = {
-    comprar: {
-      para: 'Para compradores',
-      headline: 'Encontrá el vehículo ideal al mejor precio del mercado',
-      cta: 'Ver catálogo →',
-      steps: [
-        { num: '01', title: 'Explorá el catálogo', desc: 'Filtrá por marca, modelo, precio, año y ubicación para encontrar el vehículo ideal.' },
-        { num: '02', title: 'Elegí la concesionaria', desc: 'Revisá el perfil de la agencia, su reputación y el stock disponible.' },
-        { num: '03', title: 'Contactá y coordiná', desc: 'Escribí por WhatsApp o enviá una consulta directa. Sin intermediarios ni comisiones.' },
-      ],
-    },
-    vender: {
-      para: 'Para vendedores',
-      headline: 'Publicá tu vehículo y llegá a miles de compradores',
-      cta: 'Publicar vehículo →',
-      steps: [
-        { num: '01', title: 'Ingresá los datos', desc: 'Completá los detalles de tu vehículo: marca, modelo, año, km y estado.' },
-        { num: '02', title: 'Publicá tu vehículo', desc: 'Sumá fotos y precio. Tu publicación llega a miles de compradores en minutos.' },
-        { num: '03', title: 'Coordiná la venta', desc: 'Respondé consultas y cerrá el trato directamente con el interesado.' },
-      ],
-    },
-  }
-  const guiaActual = guiaData[tabGuia]
-  const isComprar = tabGuia === 'comprar'
+  const guia = GUIA[tabGuia]
+  const ctaGuia = tabGuia === 'comprar' ? '/catalogo' : concesionaria ? '/panel' : user ? '/mi-cuenta' : '/registro'
+  const banner = banners[bannerIdx]
 
   return (
-    <div className="market-home">
+    <div className="home">
       {configMissing && (
-        <div style={{ background: 'var(--accent)', color: 'white', padding: '10px', textAlign: 'center', fontSize: '13px', fontWeight: 600, position: 'sticky', top: '58px', zIndex: 1000 }}>
-          ⚠️ Configuración de Supabase incompleta. Revisa tu archivo .env para ver los vehículos reales.
-        </div>
+        <div className="home__config" role="alert">Configuración de Supabase incompleta. Revisá tu archivo .env para ver los vehículos reales.</div>
       )}
 
       <HomeHero />
 
-      {(rightAds.length > 0 || banners.length > 0) && (
-        <aside data-reveal="up" className="market-partners" aria-label="Publicidad">
-          <div className="market-partners-label"><span>ESPACIO PUBLICITARIO</span><strong>Conectá con los que <br />conocen el camino.</strong><Link to="/publicitate">Tu marca, acá ↗</Link>
-            {(rightAds.length > 1 || banners.length > 1) && <button className="market-ad-pause" onClick={() => setAdsPaused(!adsPaused)}>{adsPaused ? 'Reanudar publicidad' : 'Pausar publicidad'}</button>}
+      {/* CONFIANZA */}
+      <section className="trust" aria-label="Por qué FIORA MARKET">
+        <ul className="container trust__list" data-reveal-stagger>
+          {CONFIANZA.map(([icon, titulo, texto]) => (
+            <li key={titulo} className="trust__item">
+              <span className="trust__icon"><Icon name={icon} size={18} /></span>
+              <div>
+                <strong>{titulo}</strong>
+                <p>{texto}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* EXPLORAR POR TIPO */}
+      <section className="home-sec" aria-labelledby="tipos-title">
+        <div className="container">
+          <SectionHeader id="tipos-title" title="Explorá por tipo"
+            desc="Empezá por lo que necesitás: ciudad, ruta, trabajo o agua."
+            action={<Segmented label="Categoría" options={GRUPOS} value={grupo} onChange={setGrupo} />} />
+          <ul className="types" key={grupo} data-reveal-stagger>
+            {CATEGORIAS[grupo].map(({ tipo, img }) => (
+              <li key={tipo}>
+                <Link to={`/catalogo?categoria=${encodeURIComponent(tipo)}`} className="type-tile">
+                  <span className="type-tile__img"><img src={img} alt="" width="96" height="96" loading="lazy" decoding="async" /></span>
+                  <span className="type-tile__name">{tipo}</span>
+                  <Icon name="arrowRight" size={16} className="type-tile__go" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* DESTACADO DEL DÍA */}
+      {autoFijado && (
+        <section className="home-sec home-sec--tight" aria-labelledby="spot-title">
+          <div className="container">
+            <article className="spotlight" data-reveal="up">
+              <div className="spotlight__media">
+                {autoFijado.fotos?.[0]
+                  ? <img src={autoFijado.fotos[0]} alt="" />
+                  : <Icon name="car" size={56} strokeWidth={1.25} />}
+              </div>
+              <div className="spotlight__body">
+                <Badge tone="champagne-soft">Destacado del día</Badge>
+                <p className="spotlight__brand">{autoFijado.marca}</p>
+                <h2 id="spot-title" className="spotlight__title">
+                  <Link to={`/auto/${autoFijado.id}`} className="spotlight__link">{autoFijado.modelo}</Link>
+                </h2>
+                <ul className="spotlight__specs tabular">
+                  <li>{autoFijado.anio}</li>
+                  <li>{formatKm(autoFijado.kilometraje)}</li>
+                  {autoFijado.combustible && <li>{autoFijado.combustible}</li>}
+                </ul>
+                <p className="spotlight__price tabular">{formatPrecio(autoFijado.precio_ars)}</p>
+                {autoFijado.concesionarias?.nombre && (
+                  <p className="spotlight__dealer"><Icon name="pin" size={14} />{autoFijado.concesionarias.nombre}{autoFijado.concesionarias.ciudad ? ` · ${autoFijado.concesionarias.ciudad}` : ''}</p>
+                )}
+                <span className="btn btn--light spotlight__cta" aria-hidden="true">Ver vehículo<Icon name="arrowRight" size={18} /></span>
+              </div>
+            </article>
           </div>
-          {rightAds.length > 0 && (
-            <div className="market-ad">
-              {rightAds.map((ad, i) => (
-                <a key={ad.id} href={ad.link_url || undefined} target="_blank" rel="noopener noreferrer" tabIndex={i === rightIdx ? 0 : -1} aria-hidden={i !== rightIdx} className={i === rightIdx ? 'is-active' : ''} style={{ background: ad.fondo === 'claro' ? '#fff' : '#101113' }}>
-                  <img src={ad.imagen_url} alt={ad.nombre} loading="lazy" />
-                </a>
-              ))}
-              {rightAds.length > 1 && <div className="market-ad-dots">{rightAds.map((ad, i) => <button key={ad.id} aria-label={`Ver publicidad de ${ad.nombre}`} aria-pressed={i === rightIdx} onClick={() => setRightIdx(i)} />)}</div>}
+        </section>
+      )}
+
+      {/* RECIÉN PUBLICADOS */}
+      <section className="home-sec" aria-labelledby="nuevos-title">
+        <div className="container">
+          <SectionHeader id="nuevos-title" title="Recién publicados"
+            desc="Stock que acaba de entrar, con los destacados primero."
+            action={<Button to="/catalogo" variant="link" className="home__more">Ver todo el catálogo<Icon name="arrowRight" size={16} className="btn__arrow" /></Button>} />
+          {loading ? (
+            <div className="vgrid home__grid">{[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}</div>
+          ) : cargaError ? (
+            <ErrorState onRetry={fetchAll} />
+          ) : autos.length === 0 ? (
+            <p className="home__empty">Por ahora no hay vehículos publicados. Volvé pronto.</p>
+          ) : (
+            <div className="vgrid home__grid" data-reveal-stagger>
+              {autos.map(a => <CarCard key={a.id} auto={a} />)}
             </div>
           )}
-          {banners.length > 0 && (
-            <div className="market-banner" style={{ backgroundImage: `url("${banners[bottomIdx]?.portada_url || FONDO_SHOWROOM_DEFAULT}")` }}>
-              <span>CONCESIONARIA DESTACADA</span>
-              <Link to={`/concesionaria/${banners[bottomIdx]?.id}`}><strong>{banners[bottomIdx]?.nombre}</strong><span>Conocé sus vehículos →</span></Link>
-            </div>
+        </div>
+      </section>
+
+      {/* CONCESIONARIAS */}
+      <section className="home-sec home-sec--alt" aria-labelledby="conc-title">
+        <div className="container">
+          <SectionHeader id="conc-title" title="Concesionarias de la red"
+            desc="Agencias con catálogo online, reseñas reales y contacto directo."
+            action={<Button to="/concesionarias" variant="link" className="home__more">Ver todas<Icon name="arrowRight" size={16} className="btn__arrow" /></Button>} />
+          {loading || cargaError ? (
+            <div className="rail">{[1, 2, 3, 4].map(i => <Skeleton key={i} h={232} r="12px" style={{ flex: '0 0 300px' }} />)}</div>
+          ) : concesionarias.length === 0 ? (
+            <p className="home__empty">Todavía no hay concesionarias registradas.</p>
+          ) : (
+            <ul className="rail" data-reveal-stagger>
+              {concesionarias.map(c => <li key={c.id}><DealerCard c={c} /></li>)}
+            </ul>
           )}
+        </div>
+      </section>
+
+      {/* CÓMO FUNCIONA */}
+      <section className="home-sec" aria-labelledby="como-title">
+        <div className="container">
+          <SectionHeader id="como-title" title="Cómo funciona"
+            action={<Segmented label="Quiero" options={[['comprar', 'Comprar'], ['vender', 'Vender']]} value={tabGuia} onChange={setTabGuia} />} />
+          <AnimatePresence mode="wait" initial={false}>
+            <Motion.div key={tabGuia} className="how"
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.24, ease: [0.2, 0.7, 0.2, 1] }}>
+              <div className="how__intro">
+                <h3 className="how__title">{guia.titulo}</h3>
+                <div className="how__ctas">
+                  <Button to={ctaGuia}>{guia.cta}<Icon name="arrowRight" size={16} /></Button>
+                  <GuiaBoton seccion={guia.guia} />
+                </div>
+              </div>
+              <ol className="how__steps">
+                {guia.pasos.map(([titulo, texto], i) => (
+                  <li key={titulo} className="how__step">
+                    <span className="how__num tabular">{String(i + 1).padStart(2, '0')}</span>
+                    <h4>{titulo}</h4>
+                    <p>{texto}</p>
+                  </li>
+                ))}
+              </ol>
+            </Motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* ESPACIO PUBLICITARIO */}
+      {(ads.length > 0 || banners.length > 0) && (
+        <aside className="home-sec home-sec--tight" aria-label="Publicidad">
+          <div className="container partners" data-reveal="up">
+            <div className="partners__intro">
+              <span className="partners__label">Espacio publicitario</span>
+              <p>Conectá con los que conocen el camino.</p>
+              <Link to="/publicitate" className="partners__link">Tu marca, acá<Icon name="arrowRight" size={14} /></Link>
+              {(ads.length > 1 || banners.length > 1) && (
+                <button type="button" className="partners__pause" onClick={() => setAdsPaused(p => !p)}>
+                  {adsPaused ? 'Reanudar publicidad' : 'Pausar publicidad'}
+                </button>
+              )}
+            </div>
+            {ads.length > 0 && (
+              <div className="partners__ad">
+                {ads.map((ad, i) => (
+                  <a key={ad.id} href={ad.link_url || undefined} target="_blank" rel="noopener noreferrer"
+                    tabIndex={i === adIdx ? 0 : -1} aria-hidden={i !== adIdx}
+                    className={`${i === adIdx ? 'is-active' : ''} ${ad.fondo === 'claro' ? 'is-light' : ''}`}>
+                    <img src={ad.imagen_url} alt={ad.nombre} loading="lazy" />
+                  </a>
+                ))}
+                {ads.length > 1 && (
+                  <div className="partners__dots">
+                    {ads.map((ad, i) => <button key={ad.id} type="button" aria-label={`Ver publicidad de ${ad.nombre}`} aria-pressed={i === adIdx} onClick={() => setAdIdx(i)} />)}
+                  </div>
+                )}
+              </div>
+            )}
+            {banner && (
+              <Link to={`/concesionaria/${banner.id}`} className="partners__banner" style={{ backgroundImage: `url("${banner.portada_url || FONDO_SHOWROOM_DEFAULT}")` }}>
+                <span className="partners__label">Concesionaria destacada</span>
+                <strong>{banner.nombre}</strong>
+                <span className="partners__banner-go">Conocé sus vehículos<Icon name="arrowRight" size={14} /></span>
+              </Link>
+            )}
+          </div>
         </aside>
       )}
 
-      {/* VEHÍCULO FIJADO */}
-      {autoFijado && (
-        <div className="home-section responsive-section" style={{ padding: '3rem 4rem', borderBottom: '1px solid var(--gray2)', background: 'rgba(230,51,41,0.03)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#c9a84c', letterSpacing: '.18em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-            <span style={{ display: 'inline-block', width: '24px', height: '1px', background: '#c9a84c', flexShrink: 0 }} />
-            Vehículo destacado del día
-          </div>
-          <div data-reveal="up" className="home-fijado-card" onClick={() => navigate(`/auto/${autoFijado.id}`)}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/auto/${autoFijado.id}`) } }}
-            role="link" tabIndex={0} aria-label={`Ver ${autoFijado.marca} ${autoFijado.modelo}`}>
-            <div className="home-fijado-card__media">
-              {autoFijado.fotos?.[0]
-                ? <img src={autoFijado.fotos[0]} alt={autoFijado.modelo} />
-                : <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--gray3)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>}
+      {/* CTA FINAL */}
+      <section className="home-sec home-sec--tight" aria-labelledby="cta-title">
+        <div className="container">
+          <div className="cta-band" data-reveal="up">
+            <div>
+              <h2 id="cta-title" className="cta-band__title">¿Tenés una concesionaria?</h2>
+              <p className="cta-band__text">Mostrá todo tu stock a compradores de todo el país, con tu propia portada y estadísticas de cada publicación.</p>
             </div>
-            <div className="home-fijado-card__body">
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent)', marginBottom: '4px' }}>{autoFijado.marca}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', lineHeight: 1, marginBottom: '8px' }}>{autoFijado.modelo?.toUpperCase()}</div>
-              <div style={{ fontSize: '13px', color: 'var(--gray4)', marginBottom: '12px' }}>{autoFijado.anio} · {Number(autoFijado.kilometraje || 0).toLocaleString('es-AR')} km · {autoFijado.combustible}</div>
-              {autoFijado.precio_ars && <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--white)' }}>${Number(autoFijado.precio_ars).toLocaleString('es-AR')}</div>}
-              <div style={{ fontSize: '12px', color: 'var(--gray4)', marginTop: '4px' }}>{autoFijado.concesionarias?.nombre} · {autoFijado.concesionarias?.ciudad}</div>
-              <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--accent)', fontFamily: 'var(--font-mono)', letterSpacing: '.08em' }}>Ver detalle →</div>
+            <div className="cta-band__actions">
+              <Button to="/planes" variant="light" size="lg">Ver planes</Button>
+              <Button to="/registro" variant="secondary" size="lg">Crear cuenta gratis</Button>
             </div>
           </div>
         </div>
-      )}
-
-      {/* FEATURED CARS */}
-      <div className="home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Lo último</div>
-            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Encontrá tu próximo vehículo</RevealTitle>
-          </div>
-        </div>
-        {loading ? (
-          <div className="market-vehicle-grid" data-reveal-stagger>
-            {[1, 2, 3, 4, 5, 6].map(i => <CarCardSkeleton key={i} />)}
-          </div>
-        ) : cargaError ? (
-          <ErrorState onRetry={fetchAll} />
-        ) : autos.length === 0 ? (
-          <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Por ahora no hay vehículos destacados. Mirá todo el stock en el catálogo.</p>
-        ) : (
-          <div className="market-vehicle-grid" data-reveal-stagger>
-            {autos.map(a => <CarCard key={a.id} auto={a} />)}
-          </div>
-        )}
-        <div style={{ marginTop: '2rem' }}>
-          <button className="btn-secondary" onClick={() => navigate('/catalogo')}>Ver todos los vehículos →</button>
-        </div>
-      </div>
-
-      {/* INSTRUCCIONES COMPRAR Y VENDER */}
-      <div className="animate-fade-in home-section responsive-section" style={{ padding: '5rem 4rem', borderTop: '1px solid var(--gray2)', background: 'var(--black)' }}>
-
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '3rem' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Guía práctica</div>
-            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>CÓMO FUNCIONA</RevealTitle>
-          </div>
-          <div className="market-pill-tabs">
-            {['comprar', 'vender'].map(t => (
-              <button key={t} onClick={() => setTabGuia(t)} className={tabGuia === t ? 'is-active' : ''}>
-                {t === 'comprar' ? 'Comprar' : 'Vender'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div key={tabGuia} className="animate-fade-in">
-          <div className="home-guide-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1px', background: 'var(--gray2)', borderRadius: '16px', overflow: 'hidden' }}>
-            <div style={{ background: 'var(--gray1)', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '2rem', borderLeft: '3px solid var(--accent)' }}>
-              <div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: '1rem' }}>
-                  {guiaActual.para}
-                </div>
-                <div style={{ fontSize: '21px', fontWeight: 700, color: 'var(--white)', lineHeight: 1.35 }}>
-                  {guiaActual.headline}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <button className="btn-primary hover-lift" style={{ fontSize: '14px', padding: '10px 24px' }}
-                  onClick={() => isComprar ? navigate('/catalogo') : (concesionaria ? navigate('/panel') : user ? navigate('/mi-cuenta') : navigate('/registro'))}>
-                  {guiaActual.cta}
-                </button>
-                <GuiaBoton seccion={isComprar ? 'compradores' : 'vendedores'} />
-              </div>
-            </div>
-
-            <div className="home-guide-steps" data-reveal-stagger style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--gray2)' }}>
-              {guiaActual.steps.map((p) => (
-                <div key={p.num} className="step-card" style={{ background: 'var(--gray1)', padding: '2.5rem 2rem' }}>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid rgba(230,51,41,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 800, color: 'var(--accent)', marginBottom: '1.75rem' }}>
-                    {p.num}
-                  </div>
-                  <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--white)', marginBottom: '.75rem', lineHeight: 1.3 }}>{p.title}</div>
-                  <div style={{ fontSize: '13px', color: 'var(--gray4)', lineHeight: 1.75 }}>{p.desc}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* DEALERS */}
-      <div className="animate-fade-in home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Red de concesionarias</div>
-            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,3vw,40px)', lineHeight: 1.1, margin: 0 }}>Conocé a tu próxima<br />concesionaria</RevealTitle>
-          </div>
-          <button className="btn-secondary" onClick={() => navigate('/concesionarias')} style={{ flexShrink: 0 }}>Ver todas →</button>
-        </div>
-        {loading || cargaError
-          ? <div className="market-dealer-rail">{[1, 2, 3].map(i => <Skeleton key={i} h={180} r="12px" style={{ minWidth: 240, flex: 1 }} />)}</div>
-          : concesionarias.length === 0
-          ? <p style={{ color: 'var(--gray4)', fontSize: '15px' }}>Todavía no hay concesionarias registradas.</p>
-          : <div className="market-dealer-rail" data-reveal-stagger>
-              {concesionarias.map((c, i) => {
-                const isPremium = c.plan === 'premium'
-                const isPro = c.plan === 'pro'
-                const cardColor = colors[i % colors.length]
-                return (
-                  <div key={c.id} onClick={() => navigate(`/concesionaria/${c.id}`)}
-                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/concesionaria/${c.id}`) } }}
-                    role="link" tabIndex={0} aria-label={`Ver ${c.nombre}`}
-                    className="dealer-card market-dealer-card"
-                    style={{ borderColor: isPremium ? 'rgba(230,51,41,.3)' : 'var(--gray2)' }}>
-                    <div style={{ height: '70px', background: c.portada_url ? `url(${c.portada_url}) center/cover` : `linear-gradient(135deg, ${isPremium ? 'rgba(230,51,41,.25)' : cardColor + '33'} 0%, #0d0d0d 100%)` }} />
-                    <div style={{ padding: '0 1.25rem 1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '-23px', marginBottom: '10px' }}>
-                        <div style={{ padding: '3px', background: 'var(--gray1)', borderRadius: 'calc(var(--radius) + 3px)', border: '3px solid var(--gray1)', lineHeight: 0 }}>
-                          <LogoConcesionaria c={c} i={i} />
-                        </div>
-                        {(isPremium || isPro) && (
-                          <span style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 800, letterSpacing: '.12em', padding: '3px 8px', borderRadius: '100px', flexShrink: 0, marginBottom: '2px', background: isPremium ? 'rgba(230,51,41,.15)' : 'rgba(201,168,76,.15)', color: isPremium ? 'var(--accent)' : '#c9a84c', border: `1px solid ${isPremium ? 'rgba(230,51,41,.3)' : 'rgba(201,168,76,.3)'}` }}>
-                            {isPremium ? 'PREMIUM' : 'PRO'}
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--white)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '3px' }}>{c.nombre}</div>
-                      {c.ciudad && (
-                        <div style={{ fontSize: '11px', color: 'var(--gray4)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          {c.ciudad}
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ padding: '0.625rem 1.25rem', borderTop: '1px solid var(--gray2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', letterSpacing: '.06em', color: c.destacada ? '#c9a84c' : 'var(--gray4)' }}>
-                        {c.destacada ? '✓ VERIFICADA' : 'AGENCIA'}
-                      </div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        Ver stock
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-        }
-      </div>
-
-      {/* EXPLORAR POR TIPO */}
-      <div className="animate-fade-in home-section responsive-section" style={{ padding: '4rem', borderTop: '1px solid var(--gray2)', background: 'var(--gray1)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2.5rem' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '1rem' }}>Catálogo</div>
-            <RevealTitle as="h2" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,36px)', lineHeight: 1.1, margin: 0 }}>EXPLORAR POR TIPO DE VEHÍCULO</RevealTitle>
-          </div>
-          <div className="market-type-tabs">
-            {[['autos', 'Autos'], ['motos', 'Motos'], ['nautica', 'Náutica']].map(([key, label]) => (
-              <button key={key} onClick={() => setTipoCategoria(key)} className={tipoCategoria === key ? 'is-active' : ''}>{label}</button>
-            ))}
-          </div>
-        </div>
-        <div data-reveal-stagger style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {TIPOS[tipoCategoria].map(({ tipo, img }) => (
-            <button key={tipo} onClick={() => navigate(`/catalogo?categoria=${encodeURIComponent(tipo)}`)}
-              className="type-card"
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '1.5rem 2rem', background: 'var(--black)', borderRadius: 'var(--radius-lg)', cursor: 'pointer', minWidth: '130px', color: 'var(--white)', flex: '1 1 130px' }}>
-              <div style={{ height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={img} alt={tipo} width="75" height="75" loading="lazy" decoding="async" style={{ maxWidth: '110px', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.8))', borderRadius: '8px' }} />
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>{tipo}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      </section>
     </div>
   )
 }

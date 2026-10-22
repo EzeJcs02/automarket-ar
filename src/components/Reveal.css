@@ -1,7 +1,7 @@
 :root {
-  --reveal-duration: 0.8s;
-  --reveal-distance: 28px;
-  --reveal-stagger: 120ms;
+  --reveal-duration: 0.7s;
+  --reveal-distance: 14px;
+  --reveal-stagger: 60ms;
   --reveal-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -17,19 +17,10 @@
   animation-delay: calc(var(--i, 0) * var(--reveal-stagger));
 }
 
-.reveal-mask { display: block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
-.reveal-mask__inner { display: block; }
-[data-reveal="title"]:not(.is-visible) .reveal-mask__inner { transform: translateY(110%); }
-[data-reveal="title"].is-visible .reveal-mask__inner {
-  animation: reveal-mask calc(var(--reveal-duration) * 1.1) var(--reveal-ease) backwards;
-}
-
 @keyframes reveal-up { from { opacity: 0; transform: translateY(var(--reveal-distance)); } }
-@keyframes reveal-mask { from { transform: translateY(110%); } }
 
 @media (prefers-reduced-motion: reduce) {
   [data-reveal="up"]:not(.is-visible),
   [data-reveal-stagger]:not(.is-visible) > * { opacity: 1; }
-  [data-reveal="title"]:not(.is-visible) .reveal-mask__inner { transform: none; }
-  [data-reveal].is-visible, [data-reveal-stagger].is-visible > *, [data-reveal="title"].is-visible .reveal-mask__inner { animation: none; }
+  [data-reveal].is-visible, [data-reveal-stagger].is-visible > * { animation: none; }
 }

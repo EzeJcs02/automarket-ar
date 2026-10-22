@@ -7,7 +7,11 @@ import { ComparadorProvider, useComparador } from './context/ComparadorContext'
 import { ToastProvider } from './context/ToastContext'
 import { ConfirmProvider } from './context/ConfirmContext'
 import { useEffect, useState, lazy, Suspense } from 'react'
+import { AnimatePresence, MotionConfig, motion as Motion } from 'motion/react'
 import Navbar from './components/Navbar'
+import Button from './components/ui/Button'
+import Icon from './components/ui/Icon'
+import './App.css'
 
 // Home se carga eager (es la primera vista)
 import Home from './pages/Home'
@@ -46,15 +50,17 @@ function ScrollToTop() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-  if (!visible) return null
   return (
-    <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      title="Volver arriba"
-      style={{ position: 'fixed', bottom: '90px', left: '1.25rem', zIndex: 900, width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,.4)', transition: 'all .2s' }}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
-      onMouseLeave={e => e.currentTarget.style.background = 'var(--gray2)'}>
-      ↑
-    </button>
+    <AnimatePresence>
+      {visible && (
+        <Motion.button type="button" className="to-top" aria-label="Volver arriba"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
+          transition={{ duration: 0.2 }}>
+          <Icon name="arrowUp" size={18} />
+        </Motion.button>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -62,25 +68,31 @@ function ComparadorBar() {
   const { lista, quitar, limpiar } = useComparador()
   const navigate = useNavigate()
   const location = useLocation()
-  if (lista.length === 0 || location.pathname === '/comparador') return null
+  const visible = lista.length > 0 && location.pathname !== '/comparador'
   return (
-    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#111', borderTop: '1px solid var(--accent)', zIndex: 500, padding: '12px 2rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '.1em', flexShrink: 0 }}>
-        Comparador · {lista.length}/3
-      </div>
-      <div style={{ display: 'flex', gap: '8px', flex: 1, flexWrap: 'wrap' }}>
-        {lista.map(a => (
-          <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--gray2)', padding: '5px 10px', borderRadius: '100px', fontSize: '12px' }}>
-            <span>{a.marca} {a.modelo}</span>
-            <button aria-label="Quitar del comparador" onClick={() => quitar(a.id)} style={{ background: 'none', border: 'none', color: 'var(--gray4)', cursor: 'pointer', fontSize: '14px', lineHeight: 1, padding: 0 }}>✕</button>
+    <AnimatePresence>
+      {visible && (
+        <Motion.aside className="compare-dock" aria-label="Comparador"
+          initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+          transition={{ duration: 0.32, ease: [0.2, 0.7, 0.2, 1] }}>
+          <div className="compare-dock__inner">
+            <div className="compare-dock__label"><Icon name="compare" size={16} />Comparador <span className="tabular">{lista.length}/3</span></div>
+            <ul className="compare-dock__items">
+              {lista.map(a => (
+                <li key={a.id} className="compare-dock__item">
+                  {a.marca} {a.modelo}
+                  <button type="button" aria-label={`Quitar ${a.marca} ${a.modelo} del comparador`} onClick={() => quitar(a.id)}><Icon name="close" size={14} /></button>
+                </li>
+              ))}
+            </ul>
+            <div className="compare-dock__actions">
+              <Button variant="ghost" size="sm" onClick={limpiar}>Limpiar</Button>
+              <Button size="sm" onClick={() => navigate('/comparador')}>Comparar<Icon name="arrowRight" size={16} /></Button>
+            </div>
           </div>
-        ))}
-      </div>
-      <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-        <button onClick={() => navigate('/comparador')} className="btn-primary" style={{ padding: '8px 18px', fontSize: '12px' }}>Comparar →</button>
-        <button onClick={limpiar} style={{ background: 'none', border: '1px solid var(--gray3)', color: 'var(--gray4)', padding: '8px 14px', borderRadius: 'var(--radius)', fontSize: '12px', cursor: 'pointer' }}>Limpiar</button>
-      </div>
-    </div>
+        </Motion.aside>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -103,6 +115,7 @@ export default function App() {
       <ToastProvider>
       <ConfirmProvider>
       <ComparadorProvider>
+      <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -111,8 +124,8 @@ export default function App() {
           <Route path="*" element={
             <>
               <Navbar />
-              <div style={{ minHeight: 'calc(100vh - 58px)', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ flex: 1 }}>
+              <div className="app-shell">
+              <main id="contenido" tabIndex={-1} className="app-main">
               <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -134,7 +147,7 @@ export default function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
-              </div>
+              </main>
               <Footer />
               </div>
               <ComparadorBar />
@@ -145,6 +158,7 @@ export default function App() {
           } />
         </Routes>
       </BrowserRouter>
+      </MotionConfig>
       </ComparadorProvider>
       </ConfirmProvider>
       </ToastProvider>

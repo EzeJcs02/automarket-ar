@@ -1,0 +1,115 @@
+/* ─────────────────────────────────────────────────────────────
+   FIORA MARKET — Sistema de diseño "Showroom nocturno"
+   Toda decisión visual sale de acá. Los componentes nuevos usan
+   SOLO estos tokens; los alias "legacy" de abajo existen para que
+   las pantallas que todavía no se migraron (paneles, admin) sigan
+   funcionando con la paleta nueva.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  /* Superficies: grafito levemente cálido, de más profundo a más elevado */
+  --surface-0: #0b0b0c;
+  --surface-1: #121214;
+  --surface-2: #18181b;
+  --surface-3: #1f1f23;
+  --surface-4: #29292e;
+  --scrim: rgba(8, 8, 9, .72);
+
+  /* Líneas finas (bordes de 1px) */
+  --line: rgba(245, 243, 238, .08);
+  --line-strong: rgba(245, 243, 238, .14);
+  --line-hover: rgba(245, 243, 238, .26);
+
+  /* Texto (contraste AA o mejor sobre --surface-1) */
+  --text-1: #f4f2ee;
+  --text-2: #bdbab4;
+  --text-3: #918f8a;
+  --text-disabled: #64625e;
+
+  /* Marca y estados — cada color tiene UN significado */
+  --brand: #e0372c;          /* acción principal, estado activo */
+  --brand-hover: #c82f25;
+  --brand-soft: rgba(224, 55, 44, .12);
+  --brand-line: rgba(224, 55, 44, .38);
+  --champagne: #cdb27a;      /* destacado / pago */
+  --champagne-soft: rgba(205, 178, 122, .12);
+  --champagne-line: rgba(205, 178, 122, .34);
+  --ok: #46c486;             /* verificada / éxito */
+  --ok-soft: rgba(70, 196, 134, .12);
+  --ok-line: rgba(70, 196, 134, .32);
+  --danger: #f2756d;
+  --danger-soft: rgba(242, 117, 109, .1);
+  --whatsapp: #25d366;
+  --whatsapp-hover: #1fb858;
+
+  /* Tipografía */
+  --font-heading: 'Archivo Variable', 'Archivo', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-wordmark: 'Bebas Neue', sans-serif;
+  --heading-stretch: 112.5%;
+
+  --text-xs: .75rem;                                         /* 12 */
+  --text-sm: .875rem;                                        /* 14 */
+  --text-base: 1rem;                                         /* 16 */
+  --text-lg: 1.125rem;                                       /* 18 */
+  --text-xl: clamp(1.25rem, 1.15rem + .4vw, 1.375rem);       /* 20–22 */
+  --text-2xl: clamp(1.5rem, 1.3rem + .8vw, 1.75rem);         /* 24–28 */
+  --text-3xl: clamp(1.75rem, 1.35rem + 1.7vw, 2.5rem);       /* 28–40 */
+  --text-4xl: clamp(2.125rem, 1.45rem + 2.9vw, 3.5rem);      /* 34–56 */
+  --text-5xl: clamp(2.5rem, 1.55rem + 4.1vw, 4.5rem);        /* 40–72 */
+
+  /* Espaciado (base 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --section-y: clamp(56px, 4rem + 3vw, 112px);
+
+  /* Layout */
+  --container: 1280px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --nav-h: 64px;
+
+  /* Radios: tres tamaños + píldora */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  /* Elevación: en oscuro la profundidad sale de la superficie, no de la sombra */
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, .045);
+  --shadow-lift: 0 24px 48px -20px rgba(0, 0, 0, .8), 0 2px 8px rgba(0, 0, 0, .35);
+  --shadow-pop: 0 18px 50px -10px rgba(0, 0, 0, .7);
+
+  /* Movimiento: una sola curva de salida, sin rebotes */
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 600ms;
+
+  /* ── Alias legacy (no usar en código nuevo) ─────────────── */
+  --black: var(--surface-0);
+  --white: var(--text-1);
+  --cream: #f0ede6;
+  --accent: var(--brand);
+  --gold: var(--champagne);
+  --gray1: var(--surface-1);
+  --gray2: #26262a;
+  --gray3: #4d4c51;
+  --gray4: var(--text-3);
+  --gray5: var(--text-2);
+  --gray6: #ddd;
+  --green: #1a7a4a;
+  --font-display: 'Bebas Neue', sans-serif;
+  --radius: var(--r-sm);
+  --radius-lg: 8px;
+}

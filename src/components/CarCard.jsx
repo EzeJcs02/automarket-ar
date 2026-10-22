@@ -1,81 +1,89 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useComparador } from '../context/ComparadorContext'
-import Badge from './ui/Badge'
-import Icon from './ui/Icon'
-import { formatKm, formatPrecio } from '../lib/formato'
-import './CarCard.css'
 
-// Tarjeta de vehículo. El título es un <Link> real que se estira sobre toda
-// la tarjeta (se puede abrir en otra pestaña); favorito y comparar son
-// botones independientes por encima de ese link.
-export default function CarCard({ auto, isFavorito = false, onToggleFavorito, headingLevel = 'h3' }) {
-  const H = headingLevel
+export default function CarCard({ auto, isFavorito = false, onToggleFavorito }) {
+  const navigate = useNavigate()
   const { agregar, quitar, estaEnLista, lista } = useComparador()
   const enComparador = estaEnLista(auto.id)
-  const comparadorLleno = !enComparador && lista.length >= 3
   const foto = auto.fotos?.[0]
-  const conc = auto.concesionarias
-  const verificada = conc?.plan === 'premium'
-  const nombre = `${auto.marca} ${auto.modelo}`
+  const plan = auto.concesionarias?.plan
+  const esVerificada = plan === 'premium'
+
+  function formatPrice(n) {
+    if (!n) return 'Consultar'
+    return '$' + Number(n).toLocaleString('es-AR')
+  }
 
   return (
-    <article className={`vcard ${auto.urgente ? 'vcard--urgente' : auto.destacado ? 'vcard--destacado' : ''}`}>
-      <div className="vcard__media">
-        {foto
-          ? <img src={foto} alt="" loading="lazy" decoding="async" />
-          : <div className="vcard__placeholder"><Icon name="car" size={44} strokeWidth={1.25} /></div>}
-
-        <div className="vcard__badges">
-          {auto.urgente ? <Badge tone="brand"><Icon name="bolt" size={12} strokeWidth={2} />Urgente</Badge>
-            : auto.destacado ? <Badge tone="champagne">Destacado</Badge> : null}
-          <Badge tone={auto.tipo === 'nuevo' ? 'light' : 'neutral'}>{auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}</Badge>
+    <div
+      className="car-card"
+      onClick={() => navigate(`/auto/${auto.id}`)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/auto/${auto.id}`) } }}
+      role="link"
+      tabIndex={0}
+      aria-label={`Ver ${auto.marca} ${auto.modelo}`}
+      style={{ position: 'relative' }}
+    >
+      {/* BADGE BOOST — arriba izquierda, flush con el borde */}
+      {auto.urgente ? (
+        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, background: 'var(--accent)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '5px 13px', fontFamily: 'var(--font-mono)', letterSpacing: '.14em', textTransform: 'uppercase' }}>
+          URGENTE
         </div>
+      ) : auto.destacado ? (
+        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, background: '#c9a84c', color: '#000', fontSize: '10px', fontWeight: 800, padding: '5px 13px', fontFamily: 'var(--font-mono)', letterSpacing: '.14em', textTransform: 'uppercase' }}>
+          DESTACADO
+        </div>
+      ) : null}
 
-        {onToggleFavorito && (
-          <button type="button" className={`vcard__fav ${isFavorito ? 'is-on' : ''}`}
-            onClick={() => onToggleFavorito(auto.id)}
-            aria-pressed={isFavorito} aria-label={`Guardar ${nombre} en favoritos`}>
-            <Icon name="heart" size={18} filled={isFavorito} />
-          </button>
-        )}
+      {/* BOTÓN FAVORITO */}
+      {onToggleFavorito && (
+        <button
+          onClick={e => { e.stopPropagation(); onToggleFavorito(auto.id) }}
+          style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, background: isFavorito ? 'var(--accent)' : 'rgba(0,0,0,.55)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '16px', transition: 'all .2s', backdropFilter: 'blur(4px)' }}
+          title={isFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}>
+          {isFavorito ? '♥' : '♡'}
+        </button>
+      )}
 
-        <button type="button" className={`vcard__compare ${enComparador ? 'is-on' : ''}`}
-          onClick={() => enComparador ? quitar(auto.id) : agregar(auto)}
-          disabled={comparadorLleno}
-          aria-pressed={enComparador}
-          aria-label={comparadorLleno ? 'Comparador lleno (máximo 3)' : `Comparar ${nombre}`}
-          title={comparadorLleno ? 'Comparador lleno (máx. 3)' : undefined}>
-          <Icon name={enComparador ? 'check' : 'compare'} size={14} strokeWidth={2} />
-          {enComparador ? 'En comparador' : 'Comparar'}
+      <div style={{ position: 'relative' }}>
+        {foto
+          ? <img className="car-img-real" src={foto} alt={`${auto.marca} ${auto.modelo} ${auto.anio}`} loading="lazy" decoding="async" style={{ outline: auto.urgente ? '2px solid var(--accent)' : auto.destacado ? '2px solid #c9a84c' : 'none' }} />
+          : <div className="car-img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity=".3"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
+        }
+
+        <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`}>
+          {auto.tipo === 'nuevo' ? 'NUEVO' : 'USADO'}
+        </span>
+
+        {/* BOTÓN COMPARADOR — posicionado sobre la imagen */}
+        <button
+          onClick={e => { e.stopPropagation(); enComparador ? quitar(auto.id) : agregar(auto) }}
+          disabled={!enComparador && lista.length >= 3}
+          title={enComparador ? 'Quitar del comparador' : lista.length >= 3 ? 'Comparador lleno (máx. 3)' : 'Agregar al comparador'}
+          style={{ position: 'absolute', bottom: '10px', right: '10px', zIndex: 10, background: enComparador ? 'var(--accent)' : 'rgba(0,0,0,.55)', border: 'none', borderRadius: '6px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', cursor: !enComparador && lista.length >= 3 ? 'not-allowed' : 'pointer', fontSize: '10px', color: '#fff', fontWeight: 700, letterSpacing: '.05em', backdropFilter: 'blur(4px)', opacity: !enComparador && lista.length >= 3 ? 0.4 : 1, transition: 'all .2s' }}>
+          ⇄ {enComparador ? 'EN COMP.' : 'COMPARAR'}
         </button>
       </div>
 
-      <div className="vcard__body">
-        <div className="vcard__brand">{auto.marca}</div>
-        <H className="vcard__title">
-          <Link to={`/auto/${auto.id}`} className="vcard__link">{auto.modelo}<span className="sr-only">, {auto.anio}</span></Link>
-        </H>
-        <ul className="vcard__specs tabular">
-          <li>{auto.anio}</li>
-          <li>{formatKm(auto.kilometraje)}</li>
-          {auto.combustible && <li>{auto.combustible}</li>}
-        </ul>
-
-        <div className="vcard__foot">
-          <div className="vcard__price tabular">
-            {formatPrecio(auto.precio_ars)}
-            {Number(auto.precio_usd) > 0 && <span>USD {Number(auto.precio_usd).toLocaleString('es-AR')}</span>}
-          </div>
-          {conc?.nombre && (
-            <div className="vcard__dealer">
-              {verificada
-                ? <Icon name="shield" size={14} className="vcard__verified" aria-label="Concesionaria verificada" />
-                : <Icon name="pin" size={14} />}
-              <span>{conc.nombre}{conc.ciudad ? ` · ${conc.ciudad}` : ''}</span>
-            </div>
+      <div className="car-body">
+        <div className="car-brand" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {auto.marca}
+          {esVerificada && (
+            <span title="Agencia Verificada" style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, background: 'rgba(230,51,41,.1)', padding: '2px 7px', borderRadius: '100px', border: '1px solid rgba(230,51,41,.3)' }}>✓ Verificada</span>
           )}
         </div>
+        <div className="car-name">{auto.modelo}</div>
+        <div className="car-specs">
+          <span>{auto.anio}</span>
+          <span>{auto.kilometraje === 0 ? '0 km' : `${Number(auto.kilometraje).toLocaleString('es-AR')} km`}</span>
+          {auto.combustible && <span>{auto.combustible}</span>}
+        </div>
+        <div className="car-price">{formatPrice(auto.precio_ars)}</div>
+        {auto.precio_usd && <div style={{ fontSize: '13px', color: 'var(--gray4)', marginTop: '2px' }}>USD {Number(auto.precio_usd).toLocaleString('es-AR')}</div>}
+        {auto.concesionarias?.nombre && (
+          <div className="car-dealer">{auto.concesionarias.nombre} · {auto.concesionarias.ciudad}</div>
+        )}
       </div>
-    </article>
+    </div>
   )
 }

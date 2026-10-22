@@ -8,6 +8,7 @@ const ROOT_MARGIN = '0px 0px -5% 0px'
 // Máximo de elementos con retraso creciente en un grupo escalonado
 const MAX_STAGGER_ITEMS = 8
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useScrollReveal(deps = []) {
   useEffect(() => {
     const els = document.querySelectorAll('[data-reveal]:not(.is-visible), [data-reveal-stagger]:not(.is-visible)')
@@ -37,4 +38,13 @@ export function useScrollReveal(deps = []) {
     return () => io.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
+}
+
+// eslint-disable-next-line no-unused-vars
+export function RevealTitle({ as: Tag = 'h2', children, ...rest }) {
+  return (
+    <Tag data-reveal="title" {...rest}>
+      <span className="reveal-mask"><span className="reveal-mask__inner">{children}</span></span>
+    </Tag>
+  )
 }

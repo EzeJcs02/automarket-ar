@@ -259,10 +259,22 @@ export function GuiaBoton({ seccion, style = {} }) {
   return (
     <>
       <button
-        type="button"
         onClick={() => setOpen(true)}
-        className="btn btn--ghost btn--sm"
-        style={style}
+        title={data?.boton_label}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '6px',
+          padding: '8px 16px',
+          background: 'transparent',
+          border: '1px solid var(--gray3)',
+          borderRadius: 'var(--radius)',
+          color: 'var(--gray4)',
+          fontSize: '13px', fontWeight: 500,
+          cursor: 'pointer',
+          transition: 'all .2s',
+          ...style,
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--white)' }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray3)'; e.currentTarget.style.color = 'var(--gray4)' }}
       >
         <IconInfo />
         {data?.boton_label ?? 'Guía'}

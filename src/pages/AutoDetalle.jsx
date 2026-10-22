@@ -1,50 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { DetalleSkeleton, EmptyState } from '../components/Estados'
 import { useAuth } from '../context/AuthContext'
 import { useComparador } from '../context/ComparadorContext'
 import CarCard from '../components/CarCard'
-import Button from '../components/ui/Button'
-import Badge from '../components/ui/Badge'
-import Field from '../components/ui/Field'
-import Icon from '../components/ui/Icon'
 import { setMeta, setCanonical, resetMeta } from '../lib/seo'
 import { getDolarBlue } from '../lib/dolarBlue'
-import { useModalA11y } from '../lib/useModalA11y'
-import { formatKm, formatPrecio } from '../lib/formato'
-import './AutoDetalle.css'
-
-const waLink = (numero, texto) => `https://wa.me/${numero.replace(/\D/g, '')}?text=${encodeURIComponent(texto)}`
-
-function Lightbox({ fotos, idx, setIdx, alt, onClose }) {
-  const ref = useRef(null)
-  useModalA11y(ref, onClose)
-  const mover = d => setIdx(i => (i + d + fotos.length) % fotos.length)
-
-  useEffect(() => {
-    const onKey = e => {
-      if (e.key === 'ArrowRight') setIdx(i => (i + 1) % fotos.length)
-      if (e.key === 'ArrowLeft') setIdx(i => (i - 1 + fotos.length) % fotos.length)
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [fotos.length, setIdx])
-
-  return (
-    <div className="lightbox" ref={ref} role="dialog" aria-modal="true" aria-label="Fotos del vehículo" onClick={onClose}>
-      <button type="button" className="lightbox__close" onClick={onClose} aria-label="Cerrar"><Icon name="close" size={22} /></button>
-      <img src={fotos[idx]} alt={`${alt}, foto ${idx + 1} de ${fotos.length}`} onClick={e => e.stopPropagation()} />
-      {fotos.length > 1 && (
-        <>
-          <button type="button" className="lightbox__nav lightbox__nav--prev" onClick={e => { e.stopPropagation(); mover(-1) }} aria-label="Foto anterior"><Icon name="arrowLeft" size={22} /></button>
-          <button type="button" className="lightbox__nav lightbox__nav--next" onClick={e => { e.stopPropagation(); mover(1) }} aria-label="Foto siguiente"><Icon name="arrowRight" size={22} /></button>
-          <p className="lightbox__count tabular" aria-live="polite">{idx + 1} / {fotos.length}</p>
-        </>
-      )}
-    </div>
-  )
-}
 
 export default function AutoDetalle() {
   const { id } = useParams()
@@ -92,7 +54,6 @@ export default function AutoDetalle() {
         return
       }
       setAuto(data)
-      setFotoIdx(0)
       setLoading(false)
       if (data) {
         const title = `${data.marca} ${data.modelo} ${data.anio} — FIORA MARKET`
@@ -180,13 +141,12 @@ export default function AutoDetalle() {
     }
   }
 
-  async function enviarConsulta(e) {
-    e.preventDefault()
+  async function enviarConsulta() {
     const errs = {}
-    if (!consulta.nombre.trim()) errs.nombre = 'Ingresá tu nombre'
-    if (!consulta.email.trim()) errs.email = 'Ingresá tu email'
+    if (!consulta.nombre.trim()) errs.nombre = 'El nombre es requerido'
+    if (!consulta.email.trim()) errs.email = 'El email es requerido'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(consulta.email)) errs.email = 'Ingresá un email válido'
-    if (!consulta.mensaje.trim()) errs.mensaje = 'Escribí un mensaje'
+    if (!consulta.mensaje.trim()) errs.mensaje = 'El mensaje es requerido'
     setErroresConsulta(errs)
     if (Object.keys(errs).length > 0) return
     setEnviando(true)
@@ -228,290 +188,361 @@ export default function AutoDetalle() {
     setEnviado(true)
   }
 
-  function setCampo(k, v) {
-    setConsulta(p => ({ ...p, [k]: v }))
-    setErroresConsulta(p => ({ ...p, [k]: '' }))
+  function formatPrice(n) {
+    if (!n) return 'Consultar'
+    return '$' + Number(n).toLocaleString('es-AR')
   }
 
-  function copiar(texto, setOk) {
-    navigator.clipboard.writeText(texto)
-    setOk(true)
-    setTimeout(() => setOk(false), 2000)
-  }
-
-  if (loading) return <div className="page-wrapper"><div className="container"><DetalleSkeleton /></div></div>
+  if (loading) return <div className="page-wrapper"><div className="responsive-section" style={{ padding: '0 4rem' }}><DetalleSkeleton /></div></div>
   if (fetchError) return (
-    <div className="page-wrapper"><div className="container detalle__estado">
-      <div className="estado-box" role="alert">
-        <div className="estado-box__titulo">No pudimos cargar el vehículo</div>
-        <p className="estado-box__texto">{fetchError}</p>
-        <Button variant="secondary" onClick={() => window.location.reload()}>Reintentar</Button>
-      </div>
-    </div></div>
+    <div className="page-wrapper" style={{ padding: '4rem', textAlign: 'center' }}>
+      <p style={{ color: '#f87171', marginBottom: '1rem' }}>⚠ {fetchError}</p>
+      <button className="btn-secondary" onClick={() => window.location.reload()}>Reintentar</button>
+    </div>
   )
-  if (!auto) return <div className="page-wrapper"><div className="container detalle__estado"><EmptyState titulo="Vehículo no encontrado" texto="Puede que la publicación haya sido pausada o eliminada." accion="Ver el catálogo" to="/catalogo" /></div></div>
+  if (!auto) return <div className="page-wrapper"><div className="responsive-section" style={{ padding: '4rem' }}><EmptyState titulo="Vehículo no encontrado" texto="Puede que la publicación haya sido pausada o eliminada." accion="Ver el catálogo" to="/catalogo" /></div></div>
 
   const fotos = auto.fotos || []
   const c = auto.concesionarias
-  const nombre = `${auto.marca} ${auto.modelo}`
-  const telContacto = c ? (c.whatsapp || c.telefono) : auto.whatsapp
-  const textoWa = `Hola! Me interesa el ${nombre} que vi en FIORA MARKET`
-  const ars = Number(auto.precio_ars)
-  const usd = Number(auto.precio_usd)
-  const usdCalc = (!usd && ars > 0 && dolarBlue && isFinite(ars / dolarBlue)) ? Math.round(ars / dolarBlue) : usd
-  const usdAprox = !usd && !!usdCalc
-  const enComparador = estaEnLista(auto.id)
-
-  const specs = [
-    ['Año', auto.anio],
-    ['Kilometraje', formatKm(auto.kilometraje)],
-    ['Combustible', auto.combustible],
-    ['Transmisión', auto.transmision],
-    ['Color', auto.color],
-    ['Condición', auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'],
-  ].filter(([, v]) => v)
-
-  let cuotaDisplay = null
-  if (ars > 0) {
-    const safeTNA = Math.min(Math.max(Number(cuotasTNA) || 0, 0), 500)
-    const tem = safeTNA / 100 / 12
-    const cuota = tem === 0 ? ars / cuotasMeses : ars * (tem * Math.pow(1 + tem, cuotasMeses)) / (Math.pow(1 + tem, cuotasMeses) - 1)
-    cuotaDisplay = isFinite(cuota) && cuota > 0 ? `$${Math.round(cuota).toLocaleString('es-AR')}` : '—'
-  }
 
   return (
-    <div className="page-wrapper detalle">
-      {zoom && fotos.length > 0 && <Lightbox fotos={fotos} idx={fotoIdx} setIdx={setFotoIdx} alt={nombre} onClose={() => setZoom(false)} />}
-
-      <div className="container">
-        <nav className="migas" aria-label="Ruta">
-          <ol>
-            <li><Link to="/catalogo">Catálogo</Link></li>
-            <li><Link to={`/catalogo?q=${encodeURIComponent(auto.marca)}`}>{auto.marca}</Link></li>
-            <li aria-current="page">{auto.modelo}</li>
-          </ol>
-        </nav>
-
-        <div className="detalle__layout">
-          {/* COLUMNA PRINCIPAL */}
-          <div className="detalle__main">
-            <section className="galeria" aria-label="Fotos">
-              <div className="galeria__main">
-                {fotos.length > 0
-                  ? <button type="button" className="galeria__open" onClick={() => setZoom(true)} aria-label="Ampliar foto">
-                      <img src={fotos[fotoIdx]} alt={`${nombre}, foto ${fotoIdx + 1} de ${fotos.length}`} />
-                    </button>
-                  : <div className="galeria__empty"><Icon name="car" size={64} strokeWidth={1} /></div>}
-                {fotos.length > 1 && (
-                  <>
-                    <button type="button" className="galeria__nav galeria__nav--prev" onClick={() => setFotoIdx(i => (i - 1 + fotos.length) % fotos.length)} aria-label="Foto anterior"><Icon name="arrowLeft" size={20} /></button>
-                    <button type="button" className="galeria__nav galeria__nav--next" onClick={() => setFotoIdx(i => (i + 1) % fotos.length)} aria-label="Foto siguiente"><Icon name="arrowRight" size={20} /></button>
-                  </>
-                )}
-                {fotos.length > 0 && (
-                  <span className="galeria__count tabular"><Icon name="expand" size={14} />{fotoIdx + 1} / {fotos.length}</span>
-                )}
-              </div>
-              {fotos.length > 1 && (
-                <ul className="galeria__thumbs">
-                  {fotos.map((f, i) => (
-                    <li key={i}>
-                      <button type="button" className="galeria__thumb" onClick={() => setFotoIdx(i)} aria-label={`Ver foto ${i + 1}`} aria-pressed={i === fotoIdx}>
-                        <img src={f} alt="" loading="lazy" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            <section className="detalle__block" aria-labelledby="specs-title">
-              <h2 id="specs-title" className="detalle__h2">Ficha técnica</h2>
-              <dl className="specs">
-                {specs.map(([label, val]) => (
-                  <div key={label} className="specs__item">
-                    <dt>{label}</dt>
-                    <dd className="tabular">{val}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-
-            {auto.descripcion && (
-              <section className="detalle__block" aria-labelledby="desc-title">
-                <h2 id="desc-title" className="detalle__h2">Descripción</h2>
-                <p className="detalle__desc">{auto.descripcion}</p>
-              </section>
-            )}
-
-            {cuotaDisplay && (
-              <section className="detalle__block" aria-labelledby="cuotas-title">
-                <h2 id="cuotas-title" className="detalle__h2">Calculá tus cuotas</h2>
-                <div className="cuotas surface">
-                  <div className="cuotas__inputs">
-                    <Field label="Plazo">
-                      <select value={cuotasMeses} onChange={e => setCuotasMeses(Number(e.target.value))}>
-                        {[6, 12, 18, 24, 36, 48, 60].map(m => <option key={m} value={m}>{m} meses</option>)}
-                      </select>
-                    </Field>
-                    <Field label="Tasa nominal anual (%)">
-                      <input type="number" inputMode="decimal" min="0" max="500" value={cuotasTNA}
-                        onChange={e => {
-                          const v = Number(e.target.value)
-                          if (!isFinite(v)) return
-                          setCuotasTNA(Math.min(Math.max(v, 0), 500))
-                        }} />
-                    </Field>
-                  </div>
-                  <div className="cuotas__result">
-                    <span>{cuotasMeses} cuotas de</span>
-                    <strong className="tabular" aria-live="polite">{cuotaDisplay}</strong>
-                  </div>
-                  <p className="cuotas__nota">Estimación orientativa sobre el precio de lista. Consultá con tu banco o financiera.</p>
-                </div>
-              </section>
-            )}
-
-            <section className="detalle__block" id="consulta" aria-labelledby="consulta-title">
-              <h2 id="consulta-title" className="detalle__h2">Consultá por este vehículo</h2>
-              {enviado
-                ? <div className="consulta__ok surface" role="status">
-                    <Icon name="check" size={20} strokeWidth={2.25} />
-                    <div><strong>Consulta enviada.</strong><p>Te va a llegar una confirmación por email y {c?.nombre || 'el vendedor'} te va a responder a la brevedad.</p></div>
-                  </div>
-                : <form className="consulta surface" onSubmit={enviarConsulta} noValidate>
-                    <div className="consulta__grid">
-                      <Field label="Nombre" error={erroresConsulta.nombre}>
-                        <input type="text" autoComplete="name" placeholder="Juan Pérez" value={consulta.nombre} onChange={e => setCampo('nombre', e.target.value)} />
-                      </Field>
-                      <Field label="Email" error={erroresConsulta.email}>
-                        <input type="email" autoComplete="email" placeholder="tu@email.com" value={consulta.email} onChange={e => setCampo('email', e.target.value)} />
-                      </Field>
-                      <Field label="Teléfono (opcional)" className="consulta__full">
-                        <input type="tel" autoComplete="tel" placeholder="+54 387 000-0000" value={consulta.telefono} onChange={e => setCampo('telefono', e.target.value)} />
-                      </Field>
-                      <Field label="Mensaje" error={erroresConsulta.mensaje} className="consulta__full">
-                        <textarea placeholder={`Hola, me interesa el ${nombre}. ¿Sigue disponible?`} value={consulta.mensaje} onChange={e => setCampo('mensaje', e.target.value)} />
-                      </Field>
-                    </div>
-                    {errorConsulta && <p className="field__error" role="alert"><Icon name="alert" size={14} />{errorConsulta}</p>}
-                    <Button type="submit" disabled={enviando} size="lg">{enviando ? 'Enviando…' : 'Enviar consulta'}</Button>
-                  </form>}
-            </section>
-          </div>
-
-          {/* CAJA DE COMPRA */}
-          <aside className="compra" aria-label="Precio y contacto">
-            <div className="compra__card surface">
-              <div className="compra__badges">
-                {auto.urgente ? <Badge tone="brand">Urgente</Badge> : auto.destacado ? <Badge tone="champagne">Destacado</Badge> : null}
-                <Badge tone={auto.tipo === 'nuevo' ? 'light' : 'neutral'}>{auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}</Badge>
-              </div>
-              <p className="compra__brand">{auto.marca}</p>
-              <h1 className="compra__title">{auto.modelo}</h1>
-              <ul className="compra__specs tabular">
-                <li>{auto.anio}</li>
-                <li>{formatKm(auto.kilometraje)}</li>
-                {auto.combustible && <li>{auto.combustible}</li>}
-              </ul>
-
-              {(ars > 0 || usdCalc > 0) && (
-                <div className="compra__precio">
-                  <span className="compra__precio-label">Precio de lista</span>
-                  <strong className="tabular">{ars > 0 ? formatPrecio(ars) : `USD ${usdCalc.toLocaleString('es-AR')}`}</strong>
-                  {ars > 0 && usdCalc > 0 && (
-                    <span className="compra__usd tabular">USD {usdCalc.toLocaleString('es-AR')}{usdAprox && <em> · aprox. dólar blue</em>}</span>
-                  )}
-                </div>
-              )}
-
-              <div className="compra__ctas">
-                {telContacto && (
-                  <Button variant="whatsapp" size="lg" block href={waLink(telContacto, textoWa)}>
-                    <Icon name="whatsapp" size={18} />Escribir por WhatsApp
-                  </Button>
-                )}
-                <Button variant="secondary" size="lg" block href="#consulta">
-                  <Icon name="mail" size={18} />Enviar consulta
-                </Button>
-                {c && telContacto && (
-                  <button type="button" className="compra__copy" onClick={() => copiar(telContacto, setTelCopiado)}>
-                    <Icon name={telCopiado ? 'check' : 'copy'} size={14} />{telCopiado ? 'Número copiado' : `Copiar número ${telContacto}`}
-                  </button>
-                )}
-              </div>
-
-              <div className="compra__tools">
-                {esParticular && (
-                  <button type="button" className={`compra__tool ${isFavorito ? 'is-on' : ''}`} onClick={toggleFavorito} aria-pressed={isFavorito}>
-                    <Icon name="heart" size={16} filled={isFavorito} />{isFavorito ? 'Guardado' : 'Guardar'}
-                  </button>
-                )}
-                <button type="button" className={`compra__tool ${enComparador ? 'is-on' : ''}`}
-                  onClick={() => enComparador ? quitar(auto.id) : agregar(auto)}
-                  disabled={!enComparador && lista.length >= 3} aria-pressed={enComparador}
-                  title={!enComparador && lista.length >= 3 ? 'Comparador lleno (máx. 3)' : undefined}>
-                  <Icon name={enComparador ? 'check' : 'compare'} size={16} />{enComparador ? 'En comparador' : 'Comparar'}
-                </button>
-                <button type="button" className="compra__tool" onClick={() => copiar(window.location.href, setLinkCopiado)}>
-                  <Icon name={linkCopiado ? 'check' : 'link'} size={16} />{linkCopiado ? 'Link copiado' : 'Copiar link'}
-                </button>
-                <a className="compra__tool" target="_blank" rel="noopener noreferrer"
-                  href={`https://wa.me/?text=${encodeURIComponent(`${nombre} ${auto.anio} en FIORA MARKET\n${window.location.href}`)}`}>
-                  <Icon name="whatsapp" size={15} />Compartir
-                </a>
-                <a className="compra__tool" target="_blank" rel="noopener noreferrer" aria-label="Compartir en X"
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${nombre} ${auto.anio} en FIORA MARKET`)}&url=${encodeURIComponent(window.location.href)}`}>
-                  𝕏
-                </a>
-              </div>
-              {enComparador && lista.length >= 2 && (
-                <Link to="/comparador" className="compra__compare-go">Ver comparación ({lista.length})<Icon name="arrowRight" size={14} /></Link>
-              )}
+    <div className="page-wrapper">
+      {/* ZOOM MODAL */}
+      {zoom && (
+        <div onClick={() => setZoom(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
+          <img src={fotos[fotoIdx]} alt={auto.modelo} style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 'var(--radius-lg)' }} />
+          <div style={{ position: 'absolute', top: '2rem', right: '2rem', color: 'var(--white)', fontSize: '28px', cursor: 'pointer', background: 'rgba(255,255,255,.1)', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</div>
+          {fotos.length > 1 && (
+            <div style={{ position: 'absolute', bottom: '2rem', display: 'flex', gap: '8px' }}>
+              {fotos.map((_, i) => (
+                <div key={i} onClick={e => { e.stopPropagation(); setFotoIdx(i) }} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === fotoIdx ? 'var(--white)' : 'rgba(255,255,255,.3)', cursor: 'pointer', transition: 'background .2s' }} />
+              ))}
             </div>
-
-            <div className="vendedor surface">
-              {c ? (
-                <>
-                  <span className="avatar" style={{ '--avatar': '48px' }}>
-                    {c.logo_url ? <img src={c.logo_url} alt="" /> : c.nombre?.[0]?.toUpperCase()}
-                  </span>
-                  <div className="vendedor__info">
-                    <span className="vendedor__label">Publicado por</span>
-                    <Link to={`/concesionaria/${c.id}`} className="vendedor__name">{c.nombre}</Link>
-                    {c.ciudad && <span className="vendedor__city"><Icon name="pin" size={13} />{c.ciudad}</span>}
-                  </div>
-                  {c.plan === 'premium' && <Badge tone="ok"><Icon name="shield" size={12} strokeWidth={2} />Verificada</Badge>}
-                </>
-              ) : (
-                <>
-                  <span className="avatar" style={{ '--avatar': '48px' }}><Icon name="user" size={22} /></span>
-                  <div className="vendedor__info">
-                    <span className="vendedor__label">Publicado por</span>
-                    <span className="vendedor__name">{auto.nombre_vendedor || 'Particular'}</span>
-                  </div>
-                </>
-              )}
-            </div>
-          </aside>
+          )}
         </div>
+      )}
 
-        {autosSimilares.length > 0 && (
-          <section className="detalle__similares" aria-labelledby="similares-title">
-            <h2 id="similares-title" className="section-head__title">Más {auto.marca} disponibles</h2>
-            <div className="vgrid">
-              {autosSimilares.map(a => <CarCard key={a.id} auto={a} />)}
-            </div>
-          </section>
-        )}
+      <div className="responsive-section" style={{ padding: '1.5rem 4rem', borderBottom: '1px solid var(--gray2)' }}>
+        <button onClick={() => navigate('/catalogo')} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px' }}>
+          ← Volver al catálogo
+        </button>
       </div>
 
-      {/* Barra de contacto fija en el celular */}
-      <div className="contacto-bar">
-        <div className="contacto-bar__precio tabular">{ars > 0 ? formatPrecio(ars) : 'Consultar precio'}</div>
-        {telContacto
-          ? <Button variant="whatsapp" href={waLink(telContacto, textoWa)}><Icon name="whatsapp" size={18} />WhatsApp</Button>
-          : <Button href="#consulta">Consultar</Button>}
+      <div className="autodetalle-layout">
+        {/* COLUMNA IZQUIERDA */}
+        <div className="autodetalle-photos" style={{ padding: '3rem 4rem', borderRight: '1px solid var(--gray2)' }}>
+
+          {/* FOTO PRINCIPAL */}
+          <div onClick={() => fotos.length > 0 && setZoom(true)}
+            onKeyDown={e => { if (fotos.length > 0 && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setZoom(true) } }}
+            role={fotos.length > 0 ? 'button' : undefined}
+            tabIndex={fotos.length > 0 ? 0 : undefined}
+            aria-label={fotos.length > 0 ? 'Ampliar foto' : undefined}
+            style={{ width: '100%', height: 'clamp(200px, 45vw, 450px)', background: 'linear-gradient(135deg, var(--gray2), var(--gray1))', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', cursor: fotos.length > 0 ? 'zoom-in' : 'default', position: 'relative' }}>
+            {fotos.length > 0
+              ? <img src={fotos[fotoIdx]} alt={auto.modelo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity=".2"><path d="M5 17H3a2 2 0 01-2-2v-4l2.5-6h13L19 11v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
+            }
+            {fotos.length > 0 && (
+              <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(0,0,0,.6)', color: 'var(--white)', fontSize: '10px', padding: '4px 12px', borderRadius: '100px', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase' }}>
+                Ampliar
+              </div>
+            )}
+          </div>
+
+          {/* MINIATURAS */}
+          {fotos.length > 1 && (
+            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
+              {fotos.map((f, i) => (
+                <div key={i} onClick={() => setFotoIdx(i)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFotoIdx(i) } }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Ver foto ${i + 1}`}
+                  aria-pressed={i === fotoIdx}
+                  style={{ width: '90px', height: '65px', borderRadius: 'var(--radius)', overflow: 'hidden', border: `2px solid ${i === fotoIdx ? 'var(--accent)' : 'transparent'}`, cursor: 'pointer', opacity: i === fotoIdx ? 1 : 0.6, transition: 'all .2s' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                  onMouseLeave={e => e.currentTarget.style.opacity = i === fotoIdx ? 1 : 0.6}>
+                  <img src={f} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ESPECIFICACIONES */}
+          <div style={{ marginTop: '3rem' }}>
+            <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Especificaciones</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
+              {[['Año', auto.anio],
+                ['Kilometraje', auto.kilometraje === 0 ? '0 km' : `${Number(auto.kilometraje).toLocaleString('es-AR')} km`],
+                ['Combustible', auto.combustible],
+                ['Transmisión', auto.transmision],
+                ['Color', auto.color],
+                ['Estado', auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado']]
+                .filter(([, v]) => v).map(([label, val]) => (
+                <div key={label} style={{ background: 'var(--gray1)', padding: '1.5rem 1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray2)', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '8px' }}>{label}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--white)' }}>{val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* DESCRIPCIÓN */}
+          {auto.descripcion && (
+            <div style={{ marginTop: '3rem' }}>
+              <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1rem' }}>Descripción</h3>
+              <p style={{ fontSize: '15px', color: 'var(--gray5)', lineHeight: 1.8, background: 'var(--gray1)', padding: '2rem', borderRadius: 'var(--radius-lg)', whiteSpace: 'pre-wrap' }}>
+                {auto.descripcion}
+              </p>
+            </div>
+          )}
+
+          {/* AUTOS SIMILARES */}
+          {autosSimilares.length > 0 && (
+            <div style={{ marginTop: '3rem', paddingTop: '3rem', borderTop: '1px solid var(--gray2)' }}>
+              <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '.15em', color: 'var(--gray4)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+                También te puede interesar
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1px', background: 'var(--gray2)' }}>
+                {autosSimilares.map(a => <CarCard key={a.id} auto={a} />)}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* COLUMNA DERECHA */}
+        <div className="autodetalle-sidebar" style={{ padding: '3rem 2rem', position: 'sticky', top: '58px', height: 'calc(100vh - 58px)', overflowY: 'auto' }}>
+          <span className={`car-badge ${auto.tipo === 'nuevo' ? 'badge-new' : 'badge-used'}`} style={{ position: 'static', display: 'inline-block', marginBottom: '1rem' }}>
+            {auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}
+          </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', letterSpacing: '.15em', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '8px' }}>{auto.marca}</div>
+            {esParticular && (
+              <button onClick={toggleFavorito}
+                style={{ background: isFavorito ? 'var(--accent)' : 'var(--gray2)', border: 'none', borderRadius: '50%', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', transition: 'all .2s', flexShrink: 0 }}
+                title={isFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}>
+                {isFavorito ? '♥' : '♡'}
+              </button>
+            )}
+          </div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 42px)', lineHeight: 1.1, marginBottom: '1.5rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{auto.modelo.toUpperCase()}</div>
+
+          {/* PUBLICADO POR */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--gray1)', border: '1px solid var(--gray2)', borderRadius: 'var(--radius-lg)', padding: '12px 14px', marginBottom: '1.5rem' }}>
+            {c ? (
+              <>
+                {c.logo
+                  ? <img src={c.logo} alt={c.nombre} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid var(--gray3)' }} />
+                  : <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gray2)', border: '1px solid var(--gray3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--accent)' }}>
+                      {c.nombre?.[0]?.toUpperCase() || 'C'}
+                    </div>
+                }
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '2px' }}>Publicado por</div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--white)' }}>{c.nombre}</div>
+                  {c.ciudad && <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{c.ciudad}</div>}
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gray2)', border: '1px solid var(--gray3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--gray4)', fontFamily: 'var(--font-mono)', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: '2px' }}>Publicado por</div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--white)' }}>{auto.nombre_vendedor || 'Particular'}</div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* COMPARTIR */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
+            <button onClick={() => {
+              const url = window.location.href
+              const txt = `${auto.marca} ${auto.modelo} ${auto.anio} — ${auto.tipo === 'nuevo' ? 'Nuevo' : 'Usado'}`
+              window.open(`https://wa.me/?text=${encodeURIComponent(txt + '\n' + url)}`, '_blank')
+            }} style={{ flex: 1, padding: '8px', background: '#25D366', border: 'none', borderRadius: 'var(--radius)', color: '#fff', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600 }}>
+              Compartir WA
+            </button>
+            <button onClick={() => {
+              navigator.clipboard.writeText(window.location.href)
+              setLinkCopiado(true)
+              setTimeout(() => setLinkCopiado(false), 2000)
+            }} style={{ flex: 1, padding: '8px', background: 'var(--gray2)', border: '1px solid var(--gray3)', borderRadius: 'var(--radius)', color: linkCopiado ? '#4ade80' : 'var(--white)', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-body)', transition: 'color .2s' }}>
+              {linkCopiado ? '✓ Copiado' : 'Copiar link'}
+            </button>
+            <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${auto.marca} ${auto.modelo} ${auto.anio} en FIORA MARKET`)}&url=${encodeURIComponent(window.location.href)}`, '_blank')}
+              style={{ padding: '8px 12px', background: '#000', border: '1px solid #333', borderRadius: 'var(--radius)', color: '#fff', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+              𝕏
+            </button>
+          </div>
+
+          {(Number(auto.precio_ars) > 0 || Number(auto.precio_usd) > 0) && (
+            <div style={{ padding: '1.25rem', background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', marginTop: '2rem', marginBottom: '2rem', border: '1px solid var(--gray2)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--gray4)', marginBottom: '8px', letterSpacing: '.1em', textTransform: 'uppercase' }}>PRECIO DE LISTA</div>
+              {Number(auto.precio_ars) > 0 && (
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '40px', color: 'var(--white)', lineHeight: 1 }}>
+                  {formatPrice(auto.precio_ars)}
+                </div>
+              )}
+              {(() => {
+                const usd = Number(auto.precio_usd)
+                const ars = Number(auto.precio_ars)
+                const usdCalc = (!usd && ars > 0 && dolarBlue && isFinite(ars / dolarBlue)) ? Math.round(ars / dolarBlue) : usd
+                const esAprox = !usd && !!usdCalc
+                if (!usdCalc) return null
+                return (
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: ars > 0 ? '8px' : '0' }}>
+                    <div style={{ fontFamily: ars > 0 ? 'var(--font-body)' : 'var(--font-display)', fontSize: ars > 0 ? '16px' : '40px', color: 'var(--accent)', fontWeight: 600 }}>
+                      USD {usdCalc.toLocaleString('es-AR')}
+                    </div>
+                    {esAprox && <div style={{ fontSize: '11px', color: 'var(--gray4)' }}>(aprox. dólar blue)</div>}
+                  </div>
+                )
+              })()}
+            </div>
+          )}
+
+          {/* COMPARADOR */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            {estaEnLista(auto.id) ? (
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', color: '#4ade80' }}>✓ Agregado al comparador</span>
+                <button onClick={() => quitar(auto.id)} style={{ fontSize: '12px', color: 'var(--gray4)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Quitar</button>
+                {lista.length >= 2 && (
+                  <button onClick={() => navigate('/comparador')} style={{ fontSize: '12px', color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Ver comparación →</button>
+                )}
+              </div>
+            ) : (
+              <button onClick={() => agregar(auto)} disabled={lista.length >= 3}
+                className="btn-secondary" style={{ width: '100%', fontSize: '13px', padding: '10px' }}>
+                {lista.length >= 3 ? 'Comparador lleno (máx. 3)' : '⇄ Agregar al comparador'}
+              </button>
+            )}
+          </div>
+
+          {/* CALCULADORA DE CUOTAS */}
+          {Number(auto.precio_ars) > 0 && (() => {
+            const capital = Number(auto.precio_ars)
+            const safeTNA = Math.min(Math.max(Number(cuotasTNA) || 0, 0), 500)
+            const tnaDecimal = safeTNA / 100
+            const tem = tnaDecimal / 12
+            const cuota = tem === 0 ? capital / cuotasMeses : capital * (tem * Math.pow(1 + tem, cuotasMeses)) / (Math.pow(1 + tem, cuotasMeses) - 1)
+            const cuotaDisplay = isFinite(cuota) && cuota > 0 ? `$${Math.round(cuota).toLocaleString('es-AR')}` : '—'
+            return (
+              <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid var(--gray2)' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '1rem' }}>Calculadora de cuotas</div>
+                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>Plazo</div>
+                    <select value={cuotasMeses} onChange={e => setCuotasMeses(Number(e.target.value))}
+                      style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '7px 10px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none' }}>
+                      {[6,12,18,24,36,48,60].map(m => <option key={m} value={m}>{m} meses</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray4)', marginBottom: '4px' }}>TNA %</div>
+                    <input type="number" value={cuotasTNA}
+                      onChange={e => {
+                        const v = Number(e.target.value)
+                        if (!isFinite(v)) return
+                        setCuotasTNA(Math.min(Math.max(v, 0), 500))
+                      }}
+                      min="0" max="500"
+                      style={{ width: '100%', background: 'var(--gray2)', border: '1px solid var(--gray3)', color: 'var(--white)', padding: '7px 10px', borderRadius: 'var(--radius)', fontSize: '13px', outline: 'none' }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--gray2)', padding: '12px 14px', borderRadius: 'var(--radius)' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--gray4)' }}>{cuotasMeses} cuotas de</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: 'var(--white)' }}>{cuotaDisplay}</div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--gray3)', marginTop: '6px' }}>Estimación orientativa. Consultá con tu banco o financiera.</div>
+              </div>
+            )
+          })()}
+
+          {!c && auto.whatsapp && (
+            <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', border: '1px solid var(--gray2)' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '1rem', color: 'var(--white)' }}>Contactar al vendedor</div>
+              <button onClick={() => window.open(`https://wa.me/${auto.whatsapp.replace(/\D/g,'')}?text=Hola! Me interesa el ${auto.marca} ${auto.modelo}`, '_blank')}
+                className="btn-primary"
+                style={{ width: '100%', background: '#25D366', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37,211,102,0.2)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
+                WhatsApp
+              </button>
+            </div>
+          )}
+
+          {c && (
+            <div style={{ background: 'var(--gray1)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', border: '1px solid var(--gray2)' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '1rem', color: 'var(--white)' }}>Contactar concesionaria</div>
+              {c.whatsapp && (
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                  <button onClick={() => window.open(`https://wa.me/${c.whatsapp.replace(/\D/g,'')}?text=Hola! Me interesa el ${auto.marca} ${auto.modelo}`, '_blank')}
+                    className="btn-primary"
+                    style={{ flex: 1, background: '#25D366', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37,211,102,0.2)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
+                    WhatsApp
+                  </button>
+                  <button onClick={() => { navigator.clipboard.writeText(c.whatsapp); setTelCopiado(true); setTimeout(() => setTelCopiado(false), 2000) }}
+                    style={{ padding: '0 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: telCopiado ? '#4ade80' : 'var(--gray4)', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color .2s' }}>
+                    {telCopiado ? '✓ Copiado' : '📋 Número'}
+                  </button>
+                </div>
+              )}
+              {c.telefono && !c.whatsapp && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={() => window.open(`https://wa.me/${c.telefono.replace(/\D/g,'')}?text=Hola! Me interesa el ${auto.marca} ${auto.modelo}`, '_blank')}
+                    className="btn-primary"
+                    style={{ flex: 1, background: '#25D366', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37,211,102,0.2)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.37 0 0 5.373 0 12c0 2.117.554 4.104 1.523 5.83L.057 23.998l6.306-1.654A11.954 11.954 0 0011.99 24C18.627 24 24 18.627 24 12S18.627 0 11.99 0zm.01 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.979 1-3.64-.234-.374a9.818 9.818 0 119.33 4.617z"/></svg>
+                    WhatsApp
+                  </button>
+                  <button onClick={() => { navigator.clipboard.writeText(c.telefono); setTelCopiado(true); setTimeout(() => setTelCopiado(false), 2000) }}
+                    style={{ padding: '0 14px', borderRadius: 'var(--radius)', border: '1px solid var(--gray3)', background: 'transparent', color: telCopiado ? '#4ade80' : 'var(--gray4)', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color .2s' }}>
+                    {telCopiado ? '✓ Copiado' : '📋 Número'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
+            <div style={{ fontSize: '13px', color: 'var(--gray4)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '1rem' }}>Enviar Mensaje</div>
+            {enviado
+              ? <div style={{ padding: '1rem', background: 'rgba(74,222,128,0.1)', color: '#4ade80', borderRadius: 'var(--radius)', border: '1px solid rgba(74,222,128,0.2)', textAlign: 'center' }}>✓ Mensaje enviado con éxito.</div>
+              : <>
+                  <div className="form-field">
+                    <label>Nombre *</label>
+                    <input aria-label="Nombre" type="text" placeholder="Ej: Juan Pérez" value={consulta.nombre} onChange={e => { setConsulta(p => ({ ...p, nombre: e.target.value })); setErroresConsulta(p => ({ ...p, nombre: '' })) }} style={erroresConsulta.nombre ? { borderColor: '#f87171' } : {}} />
+                    {erroresConsulta.nombre && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.nombre}</div>}
+                  </div>
+                  <div className="form-field">
+                    <label>Email *</label>
+                    <input aria-label="Email" type="email" placeholder="tu@email.com" value={consulta.email} onChange={e => { setConsulta(p => ({ ...p, email: e.target.value })); setErroresConsulta(p => ({ ...p, email: '' })) }} style={erroresConsulta.email ? { borderColor: '#f87171' } : {}} />
+                    {erroresConsulta.email && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.email}</div>}
+                  </div>
+                  <div className="form-field">
+                    <label>Teléfono (opcional)</label>
+                    <input aria-label="Teléfono (opcional)" type="tel" placeholder="Ej: +54 387 000-0000" value={consulta.telefono} onChange={e => setConsulta(p => ({ ...p, telefono: e.target.value }))} />
+                  </div>
+                  <div className="form-field">
+                    <label>Mensaje *</label>
+                    <textarea aria-label="Mensaje" placeholder="Hola, me interesa este vehículo..." value={consulta.mensaje} onChange={e => { setConsulta(p => ({ ...p, mensaje: e.target.value })); setErroresConsulta(p => ({ ...p, mensaje: '' })) }} style={{ minHeight: '100px', ...(erroresConsulta.mensaje ? { borderColor: '#f87171' } : {}) }} />
+                    {erroresConsulta.mensaje && <div style={{ color: '#f87171', fontSize: '12px', marginTop: '4px' }}>⚠ {erroresConsulta.mensaje}</div>}
+                  </div>
+                  <button className="btn-primary" onClick={enviarConsulta} disabled={enviando} style={{ marginTop: '0.5rem', width: '100%' }}>
+                    {enviando ? 'Enviando...' : 'Enviar consulta'}
+                  </button>
+                  {errorConsulta && (
+                    <div style={{ color: '#f87171', fontSize: '13px', marginTop: '8px' }}>⚠ {errorConsulta}</div>
+                  )}
+                </>
+            }
+          </div>
+        </div>
       </div>
     </div>
   )
